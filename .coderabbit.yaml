@@ -1,0 +1,57 @@
+language: "en-US"
+tone_instructions: "Reviews should be clear, obvious, short, and meaningful."
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+  path_instructions:
+    - path: "**/*.cs"
+      instructions: |
+        Enforce strict .NET Clean Architecture constraints for the Dilcore Platform.
+
+        General Architecture Rules:
+        - **Domain Isolation**: 'Tenancy' and 'Identity' domains must remain isolated.
+          - Direct cross-domain references are FORBIDDEN (e.g., Tenancy projects cannot reference Identity projects).
+          - EXCEPTION: Domains MAY reference another domain's `Actors.Abstractions` project to communicate via Orleans.
+        
+        Layer Dependency Rules (within each Domain):
+        1. **Domain Project** (`<Domain>.Domain`):
+           - Must NOT depend on any other project.
+           - Contains strictly DDD Aggregates, Entities, and Value Objects.
+        
+        2. **Actors.Abstractions Project** (`<Domain>.Actors.Abstractions`):
+           - Depends on: `Domain`.
+           - Contains Orleans Actor Interfaces.
+        
+        3. **Core Project** (`<Domain>.Core`):
+           - Depends on: `Domain`, `Actors.Abstractions`.
+           - Contains Business Logic, Services, Use Cases.
+           - Must define interfaces implemented by `Store` and `Infrastructure`.
+        
+        4. **Store Project** (`<Domain>.Store`):
+           - Depends on: `Core` (Interfaces), `Domain` (Entities).
+           - Implements Data Persistence (Repositories, DB Contexts).
+        
+        5. **Infrastructure Project** (`<Domain>.Infrastructure`):
+           - Depends on: `Core` (Interfaces).
+           - Implements External Services (Email, Bus, 3rd Party APIs).
+        
+        6. **Actors Project** (`<Domain>.Actors`):
+           - Depends on: `Actors.Abstractions`, `Store`.
+           - Contains Orleans Actor Implementations (Stateful Logic).
+        
+        7. **WebApi Project** (`<Domain>.WebApi`):
+           - Depends on: All Domain Projects.
+           - Entry Point (Minimal APIs, Controllers).
+
+        Code Quality & Style:
+        - Use modern C# features (file-scoped namespaces, global usings, records where appropriate).
+        - Ensure async/await is used correctly (avoid .Result or .Wait()).
+        - Verify that `Store` and `Infrastructure` dependencies are injected via interfaces defined in `Core`.
+        - Check for proper error handling and logging standards.
+
+chat:
+  auto_reply: true
