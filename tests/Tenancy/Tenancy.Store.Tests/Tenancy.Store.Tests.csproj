@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Store\Tenancy.Store.csproj" />
+  </ItemGroup>
+</Project>
+

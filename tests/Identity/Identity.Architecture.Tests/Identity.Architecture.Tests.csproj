@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="TngTech.ArchUnitNET.NUnit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Identity\Identity.Core\Identity.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.Store\Identity.Store.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.Infrastructure\Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.WebApi\Identity.WebApi.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.Domain\Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.Actors\Identity.Actors.csproj" />
+  </ItemGroup>
+</Project>

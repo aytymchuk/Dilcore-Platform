@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
+

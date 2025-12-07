@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="TngTech.ArchUnitNET.NUnit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Core\Tenancy.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Store\Tenancy.Store.csproj" />
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Infrastructure\Tenancy.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.WebApi\Tenancy.WebApi.csproj" />
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Domain\Tenancy.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Actors\Tenancy.Actors.csproj" />
+  </ItemGroup>
+</Project>
