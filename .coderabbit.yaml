@@ -53,5 +53,24 @@ reviews:
         - Verify that `Store` and `Infrastructure` dependencies are injected via interfaces defined in `Core`.
         - Check for proper error handling and logging standards.
 
+    - path: "**/*.{yaml,yml}"
+      instructions: |
+        Review YAML files for best practices, consistency, and security.
+
+        GitHub Actions Workflows (.github/workflows/**/*.yml):
+        - **Action Versioning**: Ensure all actions use pinned versions or semantic versioning tags (e.g., `actions/checkout@v4`).
+        - **Security**: 
+          - Check for secure secret management; ensure secrets are not printed or exposed.
+          - Verify `run` commands are secure and avoid script injection vulnerabilities.
+          - Ensure least privilege permissions are set for `GITHUB_TOKEN` where applicable.
+        - **Structure**:
+          - Ensure job names and step names are descriptive.
+          - Verify `on` triggers are appropriate for the workflow.
+
+        General YAML:
+        - **Formatting**: Enforce consistent 2-space indentation.
+        - **Syntax**: specific keys should be quoted if they contain special characters.
+        - **Readability**: Ensure logical grouping of keys and comments where necessary.
+
 chat:
   auto_reply: true
