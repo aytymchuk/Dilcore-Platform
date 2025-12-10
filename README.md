@@ -63,7 +63,7 @@ This diagram shows how the `WebApi` host aggregates multiple independent domain 
 
 ```mermaid
 graph TD
-    Host[WebApi (Entry Point)]
+    Host["WebApi (Entry Point)"]
     
     subgraph "Modular Monolith"
         Host --> Module1["Domain 1 Module"]
@@ -72,8 +72,8 @@ graph TD
     end
 
     subgraph "Domain 1 Module"
-        Module1 --> D1API[API Definitions]
-        D1API --> D1Core[Business Logic]
+        Module1 --> D1API["API Definitions"]
+        D1API --> D1Core["Business Logic"]
     end
 ```
 
