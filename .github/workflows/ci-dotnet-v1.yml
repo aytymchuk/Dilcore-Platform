@@ -31,6 +31,7 @@ jobs:
     - name: 🐳 Build WebApi Docker image
       run: |
         docker build \
+          --build-arg BUILD_VERSION=${{ github.sha }} \
           -f src/WebApi/Dockerfile \
           -t dilcore-webapi:${{ github.sha }} \
           .
