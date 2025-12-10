@@ -39,7 +39,7 @@ Each domain (`src/<Domain>`) consists of the following libraries:
 
 ```mermaid
 graph TD
-    PlatformHost[WebApi (Host)] --> DomainWebApi[<Domain>.WebApi]
+    PlatformHost["WebApi (Host)"] --> DomainWebApi["<Domain>.WebApi"]
     DomainWebApi --> Core
     DomainWebApi --> Store
     DomainWebApi --> Infrastructure
@@ -66,9 +66,9 @@ graph TD
     Host[WebApi (Entry Point)]
     
     subgraph "Modular Monolith"
-        Host --> Module1[Domain 1 Module]
-        Host --> Module2[Domain 2 Module]
-        Host -.-> ModuleN[Domain N Module...]
+        Host --> Module1["Domain 1 Module"]
+        Host --> Module2["Domain 2 Module"]
+        Host -.-> ModuleN["Domain N Module..."]
     end
 
     subgraph "Domain 1 Module"
