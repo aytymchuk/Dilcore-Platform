@@ -11,13 +11,6 @@ namespace WebApi.Tests;
 [TestFixture]
 public class LoggingTests
 {
-    private class TestLogRecord
-    {
-        public LogLevel LogLevel { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public IReadOnlyList<KeyValuePair<string, object?>>? Attributes { get; set; }
-    }
-
     private class InMemoryExporter : BaseExporter<LogRecord>
     {
         public List<LogRecord> ExportedRecords { get; } = new();

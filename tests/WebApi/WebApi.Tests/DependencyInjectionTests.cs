@@ -28,7 +28,7 @@ public class DependencyInjectionTests
 
         // Act
         services.AddTelemetry(configuration);
-        var serviceProvider = services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         // Verify LoggerProvider is registered
@@ -58,7 +58,7 @@ public class DependencyInjectionTests
 
         // Act
         services.AddTelemetry(configuration);
-        var serviceProvider = services.BuildServiceProvider();
+        using var serviceProvider = services.BuildServiceProvider();
 
         // Assert
         var contextProcessor = serviceProvider.GetService<TenantAndUserContextProcessor>();
