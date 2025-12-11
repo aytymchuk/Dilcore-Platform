@@ -1,9 +1,12 @@
+using System.Security.Claims;
 using Scalar.AspNetCore;
+using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddOpenApi();
+builder.Services.AddTelemetry(builder.Configuration);
 
 var app = builder.Build();
 
@@ -16,13 +19,39 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Simulate Authentication Middleware
+if (app.Environment.IsDevelopment())
+{
+    app.Use(async (context, next) =>
+    {
+        // Simulate an authenticated user
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, "test-user-123"),
+            new Claim("tenant_id", "tenant-abc")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        context.User = new ClaimsPrincipal(identity);
+        
+        // Simulate passing Tenant ID via header if not present
+        if (!context.Request.Headers.ContainsKey("X-Tenant-ID"))
+        {
+            context.Request.Headers.Append("X-Tenant-ID", "tenant-abc");
+        }
+
+        await next();
+    });
+}
+
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
 {
+    logger.LogGettingWeatherForecast(5);
+
     var forecast =  Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
