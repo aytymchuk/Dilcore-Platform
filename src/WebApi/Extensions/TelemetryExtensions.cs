@@ -45,11 +45,13 @@ public static class TelemetryExtensions
             {
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();
+                tracing.AddConsoleExporter();
             })
             .WithMetrics(metrics =>
             {
                 metrics.AddAspNetCoreInstrumentation();
                 metrics.AddHttpClientInstrumentation();
+                metrics.AddConsoleExporter();
             });
         }
 
