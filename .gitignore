@@ -64,3 +64,6 @@ NUnitResults.xml
 # BenchmarkDotNet
 Artifacts/
 BenchmarkDotNet.Artifacts/
+
+# Trae AI
+.trae/
