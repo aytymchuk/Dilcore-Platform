@@ -20,25 +20,28 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Simulate Authentication Middleware
-app.Use(async (context, next) =>
+if (app.Environment.IsDevelopment())
 {
-    // Simulate an authenticated user
-    var claims = new[]
+    app.Use(async (context, next) =>
     {
-        new Claim(ClaimTypes.Name, "test-user-123"),
-        new Claim("tenant_id", "tenant-abc")
-    };
-    var identity = new ClaimsIdentity(claims, "TestAuth");
-    context.User = new ClaimsPrincipal(identity);
-    
-    // Simulate passing Tenant ID via header if not present
-    if (!context.Request.Headers.ContainsKey("X-Tenant-ID"))
-    {
-        context.Request.Headers.Append("X-Tenant-ID", "tenant-abc");
-    }
+        // Simulate an authenticated user
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, "test-user-123"),
+            new Claim("tenant_id", "tenant-abc")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        context.User = new ClaimsPrincipal(identity);
+        
+        // Simulate passing Tenant ID via header if not present
+        if (!context.Request.Headers.ContainsKey("X-Tenant-ID"))
+        {
+            context.Request.Headers.Append("X-Tenant-ID", "tenant-abc");
+        }
 
-    await next();
-});
+        await next();
+    });
+}
 
 var summaries = new[]
 {

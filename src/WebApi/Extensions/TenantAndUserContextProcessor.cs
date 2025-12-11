@@ -21,19 +21,25 @@ public class TenantAndUserContextProcessor : BaseProcessor<LogRecord>
             return;
         }
 
+        var attributes = data.Attributes?.ToList() ?? new List<KeyValuePair<string, object?>>();
+        bool modified = false;
+
         // Example: Extract Tenant ID from headers or claims
         if (context.Request.Headers.TryGetValue("X-Tenant-ID", out var tenantId))
         {
-            data.Attributes = (data.Attributes ?? Enumerable.Empty<KeyValuePair<string, object?>>())
-                .Append(new KeyValuePair<string, object?>("tenant.id", tenantId.ToString()))
-                .ToList();
+            attributes.Add(new KeyValuePair<string, object?>("tenant.id", tenantId.ToString()));
+            modified = true;
         }
 
         // Example: Extract User ID from User Identity
         var userId = context.User?.Identity?.Name ?? "anonymous";
-        data.Attributes = (data.Attributes ?? Enumerable.Empty<KeyValuePair<string, object?>>())
-            .Append(new KeyValuePair<string, object?>("user.id", userId))
-            .ToList();
+        attributes.Add(new KeyValuePair<string, object?>("user.id", userId));
+        modified = true;
+
+        if (modified)
+        {
+            data.Attributes = attributes;
+        }
 
         base.OnEnd(data);
     }

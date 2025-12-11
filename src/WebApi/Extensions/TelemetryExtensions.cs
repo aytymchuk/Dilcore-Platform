@@ -22,12 +22,17 @@ public static class TelemetryExtensions
         services.AddSingleton<TenantAndUserContextProcessor>();
         services.AddSingleton<TenantAndUserActivityProcessor>();
 
+        services.ConfigureOpenTelemetryTracerProvider((sp, tpBuilder) =>
+        {
+            tpBuilder.AddProcessor(sp.GetRequiredService<TenantAndUserActivityProcessor>());
+        });
+
         var otel = services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(settings.ServiceName, serviceVersion: serviceVersion))
             .WithLogging(logging => 
             {
-                logging.AddConsoleExporter();
                 logging.AddProcessor(sp => sp.GetRequiredService<TenantAndUserContextProcessor>());
+                logging.AddConsoleExporter();
             });
 
         if (!string.IsNullOrEmpty(settings.ConnectionString))
@@ -40,7 +45,6 @@ public static class TelemetryExtensions
             {
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();
-                tracing.AddProcessor(sp => sp.GetRequiredService<TenantAndUserActivityProcessor>());
             })
             .WithMetrics(metrics =>
             {
