@@ -1,0 +1,94 @@
+name: 🐳 Build and Push Docker Image
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required for pushing tags
+      packages: write # Required for pushing to GHCR
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to fetch all tags for git describe
+
+      - name: 🏷️ Calculate Version
+        id: calculate_version
+        run: |
+          # Fetch all tags
+          git fetch --tags
+          
+          # Get the latest tag, default to v0.0.0 if no tags exist
+          # We use 2>/dev/null to suppress error if no tags found
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          
+          echo "Latest tag found: $LATEST_TAG"
+          
+          # Remove 'v' prefix if present
+          VERSION=${LATEST_TAG#v}
+          
+          # Split version into parts (Major.Minor.Patch)
+          IFS='.' read -r -a PARTS <<< "$VERSION"
+          MAJOR=${PARTS[0]}
+          MINOR=${PARTS[1]}
+          PATCH=${PARTS[2]}
+          
+          # Ensure variables are numbers (handle empty cases just in case)
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+          
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          
+          # Construct new version
+          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          
+          echo "Previous version: $VERSION"
+          echo "New version: $NEW_VERSION"
+          
+          # Output variables for next steps
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🖊️ Create and Push Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          TAG_NAME="${{ steps.calculate_version.outputs.tag }}"
+          
+          echo "Creating tag $TAG_NAME"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: 🔠 Lowercase Image Name
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: 🔐 Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/WebApi/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.calculate_version.outputs.version }}
+          build-args: |
+            BUILD_VERSION=${{ steps.calculate_version.outputs.version }}
