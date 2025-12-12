@@ -2,7 +2,7 @@ name: 🐳 Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   REGISTRY: ghcr.io
@@ -11,14 +11,14 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required for pushing tags
-      packages: write # Required for pushing to GHCR
+      contents: write  # Required for pushing tags
+      packages: write  # Required for pushing to GHCR
 
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required to fetch all tags for git describe
+          fetch-depth: 0  # Required to fetch all tags for git describe
 
       - name: 🏷️ Calculate Version
         id: calculate_version
@@ -104,12 +104,17 @@ jobs:
             exit 1
           fi
 
+      - name: 🧰 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: 🐳 Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: src/WebApi/Dockerfile
           push: true
+          provenance: mode=max
+          sbom: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.calculate_version.outputs.version }}
