@@ -23,8 +23,7 @@ jobs:
       - name: 🏷️ Calculate Version
         id: calculate_version
         run: |
-          # Fetch all tags
-          git fetch --tags
+          # Fetch all tags is handled by fetch-depth: 0 in checkout step
           
           # Get the latest tag, default to v0.0.0 if no tags exist
           # We use 2>/dev/null to suppress error if no tags found
@@ -67,7 +66,11 @@ jobs:
           TAG_NAME="${{ steps.calculate_version.outputs.tag }}"
           
           echo "Creating tag $TAG_NAME"
-          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          # Try to create tag, fail if it exists (handling concurrent pushes or re-runs)
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME" || {
+            echo "::error::Tag $TAG_NAME already exists or failed to create. Aborting."
+            exit 1
+          }
           git push origin "$TAG_NAME"
 
       - name: 🔠 Lowercase Image Name
@@ -80,6 +83,13 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ✅ Verify Dockerfile exists
+        run: |
+          if [ ! -f "src/WebApi/Dockerfile" ]; then
+            echo "::error::Dockerfile not found at src/WebApi/Dockerfile"
+            exit 1
+          fi
 
       - name: 🐳 Build and push Docker image
         uses: docker/build-push-action@v5
