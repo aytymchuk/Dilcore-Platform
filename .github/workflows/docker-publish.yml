@@ -23,6 +23,7 @@ jobs:
       - name: 🏷️ Calculate Version
         id: calculate_version
         run: |
+          set -euo pipefail
           # Fetch all tags is handled by fetch-depth: 0 in checkout step
           
           # Get the latest tag, default to v0.0.0 if no tags exist
@@ -31,19 +32,14 @@ jobs:
           
           echo "Latest tag found: $LATEST_TAG"
           
-          # Remove 'v' prefix if present
-          VERSION=${LATEST_TAG#v}
+          if ! [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::Latest tag '$LATEST_TAG' is not strict semver (expected vMAJOR.MINOR.PATCH)."
+            exit 1
+          fi
           
-          # Split version into parts (Major.Minor.Patch)
-          IFS='.' read -r -a PARTS <<< "$VERSION"
-          MAJOR=${PARTS[0]}
-          MINOR=${PARTS[1]}
-          PATCH=${PARTS[2]}
-          
-          # Ensure variables are numbers (handle empty cases just in case)
-          MAJOR=${MAJOR:-0}
-          MINOR=${MINOR:-0}
-          PATCH=${PATCH:-0}
+          MAJOR="${BASH_REMATCH[1]}"
+          MINOR="${BASH_REMATCH[2]}"
+          PATCH="${BASH_REMATCH[3]}"
           
           # Increment patch version
           NEW_PATCH=$((PATCH + 1))
