@@ -1,4 +1,4 @@
-name: 🚀 Platform API Deploy
+name: Platform API Deploy
 
 on:
   push:
@@ -19,13 +19,7 @@ jobs:
       dockerfile: "src/WebApi/Dockerfile"
       environments: |
         [
-          {
-            "name": "Development",
-            "region": "westeurope"
-          },
-          {
-            "name": "QA",
-            "region": "westeurope"
-          }
+          { "name": "Development", "region": "westeurope" },
+          { "name": "QA", "region": "westeurope" }
         ]
     secrets: inherit
