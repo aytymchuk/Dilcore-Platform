@@ -217,7 +217,7 @@ jobs:
       - name: ✅ Validate Health
         run: |
            # Get FQDN
-           FQDN=$(az containerapp show --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --query properties.configuration.ingress.fqdn -o tsv)
+           FQDN=$(az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query properties.configuration.ingress.fqdn -o tsv)
            
            if [ -z "$FQDN" ]; then
              echo "::error::Could not retrieve FQDN for container app."
