@@ -1,0 +1,31 @@
+name: 🚀 Platform API Deploy
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  deploy-platform:
+    uses: ./.github/workflows/templates/build-and-deploy-container-app-v1.yml
+    with:
+      componentName: "PLATFORM"
+      serviceName: "API"
+      dockerfile: "src/WebApi/Dockerfile"
+      environments: |
+        [
+          {
+            "name": "Development",
+            "region": "westeurope"
+          },
+          {
+            "name": "QA",
+            "region": "westeurope"
+          }
+        ]
+    secrets: inherit

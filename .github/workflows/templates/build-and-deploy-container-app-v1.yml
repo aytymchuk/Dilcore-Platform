@@ -1,0 +1,252 @@
+name: 📦 Reusable Service Deploy
+
+on:
+  workflow_call:
+    inputs:
+      componentName:
+        required: true
+        type: string
+        description: "Global component name (e.g., PLATFORM)"
+      serviceName:
+        required: true
+        type: string
+        description: "Global service name (e.g., API)"
+      dockerfile:
+        required: true
+        type: string
+        description: "Path to the Dockerfile (e.g., src/WebApi/Dockerfile)"
+      environments:
+        required: true
+        type: string
+        description: "JSON array of environment objects with name and region (e.g., [{'name':'dev','region':'eastus'}])"
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+      AZURE_APP_CONFIGURATION_NAME:
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      version: ${{ steps.calculate_version.outputs.tag }}
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Calculate Version
+        id: calculate_version
+        run: |
+          set -euo pipefail
+          
+          # Get the latest tag, default to v0.0.0 if no tags exist
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VERSION=${LATEST_TAG#v}
+          
+          echo "Latest tag found: $LATEST_TAG"
+          
+          if ! [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::Latest tag '$LATEST_TAG' is not strict semver (expected vMAJOR.MINOR.PATCH)."
+            exit 1
+          fi
+          
+          MAJOR="${BASH_REMATCH[1]}"
+          MINOR="${BASH_REMATCH[2]}"
+          PATCH="${BASH_REMATCH[3]}"
+          
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          
+          # Construct new version
+          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          
+          echo "Previous version: $VERSION"
+          echo "New version: $NEW_VERSION"
+          
+          # Output variables for next steps
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🖊️ Create and Push Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          TAG_NAME="${{ steps.calculate_version.outputs.tag }}"
+          
+          # Check if tag exists remotely
+          if git ls-remote --exit-code --tags origin "$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::Tag $TAG_NAME already exists on remote. Aborting."
+            exit 1
+          fi
+
+          # Check if tag exists locally
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+             echo "::error::Tag $TAG_NAME already exists locally. Aborting."
+             exit 1
+          fi
+
+          echo "Creating tag $TAG_NAME"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          
+          echo "Pushing tag $TAG_NAME"
+          git push origin "$TAG_NAME" || {
+            echo "::error::Failed to push tag $TAG_NAME. It might have been created by another workflow."
+            exit 1
+          }
+
+      - name: 🔐 Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔠 Lowercase Image Name
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: 🐳 Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.calculate_version.outputs.tag }}
+            type=sha,format=long
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: 🧰 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔨 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_VERSION=${{ steps.calculate_version.outputs.version }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        environment: ${{ fromJson(inputs.environments) }}
+    environment: ${{ matrix.environment.name }}
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔠 Lowercase Image Name
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: 🔐 Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: 🔎 Resolve Configuration Variables
+        id: resolve-vars
+        env:
+          APP_CONFIG_NAME: ${{ secrets.AZURE_APP_CONFIGURATION_NAME }}
+          ENV_NAME: ${{ matrix.environment.name }}
+          INPUT_COMPONENT: ${{ inputs.componentName }}
+          INPUT_SERVICE: ${{ inputs.serviceName }}
+        run: |
+          # Force Uppercase for construction
+          COMPONENT_NAME="${INPUT_COMPONENT^^}"
+          SERVICE_SUFFIX="${INPUT_SERVICE^^}"
+          
+          # Variable names based on convention
+          RG_VAR_NAME="${COMPONENT_NAME}_RESOURCE_GROUP"
+          APP_VAR_NAME="${COMPONENT_NAME}_CONTAINER_${SERVICE_SUFFIX}_NAME"
+          
+          echo "Resolving variables from App Config: $APP_CONFIG_NAME for environment: $ENV_NAME"
+          
+          # Fetch Resource Group
+          RESOURCE_GROUP=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$RG_VAR_NAME" --label "$ENV_NAME" --query value -o tsv)
+          
+          # Fetch Container App Name
+          CONTAINER_APP_NAME=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$APP_VAR_NAME" --label "$ENV_NAME" --query value -o tsv)
+          
+          if [ -z "$RESOURCE_GROUP" ] || [ -z "$CONTAINER_APP_NAME" ]; then
+            echo "::error::Failed to resolve one or more variables from App Configuration."
+            echo "RG_VAR_NAME=$RG_VAR_NAME -> $RESOURCE_GROUP"
+            echo "APP_VAR_NAME=$APP_VAR_NAME -> $CONTAINER_APP_NAME"
+            exit 1
+          fi
+
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
+          echo "CONTAINER_APP_NAME=$CONTAINER_APP_NAME" >> $GITHUB_ENV
+          
+          echo "Resolved: RG=$RESOURCE_GROUP, App=$CONTAINER_APP_NAME"
+
+      - name: 🚀 Deploy via AZ CLI
+        run: |
+           IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.version }}"
+           
+           echo "Deploying $IMAGE_TAG to $CONTAINER_APP_NAME in $RESOURCE_GROUP"
+           
+           az containerapp update \
+             --name "$CONTAINER_APP_NAME" \
+             --resource-group "$RESOURCE_GROUP" \
+             --image "$IMAGE_TAG"
+
+      - name: ✅ Validate Health
+        run: |
+           # Get FQDN
+           FQDN=$(az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query properties.configuration.ingress.fqdn -o tsv)
+           
+           if [ -z "$FQDN" ]; then
+             echo "::error::Could not retrieve FQDN for container app."
+             exit 1
+           fi
+           
+           TARGET_URL="https://$FQDN/health"
+           echo "Checking health at $TARGET_URL"
+           
+           # Retry loop
+           MAX_RETRIES=10
+           SLEEP_SECONDS=10
+           
+           for ((i=1;i<=MAX_RETRIES;i++)); do
+             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$TARGET_URL" || echo "000")
+             
+             if [[ "$HTTP_CODE" == "200" ]]; then
+               echo "Health check passed! (HTTP 200)"
+               exit 0
+             fi
+
+             if [[ "$HTTP_CODE" == "404" ]]; then
+               echo "::warning::Health check endpoint not found (404) at $TARGET_URL. Proceeding without health verification."
+               exit 0
+             fi
+             
+             echo "Attempt $i/$MAX_RETRIES: Health check returned $HTTP_CODE. Retrying in ${SLEEP_SECONDS}s..."
+             sleep $SLEEP_SECONDS
+           done
+           
+           echo "::error::Health check timed out after $MAX_RETRIES attempts."
+           exit 1
