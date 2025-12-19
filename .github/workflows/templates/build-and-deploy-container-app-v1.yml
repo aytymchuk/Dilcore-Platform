@@ -143,10 +143,13 @@ jobs:
             BUILD_VERSION=${{ steps.calculate_version.outputs.version }}
 
   deploy:
+    name: 🚀 Deploy to ${{ matrix.environment.name }}
     needs: build-and-push
     runs-on: ubuntu-latest
     strategy:
+      # Ensures environments are deployed one by one (Sequential)
       max-parallel: 1
+      # Stops the pipeline if any deployment fails (Dependency)
       fail-fast: true
       matrix:
         environment: ${{ fromJson(inputs.environments) }}
