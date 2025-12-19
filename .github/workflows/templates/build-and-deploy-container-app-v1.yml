@@ -126,7 +126,7 @@ jobs:
             type=raw,value=${{ steps.calculate_version.outputs.tag }}
             type=sha,format=long
             type=ref,event=branch
-            latest
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: 🧰 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -161,7 +161,7 @@ jobs:
           echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
       - name: 🔐 Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -186,10 +186,10 @@ jobs:
           echo "Resolving variables from App Config: $APP_CONFIG_NAME for environment: $ENV_NAME"
           
           # Fetch Resource Group
-          RESOURCE_GROUP=$(az appconfig kv show --name $APP_CONFIG_NAME --key $RG_VAR_NAME --label $ENV_NAME --query value -o tsv)
+          RESOURCE_GROUP=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$RG_VAR_NAME" --label "$ENV_NAME" --query value -o tsv)
           
           # Fetch Container App Name
-          CONTAINER_APP_NAME=$(az appconfig kv show --name $APP_CONFIG_NAME --key $APP_VAR_NAME --label $ENV_NAME --query value -o tsv)
+          CONTAINER_APP_NAME=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$APP_VAR_NAME" --label "$ENV_NAME" --query value -o tsv)
           
           if [ -z "$RESOURCE_GROUP" ] || [ -z "$CONTAINER_APP_NAME" ]; then
             echo "::error::Failed to resolve one or more variables from App Configuration."

@@ -15,7 +15,7 @@ Handles user management at the platform level. It manages users and their relati
 ### WebApi
 The main entry point for the platform. It is a Minimal API project that hosts the modular monolith. It aggregates APIs from all domains and provides a unified interface.
 - **Documentation**: Uses Scalar (available at `/api-doc` in Development).
-- **Deployment**: Includes a production-ready Dockerfile.
+- **Deployment**: Automated via GitHub Actions using a [Reusable Container App Workflow](.github/workflows/templates/README.md).
 
 ## Project Structure
 
