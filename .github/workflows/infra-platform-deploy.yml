@@ -19,7 +19,7 @@ jobs:
       dockerfile: "src/WebApi/Dockerfile"
       environments: |
         [
-          { "name": "Development", "region": "westeurope" },
-          { "name": "QA", "region": "westeurope" }
+          { "environment": "Development", "region": "westeurope" },
+          { "environment": "QA", "region": "westeurope" }
         ]
     secrets: inherit
