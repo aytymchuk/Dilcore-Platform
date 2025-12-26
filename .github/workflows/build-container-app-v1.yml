@@ -23,7 +23,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.meta.outputs.tags }}
+      image_tag: ${{ steps.image_name.outputs.canonical_tag }}
       version: ${{ steps.calculate_version.outputs.tag }}
     steps:
       - name: 📥 Checkout repository
@@ -100,8 +100,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🔠 Lowercase Image Name
+        id: image_name
         run: |
-          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+          LOWER_NAME=${GITHUB_REPOSITORY,,}
+          echo "IMAGE_NAME=$LOWER_NAME" >> $GITHUB_ENV
+          
+          # Output canonical tag for consumers
+          CANONICAL="${{ env.REGISTRY }}/$LOWER_NAME:${{ steps.calculate_version.outputs.tag }}"
+          echo "canonical_tag=$CANONICAL" >> $GITHUB_OUTPUT
 
       - name: 🐳 Extract metadata (tags, labels) for Docker
         id: meta
