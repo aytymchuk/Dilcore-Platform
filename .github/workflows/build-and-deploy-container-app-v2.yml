@@ -22,6 +22,7 @@ on:
 
 jobs:
   build:
+    name: 🐳 Build & Push Container
     uses: ./.github/workflows/build-container-app-v1.yml
     with:
       dockerfile: ${{ inputs.dockerfile }}
