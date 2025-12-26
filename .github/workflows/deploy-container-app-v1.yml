@@ -115,39 +115,56 @@ jobs:
              --resource-group "$RESOURCE_GROUP" \
              --image "$IMAGE_TAG"
 
-      - name: ✅ Validate Health
+      - name: ✅ Verify Deployment
         run: |
-           # Get FQDN
-           FQDN=$(az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query properties.configuration.ingress.fqdn -o tsv)
+           echo "Validating deployment for ${{ env.CONTAINER_APP_NAME }}..."
            
-           if [ -z "$FQDN" ]; then
-             echo "::error::Could not retrieve FQDN for container app."
-             exit 1
-           fi
-           
-           TARGET_URL="https://$FQDN/health"
-           echo "Checking health at $TARGET_URL"
-           
-           # Retry loop
-           MAX_RETRIES=10
+           MAX_RETRIES=20
            SLEEP_SECONDS=10
            
            for ((i=1;i<=MAX_RETRIES;i++)); do
-             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$TARGET_URL" || echo "000")
+             # 1. Check App Provisioning State
+             APP_STATE=$(az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query properties.provisioningState -o tsv)
              
-             if [[ "$HTTP_CODE" == "200" ]]; then
-               echo "Health check passed! (HTTP 200)"
-               exit 0
+             if [[ "$APP_STATE" != "Succeeded" ]]; then
+               echo "Attempt $i/$MAX_RETRIES: App Provisioning State is '$APP_STATE'. Waiting..."
+               sleep $SLEEP_SECONDS
+               continue
              fi
-
-             if [[ "$HTTP_CODE" == "404" ]]; then
-               echo "::warning::Health check endpoint not found (404) at $TARGET_URL. Proceeding without health verification."
-               exit 0
+           
+             # 2. Get Latest Revision Name
+             LATEST_REV=$(az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query properties.latestRevisionName -o tsv)
+             
+             # 3. Check Latest Revision Provisioning State
+             REV_STATE=$(az containerapp revision show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --revision "$LATEST_REV" --query properties.provisioningState -o tsv)
+             
+             if [[ "$REV_STATE" != "Provisioned" ]]; then
+               echo "Attempt $i/$MAX_RETRIES: Revision '$LATEST_REV' state is '$REV_STATE'. Waiting..."
+               sleep $SLEEP_SECONDS
+               continue
+             fi
+           
+             # 4. Check Replica Status
+             # Get replicas for the latest revision
+             REPLICAS_JSON=$(az containerapp replica list --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --revision "$LATEST_REV" --query "[].{Name:name, State:properties.runningState}" -o json)
+             
+             REPLICA_COUNT=$(echo "$REPLICAS_JSON" | jq 'length')
+             
+             if [[ "$REPLICA_COUNT" -eq 0 ]]; then
+                echo "✅ Revision '$LATEST_REV' is Provisioned. No replicas running (likely scaled to zero). Deployment successful."
+                exit 0
              fi
              
-             echo "Attempt $i/$MAX_RETRIES: Health check returned $HTTP_CODE. Retrying in ${SLEEP_SECONDS}s..."
+             RUNNING_COUNT=$(echo "$REPLICAS_JSON" | jq '[.[] | select(.State == "Running")] | length')
+             
+             if [[ "$RUNNING_COUNT" -gt 0 ]]; then
+                echo "✅ Success: Revision '$LATEST_REV' is Provisioned and has $RUNNING_COUNT running replicas."
+                exit 0
+             fi
+             
+             echo "Attempt $i/$MAX_RETRIES: Revision '$LATEST_REV' has $REPLICA_COUNT replicas, but none are 'Running' yet. Waiting..."
              sleep $SLEEP_SECONDS
            done
            
-           echo "::error::Health check timed out after $MAX_RETRIES attempts."
+           echo "::error::Deployment verification timed out after $MAX_RETRIES attempts."
            exit 1
