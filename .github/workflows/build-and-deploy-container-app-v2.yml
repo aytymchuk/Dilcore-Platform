@@ -1,0 +1,43 @@
+name: 📦🚀 Build & Deploy Container App (Orchestrator)
+
+on:
+  workflow_call:
+    inputs:
+      componentName:
+        required: true
+        type: string
+        description: "Global component name (e.g., PLATFORM)"
+      serviceName:
+        required: true
+        type: string
+        description: "Global service name (e.g., API)"
+      dockerfile:
+        required: true
+        type: string
+        description: "Path to the Dockerfile (e.g., src/WebApi/Dockerfile)"
+      environments:
+        required: true
+        type: string
+        description: "JSON array of environment objects with name and region (e.g., [{'name':'Development','region':'westeurope'}])"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-container-app-v1.yml
+    with:
+      dockerfile: ${{ inputs.dockerfile }}
+    secrets: inherit
+
+  deploy:
+    needs: build
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        environment: ${{ fromJson(inputs.environments) }}
+    uses: ./.github/workflows/deploy-container-app-v1.yml
+    with:
+      componentName: ${{ inputs.componentName }}
+      serviceName: ${{ inputs.serviceName }}
+      version: ${{ needs.build.outputs.version }}
+      environment: ${{ matrix.environment.name }}
+    secrets: inherit

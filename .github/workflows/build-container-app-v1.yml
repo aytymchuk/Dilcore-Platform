@@ -1,0 +1,129 @@
+name: 📦 Reusable Build & Push Container App
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        required: true
+        type: string
+        description: "Path to the Dockerfile (e.g., src/WebApi/Dockerfile)"
+    outputs:
+      image_tag:
+        description: "The full image tag"
+        value: ${{ jobs.build-and-push.outputs.image_tag }}
+      version:
+        description: "The calculated semantic version"
+        value: ${{ jobs.build-and-push.outputs.version }}
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      version: ${{ steps.calculate_version.outputs.tag }}
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Calculate Version
+        id: calculate_version
+        run: |
+          set -euo pipefail
+          
+          # Get the latest tag, default to v0.0.0 if no tags exist
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VERSION=${LATEST_TAG#v}
+          
+          echo "Latest tag found: $LATEST_TAG"
+          
+          if ! [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::Latest tag '$LATEST_TAG' is not strict semver (expected vMAJOR.MINOR.PATCH)."
+            exit 1
+          fi
+          
+          MAJOR="${BASH_REMATCH[1]}"
+          MINOR="${BASH_REMATCH[2]}"
+          PATCH="${BASH_REMATCH[3]}"
+          
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          
+          # Construct new version
+          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          
+          echo "Previous version: $VERSION"
+          echo "New version: $NEW_VERSION"
+          
+          # Output variables for next steps
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🖊️ Create and Push Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          TAG_NAME="${{ steps.calculate_version.outputs.tag }}"
+          
+          # Check if tag exists remotely
+          if git ls-remote --exit-code --tags origin "$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::Tag $TAG_NAME already exists on remote. Aborting."
+            exit 1
+          fi
+
+          # Check if tag exists locally
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+             echo "::error::Tag $TAG_NAME already exists locally. Aborting."
+             exit 1
+          fi
+
+          echo "Creating tag $TAG_NAME"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          
+          echo "Pushing tag $TAG_NAME"
+          git push origin "$TAG_NAME" || {
+            echo "::error::Failed to push tag $TAG_NAME. It might have been created by another workflow."
+            exit 1
+          }
+
+      - name: 🔐 Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔠 Lowercase Image Name
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: 🐳 Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.calculate_version.outputs.tag }}
+            type=sha,format=long
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: 🧰 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔨 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_VERSION=${{ steps.calculate_version.outputs.version }}

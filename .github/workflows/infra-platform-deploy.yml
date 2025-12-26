@@ -12,14 +12,14 @@ permissions:
 
 jobs:
   deploy-platform:
-    uses: ./.github/workflows/build-and-deploy-container-app-v1.yml
+    uses: ./.github/workflows/build-and-deploy-container-app-v2.yml
     with:
       componentName: "PLATFORM"
       serviceName: "API"
       dockerfile: "src/WebApi/Dockerfile"
       environments: |
         [
-          { "environment": "Development", "region": "westeurope" },
-          { "environment": "QA", "region": "westeurope" }
+          { "name": "Development", "region": "westeurope" },
+          { "name": "QA", "region": "westeurope" }
         ]
     secrets: inherit
