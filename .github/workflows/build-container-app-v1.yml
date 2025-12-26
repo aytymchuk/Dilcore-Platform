@@ -7,6 +7,11 @@ on:
         required: true
         type: string
         description: "Path to the Dockerfile (e.g., src/WebApi/Dockerfile)"
+      version_bump_type:
+        required: false
+        type: string
+        default: "patch"
+        description: "Which part of version to bump (major, minor, patch)"
     outputs:
       image_tag:
         description: "The full image tag"
@@ -14,6 +19,10 @@ on:
       version:
         description: "The calculated semantic version"
         value: ${{ jobs.build-and-push.outputs.version }}
+
+concurrency:
+  group: version-bump-${{ github.repository }}
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -36,10 +45,18 @@ jobs:
         run: |
           set -euo pipefail
           
-          # Get the latest tag, default to v0.0.0 if no tags exist
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          VERSION=${LATEST_TAG#v}
+          # Fetch all tags to ensure we have the complete list
+          git fetch --tags --force
           
+          # Find the highest version tag (vX.Y.Z)
+          # We list tags matching v*.*.*, sort by version (V), and take the last one (highest)
+          LATEST_TAG=$(git tag -l "v*.*.*" | sort -V | tail -n 1 || echo "")
+          
+          if [ -z "$LATEST_TAG" ]; then
+             LATEST_TAG="v0.0.0"
+          fi
+          
+          VERSION=${LATEST_TAG#v}
           echo "Latest tag found: $LATEST_TAG"
           
           if ! [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
@@ -51,11 +68,24 @@ jobs:
           MINOR="${BASH_REMATCH[2]}"
           PATCH="${BASH_REMATCH[3]}"
           
-          # Increment patch version
-          NEW_PATCH=$((PATCH + 1))
+          BUMP_TYPE="${{ inputs.version_bump_type }}"
+          echo "Bump type: $BUMP_TYPE"
           
-          # Construct new version
-          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          if [[ "$BUMP_TYPE" == "major" ]]; then
+            NEW_MAJOR=$((MAJOR + 1))
+            NEW_MINOR=0
+            NEW_PATCH=0
+          elif [[ "$BUMP_TYPE" == "minor" ]]; then
+            NEW_MAJOR=$MAJOR
+            NEW_MINOR=$((MINOR + 1))
+            NEW_PATCH=0
+          else
+            NEW_MAJOR=$MAJOR
+            NEW_MINOR=$MINOR
+            NEW_PATCH=$((PATCH + 1))
+          fi
+          
+          NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
           
           echo "Previous version: $VERSION"
           echo "New version: $NEW_VERSION"
