@@ -1,6 +1,64 @@
 version: 2
 updates:
+  # GitHub Actions updates - weekly
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "ci"
+
+  # NuGet/.NET dependencies - bi-weekly
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Kyiv"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    # Group related updates to reduce PR noise
+    groups:
+      # Microsoft SDK & Framework packages
+      microsoft-packages:
+        patterns:
+          - "Microsoft.*"
+          - "System.*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Testing frameworks and tools
+      testing:
+        patterns:
+          - "NUnit*"
+          - "coverlet.*"
+          - "Shouldly"
+          - "TngTech.ArchUnitNET.*"
+      # OpenTelemetry & observability
+      telemetry:
+        patterns:
+          - "OpenTelemetry.*"
+          - "Azure.Monitor.*"
+      # All other minor/patch updates
+      other-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "Microsoft.*"
+          - "System.*"
+          - "NUnit*"
+          - "coverlet.*"
+          - "Shouldly"
+          - "TngTech.ArchUnitNET.*"
+          - "OpenTelemetry.*"
+          - "Azure.Monitor.*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Ignore known problematic major updates (add as needed)
+    # ignore:
+    #   - dependency-name: "example-package"
+    #     update-types: ["version-update:semver-major"]
