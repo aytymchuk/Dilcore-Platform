@@ -65,13 +65,29 @@ jobs:
           RG_VAR_NAME="${COMPONENT_NAME}_RESOURCE_GROUP"
           APP_VAR_NAME="${COMPONENT_NAME}_CONTAINER_${SERVICE_SUFFIX}_NAME"
           
-          echo "Resolving variables from App Config: $APP_CONFIG_NAME for environment: $ENV_NAME"
+          echo "=================================================="
+          echo "🔍 Resolving Configuration Variables"
+          echo "=================================================="
+          echo "App Config Name : $APP_CONFIG_NAME"
+          echo "Environment     : $ENV_NAME"
+          echo "Component       : $COMPONENT_NAME"
+          echo "Service Suffix  : $SERVICE_SUFFIX"
+          echo "RG Var Name     : $RG_VAR_NAME"
+          echo "App Var Name    : $APP_VAR_NAME"
+          echo "=================================================="
           
           # Fetch Resource Group
           RESOURCE_GROUP=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$RG_VAR_NAME" --label "$ENV_NAME" --query value -o tsv)
           
           # Fetch Container App Name
           CONTAINER_APP_NAME=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$APP_VAR_NAME" --label "$ENV_NAME" --query value -o tsv)
+          
+          echo "--------------------------------------------------"
+          echo "✅ Resolution Results"
+          echo "--------------------------------------------------"
+          echo "Resource Group     : $RESOURCE_GROUP"
+          echo "Container App Name : $CONTAINER_APP_NAME"
+          echo "--------------------------------------------------"
           
           if [ -z "$RESOURCE_GROUP" ] || [ -z "$CONTAINER_APP_NAME" ]; then
             echo "::error::Failed to resolve one or more variables from App Configuration."
@@ -82,8 +98,6 @@ jobs:
 
           echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
           echo "CONTAINER_APP_NAME=$CONTAINER_APP_NAME" >> $GITHUB_ENV
-          
-          echo "Resolved: RG=$RESOURCE_GROUP, App=$CONTAINER_APP_NAME"
 
       - name: 🚀 Deploy via AZ CLI
         run: |
