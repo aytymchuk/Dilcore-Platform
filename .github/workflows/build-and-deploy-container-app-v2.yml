@@ -29,9 +29,10 @@ jobs:
 
   deploy:
     needs: build
+    name: Deploy to ${{ matrix.environment.name }}
     strategy:
       max-parallel: 1
-      fail-fast: true
+      fail-fast: false
       matrix:
         environment: ${{ fromJson(inputs.environments) }}
     uses: ./.github/workflows/deploy-container-app-v1.yml
