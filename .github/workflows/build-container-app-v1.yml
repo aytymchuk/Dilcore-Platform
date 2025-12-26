@@ -1,0 +1,165 @@
+name: 📦 Reusable Build & Push Container App
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        required: true
+        type: string
+        description: "Path to the Dockerfile (e.g., src/WebApi/Dockerfile)"
+      version_bump_type:
+        required: false
+        type: string
+        default: "patch"
+        description: "Which part of version to bump (major, minor, patch)"
+    outputs:
+      image_tag:
+        description: "The full image tag"
+        value: ${{ jobs.build-and-push.outputs.image_tag }}
+      version:
+        description: "The calculated semantic version"
+        value: ${{ jobs.build-and-push.outputs.version }}
+
+concurrency:
+  group: version-bump-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.image_name.outputs.canonical_tag }}
+      version: ${{ steps.calculate_version.outputs.tag }}
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Calculate Version
+        id: calculate_version
+        run: |
+          set -euo pipefail
+          
+          # Fetch all tags to ensure we have the complete list
+          git fetch --tags --force
+          
+          # Find the highest version tag (vX.Y.Z)
+          # We list tags matching v*.*.*, sort by version (V), and take the last one (highest)
+          LATEST_TAG=$(git tag -l "v*.*.*" | sort -V | tail -n 1 || echo "")
+          
+          if [ -z "$LATEST_TAG" ]; then
+             LATEST_TAG="v0.0.0"
+          fi
+          
+          VERSION=${LATEST_TAG#v}
+          echo "Latest tag found: $LATEST_TAG"
+          
+          if ! [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::Latest tag '$LATEST_TAG' is not strict semver (expected vMAJOR.MINOR.PATCH)."
+            exit 1
+          fi
+          
+          MAJOR="${BASH_REMATCH[1]}"
+          MINOR="${BASH_REMATCH[2]}"
+          PATCH="${BASH_REMATCH[3]}"
+          
+          BUMP_TYPE="${{ inputs.version_bump_type }}"
+          echo "Bump type: $BUMP_TYPE"
+          
+          if [[ "$BUMP_TYPE" == "major" ]]; then
+            NEW_MAJOR=$((MAJOR + 1))
+            NEW_MINOR=0
+            NEW_PATCH=0
+          elif [[ "$BUMP_TYPE" == "minor" ]]; then
+            NEW_MAJOR=$MAJOR
+            NEW_MINOR=$((MINOR + 1))
+            NEW_PATCH=0
+          else
+            NEW_MAJOR=$MAJOR
+            NEW_MINOR=$MINOR
+            NEW_PATCH=$((PATCH + 1))
+          fi
+          
+          NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
+          
+          echo "Previous version: $VERSION"
+          echo "New version: $NEW_VERSION"
+          
+          # Output variables for next steps
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🖊️ Create and Push Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          TAG_NAME="${{ steps.calculate_version.outputs.tag }}"
+          
+          # Check if tag exists remotely
+          if git ls-remote --exit-code --tags origin "$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::Tag $TAG_NAME already exists on remote. Aborting."
+            exit 1
+          fi
+
+          # Check if tag exists locally
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+             echo "::error::Tag $TAG_NAME already exists locally. Aborting."
+             exit 1
+          fi
+
+          echo "Creating tag $TAG_NAME"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          
+          echo "Pushing tag $TAG_NAME"
+          git push origin "$TAG_NAME" || {
+            echo "::error::Failed to push tag $TAG_NAME. It might have been created by another workflow."
+            exit 1
+          }
+
+      - name: 🔐 Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔠 Lowercase Image Name
+        id: image_name
+        run: |
+          LOWER_NAME=${GITHUB_REPOSITORY,,}
+          echo "IMAGE_NAME=$LOWER_NAME" >> $GITHUB_ENV
+          
+          # Output canonical tag for consumers
+          CANONICAL="${{ env.REGISTRY }}/$LOWER_NAME:${{ steps.calculate_version.outputs.tag }}"
+          echo "canonical_tag=$CANONICAL" >> $GITHUB_OUTPUT
+
+      - name: 🐳 Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.calculate_version.outputs.tag }}
+            type=sha,format=long
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: 🧰 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔨 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_VERSION=${{ steps.calculate_version.outputs.version }}

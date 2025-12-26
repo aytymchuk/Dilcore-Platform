@@ -1,0 +1,170 @@
+name: 🚀 Reusable Service Deploy
+
+on:
+  workflow_call:
+    inputs:
+      componentName:
+        required: true
+        type: string
+        description: "Global component name (e.g., PLATFORM)"
+      serviceName:
+        required: true
+        type: string
+        description: "Global service name (e.g., API)"
+      version:
+        required: true
+        type: string
+        description: "Version tag to deploy (e.g., v1.0.1)"
+      environment:
+        required: true
+        type: string
+        description: "Environment name (e.g., Development)"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  AZURE_APP_CONFIGURATION_NAME: ${{ secrets.AZURE_APP_CONFIG_NAME }}
+
+jobs:
+  deploy:
+    name: 🚀 Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔠 Lowercase Image Name
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: 🔐 Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: 🔎 Resolve Configuration Variables
+        id: resolve-vars
+        env:
+          APP_CONFIG_NAME: ${{ env.AZURE_APP_CONFIGURATION_NAME }}
+          ENV_NAME: ${{ inputs.environment }}
+          INPUT_COMPONENT: ${{ inputs.componentName }}
+          INPUT_SERVICE: ${{ inputs.serviceName }}
+        run: |
+          # Force Uppercase for construction
+          COMPONENT_NAME="${INPUT_COMPONENT^^}"
+          SERVICE_SUFFIX="${INPUT_SERVICE^^}"
+          
+          # Variable names based on convention
+          RG_VAR_NAME="${COMPONENT_NAME}_RESOURCE_GROUP"
+          APP_VAR_NAME="${COMPONENT_NAME}_CONTAINER_${SERVICE_SUFFIX}_NAME"
+          
+          echo "=================================================="
+          echo "🔍 Resolving Configuration Variables"
+          echo "=================================================="
+          echo "App Config Name : $APP_CONFIG_NAME"
+          echo "Environment     : $ENV_NAME"
+          echo "Component       : $COMPONENT_NAME"
+          echo "Service Suffix  : $SERVICE_SUFFIX"
+          echo "RG Var Name     : $RG_VAR_NAME"
+          echo "App Var Name    : $APP_VAR_NAME"
+          echo "=================================================="
+          
+          # Install appconfig extension just in case
+          az extension add --name appconfig --upgrade --yes >/dev/null 2>&1 || true
+ 
+          # Fetch Resource Group (allow failure to handle it gracefully)
+          echo "Fetching Resource Group..."
+          RESOURCE_GROUP=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$RG_VAR_NAME" --label "$ENV_NAME" --query value -o tsv 2>/dev/null || echo "")
+          
+          # Fetch Container App Name (allow failure to handle it gracefully)
+          echo "Fetching Container App Name..."
+          CONTAINER_APP_NAME=$(az appconfig kv show --name "$APP_CONFIG_NAME" --key "$APP_VAR_NAME" --label "$ENV_NAME" --query value -o tsv 2>/dev/null || echo "")
+          
+          echo "--------------------------------------------------"
+          echo "✅ Resolution Results"
+          echo "--------------------------------------------------"
+          echo "Resource Group     : $RESOURCE_GROUP"
+          echo "Container App Name : $CONTAINER_APP_NAME"
+          echo "--------------------------------------------------"
+          
+          if [ -z "$RESOURCE_GROUP" ] || [ -z "$CONTAINER_APP_NAME" ]; then
+            echo "::error::Failed to resolve one or more variables from App Configuration."
+            echo "RG_VAR_NAME=$RG_VAR_NAME -> $RESOURCE_GROUP"
+            echo "APP_VAR_NAME=$APP_VAR_NAME -> $CONTAINER_APP_NAME"
+            exit 1
+          fi
+
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
+          echo "CONTAINER_APP_NAME=$CONTAINER_APP_NAME" >> $GITHUB_ENV
+
+      - name: 🚀 Deploy via AZ CLI
+        run: |
+           IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.version }}"
+           
+           echo "Deploying $IMAGE_TAG to $CONTAINER_APP_NAME in $RESOURCE_GROUP"
+           
+           az containerapp update \
+             --name "$CONTAINER_APP_NAME" \
+             --resource-group "$RESOURCE_GROUP" \
+             --image "$IMAGE_TAG"
+
+      - name: ✅ Verify Deployment
+        run: |
+           echo "Validating deployment for ${{ env.CONTAINER_APP_NAME }}..."
+           
+           MAX_RETRIES=20
+           SLEEP_SECONDS=10
+           
+           for ((i=1;i<=MAX_RETRIES;i++)); do
+             # 1. Check App Provisioning State
+             APP_STATE=$(az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query properties.provisioningState -o tsv)
+             
+             if [[ "$APP_STATE" != "Succeeded" ]]; then
+               echo "Attempt $i/$MAX_RETRIES: App Provisioning State is '$APP_STATE'. Waiting..."
+               sleep $SLEEP_SECONDS
+               continue
+             fi
+           
+             # 2. Get Latest Revision Name
+             LATEST_REV=$(az containerapp show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --query properties.latestRevisionName -o tsv)
+             
+             # 3. Check Latest Revision Provisioning State
+             REV_STATE=$(az containerapp revision show --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --revision "$LATEST_REV" --query properties.provisioningState -o tsv)
+             
+             if [[ "$REV_STATE" != "Provisioned" ]]; then
+               echo "Attempt $i/$MAX_RETRIES: Revision '$LATEST_REV' state is '$REV_STATE'. Waiting..."
+               sleep $SLEEP_SECONDS
+               continue
+             fi
+           
+             # 4. Check Replica Status
+             # Get replicas for the latest revision
+             REPLICAS_JSON=$(az containerapp replica list --name "${{ env.CONTAINER_APP_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}" --revision "$LATEST_REV" --query "[].{Name:name, State:properties.runningState}" -o json)
+             
+             REPLICA_COUNT=$(echo "$REPLICAS_JSON" | jq 'length')
+             
+             if [[ "$REPLICA_COUNT" -eq 0 ]]; then
+                echo "✅ Revision '$LATEST_REV' is Provisioned. No replicas running (likely scaled to zero). Deployment successful."
+                exit 0
+             fi
+             
+             RUNNING_COUNT=$(echo "$REPLICAS_JSON" | jq '[.[] | select(.State == "Running")] | length')
+             
+             if [[ "$RUNNING_COUNT" -gt 0 ]]; then
+                echo "✅ Success: Revision '$LATEST_REV' is Provisioned and has $RUNNING_COUNT running replicas."
+                exit 0
+             fi
+             
+             echo "Attempt $i/$MAX_RETRIES: Revision '$LATEST_REV' has $REPLICA_COUNT replicas, but none are 'Running' yet. Waiting..."
+             sleep $SLEEP_SECONDS
+           done
+           
+           echo "::error::Deployment verification timed out after $MAX_RETRIES attempts."
+           exit 1
