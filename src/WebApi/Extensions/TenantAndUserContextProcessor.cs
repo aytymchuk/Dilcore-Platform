@@ -51,7 +51,7 @@ public class TenantAndUserActivityProcessor : BaseProcessor<Activity>
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public override void OnStart(Activity data)
+    public override void OnEnd(Activity data)
     {
         var context = _httpContextAccessor.HttpContext;
         if (context == null)
@@ -69,6 +69,6 @@ public class TenantAndUserActivityProcessor : BaseProcessor<Activity>
         var userId = context.User?.Identity?.Name ?? "anonymous";
         data.SetTag("user.id", userId);
 
-        base.OnStart(data);
+        base.OnEnd(data);
     }
 }

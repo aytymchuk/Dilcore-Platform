@@ -1,16 +1,12 @@
 using System.Text.Json;
 using Azure.Data.AppConfiguration;
 using Azure.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.WebApi.Extensions;
 
 public static class ConfigurationExtensions
 {
-    private static class AppConfigConstants
-    {
-        public const string SharedKey = "Shared";
-        public const string AppConfigEndpointKey = "AppConfigEndpoint";
-    }
 
     public static void AddAppConfiguration(this WebApplicationBuilder builder)
     {
@@ -39,9 +35,12 @@ public static class ConfigurationExtensions
     private static void LoadAzureAppConfiguration(this WebApplicationBuilder builder)
     {
         var env = builder.Environment;
-        var appConfigEndpoint = builder.Configuration[AppConfigConstants.AppConfigEndpointKey];
+        var appConfigEndpoint = builder.Configuration[Constants.Configuration.AppConfigEndpointKey];
 
-        if (string.IsNullOrEmpty(appConfigEndpoint)) return;
+        if (string.IsNullOrEmpty(appConfigEndpoint))
+        {
+            return;
+        }
 
         try
         {
@@ -50,7 +49,7 @@ public static class ConfigurationExtensions
 
             // We fetch exactly two JSON configurations, both specifically labeled for the current environment.
             // Order is important: Shared first, then App-specific for precedence.
-            var keysToFetch = new[] { AppConfigConstants.SharedKey, env.ApplicationName };
+            var keysToFetch = new[] { Constants.Configuration.SharedKey, env.ApplicationName };
             var allConfigData = new List<KeyValuePair<string, string?>>();
 
             foreach (var key in keysToFetch)
@@ -80,13 +79,23 @@ public static class ConfigurationExtensions
             throw new InvalidOperationException($"Failed to load Azure App Configuration from endpoint '{appConfigEndpoint}'.", ex);
         }
     }
-
     public static IServiceCollection RegisterConfiguration<T>(this IServiceCollection services, IConfiguration configuration, string? sectionName = null) where T : class
     {
         sectionName ??= typeof(T).Name;
         var section = configuration.GetSection(sectionName);
         services.Configure<T>(section);
         return services;
+    }
+
+    public static T GetSettings<T>(this IConfiguration configuration, string? sectionName = null) where T : class, new()
+    {
+        sectionName ??= typeof(T).Name;
+        return configuration.GetSection(sectionName).Get<T>() ?? new T();
+    }
+
+    public static string GetValueOrDefault(this IConfiguration configuration, string key, string defaultValue)
+    {
+        return configuration[key] ?? defaultValue;
     }
 
     private static Dictionary<string, string?> ParseJson(string json)
