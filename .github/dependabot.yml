@@ -8,7 +8,7 @@ updates:
     commit-message:
       prefix: "ci"
 
-  # NuGet/.NET dependencies - bi-weekly
+  # NuGet/.NET dependencies - weekly
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
