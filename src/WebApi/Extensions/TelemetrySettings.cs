@@ -1,4 +1,4 @@
-namespace WebApi.Extensions;
+namespace Dilcore.WebApi.Extensions;
 
 public class TelemetrySettings
 {

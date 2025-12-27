@@ -1,14 +1,12 @@
+using Dilcore.WebApi.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
-using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 using Shouldly;
-using WebApi.Extensions;
 
-namespace WebApi.Tests;
+namespace Dilcore.WebApi.Tests;
 
 [TestFixture]
 public class DependencyInjectionTests

@@ -1,15 +1,10 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Metrics;
 
-using Microsoft.AspNetCore.Http;
-
-namespace WebApi.Extensions;
+namespace Dilcore.WebApi.Extensions;
 
 public static class TelemetryExtensions
 {

@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Logging;
-
-namespace WebApi.Extensions;
+namespace Dilcore.WebApi.Extensions;
 
 internal static partial class LoggerExtensions
 {

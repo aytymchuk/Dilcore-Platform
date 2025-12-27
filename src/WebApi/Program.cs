@@ -1,10 +1,11 @@
-using System.Net;
 using System.Security.Claims;
+using Dilcore.WebApi;
+using Dilcore.WebApi.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
-using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddAppConfiguration();
 
 // Add services to the container.
 builder.Services.AddOpenApi(options =>
@@ -87,7 +88,10 @@ app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+namespace Dilcore.WebApi
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    {
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
 }

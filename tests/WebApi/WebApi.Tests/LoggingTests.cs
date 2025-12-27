@@ -1,12 +1,12 @@
+using System.Security.Claims;
+using Dilcore.WebApi.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
-using System.Security.Claims;
 using Shouldly;
-using WebApi.Extensions;
 
-namespace WebApi.Tests;
+namespace Dilcore.WebApi.Tests;
 
 [TestFixture]
 public class LoggingTests

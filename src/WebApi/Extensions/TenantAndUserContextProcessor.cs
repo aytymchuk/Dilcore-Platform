@@ -2,7 +2,7 @@ using System.Diagnostics;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 
-namespace WebApi.Extensions;
+namespace Dilcore.WebApi.Extensions;
 
 public class TenantAndUserContextProcessor : BaseProcessor<LogRecord>
 {
