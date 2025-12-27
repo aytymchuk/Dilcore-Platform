@@ -21,8 +21,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     options.ForwardLimit = 1;
-    // Known Azure infrastructure proxy (Load Balancer)
-    options.KnownProxies.Add(IPAddress.Parse("168.63.129.16"));
+    options.KnownProxies.Clear();
+    options.KnownNetworks.Clear();
 });
 
 var app = builder.Build();
