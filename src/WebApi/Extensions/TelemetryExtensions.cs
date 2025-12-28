@@ -31,29 +31,26 @@ public static class TelemetryExtensions
         var otel = services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(env.ApplicationName, serviceVersion: serviceVersion));
 
-        // Unify instrumentation and logging configuration
-        otel.WithTracing(tracing =>
-        {
-            tracing.AddAspNetCoreInstrumentation();
-            tracing.AddHttpClientInstrumentation();
-        })
-        .WithMetrics(metrics =>
-        {
-            metrics.AddAspNetCoreInstrumentation();
-            metrics.AddHttpClientInstrumentation();
-        })
-        .WithLogging();
-
         if (!string.IsNullOrEmpty(settings.ApplicationInsightsConnectionString))
         {
-            // UseAzureMonitor handles its own instrumentation but respects the base configuration above.
+            // UseAzureMonitor handles its own instrumentation (AspNetCore, HttpClient, etc.)
             otel.UseAzureMonitor(options => options.ConnectionString = settings.ApplicationInsightsConnectionString);
         }
         else
         {
-            // Local development exporters
-            otel.WithTracing(tracing => tracing.AddConsoleExporter())
-                .WithMetrics(metrics => metrics.AddConsoleExporter())
+            // Local development: add instrumentation + console exporters
+            otel.WithTracing(tracing =>
+                {
+                    tracing.AddAspNetCoreInstrumentation();
+                    tracing.AddHttpClientInstrumentation();
+                    tracing.AddConsoleExporter();
+                })
+                .WithMetrics(metrics =>
+                {
+                    metrics.AddAspNetCoreInstrumentation();
+                    metrics.AddHttpClientInstrumentation();
+                    metrics.AddConsoleExporter();
+                })
                 .WithLogging(logging => logging.AddConsoleExporter());
         }
 
