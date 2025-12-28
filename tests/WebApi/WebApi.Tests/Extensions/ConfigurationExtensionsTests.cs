@@ -45,7 +45,7 @@ public class ConfigurationExtensionsTests
         var configuration = configBuilder.Build();
 
         // Act
-        services.RegisterConfiguration<TestConfig>(configuration, "CustomSection");
+        services.RegisterConfiguration<TestConfig>(configuration);
         using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<TestConfig>>().Value;
 
