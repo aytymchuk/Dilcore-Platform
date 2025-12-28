@@ -1,6 +1,6 @@
 namespace Dilcore.WebApi.Settings;
 
-public class TelemetrySettings
+public record TelemetrySettings
 {
-    public string? ApplicationInsightsConnectionString { get; set; }
+    public string? ApplicationInsightsConnectionString { get; init; }
 }
