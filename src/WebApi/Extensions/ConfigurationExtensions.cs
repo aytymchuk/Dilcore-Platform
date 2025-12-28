@@ -79,6 +79,7 @@ public static class ConfigurationExtensions
             throw new InvalidOperationException($"Failed to load Azure App Configuration from endpoint '{appConfigEndpoint}'.", ex);
         }
     }
+
     public static IServiceCollection RegisterConfiguration<T>(this IServiceCollection services, IConfiguration configuration, string? sectionName = null) where T : class
     {
         sectionName ??= typeof(T).Name;
