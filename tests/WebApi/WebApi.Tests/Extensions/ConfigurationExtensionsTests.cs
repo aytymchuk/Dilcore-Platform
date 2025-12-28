@@ -24,18 +24,18 @@ public class ConfigurationExtensionsTests
 
         // Act
         services.RegisterConfiguration<TestConfig>(configuration);
-        var provider = services.BuildServiceProvider();
+        using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<TestConfig>>().Value;
 
         // Assert
         options.Value.ShouldBe("SomeValue");
         options.Number.ShouldBe(42);
     }
-    
+
     [Test]
     public void RegisterConfiguration_With_SectionName_Should_Bind_Correctly()
     {
-         // Arrange
+        // Arrange
         var services = new ServiceCollection();
         var configBuilder = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -44,9 +44,9 @@ public class ConfigurationExtensionsTests
             });
         var configuration = configBuilder.Build();
 
-         // Act
+        // Act
         services.RegisterConfiguration<TestConfig>(configuration, "CustomSection");
-        var provider = services.BuildServiceProvider();
+        using var provider = services.BuildServiceProvider();
         var options = provider.GetRequiredService<IOptions<TestConfig>>().Value;
 
         // Assert

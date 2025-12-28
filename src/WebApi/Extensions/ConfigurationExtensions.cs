@@ -10,9 +10,6 @@ public static class ConfigurationExtensions
 
     public static void AddAppConfiguration(this WebApplicationBuilder builder)
     {
-        // Clear default sources to enforce specific order
-        builder.Configuration.Sources.Clear();
-
         var env = builder.Environment;
 
         // 1. Environment Variables
@@ -25,7 +22,7 @@ public static class ConfigurationExtensions
         }
 
         // 3. App Settings
-        builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+        builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
         builder.Configuration.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
         // 4. Azure App Config
@@ -50,7 +47,7 @@ public static class ConfigurationExtensions
             // We fetch exactly two JSON configurations, both specifically labeled for the current environment.
             // Order is important: Shared first, then App-specific for precedence.
             var keysToFetch = new[] { Constants.Configuration.SharedKey, env.ApplicationName };
-            var allConfigData = new List<KeyValuePair<string, string?>>();
+            var allConfigData = new Dictionary<string, string?>();
 
             foreach (var key in keysToFetch)
             {
@@ -60,7 +57,10 @@ public static class ConfigurationExtensions
                     if (setting?.Value != null && !string.IsNullOrEmpty(setting.Value.Value))
                     {
                         var kvps = ParseJson(setting.Value.Value);
-                        allConfigData.AddRange(kvps);
+                        foreach (var kvp in kvps)
+                        {
+                            allConfigData[kvp.Key] = kvp.Value;
+                        }
                     }
                 }
                 catch (Azure.RequestFailedException ex) when (ex.Status == 404)
@@ -69,7 +69,7 @@ public static class ConfigurationExtensions
                 }
             }
 
-            if (allConfigData.Any())
+            if (allConfigData.Count > 0)
             {
                 builder.Configuration.AddInMemoryCollection(allConfigData);
             }
@@ -101,7 +101,7 @@ public static class ConfigurationExtensions
     private static Dictionary<string, string?> ParseJson(string json)
     {
         var data = new Dictionary<string, string?>();
-        var jsonDocument = JsonDocument.Parse(json);
+        using var jsonDocument = JsonDocument.Parse(json);
         FlattenElement(jsonDocument.RootElement, data, string.Empty);
         return data;
     }

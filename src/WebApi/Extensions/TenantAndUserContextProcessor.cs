@@ -18,6 +18,7 @@ public class TenantAndUserContextProcessor : BaseProcessor<LogRecord>
         var context = _httpContextAccessor.HttpContext;
         if (context == null)
         {
+            base.OnEnd(data);
             return;
         }
 
@@ -56,6 +57,7 @@ public class TenantAndUserActivityProcessor : BaseProcessor<Activity>
         var context = _httpContextAccessor.HttpContext;
         if (context == null)
         {
+            base.OnEnd(data);
             return;
         }
 
