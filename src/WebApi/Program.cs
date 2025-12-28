@@ -17,6 +17,8 @@ builder.Services.AddOpenApi(options =>
         document.Servers = [];
         return Task.CompletedTask;
     });
+    // Add security schemes for authentication (Bearer + OAuth2)
+    options.AddDocumentTransformer<OpenApiSecurityTransformer>();
 });
 builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddCors();
@@ -65,19 +67,24 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi().AllowAnonymous();
     app.MapScalarApiReference("/api-doc", options =>
     {
-        options.AddPreferredSecuritySchemes("auth0")
-            .AddOAuth2Authentication("auth0", scheme =>
+        options
+            // Prefer auth0 (OAuth2) by default - Bearer is still available but not pre-selected
+            .AddPreferredSecuritySchemes("auth0")
+            // Configure OAuth2 authorization code flow for Auth0
+            .AddAuthorizationCodeFlow("auth0", flow =>
             {
-                scheme.Flows = new ScalarFlows
-                {
-                    AuthorizationCode = new AuthorizationCodeFlow
-                    {
-                        AuthorizationUrl = $"https://{builder.Configuration["Auth0:Domain"]}/authorize",
-                        TokenUrl = $"https://{builder.Configuration["Auth0:Domain"]}/oauth/token",
-                        ClientId = builder.Configuration["Auth0:ClientId"],
-                        ClientSecret = builder.Configuration["Auth0:ClientSecret"]
-                    }
-                };
+                flow.ClientId = builder.Configuration["Auth0:ClientId"];
+                flow.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
+                // For Auth0, 'openid' is required for ID tokens
+                // The 'audience' parameter grants access to the API
+                flow.SelectedScopes = ["openid"];
+                // Auth0 requires the audience parameter for token requests
+                flow.AddQueryParameter("audience", builder.Configuration["Auth0:Audience"] ?? string.Empty);
+            })
+            // Configure Bearer token authentication for manual token input
+            .AddHttpAuthentication("Bearer", auth =>
+            {
+                auth.Token = string.Empty; // Users will input their own JWT token
             });
     }).AllowAnonymous();
 }
