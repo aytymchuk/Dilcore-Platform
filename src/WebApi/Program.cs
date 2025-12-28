@@ -1,12 +1,14 @@
 using System.Security.Claims;
+using Dilcore.WebApi;
+using Dilcore.WebApi.Extensions;
 using Auth0.AspNetCore.Authentication.Api;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
-using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddAppConfiguration();
 
 // Add services to the container.
 builder.Services.AddOpenApi(options =>
@@ -17,7 +19,7 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
-builder.Services.AddTelemetry(builder.Configuration);
+builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddCors();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -44,6 +46,15 @@ builder.Services.AddAuthorizationBuilder()
         .Build());
 
 var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+
+lifetime.ApplicationStarted.Register(() => logger.LogInformation("Application has started and is listening on its configured endpoints."));
+lifetime.ApplicationStopping.Register(() => logger.LogInformation("Application is stopping..."));
+lifetime.ApplicationStopped.Register(() => logger.LogInformation("Application has been stopped."));
+
+logger.LogInformation("Starting the application...");
 
 app.UseForwardedHeaders();
 
@@ -99,9 +110,12 @@ app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+namespace Dilcore.WebApi
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    {
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
 }
 
 public partial class Program { }
