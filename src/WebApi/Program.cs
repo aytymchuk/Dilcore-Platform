@@ -1,5 +1,5 @@
-using System.Net;
 using System.Security.Claims;
+using Auth0.AspNetCore.Authentication.Api;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -27,25 +27,21 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
 });
 
-// Add Auth0 Authentication via JwtBearer
-builder.Services.AddAuthentication(options =>
+// Add Auth0 Authentication via Auth0.AspNetCore.Authentication.Api
+builder.Services.AddAuth0ApiAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
-    options.Audience = builder.Configuration["Auth0:Audience"];
+    options.Domain = builder.Configuration["Auth0:Domain"];
+    options.JwtBearerOptions = new JwtBearerOptions
+    {
+        Audience = builder.Configuration["Auth0:Audience"]
+    };
 });
 
 // Enforce authentication for all endpoints by default
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
-        .Build();
-});
+        .Build());
 
 var app = builder.Build();
 
@@ -70,7 +66,8 @@ if (app.Environment.IsDevelopment())
                 {
                     AuthorizationUrl = $"https://{builder.Configuration["Auth0:Domain"]}/authorize",
                     TokenUrl = $"https://{builder.Configuration["Auth0:Domain"]}/oauth/token",
-                    ClientId = "YOUR_CLIENT_ID"
+                    ClientId = builder.Configuration["Auth0:ClientId"],
+                    ClientSecret = builder.Configuration["Auth0:ClientSecret"]
                 }
             };
         });
