@@ -94,6 +94,13 @@ public static class ConfigurationExtensions
         return configuration.GetSection(sectionName).Get<T>() ?? new T();
     }
 
+    public static T GetRequiredSettings<T>(this IConfiguration configuration, string? sectionName = null) where T : class
+    {
+        sectionName ??= typeof(T).Name;
+        var section = configuration.GetSection(sectionName);
+        return section.Get<T>() ?? throw new InvalidOperationException($"Required configuration section '{sectionName}' is missing.");
+    }
+
     public static string GetValueOrDefault(this IConfiguration configuration, string key, string defaultValue)
     {
         return configuration[key] ?? defaultValue;
