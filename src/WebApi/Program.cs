@@ -1,10 +1,11 @@
-using System.Net;
 using System.Security.Claims;
+using Dilcore.WebApi;
+using Dilcore.WebApi.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
-using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddAppConfiguration();
 
 // Add services to the container.
 builder.Services.AddOpenApi(options =>
@@ -15,7 +16,7 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
-builder.Services.AddTelemetry(builder.Configuration);
+builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddCors();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -26,6 +27,15 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+
+lifetime.ApplicationStarted.Register(() => logger.LogInformation("Application has started and is listening on its configured endpoints."));
+lifetime.ApplicationStopping.Register(() => logger.LogInformation("Application is stopping..."));
+lifetime.ApplicationStopped.Register(() => logger.LogInformation("Application has been stopped."));
+
+logger.LogInformation("Starting the application...");
 
 app.UseForwardedHeaders();
 
@@ -53,7 +63,7 @@ if (app.Environment.IsDevelopment())
         };
         var identity = new ClaimsIdentity(claims, "TestAuth");
         context.User = new ClaimsPrincipal(identity);
-        
+
         // Simulate passing Tenant ID via header if not present
         if (!context.Request.Headers.ContainsKey("X-Tenant-ID"))
         {
@@ -73,7 +83,7 @@ app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
 {
     logger.LogGettingWeatherForecast(5);
 
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -87,7 +97,10 @@ app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+namespace Dilcore.WebApi
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    {
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
 }

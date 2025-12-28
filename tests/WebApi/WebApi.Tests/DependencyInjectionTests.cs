@@ -1,14 +1,14 @@
+using Dilcore.WebApi.Extensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Moq;
 using OpenTelemetry.Logs;
-using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 using Shouldly;
-using WebApi.Extensions;
 
-namespace WebApi.Tests;
+namespace Dilcore.WebApi.Tests;
 
 [TestFixture]
 public class DependencyInjectionTests
@@ -26,8 +26,11 @@ public class DependencyInjectionTests
             })
             .Build();
 
+        var envMock = new Mock<IWebHostEnvironment>();
+        envMock.Setup(e => e.ApplicationName).Returns("TestService");
+
         // Act
-        services.AddTelemetry(configuration);
+        services.AddTelemetry(configuration, envMock.Object);
         using var serviceProvider = services.BuildServiceProvider();
 
         // Assert
@@ -56,8 +59,11 @@ public class DependencyInjectionTests
             })
             .Build();
 
+        var envMock = new Mock<IWebHostEnvironment>();
+        envMock.Setup(e => e.ApplicationName).Returns("TestService");
+
         // Act
-        services.AddTelemetry(configuration);
+        services.AddTelemetry(configuration, envMock.Object);
         using var serviceProvider = services.BuildServiceProvider();
 
         // Assert
