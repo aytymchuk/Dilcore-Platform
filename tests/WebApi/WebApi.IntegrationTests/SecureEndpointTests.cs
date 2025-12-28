@@ -1,0 +1,41 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Testing;
+using NUnit.Framework;
+using Shouldly;
+
+namespace WebApi.IntegrationTests;
+
+[TestFixture]
+public class SecureEndpointTests
+{
+    private CustomWebApplicationFactory _factory;
+    private HttpClient _client;
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
+    {
+        _factory = new CustomWebApplicationFactory();
+        _client = _factory.CreateClient();
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+        _client.Dispose();
+        _factory.Dispose();
+    }
+
+    [Test]
+    public async Task GetWeatherForecast_WhenAuthenticated_ReturnsOk()
+    {
+        // Act
+        var response = await _client.GetAsync("/weatherforecast");
+
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.ShouldNotBeNullOrEmpty();
+    }
+}

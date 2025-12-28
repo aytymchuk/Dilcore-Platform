@@ -1,5 +1,7 @@
 using System.Net;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
 using WebApi.Extensions;
@@ -25,44 +27,57 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
 });
 
+// Add Auth0 Authentication via JwtBearer
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+    options.Audience = builder.Configuration["Auth0:Audience"];
+});
+
+// Enforce authentication for all endpoints by default
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 var app = builder.Build();
 
 app.UseForwardedHeaders();
 
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference(endpointPrefix: "/api-doc");
+    app.MapScalarApiReference("/api-doc", options =>
+    {
+        options.AddOAuth2Authentication("auth0", scheme =>
+        {
+            scheme.Flows = new ScalarFlows
+            {
+                AuthorizationCode = new AuthorizationCodeFlow
+                {
+                    AuthorizationUrl = $"https://{builder.Configuration["Auth0:Domain"]}/authorize",
+                    TokenUrl = $"https://{builder.Configuration["Auth0:Domain"]}/oauth/token",
+                    ClientId = "YOUR_CLIENT_ID"
+                }
+            };
+        });
+    });
 }
 
 app.UseHttpsRedirection();
-
-// Simulate Authentication Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.Use(async (context, next) =>
-    {
-        // Simulate an authenticated user
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, "test-user-123"),
-            new Claim("tenant_id", "tenant-abc")
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuth");
-        context.User = new ClaimsPrincipal(identity);
-        
-        // Simulate passing Tenant ID via header if not present
-        if (!context.Request.Headers.ContainsKey("X-Tenant-ID"))
-        {
-            context.Request.Headers.Append("X-Tenant-ID", "tenant-abc");
-        }
-
-        await next();
-    });
-}
 
 var summaries = new[]
 {
@@ -73,7 +88,7 @@ app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
 {
     logger.LogGettingWeatherForecast(5);
 
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -91,3 +106,5 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+public partial class Program { }
