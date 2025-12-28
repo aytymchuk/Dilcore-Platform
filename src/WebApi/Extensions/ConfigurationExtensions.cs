@@ -1,82 +1,85 @@
 using System.Text.Json;
 using Azure.Data.AppConfiguration;
 using Azure.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.WebApi.Extensions;
 
 public static class ConfigurationExtensions
 {
-
-    public static void AddAppConfiguration(this WebApplicationBuilder builder)
+    extension(WebApplicationBuilder builder)
     {
-        var env = builder.Environment;
-
-        // 1. Environment Variables
-        builder.Configuration.AddEnvironmentVariables();
-
-        // 2. User Secrets (if development env)
-        if (env.IsDevelopment())
+        public void AddAppConfiguration()
         {
-            builder.Configuration.AddUserSecrets<Program>();
-        }
+            var env = builder.Environment;
 
-        // 3. App Settings
-        builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-        builder.Configuration.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+            // 1. Environment Variables
+            builder.Configuration.AddEnvironmentVariables();
 
-        // 4. Azure App Config
-        builder.LoadAzureAppConfiguration();
-    }
-
-    private static void LoadAzureAppConfiguration(this WebApplicationBuilder builder)
-    {
-        var env = builder.Environment;
-        var appConfigEndpoint = builder.Configuration[Constants.Configuration.AppConfigEndpointKey];
-
-        if (string.IsNullOrEmpty(appConfigEndpoint))
-        {
-            return;
-        }
-
-        try
-        {
-            var credential = new DefaultAzureCredential();
-            var client = new ConfigurationClient(new Uri(appConfigEndpoint), credential);
-
-            // We fetch exactly two JSON configurations, both specifically labeled for the current environment.
-            // Order is important: Shared first, then App-specific for precedence.
-            var keysToFetch = new[] { Constants.Configuration.SharedKey, env.ApplicationName };
-            var allConfigData = new Dictionary<string, string?>();
-
-            foreach (var key in keysToFetch)
+            // 2. User Secrets (if development env)
+            if (env.IsDevelopment())
             {
-                try
+                builder.Configuration.AddUserSecrets<Program>();
+            }
+
+            // 3. App Settings
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            builder.Configuration.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+            // 4. Azure App Config
+            builder.LoadAzureAppConfiguration();
+        }
+
+        private void LoadAzureAppConfiguration()
+        {
+            var env = builder.Environment;
+            var appConfigEndpoint = builder.Configuration[Constants.Configuration.AppConfigEndpointKey];
+
+            appConfigEndpoint = string.Empty;
+            
+            if (string.IsNullOrEmpty(appConfigEndpoint))
+            {
+                return;
+            }
+
+            try
+            {
+                var credential = new DefaultAzureCredential();
+                var client = new ConfigurationClient(new Uri(appConfigEndpoint), credential);
+
+                // We fetch exactly two JSON configurations, both specifically labeled for the current environment.
+                // Order is important: Shared first, then App-specific for precedence.
+                var keysToFetch = new[] { Constants.Configuration.SharedKey, env.ApplicationName };
+                var allConfigData = new Dictionary<string, string?>();
+
+                foreach (var key in keysToFetch)
                 {
-                    var setting = client.GetConfigurationSetting(key, label: env.EnvironmentName);
-                    if (setting?.Value != null && !string.IsNullOrEmpty(setting.Value.Value))
+                    try
                     {
-                        var kvps = ParseJson(setting.Value.Value);
-                        foreach (var kvp in kvps)
+                        var setting = client.GetConfigurationSetting(key, label: env.EnvironmentName);
+                        if (setting?.Value != null && !string.IsNullOrEmpty(setting.Value.Value))
                         {
-                            allConfigData[kvp.Key] = kvp.Value;
+                            var kvps = ParseJson(setting.Value.Value);
+                            foreach (var kvp in kvps)
+                            {
+                                allConfigData[kvp.Key] = kvp.Value;
+                            }
                         }
                     }
+                    catch (Azure.RequestFailedException ex) when (ex.Status == 404)
+                    {
+                        // Configuration is optional, skip if not found
+                    }
                 }
-                catch (Azure.RequestFailedException ex) when (ex.Status == 404)
-                {
-                    // Configuration is optional, skip if not found
-                }
-            }
 
-            if (allConfigData.Count > 0)
-            {
-                builder.Configuration.AddInMemoryCollection(allConfigData);
+                if (allConfigData.Count > 0)
+                {
+                    builder.Configuration.AddInMemoryCollection(allConfigData);
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Failed to load Azure App Configuration from endpoint '{appConfigEndpoint}'.", ex);
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to load Azure App Configuration from endpoint '{appConfigEndpoint}'.", ex);
+            }
         }
     }
 
@@ -88,22 +91,25 @@ public static class ConfigurationExtensions
         return services;
     }
 
-    public static T GetSettings<T>(this IConfiguration configuration, string? sectionName = null) where T : class, new()
+    extension(IConfiguration configuration)
     {
-        sectionName ??= typeof(T).Name;
-        return configuration.GetSection(sectionName).Get<T>() ?? new T();
-    }
+        public T GetSettings<T>(string? sectionName = null) where T : class, new()
+        {
+            sectionName ??= typeof(T).Name;
+            return configuration.GetSection(sectionName).Get<T>() ?? new T();
+        }
 
-    public static T GetRequiredSettings<T>(this IConfiguration configuration, string? sectionName = null) where T : class
-    {
-        sectionName ??= typeof(T).Name;
-        var section = configuration.GetSection(sectionName);
-        return section.Get<T>() ?? throw new InvalidOperationException($"Required configuration section '{sectionName}' is missing.");
-    }
+        public T GetRequiredSettings<T>(string? sectionName = null) where T : class
+        {
+            sectionName ??= typeof(T).Name;
+            var section = configuration.GetSection(sectionName);
+            return section.Get<T>() ?? throw new InvalidOperationException($"Required configuration section '{sectionName}' is missing.");
+        }
 
-    public static string GetValueOrDefault(this IConfiguration configuration, string key, string defaultValue)
-    {
-        return configuration[key] ?? defaultValue;
+        public string GetValueOrDefault(string key, string defaultValue)
+        {
+            return configuration[key] ?? defaultValue;
+        }
     }
 
     private static Dictionary<string, string?> ParseJson(string json)

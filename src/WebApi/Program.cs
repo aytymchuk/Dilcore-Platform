@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Dilcore.WebApi;
 using Dilcore.WebApi.Extensions;
 using Auth0.AspNetCore.Authentication.Api;
@@ -13,7 +12,7 @@ builder.AddAppConfiguration();
 // Add services to the container.
 builder.Services.AddOpenApi(options =>
 {
-    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    options.AddDocumentTransformer((document, _, _) =>
     {
         document.Servers = [];
         return Task.CompletedTask;
@@ -60,32 +59,33 @@ app.UseForwardedHeaders();
 
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi().AllowAnonymous();
     app.MapScalarApiReference("/api-doc", options =>
     {
-        options.AddOAuth2Authentication("auth0", scheme =>
-        {
-            scheme.Flows = new ScalarFlows
+        options.AddPreferredSecuritySchemes("auth0")
+            .AddOAuth2Authentication("auth0", scheme =>
             {
-                AuthorizationCode = new AuthorizationCodeFlow
+                scheme.Flows = new ScalarFlows
                 {
-                    AuthorizationUrl = $"https://{builder.Configuration["Auth0:Domain"]}/authorize",
-                    TokenUrl = $"https://{builder.Configuration["Auth0:Domain"]}/oauth/token",
-                    ClientId = builder.Configuration["Auth0:ClientId"],
-                    ClientSecret = builder.Configuration["Auth0:ClientSecret"]
-                }
-            };
-        });
-    });
+                    AuthorizationCode = new AuthorizationCodeFlow
+                    {
+                        AuthorizationUrl = $"https://{builder.Configuration["Auth0:Domain"]}/authorize",
+                        TokenUrl = $"https://{builder.Configuration["Auth0:Domain"]}/oauth/token",
+                        ClientId = builder.Configuration["Auth0:ClientId"],
+                        ClientSecret = builder.Configuration["Auth0:ClientSecret"]
+                    }
+                };
+            });
+    }).AllowAnonymous();
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 var summaries = new[]
 {
