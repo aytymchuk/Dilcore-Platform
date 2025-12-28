@@ -28,13 +28,14 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 // Add Auth0 Authentication via Auth0.AspNetCore.Authentication.Api
 builder.Services.AddAuth0ApiAuthentication(options =>
-{
-    options.Domain = builder.Configuration.GetRequiredSettings<AuthenticationSettings>().Auth0.Domain;
-    options.JwtBearerOptions = new JwtBearerOptions
     {
-        Audience = builder.Configuration.GetRequiredSettings<AuthenticationSettings>().Auth0.Audience
-    };
-});
+        var authSettings = builder.Configuration.GetSettings<AuthenticationSettings>();
+        options.Domain = authSettings.Auth0?.Domain ?? string.Empty;
+        options.JwtBearerOptions = new JwtBearerOptions
+        {
+            Audience = authSettings.Auth0?.Audience ?? string.Empty
+        };
+    });
 
 // Enforce authentication for all endpoints by default
 builder.Services.AddAuthorizationBuilder()

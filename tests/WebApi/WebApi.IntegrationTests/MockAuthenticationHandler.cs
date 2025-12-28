@@ -18,6 +18,11 @@ public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSch
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        if (Request.Headers.ContainsKey("X-Test-Unauthorized"))
+        {
+            return Task.FromResult(AuthenticateResult.Fail("Unauthorized via test header"));
+        }
+
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, "TestUser"),

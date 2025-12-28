@@ -34,4 +34,19 @@ public class SecureEndpointTests
         var content = await response.Content.ReadAsStringAsync();
         content.ShouldNotBeNullOrEmpty();
     }
+
+    [Test]
+    public async Task GetWeatherForecast_WhenNotAuthenticated_ReturnsUnauthorized()
+    {
+        // Arrange
+        using var factory = new CustomWebApplicationFactory();
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Unauthorized", "true");
+
+        // Act
+        var response = await client.GetAsync("/weatherforecast");
+
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
 }
