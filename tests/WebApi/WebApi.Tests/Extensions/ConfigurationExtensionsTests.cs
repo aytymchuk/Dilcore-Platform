@@ -32,26 +32,7 @@ public class ConfigurationExtensionsTests
         options.Number.ShouldBe(42);
     }
 
-    [Test]
-    public void RegisterConfiguration_With_SectionName_Should_Bind_Correctly()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        var configBuilder = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                {"CustomSection:Value", "CustomValue"}
-            });
-        var configuration = configBuilder.Build();
 
-        // Act
-        services.RegisterConfiguration<TestConfig>(configuration, "CustomSection");
-        using var provider = services.BuildServiceProvider();
-        var options = provider.GetRequiredService<IOptions<TestConfig>>().Value;
-
-        // Assert
-        options.Value.ShouldBe("CustomValue");
-    }
 
     [Test]
     public void GetSettings_Should_Return_Default_When_Section_Missing()

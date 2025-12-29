@@ -1,13 +1,13 @@
 using System.Text.Json;
 using Azure.Data.AppConfiguration;
 using Azure.Identity;
-using Microsoft.Extensions.DependencyInjection;
+
+using Dilcore.WebApi.Settings;
 
 namespace Dilcore.WebApi.Extensions;
 
 public static class ConfigurationExtensions
 {
-
     public static void AddAppConfiguration(this WebApplicationBuilder builder)
     {
         var env = builder.Environment;
@@ -80,25 +80,29 @@ public static class ConfigurationExtensions
         }
     }
 
-    public static IServiceCollection RegisterConfiguration<T>(this IServiceCollection services, IConfiguration configuration, string? sectionName = null) where T : class
+    public static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        sectionName ??= typeof(T).Name;
-        var section = configuration.GetSection(sectionName);
+        services.RegisterConfiguration<ApplicationSettings>(configuration);
+        services.RegisterConfiguration<AuthenticationSettings>(configuration);
+        return services;
+    }
+
+    public static IServiceCollection RegisterConfiguration<T>(this IServiceCollection services, IConfiguration configuration) where T : class
+    {
+        var section = configuration.GetSection(typeof(T).Name);
         services.Configure<T>(section);
         return services;
     }
 
-    public static T GetSettings<T>(this IConfiguration configuration, string? sectionName = null) where T : class, new()
+    public static T GetSettings<T>(this IConfiguration configuration) where T : class, new()
     {
-        sectionName ??= typeof(T).Name;
-        return configuration.GetSection(sectionName).Get<T>() ?? new T();
+        return configuration.GetSection(typeof(T).Name).Get<T>() ?? new T();
     }
 
-    public static T GetRequiredSettings<T>(this IConfiguration configuration, string? sectionName = null) where T : class
+    public static T GetRequiredSettings<T>(this IConfiguration configuration) where T : class
     {
-        sectionName ??= typeof(T).Name;
-        var section = configuration.GetSection(sectionName);
-        return section.Get<T>() ?? throw new InvalidOperationException($"Required configuration section '{sectionName}' is missing.");
+        var section = configuration.GetSection(typeof(T).Name);
+        return section.Get<T>() ?? throw new InvalidOperationException($"Required configuration section '{typeof(T).Name}' is missing.");
     }
 
     public static string GetValueOrDefault(this IConfiguration configuration, string key, string defaultValue)

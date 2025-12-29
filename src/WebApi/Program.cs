@@ -1,21 +1,21 @@
-using System.Security.Claims;
+
 using Dilcore.WebApi;
+using Dilcore.WebApi.Infrastructure;
+using Dilcore.WebApi.Infrastructure.OpenApi;
+using Dilcore.WebApi.Infrastructure.Scalar;
 using Dilcore.WebApi.Extensions;
+using Dilcore.WebApi.Settings;
+using Auth0.AspNetCore.Authentication.Api;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
-using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
 
 // Add services to the container.
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer((document, context, cancellationToken) =>
-    {
-        document.Servers = [];
-        return Task.CompletedTask;
-    });
-});
+builder.Services.AddAppSettings(builder.Configuration);
+builder.Services.AddOpenApiDocumentation(builder.Configuration);
 builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddCors();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -25,6 +25,31 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
     options.KnownIPNetworks.Clear();
 });
+
+// Add Auth0 Authentication via Auth0.AspNetCore.Authentication.Api
+var authSettings = builder.Configuration.GetSettings<AuthenticationSettings>();
+
+if (authSettings.Auth0 == null)
+{
+    throw new InvalidOperationException("Auth0 configuration is required. Please ensure AuthenticationSettings.Auth0 is configured in appsettings.json.");
+}
+
+var auth0 = authSettings.Auth0;
+
+builder.Services.AddAuth0ApiAuthentication(options =>
+    {
+        options.Domain = auth0.Domain;
+        options.JwtBearerOptions = new JwtBearerOptions
+        {
+            Audience = auth0.Audience
+        };
+    });
+
+// Enforce authentication for all endpoints by default
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
 
 var app = builder.Build();
 
@@ -44,35 +69,14 @@ app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(endpointPrefix: "/api-doc");
+    app.UseOpenApiDocumentation();
+    app.AddScalarDocumentation(app.Configuration);
 }
 
 app.UseHttpsRedirection();
 
-// Simulate Authentication Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.Use(async (context, next) =>
-    {
-        // Simulate an authenticated user
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, "test-user-123"),
-            new Claim("tenant_id", "tenant-abc")
-        };
-        var identity = new ClaimsIdentity(claims, "TestAuth");
-        context.User = new ClaimsPrincipal(identity);
-
-        // Simulate passing Tenant ID via header if not present
-        if (!context.Request.Headers.ContainsKey("X-Tenant-ID"))
-        {
-            context.Request.Headers.Append("X-Tenant-ID", "tenant-abc");
-        }
-
-        await next();
-    });
-}
+app.UseAuthentication();
+app.UseAuthorization();
 
 var summaries = new[]
 {
@@ -104,3 +108,5 @@ namespace Dilcore.WebApi
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 }
+
+public partial class Program { }
