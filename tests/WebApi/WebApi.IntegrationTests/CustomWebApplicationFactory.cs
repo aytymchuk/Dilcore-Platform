@@ -16,8 +16,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
         builder.ConfigureAppConfiguration((context, config) =>
         {
-            config.Sources.Clear();
-            config.AddJsonFile("appsettings.Testing.json");
+            // Don't clear sources - just add the Testing config to override
+            config.AddJsonFile("appsettings.Testing.json", optional: false, reloadOnChange: false);
         });
 
         builder.ConfigureServices(services =>
