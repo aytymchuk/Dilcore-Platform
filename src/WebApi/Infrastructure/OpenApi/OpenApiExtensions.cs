@@ -9,7 +9,12 @@ public static class OpenApiExtensions
     public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, IConfiguration configuration)
     {
         var buildVersion = configuration[Constants.Configuration.BuildVersionKey] ?? Constants.Configuration.DefaultBuildVersion;
-        var appSettings = configuration.GetSettings<ApplicationSettings>();
+        var appSettings = configuration.GetRequiredSettings<ApplicationSettings>();
+
+        if (string.IsNullOrWhiteSpace(appSettings.Name))
+        {
+            throw new InvalidOperationException("ApplicationSettings.Name is required for OpenAPI documentation.");
+        }
 
         var appName = appSettings.Name;
 

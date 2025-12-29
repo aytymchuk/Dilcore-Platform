@@ -4,31 +4,37 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-namespace WebApi.IntegrationTests;
+namespace Dilcore.WebApi.IntegrationTests;
 
 public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
+    private readonly FakeUser _fakeUser;
+
     public MockAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
-        UrlEncoder encoder)
+        UrlEncoder encoder,
+        FakeUser fakeUser)
         : base(options, logger, encoder)
     {
+        _fakeUser = fakeUser;
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (Request.Headers.ContainsKey("X-Test-Unauthorized"))
+        if (Request.Headers.ContainsKey("X-Test-Unauthorized") || !_fakeUser.IsAuthenticated)
         {
-            return Task.FromResult(AuthenticateResult.Fail("Unauthorized via test header"));
+            return Task.FromResult(AuthenticateResult.Fail("Unauthorized via test header or FakeUser.IsAuthenticated = false"));
         }
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, "TestUser"),
-            new Claim(ClaimTypes.NameIdentifier, "test-user-id"),
-            new Claim("tenant.id", "test-tenant")
+            new Claim(ClaimTypes.Name, _fakeUser.Name),
+            new Claim(ClaimTypes.NameIdentifier, _fakeUser.UserId),
+            new Claim(ClaimTypes.Email, _fakeUser.Email),
+            new Claim("tenant.id", _fakeUser.TenantId)
         };
+
         var identity = new ClaimsIdentity(claims, "Test");
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, "Test");

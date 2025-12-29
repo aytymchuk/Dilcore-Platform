@@ -27,13 +27,21 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 // Add Auth0 Authentication via Auth0.AspNetCore.Authentication.Api
+var authSettings = builder.Configuration.GetSettings<AuthenticationSettings>();
+
+if (authSettings.Auth0 == null)
+{
+    throw new InvalidOperationException("Auth0 configuration is required. Please ensure AuthenticationSettings.Auth0 is configured in appsettings.json.");
+}
+
+var auth0 = authSettings.Auth0;
+
 builder.Services.AddAuth0ApiAuthentication(options =>
     {
-        var authSettings = builder.Configuration.GetSettings<AuthenticationSettings>();
-        options.Domain = authSettings.Auth0?.Domain ?? string.Empty;
+        options.Domain = auth0.Domain;
         options.JwtBearerOptions = new JwtBearerOptions
         {
-            Audience = authSettings.Auth0?.Audience ?? string.Empty
+            Audience = auth0.Audience
         };
     });
 
