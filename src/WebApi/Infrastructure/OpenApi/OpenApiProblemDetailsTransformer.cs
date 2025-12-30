@@ -65,15 +65,14 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
         operation.Responses ??= new OpenApiResponses();
 
         // Retrieve the reference schema again to use in responses (or just get the reference object)
-        var problematicSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), null, cancellationToken);
+        var problemDetailsSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), null, cancellationToken);
 
         // 2. Add responses to Operations (Operation scope)
         // Add "default" error response
         if (!operation.Responses.ContainsKey("default"))
         {
-            operation.Responses.Add("default", CreateProblemDetailsResponse("Unexpected error occurred.", problematicSchema));
+            operation.Responses.Add("default", CreateProblemDetailsResponse("Unexpected error occurred.", problemDetailsSchema));
         }
-
 
         // Check for AllowAnonymous attribute
         var isAnonymous = context.Description.ActionDescriptor.EndpointMetadata
@@ -84,17 +83,17 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
         {
             if (!operation.Responses.ContainsKey("401"))
             {
-                operation.Responses.Add("401", CreateProblemDetailsResponse("Unauthorized - Authentication is required.", problematicSchema));
+                operation.Responses.Add("401", CreateProblemDetailsResponse("Unauthorized - Authentication is required.", problemDetailsSchema));
             }
 
             if (!operation.Responses.ContainsKey("403"))
             {
-                operation.Responses.Add("403", CreateProblemDetailsResponse("Forbidden - User does not have necessary permissions.", problematicSchema));
+                operation.Responses.Add("403", CreateProblemDetailsResponse("Forbidden - User does not have necessary permissions.", problemDetailsSchema));
             }
         }
     }
 
-    private static OpenApiResponse CreateProblemDetailsResponse(string description, OpenApiSchema schema)
+    private static OpenApiResponse CreateProblemDetailsResponse(string description, IOpenApiSchema schema)
     {
         return new OpenApiResponse
         {
@@ -103,7 +102,7 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
             {
                 [Constants.ProblemDetails.ContentType] = new()
                 {
-                    Schema = schema
+                    Schema = (OpenApiSchema)schema
                 }
             }
         };
