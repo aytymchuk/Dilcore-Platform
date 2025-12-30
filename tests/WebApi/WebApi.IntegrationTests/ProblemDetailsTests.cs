@@ -54,6 +54,7 @@ public class ProblemDetailsTests
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
 
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(400);
@@ -69,6 +70,7 @@ public class ProblemDetailsTests
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
 
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(401);
@@ -76,6 +78,10 @@ public class ProblemDetailsTests
         errorCode.GetString().ShouldBe("UNAUTHORIZED");
     }
 
+    /// <remarks>
+    /// The "/test/error/conflict" endpoint throws InvalidOperationException, which maps to 500 UnexpectedError.
+    /// This is intentional behavior as currently configured.
+    /// </remarks>
     [Test]
     public async Task TestErrorEndpoint_Conflict_ReturnsInternalServerError()
     {
@@ -84,6 +90,7 @@ public class ProblemDetailsTests
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
 
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(500);
@@ -99,6 +106,7 @@ public class ProblemDetailsTests
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.RequestTimeout);
+        response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
 
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(408);
@@ -114,6 +122,7 @@ public class ProblemDetailsTests
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
 
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(500);

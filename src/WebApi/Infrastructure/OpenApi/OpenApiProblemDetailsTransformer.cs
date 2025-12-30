@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Dilcore.WebApi; // Added for Constants
+using Dilcore.WebApi;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;
 
@@ -15,7 +15,6 @@ namespace Dilcore.WebApi.Infrastructure.OpenApi;
 internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransformer, IOpenApiOperationTransformer
 {
     private const string ProblemDetailsSchemaId = "ProblemDetails";
-
 
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
@@ -36,10 +35,9 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
             operation.Responses.Add("default", CreateProblemDetailsResponse("Unexpected error occurred."));
         }
 
-        // ... (rest of TransformAsync is unchanged)
+
 
         // Check for AllowAnonymous attribute
-        // Ensure context.Description.ActionDescriptor is not null (though it unlikely is in ASP.NET Core context)
         var isAnonymous = context.Description.ActionDescriptor.EndpointMetadata
             .OfType<AllowAnonymousAttribute>()
             .Any();

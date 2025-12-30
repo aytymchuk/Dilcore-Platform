@@ -8,15 +8,17 @@ namespace Dilcore.WebApi.Tests.Infrastructure.Exceptions;
 [TestFixture]
 public class GlobalExceptionHandlerTests
 {
-    private MethodInfo _buildProblemTypeUriMethod;
+    private MethodInfo _buildProblemTypeUriMethod = null!;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        _buildProblemTypeUriMethod = typeof(GlobalExceptionHandler)
+        var methodInfo = typeof(GlobalExceptionHandler)
             .GetMethod("BuildProblemTypeUri", BindingFlags.NonPublic | BindingFlags.Static);
 
-        _buildProblemTypeUriMethod.ShouldNotBeNull("BuildProblemTypeUri method should be found via reflection");
+        methodInfo.ShouldNotBeNull("BuildProblemTypeUri method should be found via reflection");
+
+        _buildProblemTypeUriMethod = methodInfo;
     }
 
     [Test]
@@ -51,7 +53,7 @@ public class GlobalExceptionHandlerTests
     public void BuildProblemTypeUri_NullErrorCode_ReturnsBaseUri()
     {
         // Arrange
-        string errorCode = null;
+        string? errorCode = null;
         var expectedUri = Constants.ProblemDetails.TypeBaseUri;
 
         // Act

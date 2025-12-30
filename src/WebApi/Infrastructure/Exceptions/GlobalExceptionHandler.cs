@@ -65,7 +65,7 @@ public sealed partial class GlobalExceptionHandler(
         return exception switch
         {
             ArgumentNullException =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Invalid Request"),
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Validation Error"),
             ArgumentException =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Validation Error"),
             KeyNotFoundException =>
