@@ -77,18 +77,18 @@ public class ProblemDetailsTests
     }
 
     [Test]
-    public async Task TestErrorEndpoint_Conflict_ReturnsConflict()
+    public async Task TestErrorEndpoint_InvalidOperation_ReturnsInternalServerError()
     {
         // Act
         var response = await _client.GetAsync("/test/error/conflict");
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
 
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
-        problemDetails.GetProperty("status").GetInt32().ShouldBe(409);
+        problemDetails.GetProperty("status").GetInt32().ShouldBe(500);
         problemDetails.TryGetProperty("errorCode", out var errorCode).ShouldBeTrue();
-        errorCode.GetString().ShouldBe("CONFLICT");
+        errorCode.GetString().ShouldBe("UNEXPECTED_ERROR");
     }
 
     [Test]

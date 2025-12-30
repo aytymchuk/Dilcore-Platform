@@ -59,7 +59,7 @@ public sealed partial class GlobalExceptionHandler(
             UnauthorizedAccessException =>
                 (HttpStatusCode.Unauthorized, Constants.ProblemDetails.Unauthorized, "Unauthorized"),
             InvalidOperationException =>
-                (HttpStatusCode.Conflict, Constants.ProblemDetails.Conflict, "Operation Conflict"),
+                (HttpStatusCode.InternalServerError, Constants.ProblemDetails.UnexpectedError, "Internal Server Error"),
             NotSupportedException =>
                 (HttpStatusCode.NotImplemented, Constants.ProblemDetails.NotImplemented, "Not Implemented"),
             NotImplementedException =>
@@ -87,7 +87,7 @@ public sealed partial class GlobalExceptionHandler(
         // In production, show generic messages for security
         return exception switch
         {
-            ArgumentException or ArgumentNullException => exception.Message,
+            ArgumentException or ArgumentNullException => "Invalid request parameters.",
             KeyNotFoundException => "The requested resource was not found.",
             UnauthorizedAccessException => "You are not authorized to access this resource.",
             InvalidOperationException => "The requested operation cannot be performed.",
