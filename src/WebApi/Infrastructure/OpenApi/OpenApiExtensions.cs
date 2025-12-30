@@ -30,6 +30,9 @@ public static class OpenApiExtensions
 
             // Add security schemes for authentication (Bearer + OAuth2)
             options.AddDocumentTransformer<OpenApiSecurityTransformer>();
+            // Add global Problem Details responses
+            options.AddDocumentTransformer<OpenApiProblemDetailsTransformer>();
+            options.AddOperationTransformer<OpenApiProblemDetailsTransformer>();
         });
 
         return services;
