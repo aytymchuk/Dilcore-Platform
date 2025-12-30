@@ -1,58 +1,22 @@
-
-using Dilcore.WebApi;
-using Dilcore.WebApi.Infrastructure;
-using Dilcore.WebApi.Infrastructure.OpenApi;
-using Dilcore.WebApi.Infrastructure.Scalar;
 using Dilcore.WebApi.Extensions;
-using Dilcore.WebApi.Settings;
-using Auth0.AspNetCore.Authentication.Api;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.HttpOverrides;
+using Dilcore.WebApi.Infrastructure.Exceptions;
+using Dilcore.WebApi.Infrastructure.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddAppSettings(builder.Configuration);
 builder.Services.AddOpenApiDocumentation(builder.Configuration);
 builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
-builder.Services.AddCors();
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.ForwardLimit = 1;
-    options.KnownProxies.Clear();
-    options.KnownIPNetworks.Clear();
-});
-
-// Add Auth0 Authentication via Auth0.AspNetCore.Authentication.Api
-var authSettings = builder.Configuration.GetSettings<AuthenticationSettings>();
-
-if (authSettings.Auth0 == null)
-{
-    throw new InvalidOperationException("Auth0 configuration is required. Please ensure AuthenticationSettings.Auth0 is configured in appsettings.json.");
-}
-
-var auth0 = authSettings.Auth0;
-
-builder.Services.AddAuth0ApiAuthentication(options =>
-    {
-        options.Domain = auth0.Domain;
-        options.JwtBearerOptions = new JwtBearerOptions
-        {
-            Audience = auth0.Audience
-        };
-    });
-
-// Enforce authentication for all endpoints by default
-builder.Services.AddAuthorizationBuilder()
-    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build());
+builder.Services.AddProblemDetailsServices();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddCorsPolicy();
+builder.Services.AddAuth0Authentication(builder.Configuration);
 
 var app = builder.Build();
 
+// Application lifecycle logging
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
@@ -62,51 +26,13 @@ lifetime.ApplicationStopped.Register(() => logger.LogInformation("Application ha
 
 logger.LogInformation("Starting the application...");
 
-app.UseForwardedHeaders();
+// Configure middleware pipeline
+app.UseCorsPolicy();
+app.UseApplicationMiddleware();
 
-app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+// Map application endpoints
+app.MapApplicationEndpoints();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseOpenApiDocumentation();
-    app.AddScalarDocumentation(app.Configuration);
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
-{
-    logger.LogGettingWeatherForecast(5);
-
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-app.Run();
-
-namespace Dilcore.WebApi
-{
-    record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-    {
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
-}
+await app.RunAsync();
 
 public partial class Program { }

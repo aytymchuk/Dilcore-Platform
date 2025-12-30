@@ -1,6 +1,7 @@
 # Dilcore Platform
 
 [![CodeRabbit Reviews](https://img.shields.io/coderabbit/prs/github/aytymchuk/Dilcore-Platform?utm_source=oss&utm_medium=github&utm_campaign=aytymchuk%2FDilcore-Platform&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
+[![🚀 .NET CI](https://github.com/aytymchuk/Dilcore-Platform/actions/workflows/ci-dotnet-v1.yml/badge.svg)](https://github.com/aytymchuk/Dilcore-Platform/actions/workflows/ci-dotnet-v1.yml)
 
 A new platform based on .NET 10.
 
@@ -14,7 +15,12 @@ Handles user management at the platform level. It manages users and their relati
 
 ### WebApi
 The main entry point for the platform. It is a Minimal API project that hosts the modular monolith. It aggregates APIs from all domains and provides a unified interface.
-- **Documentation**: Uses Scalar (available at `/api-doc` in Development).
+- **Documentation**: Uses [Scalar](https://github.com/scalar/scalar) (available at `/api-doc`) for verifying the OpenAPI V3 specification. 
+    - Provides an interactive API reference.
+    - Includes authentication support for testing secure endpoints.
+- **Error Handling**: Implements standardized **Problem Details** (RFC 7807) for all API errors.
+    - **Extensions**: Custom fields `traceId`, `errorCode`, and `timestamp` are added to the standard schema for better debugging.
+    - **Compatibility**: Uses `Microsoft.AspNetCore.OpenApi` (v10) with a custom transformer to generate referenced schemas compatible with Scalar and other tools.
 - **Deployment**: Automated via GitHub Actions using a [Reusable Container App Workflow](.github/workflows/templates/README.md).
 
 ## Project Structure
