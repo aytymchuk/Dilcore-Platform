@@ -77,7 +77,7 @@ public class ProblemDetailsTests
     }
 
     [Test]
-    public async Task TestErrorEndpoint_InvalidOperation_ReturnsInternalServerError()
+    public async Task TestErrorEndpoint_Conflict_ReturnsInternalServerError()
     {
         // Act
         var response = await _client.GetAsync("/test/error/conflict");

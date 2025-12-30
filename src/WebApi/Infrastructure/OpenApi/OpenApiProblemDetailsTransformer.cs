@@ -15,7 +15,7 @@ namespace Dilcore.WebApi.Infrastructure.OpenApi;
 internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransformer, IOpenApiOperationTransformer
 {
     private const string ProblemDetailsSchemaId = "ProblemDetails";
-    private const string ProblemDetailsContentType = "application/problem+json";
+
 
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
@@ -79,7 +79,7 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
             Description = description,
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                [ProblemDetailsContentType] = new()
+                [Constants.ProblemDetails.ContentType] = new()
                 {
                     Schema = GetProblemDetailsSchema()
                 }
@@ -100,7 +100,8 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
                 [Constants.ProblemDetails.Fields.Detail] = new OpenApiSchema { Type = JsonSchemaType.String, Description = "A human-readable explanation specific to this occurrence of the problem." },
                 [Constants.ProblemDetails.Fields.Instance] = new OpenApiSchema { Type = JsonSchemaType.String, Description = "A URI reference that identifies the specific occurrence of the problem." },
                 [Constants.ProblemDetails.Fields.TraceId] = new OpenApiSchema { Type = JsonSchemaType.String, Description = "The trace ID for the request." },
-                [Constants.ProblemDetails.Fields.ErrorCode] = new OpenApiSchema { Type = JsonSchemaType.String, Description = "A specific application error code." }
+                [Constants.ProblemDetails.Fields.ErrorCode] = new OpenApiSchema { Type = JsonSchemaType.String, Description = "A specific application error code." },
+                [Constants.ProblemDetails.Fields.Timestamp] = new OpenApiSchema { Type = JsonSchemaType.String, Format = "date-time", Description = "The timestamp when the problem occurred in ISO 8601 format." }
             }
         };
     }
