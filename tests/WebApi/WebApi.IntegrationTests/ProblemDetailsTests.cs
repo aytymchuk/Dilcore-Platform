@@ -141,7 +141,7 @@ public class ProblemDetailsTests
         // Assert
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.TryGetProperty("type", out var typeUri).ShouldBeTrue();
-        typeUri.GetString().ShouldStartWith("https://api.dilcore.com/errors/");
+        typeUri.GetString().ShouldStartWith($"{Constants.ProblemDetails.TypeBaseUri}/");
     }
 
     [Test]

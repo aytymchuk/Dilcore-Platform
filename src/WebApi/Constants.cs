@@ -58,6 +58,7 @@ public static class Constants
             public const string Instance = "instance";
             public const string TraceId = "traceId";
             public const string ErrorCode = "errorCode";
+            public const string Timestamp = "timestamp";
         }
     }
 }

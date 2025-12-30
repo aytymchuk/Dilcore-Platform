@@ -21,7 +21,19 @@ public static class CorsExtensions
     public static WebApplication UseCorsPolicy(this WebApplication app)
     {
         app.UseForwardedHeaders();
-        app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+        }
+        else
+        {
+            var allowedOrigins = app.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+            app.UseCors(policy => policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+        }
 
         return app;
     }

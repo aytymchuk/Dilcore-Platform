@@ -22,7 +22,7 @@ public static class ProblemDetailsExtensions
                     Activity.Current?.Id ?? context.HttpContext.TraceIdentifier;
 
                 // Add timestamp for debugging
-                context.ProblemDetails.Extensions["timestamp"] = DateTimeOffset.UtcNow;
+                context.ProblemDetails.Extensions[Constants.ProblemDetails.Fields.Timestamp] = DateTimeOffset.UtcNow;
 
                 // Set instance to the request path
                 context.ProblemDetails.Instance ??=
