@@ -29,6 +29,12 @@ public static class CorsExtensions
         else
         {
             var allowedOrigins = app.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+            if (allowedOrigins.Length == 0)
+            {
+                var logger = app.Services.GetRequiredService<ILogger<Program>>();
+                logger.LogWarning("CORS AllowedOrigins is empty in non-development environment. All CORS requests will be blocked.");
+            }
+
             app.UseCors(policy => policy
                 .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
