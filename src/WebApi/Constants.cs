@@ -59,6 +59,12 @@ public static class Constants
             public const string TraceId = "traceId";
             public const string ErrorCode = "errorCode";
             public const string Timestamp = "timestamp";
+            public const string Errors = "errors";
         }
+
+        // Data validation specific
+        public const string DataValidationFailed = "DATA_VALIDATION_FAILED";
+        public const string DataValidationTitle = "Validation Failed";
+        public const string DataValidationDetail = "One or more validation errors occurred.";
     }
 }

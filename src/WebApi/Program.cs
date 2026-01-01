@@ -13,6 +13,7 @@ builder.Services.AddProblemDetailsServices();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddCorsPolicy();
 builder.Services.AddAuth0Authentication(builder.Configuration);
+builder.Services.AddFluentValidation(typeof(Program).Assembly);
 
 var app = builder.Build();
 

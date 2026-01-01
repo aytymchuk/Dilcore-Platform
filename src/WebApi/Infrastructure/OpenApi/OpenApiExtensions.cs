@@ -33,6 +33,8 @@ public static class OpenApiExtensions
             // Add global Problem Details responses
             options.AddDocumentTransformer<OpenApiProblemDetailsTransformer>();
             options.AddOperationTransformer<OpenApiProblemDetailsTransformer>();
+            // Add FluentValidation rules to schema
+            options.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
         });
 
         return services;
