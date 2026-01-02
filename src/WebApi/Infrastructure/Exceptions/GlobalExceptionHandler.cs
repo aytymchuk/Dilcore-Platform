@@ -101,7 +101,12 @@ public sealed partial class GlobalExceptionHandler(
         // In development, show full exception message
         if (environment.IsDevelopment())
         {
-            return exception.Message;
+            var message = exception.Message;
+            if (exception is BadHttpRequestException && exception.InnerException is not null)
+            {
+                message += $" Details: {exception.InnerException.Message}";
+            }
+            return message;
         }
 
         // In production, show generic messages for security
