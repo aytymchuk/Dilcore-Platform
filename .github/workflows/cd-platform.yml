@@ -1,4 +1,4 @@
-name: Platform API Deploy
+name: 🚀 CD Platform API
 
 on:
   push:
