@@ -58,11 +58,11 @@ jobs:
         name: coverage-report
         path: coveragereport
 
-    - name: 📋 Test Summary
-      uses: test-summary/action@v2
+    - name: 📋 Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
-        paths: 'TestResults/junit-*.xml'
+        files: 'TestResults/junit-*.xml'
 
     - name: 📤 Upload Test Results
       uses: actions/upload-artifact@v6
