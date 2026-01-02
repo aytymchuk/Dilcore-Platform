@@ -1,4 +1,4 @@
-namespace Dilcore.WebApi.IntegrationTests;
+namespace Dilcore.WebApi.IntegrationTests.Infrastructure;
 
 public class FakeUser
 {

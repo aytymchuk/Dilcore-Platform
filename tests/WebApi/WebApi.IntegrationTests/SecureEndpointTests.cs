@@ -1,26 +1,24 @@
 using System.Net;
+using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
 
 [TestFixture]
-public class SecureEndpointTests
+public class SecureEndpointTests : BaseIntegrationTest
 {
-    private CustomWebApplicationFactory _factory;
-    private HttpClient _client;
+    private HttpClient _client = null!;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public void SetUpClient()
     {
-        _factory = new CustomWebApplicationFactory();
-        _client = _factory.CreateClient();
+        _client = Factory.CreateClient();
     }
 
     [OneTimeTearDown]
-    public void OneTimeTearDown()
+    public void TearDownClient()
     {
         _client.Dispose();
-        _factory.Dispose();
     }
 
     [Test]
