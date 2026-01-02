@@ -27,9 +27,8 @@ This ensures that the `CreateUser` handler is only called if `CreateUserDto` is 
 
 ## OpenApi Documentation
 
-The `OpenApiValidationSchemaTransformer` is a custom component that...
+The `OpenApiValidationSchemaTransformer` is a custom component that generates and augments OpenAPI schemas based on runtime validation rules. It extracts validation metadata (such as required fields, string lengths, and regex patterns) from FluentValidation validators and incorporates it into the OpenAPI documentation, ensuring that the API specs accurately reflect the application's validation logic.
 
-This ensures that the API documentation accurately reflects the validation logic enforced by the application, such as required fields, string lengths, and regex patterns.
 
 ## Registration
 
@@ -90,23 +89,21 @@ The response includes:
 ```json
 {
   "type": "https://api.dilcore.com/errors/data-validation-failed",
-  "title": "Data Validation Failed",
+  "title": "Validation Failed",
   "status": 400,
   "detail": "One or more validation errors occurred.",
-  "instance": "/api/v1/auth/register",
-  "extensions": {
-    "traceId": "00-50d321591871216b3f71c480031804e1-207008fd3962d665-01",
-    "errorCode": "DATA_VALIDATION_FAILED",
-    "timestamp": "2026-01-02T00:35:00.123Z",
-    "errors": {
-      "email": [
-        "Email is required.",
-        "Email must be a valid email address."
-      ],
-      "password": [
-        "Password must be at least 8 characters long."
-      ]
-    }
+  "instance": "POST /api/v1/auth/register",
+  "traceId": "00-50d321591871216b3f71c480031804e1-207008fd3962d665-01",
+  "errorCode": "DATA_VALIDATION_FAILED",
+  "timestamp": "2026-01-02T00:35:00.123Z",
+  "errors": {
+    "email": [
+      "Email is required.",
+      "Email must be a valid email address."
+    ],
+    "password": [
+      "Password must be at least 8 characters long."
+    ]
   }
 }
 ```
@@ -114,4 +111,3 @@ The response includes:
 ## Project Management
 -   Created GitHub Issue **#28**: [Enable Web API validation via Fluent Validation and show validation rules in Open API spec](https://github.com/aytymchuk/Dilcore-Platform/issues/28)
 -   Linked PR: **#27**
-
