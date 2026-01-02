@@ -71,18 +71,19 @@ internal sealed class OpenApiValidationSchemaTransformer(IServiceProvider servic
 
             switch (validatorName)
             {
-                case nameof(NotEmptyValidator<object, object>):
+                case "NotEmptyValidator`2":
                 case "NotNullValidator`2":
+                    // Console.WriteLine("Found NotEmpty/NotNull");
                     // Mark as required
                     parentSchema.Required ??= new HashSet<string>();
-                    var propertyName = GetPropertyNameFromRule(rule);
-                    if (!string.IsNullOrEmpty(propertyName))
+                    var boundaryPropertyName = GetPropertyNameFromRule(rule);
+                    if (!string.IsNullOrEmpty(boundaryPropertyName))
                     {
-                        parentSchema.Required.Add(ToCamelCase(propertyName));
+                        parentSchema.Required.Add(ToCamelCase(boundaryPropertyName));
                     }
                     break;
 
-                case nameof(LengthValidator<object>):
+                case "LengthValidator`1":
                     if (component.Validator is ILengthValidator lengthValidator)
                     {
                         if (lengthValidator.Min > 0)
@@ -96,21 +97,21 @@ internal sealed class OpenApiValidationSchemaTransformer(IServiceProvider servic
                     }
                     break;
 
-                case nameof(MinimumLengthValidator<object>):
+                case "MinimumLengthValidator`1":
                     if (component.Validator is ILengthValidator minLengthValidator && minLengthValidator.Min > 0)
                     {
                         propertySchema.MinLength = minLengthValidator.Min;
                     }
                     break;
 
-                case nameof(MaximumLengthValidator<object>):
+                case "MaximumLengthValidator`1":
                     if (component.Validator is ILengthValidator maxLengthValidator && maxLengthValidator.Max > 0)
                     {
                         propertySchema.MaxLength = maxLengthValidator.Max;
                     }
                     break;
 
-                case nameof(RegularExpressionValidator<object>):
+                case "RegularExpressionValidator`1":
                     if (component.Validator is IRegularExpressionValidator regexValidator)
                     {
                         propertySchema.Pattern = regexValidator.Expression;
@@ -118,7 +119,21 @@ internal sealed class OpenApiValidationSchemaTransformer(IServiceProvider servic
                     break;
 
                 case "EmailValidator`1":
+                case "AspNetCoreCompatibleEmailValidator`1":
                     propertySchema.Format = "email";
+                    if (component.Validator is IRegularExpressionValidator emailRegexValidator)
+                    {
+                        propertySchema.Pattern = emailRegexValidator.Expression;
+                    }
+                    else if (component.Validator != null)
+                    {
+                        // Fallback reflection for wrappers that might not implement the interface directly but have the property
+                        var expressionProp = component.Validator.GetType().GetProperty("Expression");
+                        if (expressionProp?.GetValue(component.Validator) is string expression)
+                        {
+                            propertySchema.Pattern = expression;
+                        }
+                    }
                     break;
 
                 case "InclusiveBetweenValidator`2":

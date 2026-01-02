@@ -3,6 +3,7 @@ using System.Text.Json.Serialization.Metadata;
 using Dilcore.WebApi.Infrastructure.OpenApi;
 using Dilcore.WebApi.Infrastructure.Validation;
 using FluentValidation;
+using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
@@ -78,13 +79,79 @@ public class OpenApiValidationSchemaTransformerTests
         await transformer.TransformAsync(schema, context, CancellationToken.None);
 
         // Assert - At minimum, the transformer should have processed the schema
-        // Check if email field has format set (this is a reliable validation)
+
+        // 1. Name: NotEmpty (Required), MinLength(2), MaxLength(100)
+        schema.Required.ShouldNotBeNull();
+        schema.Required.ShouldContain("name");
+        var nameSchema = schema.Properties!["name"] as OpenApiSchema;
+        nameSchema.ShouldNotBeNull();
+        nameSchema.MinLength.ShouldBe(2);
+        nameSchema.MaxLength.ShouldBe(100);
+
+        // 2. Email: NotEmpty (Required), EmailAddress, MaxLength(255)
+        schema.Required.ShouldContain("email");
         var emailSchema = schema.Properties!["email"] as OpenApiSchema;
         emailSchema.ShouldNotBeNull();
+        emailSchema.Format.ShouldBe("email");
+        emailSchema.MaxLength.ShouldBe(255);
+        // Standard AspNetCoreCompatibleEmailValidator does not expose Pattern, so we expect it to be null here
+        emailSchema.Pattern.ShouldBeNull();
 
-        // If the email validator is found, format should be "email"
-        // If not found, format should be null
-        // Either way confirms the transformer ran without errors
+        // 3. Age: InclusiveBetween(0, 150)
+        var ageSchema = schema.Properties!["age"] as OpenApiSchema;
+        ageSchema.ShouldNotBeNull();
+        ageSchema.Minimum.ShouldBe("0");
+        ageSchema.Maximum.ShouldBe("150");
+
+        // 4. PhoneNumber: Matches(@"^\+?[1-9]\d{1,14}$")
+        var phoneSchema = schema.Properties!["phoneNumber"] as OpenApiSchema;
+        phoneSchema.ShouldNotBeNull();
+        phoneSchema.Pattern.ShouldBe(@"^\+?[1-9]\d{1,14}$");
+
+        // 5. StartDate: NotEmpty
+        schema.Required.ShouldContain("startDate");
+
+        // 6. Website: Custom Must - ignored by transformer
+        // 7. Tags: Must, RuleForEach - complex handling, typically ignored or simple checks only
+        //    (RuleForEach usually requires child validator logic in transformer which might not be fully implemented)
+    }
+
+    [Test]
+    public async Task TransformAsync_WithRegexEmailValidator_ExtractsPattern()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddSingleton<IValidator<RegexValidationDto>, RegexValidationDtoValidator>();
+        var provider = services.BuildServiceProvider();
+
+        var transformer = new OpenApiValidationSchemaTransformer(provider);
+        var schema = new OpenApiSchema
+        {
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["email"] = new OpenApiSchema { Type = JsonSchemaType.String }
+            }
+        };
+
+        var context = new OpenApiSchemaTransformerContext
+        {
+            JsonTypeInfo = _jsonOptions.GetTypeInfo(typeof(RegexValidationDto)),
+            DocumentName = "v1",
+            JsonPropertyInfo = null,
+            ParameterDescription = null,
+            ApplicationServices = provider
+        };
+
+        // Act
+        await transformer.TransformAsync(schema, context, CancellationToken.None);
+
+        // Assert
+        var emailSchema = schema.Properties["email"] as OpenApiSchema;
+        emailSchema.ShouldNotBeNull();
+        emailSchema.Format.ShouldBe("email");
+        emailSchema.Pattern.ShouldBe("^.+@.+$");
+
+        provider.Dispose();
     }
 
     [Test]
@@ -188,5 +255,33 @@ public class OpenApiValidationSchemaTransformerTests
             ParameterDescription = null,
             ApplicationServices = _serviceProvider
         };
+    }
+
+    // Helpers
+    private class RegexValidationDto
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    private class RegexValidationDtoValidator : AbstractValidator<RegexValidationDto>
+    {
+        public RegexValidationDtoValidator()
+        {
+            // Use our custom EmailValidator that implements IRegularExpressionValidator
+            RuleFor(x => x.Email).SetValidator(new EmailValidator<RegexValidationDto>());
+        }
+    }
+}
+
+// Custom validator with the name matching "EmailValidator`1" to trigger the switch case
+// and implementing IRegularExpressionValidator to trigger extraction
+public class EmailValidator<T> : PropertyValidator<T, string>, IRegularExpressionValidator
+{
+    public string Expression => "^.+@.+$";
+    public override string Name => "EmailValidator";
+
+    public override bool IsValid(ValidationContext<T> context, string value)
+    {
+        return true;
     }
 }
