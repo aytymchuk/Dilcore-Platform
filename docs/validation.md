@@ -110,3 +110,8 @@ The response includes:
   }
 }
 ```
+
+## Project Management
+-   Created GitHub Issue **#28**: [Enable Web API validation via Fluent Validation and show validation rules in Open API spec](https://github.com/aytymchuk/Dilcore-Platform/issues/28)
+-   Linked PR: **#27**
+

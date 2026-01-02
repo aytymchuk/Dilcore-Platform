@@ -1,5 +1,3 @@
-using System;
-
 namespace Dilcore.WebApi.Extensions;
 
 /// <summary>

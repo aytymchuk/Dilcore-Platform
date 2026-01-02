@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Microsoft.AspNetCore.Http.Features;
 
 namespace Dilcore.WebApi.Extensions;
 
