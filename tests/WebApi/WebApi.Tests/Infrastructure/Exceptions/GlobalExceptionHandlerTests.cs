@@ -1,5 +1,4 @@
 using System.Reflection;
-using Dilcore.WebApi;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Shouldly;
 

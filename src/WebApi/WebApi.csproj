@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="WebApi.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Auth0.AspNetCore.Authentication.Api" />
     <PackageReference Include="Azure.Data.AppConfiguration" />
     <PackageReference Include="Azure.Identity" />
@@ -14,6 +18,9 @@
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="MicroElements.OpenApi.FluentValidation" />
   </ItemGroup>
 
 </Project>

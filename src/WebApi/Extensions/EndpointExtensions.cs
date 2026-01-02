@@ -1,3 +1,5 @@
+using Dilcore.WebApi.Infrastructure.Validation;
+
 namespace Dilcore.WebApi.Extensions;
 
 public static class EndpointExtensions
@@ -13,6 +15,7 @@ public static class EndpointExtensions
         if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testing")
         {
             app.MapTestErrorEndpoint();
+            app.MapTestValidationEndpoint();
         }
 
         app.MapWeatherForecastEndpoint();
@@ -56,6 +59,23 @@ public static class EndpointExtensions
             return forecast;
         })
         .WithName("GetWeatherForecast");
+    }
+
+    private static void MapTestValidationEndpoint(this WebApplication app)
+    {
+        app.MapPost("/test/validation", (ValidationDto dto) =>
+        {
+            return Results.Ok(new
+            {
+                message = "Validation passed successfully!",
+                data = dto
+            });
+        })
+        .WithName("TestValidation")
+        .WithTags("Testing")
+        .WithDescription("Test endpoint to validate FluentValidation integration")
+        .AddValidationFilter<ValidationDto>()
+        .AllowAnonymous();
     }
 }
 
