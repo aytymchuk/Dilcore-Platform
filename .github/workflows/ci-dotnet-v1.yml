@@ -60,7 +60,12 @@ jobs:
 
     - name: 📝 Add Coverage Summary
       if: always()
-      run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+      run: |
+        if [ -f coveragereport/SummaryGithub.md ]; then
+          cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ No coverage summary found." >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: 📤 Upload Coverage Report
       uses: actions/upload-artifact@v6
