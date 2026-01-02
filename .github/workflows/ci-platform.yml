@@ -1,4 +1,4 @@
-name: 🚀 .NET CI
+name: 🚀 CI Platform API
 
 on:
   push:
