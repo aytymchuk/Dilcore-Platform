@@ -13,7 +13,6 @@ namespace Dilcore.WebApi.IntegrationTests;
 /// Integration tests verifying FluentValidation endpoint filter behavior.
 /// </summary>
 [TestFixture]
-[TestFixture]
 public class ValidationTests : BaseIntegrationTest
 {
     private HttpClient _client = null!;
