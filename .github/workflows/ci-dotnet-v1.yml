@@ -51,7 +51,7 @@ jobs:
           --results-directory "TestResults"
 
     - name: 📊 Generate Coverage Report
-      uses: danielpalme/ReportGenerator-GitHub-Action@v5.4.3
+      uses: danielpalme/ReportGenerator-GitHub-Action@v5.5.1
       if: always()
       with:
         reports: '**/coverage.cobertura.xml'
