@@ -19,8 +19,12 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
         if (validator is null)
         {
             var logger = services.GetService<ILogger<ValidationEndpointFilter<T>>>();
-            LogValidationSkippedNoValidatorRegisteredForTypeTypeNameRequestMethodPath(logger, typeof(T).Name,
-                context.HttpContext.Request.Method, context.HttpContext.Request.Path);
+
+            if (logger is not null)
+            {
+                LogValidationSkippedNoValidatorRegisteredForTypeTypeNameRequestMethodPath(logger, typeof(T).Name,
+                    context.HttpContext.Request.Method, context.HttpContext.Request.Path);
+            }
 
             return await next(context);
         }
@@ -31,8 +35,12 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
         if (argument is null)
         {
             var logger = services.GetService<ILogger<ValidationEndpointFilter<T>>>();
-            LogValidationSkippedArgumentOfTypeTypeNameNotFoundRequestMethodPath(logger, typeof(T).Name,
-                context.HttpContext.Request.Method, context.HttpContext.Request.Path);
+
+            if (logger is not null)
+            {
+                LogValidationSkippedArgumentOfTypeTypeNameNotFoundRequestMethodPath(logger, typeof(T).Name,
+                    context.HttpContext.Request.Method, context.HttpContext.Request.Path);
+            }
 
             return await next(context);
         }
@@ -46,11 +54,12 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
 
         var loggerFail = services.GetService<ILogger<ValidationEndpointFilter<T>>>();
 
-        var errors = FormatValidationErrors(validationResult);
-
-        LogValidationFailedForTypeTypenameRequestMethodPathErrorsErrors(loggerFail, typeof(T).Name,
-            context.HttpContext.Request.Method, context.HttpContext.Request.Path,
-            errors);
+        if (loggerFail is not null)
+        {
+            LogValidationFailedForTypeTypenameRequestMethodPathErrorsErrors(loggerFail, typeof(T).Name,
+                context.HttpContext.Request.Method, context.HttpContext.Request.Path,
+                FormatValidationErrors(validationResult));
+        }
 
         return CreateValidationProblem(validationResult);
     }
@@ -84,11 +93,11 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
     }
 
     [LoggerMessage(LogLevel.Error, "Validation failed for type {typeName}. Request: {method} {path}. Errors: {errors}")]
-    static partial void LogValidationFailedForTypeTypenameRequestMethodPathErrorsErrors(ILogger<ValidationEndpointFilter<T>>? logger, string typeName, string method, PathString path, string errors);
+    static partial void LogValidationFailedForTypeTypenameRequestMethodPathErrorsErrors(ILogger<ValidationEndpointFilter<T>> logger, string typeName, string method, PathString path, string errors);
 
     [LoggerMessage(LogLevel.Debug, "Validation skipped: Argument of type {typeName} not found. Request: {method} {path}")]
-    static partial void LogValidationSkippedArgumentOfTypeTypeNameNotFoundRequestMethodPath(ILogger<ValidationEndpointFilter<T>>? logger, string typeName, string method, PathString path);
+    static partial void LogValidationSkippedArgumentOfTypeTypeNameNotFoundRequestMethodPath(ILogger<ValidationEndpointFilter<T>> logger, string typeName, string method, PathString path);
 
     [LoggerMessage(LogLevel.Debug, "Validation skipped: No validator registered for type {typeName}. Request: {method} {path}")]
-    static partial void LogValidationSkippedNoValidatorRegisteredForTypeTypeNameRequestMethodPath(ILogger<ValidationEndpointFilter<T>>? logger, string typeName, string method, PathString path);
+    static partial void LogValidationSkippedNoValidatorRegisteredForTypeTypeNameRequestMethodPath(ILogger<ValidationEndpointFilter<T>> logger, string typeName, string method, PathString path);
 }
