@@ -21,6 +21,10 @@ The main entry point for the platform. It is a Minimal API project that hosts th
 - **Error Handling**: Implements standardized **Problem Details** (RFC 7807) for all API errors.
     - **Extensions**: Custom fields `traceId`, `errorCode`, and `timestamp` are added to the standard schema for better debugging.
     - **Compatibility**: Uses `Microsoft.AspNetCore.OpenApi` (v10) with a custom transformer to generate referenced schemas compatible with Scalar and other tools.
+- **Validation**: Uses [FluentValidation](https://docs.fluentvalidation.net/) for defining strongly-typed rules.
+    - **Automatic Registration**: Validators inheriting from `AbstractValidator<T>` are automatically discovered and registered.
+    - **Integration**: Runs before the endpoint logic. Invalid requests return a **400 Bad Request** Problem Details response with a `DATA_VALIDATION_FAILED` error code.
+    - **OpenAPI**: Validation rules (required, length, regex, ranges) are automatically reflected in the OpenAPI V3 schema.
 - **Deployment**: Automated via GitHub Actions using a [Reusable Container App Workflow](.github/workflows/templates/README.md).
 
 ## Project Structure
