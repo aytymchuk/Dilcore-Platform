@@ -68,6 +68,12 @@ public sealed partial class GlobalExceptionHandler(
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Validation Error"),
             ArgumentException =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Validation Error"),
+            BadHttpRequestException =>
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Invalid Request"),
+            System.Text.Json.JsonException =>
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Invalid JSON Format"),
+            FormatException =>
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Invalid Format"),
             KeyNotFoundException =>
                 (HttpStatusCode.NotFound, Constants.ProblemDetails.NotFound, "Resource Not Found"),
             UnauthorizedAccessException =>
