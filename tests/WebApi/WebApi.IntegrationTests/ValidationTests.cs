@@ -5,6 +5,7 @@ using System.Text.Json;
 using Shouldly;
 
 using Dilcore.WebApi;
+using Dilcore.WebApi.IntegrationTests.Infrastructure;
 
 namespace Dilcore.WebApi.IntegrationTests;
 
@@ -12,23 +13,21 @@ namespace Dilcore.WebApi.IntegrationTests;
 /// Integration tests verifying FluentValidation endpoint filter behavior.
 /// </summary>
 [TestFixture]
-public class ValidationTests
+[TestFixture]
+public class ValidationTests : BaseIntegrationTest
 {
-    private CustomWebApplicationFactory _factory = null!;
     private HttpClient _client = null!;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public void SetUpClient()
     {
-        _factory = new CustomWebApplicationFactory();
-        _client = _factory.CreateClient();
+        _client = Factory.CreateClient();
     }
 
     [OneTimeTearDown]
-    public void OneTimeTearDown()
+    public void TearDownClient()
     {
         _client.Dispose();
-        _factory.Dispose();
     }
 
     [Test]

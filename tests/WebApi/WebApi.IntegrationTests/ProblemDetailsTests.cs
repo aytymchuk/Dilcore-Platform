@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
@@ -9,23 +10,20 @@ namespace Dilcore.WebApi.IntegrationTests;
 /// Integration tests verifying Problem Details responses for exception handling.
 /// </summary>
 [TestFixture]
-public class ProblemDetailsTests
+public class ProblemDetailsTests : BaseIntegrationTest
 {
-    private CustomWebApplicationFactory _factory = null!;
     private HttpClient _client = null!;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public void SetUpClient()
     {
-        _factory = new CustomWebApplicationFactory();
-        _client = _factory.CreateClient();
+        _client = Factory.CreateClient();
     }
 
     [OneTimeTearDown]
-    public void OneTimeTearDown()
+    public void TearDownClient()
     {
         _client.Dispose();
-        _factory.Dispose();
     }
 
     [Test]
