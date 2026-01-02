@@ -122,7 +122,7 @@ public class OpenApiValidationSchemaTransformerTests
         // Arrange
         var services = new ServiceCollection();
         services.AddSingleton<IValidator<RegexValidationDto>, RegexValidationDtoValidator>();
-        var provider = services.BuildServiceProvider();
+        using var provider = services.BuildServiceProvider();
 
         var transformer = new OpenApiValidationSchemaTransformer(provider);
         var schema = new OpenApiSchema
@@ -150,8 +150,6 @@ public class OpenApiValidationSchemaTransformerTests
         emailSchema.ShouldNotBeNull();
         emailSchema.Format.ShouldBe("email");
         emailSchema.Pattern.ShouldBe("^.+@.+$");
-
-        provider.Dispose();
     }
 
     [Test]
@@ -159,7 +157,7 @@ public class OpenApiValidationSchemaTransformerTests
     {
         // Arrange - create a service provider with no validators
         var services = new ServiceCollection();
-        var emptyServiceProvider = services.BuildServiceProvider();
+        using var emptyServiceProvider = services.BuildServiceProvider();
         var transformer = new OpenApiValidationSchemaTransformer(emptyServiceProvider);
         var schema = CreateValidationDtoSchema();
         var context = CreateContext<ValidationDto>();
@@ -172,8 +170,6 @@ public class OpenApiValidationSchemaTransformerTests
         var nameSchema = schema.Properties!["name"] as OpenApiSchema;
         nameSchema!.MinLength.ShouldBeNull();
         nameSchema.MaxLength.ShouldBeNull();
-
-        emptyServiceProvider.Dispose();
     }
 
     [Test]
@@ -271,17 +267,17 @@ public class OpenApiValidationSchemaTransformerTests
             RuleFor(x => x.Email).SetValidator(new EmailValidator<RegexValidationDto>());
         }
     }
-}
 
-// Custom validator with the name matching "EmailValidator`1" to trigger the switch case
-// and implementing IRegularExpressionValidator to trigger extraction
-public class EmailValidator<T> : PropertyValidator<T, string>, IRegularExpressionValidator
-{
-    public string Expression => "^.+@.+$";
-    public override string Name => "EmailValidator";
-
-    public override bool IsValid(ValidationContext<T> context, string value)
+    // Custom validator with the name matching "EmailValidator`1" to trigger the switch case
+    // and implementing IRegularExpressionValidator to trigger extraction
+    private sealed class EmailValidator<T> : PropertyValidator<T, string>, IRegularExpressionValidator
     {
-        return true;
+        public string Expression => "^.+@.+$";
+        public override string Name => "EmailValidator";
+
+        public override bool IsValid(ValidationContext<T> context, string value)
+        {
+            return true;
+        }
     }
 }

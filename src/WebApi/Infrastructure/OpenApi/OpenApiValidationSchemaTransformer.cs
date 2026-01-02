@@ -1,3 +1,4 @@
+using Dilcore.WebApi.Extensions;
 using System.Reflection;
 using FluentValidation;
 using FluentValidation.Validators;
@@ -45,7 +46,7 @@ internal sealed class OpenApiValidationSchemaTransformer(IServiceProvider servic
             }
 
             // Find validators for this property (case-insensitive match)
-            var rules = descriptor.GetRulesForMember(ToPascalCase(propertyName));
+            var rules = descriptor.GetRulesForMember(propertyName.ToPascalCase());
 
             foreach (var rule in rules)
             {
@@ -60,96 +61,78 @@ internal sealed class OpenApiValidationSchemaTransformer(IServiceProvider servic
     {
         foreach (var component in rule.Components)
         {
-            var validatorType = component.Validator?.GetType();
+            var validator = component.Validator;
+            if (validator is null) continue;
 
-            if (validatorType is null)
+            // Mark as required
+            if (validator is INotEmptyValidator || validator is INotNullValidator)
             {
-                continue;
+                parentSchema.Required ??= new HashSet<string>();
+                var boundaryPropertyName = GetPropertyNameFromRule(rule);
+                if (!string.IsNullOrEmpty(boundaryPropertyName))
+                {
+                    parentSchema.Required.Add(boundaryPropertyName.ToCamelCase());
+                }
             }
 
-            var validatorName = validatorType.Name;
-
-            switch (validatorName)
+            // Length constraints
+            if (validator is ILengthValidator lengthValidator)
             {
-                case "NotEmptyValidator`2":
-                case "NotNullValidator`2":
-                    // Console.WriteLine("Found NotEmpty/NotNull");
-                    // Mark as required
-                    parentSchema.Required ??= new HashSet<string>();
-                    var boundaryPropertyName = GetPropertyNameFromRule(rule);
-                    if (!string.IsNullOrEmpty(boundaryPropertyName))
+                if (lengthValidator.Min > 0)
+                {
+                    propertySchema.MinLength = lengthValidator.Min;
+                }
+                if (lengthValidator.Max > 0 && lengthValidator.Max < int.MaxValue)
+                {
+                    propertySchema.MaxLength = lengthValidator.Max;
+                }
+            }
+
+            // Regex pattern
+            if (validator is IRegularExpressionValidator regexValidator)
+            {
+                propertySchema.Pattern = regexValidator.Expression;
+            }
+
+            // Email format
+            // Check for standard email validators or name-based check for compatibility
+            if (validator.GetType().Name.Contains("EmailValidator"))
+            {
+                propertySchema.Format = "email";
+                if (validator is IRegularExpressionValidator emailRegexValidator)
+                {
+                    propertySchema.Pattern = emailRegexValidator.Expression;
+                }
+                else
+                {
+                    // Fallback reflection
+                    var expressionProp = validator.GetType().GetProperty("Expression");
+                    if (expressionProp?.GetValue(validator) is string expression)
                     {
-                        parentSchema.Required.Add(ToCamelCase(boundaryPropertyName));
+                        propertySchema.Pattern = expression;
                     }
-                    break;
+                }
+            }
 
-                case "LengthValidator`1":
-                    if (component.Validator is ILengthValidator lengthValidator)
-                    {
-                        if (lengthValidator.Min > 0)
-                        {
-                            propertySchema.MinLength = lengthValidator.Min;
-                        }
-                        if (lengthValidator.Max > 0 && lengthValidator.Max < int.MaxValue)
-                        {
-                            propertySchema.MaxLength = lengthValidator.Max;
-                        }
-                    }
-                    break;
-
-                case "MinimumLengthValidator`1":
-                    if (component.Validator is ILengthValidator minLengthValidator && minLengthValidator.Min > 0)
-                    {
-                        propertySchema.MinLength = minLengthValidator.Min;
-                    }
-                    break;
-
-                case "MaximumLengthValidator`1":
-                    if (component.Validator is ILengthValidator maxLengthValidator && maxLengthValidator.Max > 0)
-                    {
-                        propertySchema.MaxLength = maxLengthValidator.Max;
-                    }
-                    break;
-
-                case "RegularExpressionValidator`1":
-                    if (component.Validator is IRegularExpressionValidator regexValidator)
-                    {
-                        propertySchema.Pattern = regexValidator.Expression;
-                    }
-                    break;
-
-                case "EmailValidator`1":
-                case "AspNetCoreCompatibleEmailValidator`1":
-                    propertySchema.Format = "email";
-                    if (component.Validator is IRegularExpressionValidator emailRegexValidator)
-                    {
-                        propertySchema.Pattern = emailRegexValidator.Expression;
-                    }
-                    else if (component.Validator != null)
-                    {
-                        // Fallback reflection for wrappers that might not implement the interface directly but have the property
-                        var expressionProp = component.Validator.GetType().GetProperty("Expression");
-                        if (expressionProp?.GetValue(component.Validator) is string expression)
-                        {
-                            propertySchema.Pattern = expression;
-                        }
-                    }
-                    break;
-
-                case "InclusiveBetweenValidator`2":
-                case "ExclusiveBetweenValidator`2":
-                    SetRangeConstraints(component.Validator, propertySchema);
-                    break;
-
-                case "GreaterThanValidator`2":
-                case "GreaterThanOrEqualValidator`2":
-                    SetMinimumConstraint(component.Validator, propertySchema);
-                    break;
-
-                case "LessThanValidator`2":
-                case "LessThanOrEqualValidator`2":
-                    SetMaximumConstraint(component.Validator, propertySchema);
-                    break;
+            // Range constraints (Inclusive/Exclusive/Between)
+            if (validator is IBetweenValidator betweenValidator)
+            {
+                SetRangeConstraints(validator, propertySchema);
+            }
+            // Comparison validators (Greater/Less)
+            else if (validator is IComparisonValidator comparisonValidator)
+            {
+                // GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual
+                // We need to distinguish between Min and Max based on the validator type name or direction
+                var name = validator.GetType().Name;
+                if (name.Contains("GreaterThan"))
+                {
+                    SetMinimumConstraint(validator, propertySchema);
+                }
+                else if (name.Contains("LessThan"))
+                {
+                    SetMaximumConstraint(validator, propertySchema);
+                }
             }
         }
     }
@@ -210,24 +193,10 @@ internal sealed class OpenApiValidationSchemaTransformer(IServiceProvider servic
             result = decimalValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
             return true;
         }
-        catch
+        catch (Exception ex) when (ex is FormatException or InvalidCastException or OverflowException or ArgumentNullException)
         {
             result = string.Empty;
             return false;
         }
-    }
-
-    private static string ToPascalCase(string name)
-    {
-        if (string.IsNullOrEmpty(name)) return name;
-        if (name.Length == 1) return name.ToUpperInvariant();
-        return char.ToUpperInvariant(name[0]) + name[1..];
-    }
-
-    private static string ToCamelCase(string name)
-    {
-        if (string.IsNullOrEmpty(name)) return name;
-        if (name.Length == 1) return name.ToLowerInvariant();
-        return char.ToLowerInvariant(name[0]) + name[1..];
     }
 }

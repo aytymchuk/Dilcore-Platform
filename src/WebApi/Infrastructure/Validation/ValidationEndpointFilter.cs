@@ -1,6 +1,8 @@
+using Dilcore.WebApi.Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Dilcore.WebApi.Infrastructure.Common;
 
 namespace Dilcore.WebApi.Infrastructure.Validation;
 
@@ -42,7 +44,7 @@ public sealed class ValidationEndpointFilter<T> : IEndpointFilter where T : clas
         var errors = validationResult.Errors
             .GroupBy(e => e.PropertyName)
             .ToDictionary(
-                g => ToCamelCase(g.Key),
+                g => g.Key.ToCamelCase(),
                 g => g.Select(e => e.ErrorMessage).ToArray()
             );
 
@@ -56,19 +58,5 @@ public sealed class ValidationEndpointFilter<T> : IEndpointFilter where T : clas
                 [Constants.ProblemDetails.Fields.ErrorCode] = Constants.ProblemDetails.DataValidationFailed
             }
         );
-    }
-
-    /// <summary>
-    /// Converts property name to camelCase for consistent JSON output.
-    /// </summary>
-    private static string ToCamelCase(string propertyName)
-    {
-        if (string.IsNullOrEmpty(propertyName))
-            return propertyName;
-
-        if (propertyName.Length == 1)
-            return propertyName.ToLowerInvariant();
-
-        return char.ToLowerInvariant(propertyName[0]) + propertyName[1..];
     }
 }

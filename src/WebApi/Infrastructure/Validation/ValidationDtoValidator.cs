@@ -37,8 +37,7 @@ public sealed class ValidationDtoValidator : AbstractValidator<ValidationDto>
             .WithMessage("Tags must contain at most 10 items.");
 
         RuleForEach(x => x.Tags)
-            .MaximumLength(50).WithMessage("Each tag must not exceed 50 characters.")
-            .When(x => x.Tags != null && x.Tags.Length > 0);
+            .MaximumLength(50).WithMessage("Each tag must not exceed 50 characters.");
 
         RuleFor(x => x.StartDate)
             .NotEmpty().WithMessage("Start date is required.");

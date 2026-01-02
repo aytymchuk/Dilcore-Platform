@@ -144,7 +144,9 @@ public class ValidationTests
         var errors = problemDetails.GetProperty("errors");
         errors.TryGetProperty("name", out var nameErrors).ShouldBeTrue();
         nameErrors.GetArrayLength().ShouldBeGreaterThan(0);
-        nameErrors[0].GetString().ShouldContain("2 characters");
+        var errorMessage = nameErrors[0].GetString();
+        errorMessage.ShouldNotBeNull();
+        errorMessage.ShouldContain("2 characters");
     }
 
     [Test]

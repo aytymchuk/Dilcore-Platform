@@ -68,6 +68,7 @@ The transformer (`OpenApiValidationSchemaTransformer.cs`) inspects the FluentVal
 | `.Matches(regex)` | `pattern` | Extracts the regex pattern. |
 | `IRegularExpressionValidator` | `pattern` | Extracts custom regex from any compatible validator. |
 
+
 ### Regex Extraction Details
 For standard validators like `RegularExpressionValidator`, the regex pattern is directly extracted. For the `EmailValidator`, the transformer checks if it implements `IRegularExpressionValidator` (e.g., custom configuration) or uses a fallback reflection to check for an `Expression` property, ensuring even wrapped validators are supported.
 
@@ -80,9 +81,9 @@ When a request fails validation, the API returns a **400 Bad Request** response 
 The response includes:
 -   **Standard Fields**: `type`, `title`, `status`, `detail`, `instance`.
 -   **Extensions**:
-    -   `traceId`: For distributed tracing.
-    -   `errorCode`: A machine-readable code (e.g., `DATA_VALIDATION_FAILED`).
-    -   `errors`: A dictionary of field names and their corresponding error messages.
+  - `traceId`: For distributed tracing.
+  - `errorCode`: A machine-readable code (e.g., `DATA_VALIDATION_FAILED`).
+  - `errors`: A dictionary of field names and their corresponding error messages.
 
 ### Example Response
 
