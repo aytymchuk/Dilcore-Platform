@@ -4,6 +4,8 @@ using System.Text;
 using System.Text.Json;
 using Shouldly;
 
+using Dilcore.WebApi;
+
 namespace Dilcore.WebApi.IntegrationTests;
 
 /// <summary>
@@ -379,6 +381,8 @@ public class ValidationTests
 
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(400);
-        // The title might vary depending on if we customize it, but it should be 400.
+        // Verify we get the specific error code we just added
+        problemDetails.GetProperty("errorCode").GetString().ShouldBe(Constants.ProblemDetails.InvalidRequest);
+        problemDetails.GetProperty("title").GetString().ShouldBe("Invalid Request");
     }
 }

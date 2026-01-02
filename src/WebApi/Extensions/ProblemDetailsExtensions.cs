@@ -43,6 +43,20 @@ public static class ProblemDetailsExtensions
                         _ => $"{Constants.ProblemDetails.TypeBaseUri}/error"
                     };
                 }
+
+                // Ensure error code is present for 400 Bad Request (e.g. binding errors)
+                if (context.ProblemDetails.Status == StatusCodes.Status400BadRequest &&
+                    !context.ProblemDetails.Extensions.ContainsKey(Constants.ProblemDetails.Fields.ErrorCode))
+                {
+                    context.ProblemDetails.Extensions[Constants.ProblemDetails.Fields.ErrorCode] =
+                        Constants.ProblemDetails.InvalidRequest;
+
+                    // Maintain consistency with GlobalExceptionHandler
+                    if (context.ProblemDetails.Title == "Bad Request")
+                    {
+                        context.ProblemDetails.Title = "Invalid Request";
+                    }
+                }
             };
         });
 

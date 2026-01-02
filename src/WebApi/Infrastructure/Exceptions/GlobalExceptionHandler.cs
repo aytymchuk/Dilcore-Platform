@@ -69,11 +69,11 @@ public sealed partial class GlobalExceptionHandler(
             ArgumentException =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Validation Error"),
             BadHttpRequestException =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Invalid Request"),
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.InvalidRequest, "Invalid Request"),
             System.Text.Json.JsonException =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Invalid JSON Format"),
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.JsonParseError, "Invalid JSON Format"),
             FormatException =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Invalid Format"),
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.FormatError, "Invalid Format"),
             KeyNotFoundException =>
                 (HttpStatusCode.NotFound, Constants.ProblemDetails.NotFound, "Resource Not Found"),
             UnauthorizedAccessException =>
@@ -102,7 +102,8 @@ public sealed partial class GlobalExceptionHandler(
         if (environment.IsDevelopment())
         {
             var message = exception.Message;
-            if (exception is BadHttpRequestException && exception.InnerException is not null)
+            if ((exception is BadHttpRequestException or System.Text.Json.JsonException or FormatException)
+                && exception.InnerException is not null)
             {
                 message += $" Details: {exception.InnerException.Message}";
             }

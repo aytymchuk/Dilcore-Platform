@@ -66,5 +66,10 @@ public static class Constants
         public const string DataValidationFailed = "DATA_VALIDATION_FAILED";
         public const string DataValidationTitle = "Validation Failed";
         public const string DataValidationDetail = "One or more validation errors occurred.";
+
+        // Parsing/Request errors
+        public const string InvalidRequest = "INVALID_REQUEST";
+        public const string JsonParseError = "JSON_PARSE_ERROR";
+        public const string FormatError = "FORMAT_ERROR";
     }
 }
