@@ -42,7 +42,13 @@ jobs:
           .
 
     - name: ✅ Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger "junit;LogFilePath=${{ github.workspace }}/TestResults/junit-{assembly}.xml" --results-directory "TestResults"
+      run: |
+        dotnet test \
+          --no-build \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --logger "junit;LogFilePath=${{ github.workspace }}/TestResults/junit-{assembly}.xml" \
+          --results-directory "TestResults"
 
     - name: 📊 Generate Coverage Report
       uses: danielpalme/ReportGenerator-GitHub-Action@v5.4.3
