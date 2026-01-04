@@ -45,7 +45,7 @@ public class TenantContextResolverTests
 
         // Assert
         result1.ShouldBe(result2);
-        providerMock.Verify(x => x.GetTenantContext(), Times.Once); // Lazy - called only once
+        providerMock.Verify(x => x.GetTenantContext(), Times.Exactly(2)); // Stateless - called each time
     }
 
     [Test]

@@ -7,6 +7,7 @@ using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
+using Moq;
 using Shouldly;
 
 namespace Dilcore.WebApi.Tests.Infrastructure.OpenApi;
@@ -71,7 +72,9 @@ public class OpenApiValidationSchemaTransformerTests
     public async Task TransformAsync_WithRegisteredValidator_AppliesValidationRules()
     {
         // Arrange
-        var transformer = new OpenApiValidationSchemaTransformer(_serviceProvider);
+        var scopeFactoryMock = CreateScopeFactoryMock(_serviceProvider);
+
+        var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = CreateValidationDtoSchema();
         var context = CreateContext<ValidationDto>();
 
@@ -124,7 +127,9 @@ public class OpenApiValidationSchemaTransformerTests
         services.AddSingleton<IValidator<RegexValidationDto>, RegexValidationDtoValidator>();
         using var provider = services.BuildServiceProvider();
 
-        var transformer = new OpenApiValidationSchemaTransformer(provider);
+        var scopeFactoryMock = CreateScopeFactoryMock(provider);
+
+        var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = new OpenApiSchema
         {
             Properties = new Dictionary<string, IOpenApiSchema>
@@ -158,7 +163,10 @@ public class OpenApiValidationSchemaTransformerTests
         // Arrange - create a service provider with no validators
         var services = new ServiceCollection();
         using var emptyServiceProvider = services.BuildServiceProvider();
-        var transformer = new OpenApiValidationSchemaTransformer(emptyServiceProvider);
+
+        var scopeFactoryMock = CreateScopeFactoryMock(emptyServiceProvider);
+
+        var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = CreateValidationDtoSchema();
         var context = CreateContext<ValidationDto>();
 
@@ -176,7 +184,9 @@ public class OpenApiValidationSchemaTransformerTests
     public async Task TransformAsync_NullProperties_DoesNotThrow()
     {
         // Arrange
-        var transformer = new OpenApiValidationSchemaTransformer(_serviceProvider);
+        var scopeFactoryMock = CreateScopeFactoryMock(_serviceProvider);
+
+        var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = new OpenApiSchema { Properties = null };
         var context = CreateContext<ValidationDto>();
 
@@ -189,7 +199,9 @@ public class OpenApiValidationSchemaTransformerTests
     public async Task TransformAsync_EmptyProperties_DoesNotThrow()
     {
         // Arrange
-        var transformer = new OpenApiValidationSchemaTransformer(_serviceProvider);
+        var scopeFactoryMock = CreateScopeFactoryMock(_serviceProvider);
+
+        var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = new OpenApiSchema { Properties = new Dictionary<string, IOpenApiSchema>() };
         var context = CreateContext<ValidationDto>();
 
@@ -279,5 +291,14 @@ public class OpenApiValidationSchemaTransformerTests
         {
             return true;
         }
+    }
+
+    private Mock<IServiceScopeFactory> CreateScopeFactoryMock(IServiceProvider serviceProvider)
+    {
+        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+        var scopeMock = new Mock<IServiceScope>();
+        scopeMock.Setup(s => s.ServiceProvider).Returns(serviceProvider);
+        scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
+        return scopeFactoryMock;
     }
 }

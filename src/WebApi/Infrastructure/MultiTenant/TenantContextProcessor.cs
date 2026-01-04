@@ -23,7 +23,7 @@ public class TenantContextProcessor : BaseProcessor<LogRecord>
         // Remove existing tenant.id to avoid duplicates
         attributes.RemoveAll(kv => kv.Key == "tenant.id");
 
-        // Resolve tenant context using the resolver
+        // Resolve tenant context using the resolver directly
         var tenantContext = _tenantContextResolver.Resolve();
         var tenantId = tenantContext?.Name;
 
