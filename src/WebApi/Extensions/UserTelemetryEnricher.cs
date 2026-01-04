@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Dilcore.Telemetry.Abstractions;
-using Microsoft.AspNetCore.Http;
 
 namespace Dilcore.WebApi.Extensions;
 

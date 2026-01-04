@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Dilcore.MultiTenant.Abstractions;
-
+using Dilcore.MultiTenant.Abstractions.Exceptions;
+using Dilcore.MultiTenant.Http.Extensions.Extensions;
 using Dilcore.Telemetry.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +28,7 @@ public class TenantTelemetryEnricher : ITelemetryEnricher
             var tenantContext = tenantContextResolver?.Resolve();
             if (!string.IsNullOrEmpty(tenantContext?.Name))
             {
-                activity.SetTag("tenant.id", tenantContext.Name);
+                activity.SetTag(TenantConstants.TelemetryTagName, tenantContext.Name);
             }
         }
         catch (TenantNotResolvedException)

@@ -1,4 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Abstractions.Exceptions;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 

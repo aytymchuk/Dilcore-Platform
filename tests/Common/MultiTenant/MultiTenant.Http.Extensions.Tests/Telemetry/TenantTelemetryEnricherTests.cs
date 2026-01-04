@@ -1,10 +1,9 @@
 using System.Diagnostics;
 using Dilcore.MultiTenant.Abstractions;
-
+using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using NUnit.Framework;
 using Shouldly;
 
 namespace Dilcore.MultiTenant.Http.Extensions.Tests.Telemetry;
@@ -27,6 +26,13 @@ public class TenantTelemetryEnricherTests
 
         _serviceProviderMock.Setup(sp => sp.GetService(typeof(ITenantContextResolver)))
             .Returns(_tenantResolverMock.Object);
+
+        // Setup endpoint with empty metadata so IsExcludedFromMultiTenant returns false
+        var endpoint = new Endpoint(
+            requestDelegate: _ => Task.CompletedTask,
+            metadata: new EndpointMetadataCollection(),
+            displayName: "TestEndpoint");
+        _httpContext.SetEndpoint(endpoint);
     }
 
     [Test]
@@ -41,7 +47,7 @@ public class TenantTelemetryEnricherTests
         _enricher.Enrich(activity, _httpContext.Request);
 
         // Assert
-        activity.Tags.ShouldContain(t => t.Key == "tenant.id" && t.Value == "test-tenant");
+        activity.Tags.ShouldContain(t => t.Key == TenantConstants.TelemetryTagName && t.Value == "test-tenant");
     }
 
     [Test]
@@ -49,13 +55,13 @@ public class TenantTelemetryEnricherTests
     {
         // Arrange
         var activity = new Activity("TestActivity");
-        _tenantResolverMock.Setup(r => r.Resolve()).Returns((ITenantContext)null);
+        _tenantResolverMock.Setup(r => r.Resolve()).Returns((ITenantContext)null!);
 
         // Act
         _enricher.Enrich(activity, _httpContext.Request);
 
         // Assert
-        activity.Tags.ShouldNotContain(t => t.Key == "tenant.id");
+        activity.Tags.ShouldNotContain(t => t.Key == TenantConstants.TelemetryTagName);
     }
 
     [Test]
@@ -69,6 +75,6 @@ public class TenantTelemetryEnricherTests
         _enricher.Enrich(activity, _httpContext.Request);
 
         // Assert
-        activity.Tags.ShouldNotContain(t => t.Key == "tenant.id");
+        activity.Tags.ShouldNotContain(t => t.Key == TenantConstants.TelemetryTagName);
     }
 }

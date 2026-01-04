@@ -14,7 +14,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
 
-        builder.ConfigureAppConfiguration((context, config) =>
+        builder.ConfigureAppConfiguration((_, config) =>
         {
             // Don't clear sources - just add the Testing config to override
             config.AddJsonFile("appsettings.Testing.json", optional: false, reloadOnChange: false);
@@ -35,7 +35,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 options.DefaultAuthenticateScheme = "Test";
                 options.DefaultChallengeScheme = "Test";
             })
-            .AddScheme<AuthenticationSchemeOptions, MockAuthenticationHandler>("Test", options => { });
+            .AddScheme<AuthenticationSchemeOptions, MockAuthenticationHandler>("Test", _ => { });
         });
     }
 

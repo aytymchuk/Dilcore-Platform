@@ -1,4 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;

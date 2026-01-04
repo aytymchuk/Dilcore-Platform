@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Abstractions.Exceptions;
 using OpenTelemetry;
 
 namespace Dilcore.MultiTenant.Http.Extensions;

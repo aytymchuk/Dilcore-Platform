@@ -1,6 +1,4 @@
-using NUnit.Framework;
-
-namespace Identity.Actors.Abstractions.Tests;
+namespace Dilcore.Identity.Actors.Abstractions.Tests;
 
 public class PlaceholderTests
 {

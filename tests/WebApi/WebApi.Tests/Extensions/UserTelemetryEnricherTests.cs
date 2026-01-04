@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Security.Claims;
 using Dilcore.WebApi.Extensions;
 using Microsoft.AspNetCore.Http;
-using NUnit.Framework;
 using Shouldly;
 
 namespace Dilcore.WebApi.Tests.Extensions;

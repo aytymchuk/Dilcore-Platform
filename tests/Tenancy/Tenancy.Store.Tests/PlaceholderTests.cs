@@ -1,6 +1,4 @@
-using NUnit.Framework;
-
-namespace Tenancy.Store.Tests;
+namespace Dilcore.Tenancy.Store.Tests;
 
 public class PlaceholderTests
 {
