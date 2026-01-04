@@ -1,4 +1,5 @@
 using Dilcore.WebApi.Extensions;
+using Dilcore.WebApi.Infrastructure.MultiTenant;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,9 @@ public class DependencyInjectionTests
 
         var envMock = new Mock<IWebHostEnvironment>();
         envMock.Setup(e => e.ApplicationName).Returns("TestService");
+
+        // Register multi-tenancy (required by TenantContextProcessor)
+        services.AddMultiTenancy();
 
         // Act
         services.AddTelemetry(configuration, envMock.Object);
@@ -62,15 +66,24 @@ public class DependencyInjectionTests
         var envMock = new Mock<IWebHostEnvironment>();
         envMock.Setup(e => e.ApplicationName).Returns("TestService");
 
+        // Register multi-tenancy (required by TenantContextProcessor)
+        services.AddMultiTenancy();
+
         // Act
         services.AddTelemetry(configuration, envMock.Object);
         using var serviceProvider = services.BuildServiceProvider();
 
-        // Assert
-        var contextProcessor = serviceProvider.GetService<TenantAndUserContextProcessor>();
-        contextProcessor.ShouldNotBeNull("TenantAndUserContextProcessor should be registered");
+        // Assert - Verify all separate processors are registered
+        var tenantContextProcessor = serviceProvider.GetService<TenantContextProcessor>();
+        tenantContextProcessor.ShouldNotBeNull("TenantContextProcessor should be registered");
 
-        var activityProcessor = serviceProvider.GetService<TenantAndUserActivityProcessor>();
-        activityProcessor.ShouldNotBeNull("TenantAndUserActivityProcessor should be registered");
+        var userContextProcessor = serviceProvider.GetService<UserContextProcessor>();
+        userContextProcessor.ShouldNotBeNull("UserContextProcessor should be registered");
+
+        var tenantActivityProcessor = serviceProvider.GetService<TenantActivityProcessor>();
+        tenantActivityProcessor.ShouldNotBeNull("TenantActivityProcessor should be registered");
+
+        var userActivityProcessor = serviceProvider.GetService<UserActivityProcessor>();
+        userActivityProcessor.ShouldNotBeNull("UserActivityProcessor should be registered");
     }
 }

@@ -1,3 +1,4 @@
+using Dilcore.WebApi.Infrastructure.MultiTenant;
 using Dilcore.WebApi.Infrastructure.Validation;
 
 namespace Dilcore.WebApi.Extensions;
@@ -16,6 +17,8 @@ public static class EndpointExtensions
         {
             app.MapTestErrorEndpoint();
             app.MapTestValidationEndpoint();
+            app.MapTestTenantEndpoint();
+            app.MapTestPublicEndpoint();
         }
 
         app.MapWeatherForecastEndpoint();
@@ -75,6 +78,47 @@ public static class EndpointExtensions
         .WithTags("Testing")
         .WithDescription("Test endpoint to validate FluentValidation integration")
         .AddValidationFilter<ValidationDto>()
+        .AllowAnonymous();
+    }
+
+    private static void MapTestTenantEndpoint(this WebApplication app)
+    {
+        app.MapGet("/test/tenant-info", (ITenantContext tenantContext) =>
+        {
+            if (tenantContext.Name is null)
+            {
+                return Results.Problem(
+                    title: "Tenant Not Found",
+                    detail: "No tenant could be resolved from the request. Please provide a valid x-tenant header.",
+                    statusCode: 400);
+            }
+
+            return Results.Ok(new
+            {
+                tenantName = tenantContext.Name,
+                storageIdentifier = tenantContext.StorageIdentifier
+            });
+        })
+        .WithName("TestTenantInfo")
+        .WithTags("Testing")
+        .WithDescription("Test endpoint that requires multi-tenancy. Returns tenant information.")
+        .WithMetadata(new RequireMultiTenantAttribute()) // Marker for OpenAPI
+        .AllowAnonymous();
+    }
+
+    private static void MapTestPublicEndpoint(this WebApplication app)
+    {
+        app.MapGet("/test/public-info", () =>
+        {
+            return Results.Ok(new
+            {
+                message = "This is a public endpoint that does not require tenant context",
+                timestamp = DateTime.UtcNow
+            });
+        })
+        .WithName("TestPublicInfo")
+        .WithTags("Testing")
+        .WithDescription("Test endpoint that does NOT require multi-tenancy.")
         .AllowAnonymous();
     }
 }

@@ -1,4 +1,5 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Dilcore.WebApi.Infrastructure.MultiTenant;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -15,17 +16,21 @@ public static class TelemetryExtensions
         var serviceVersion = configuration.GetValueOrDefault(Constants.Configuration.BuildVersionKey, Constants.Configuration.DefaultBuildVersion);
 
         services.AddHttpContextAccessor();
-        services.AddSingleton<TenantAndUserContextProcessor>();
-        services.AddSingleton<TenantAndUserActivityProcessor>();
+        services.AddSingleton<TenantContextProcessor>();
+        services.AddSingleton<UserContextProcessor>();
+        services.AddSingleton<TenantActivityProcessor>();
+        services.AddSingleton<UserActivityProcessor>();
 
         services.ConfigureOpenTelemetryTracerProvider((sp, tpBuilder) =>
         {
-            tpBuilder.AddProcessor(sp.GetRequiredService<TenantAndUserActivityProcessor>());
+            tpBuilder.AddProcessor(sp.GetRequiredService<TenantActivityProcessor>());
+            tpBuilder.AddProcessor(sp.GetRequiredService<UserActivityProcessor>());
         });
 
         services.ConfigureOpenTelemetryLoggerProvider((sp, lpBuilder) =>
         {
-            lpBuilder.AddProcessor(sp.GetRequiredService<TenantAndUserContextProcessor>());
+            lpBuilder.AddProcessor(sp.GetRequiredService<TenantContextProcessor>());
+            lpBuilder.AddProcessor(sp.GetRequiredService<UserContextProcessor>());
         });
 
         var otel = services.AddOpenTelemetry()

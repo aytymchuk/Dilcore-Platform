@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Dilcore.WebApi.Extensions;
+using Dilcore.WebApi.Infrastructure.MultiTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Moq;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using Shouldly;
@@ -26,16 +28,22 @@ public class LoggingTests
     }
 
     [Test]
-    public void TenantAndUserContextProcessor_ShouldEnrichLogs_WhenContextIsPresent()
+    public void TenantAndUserContextProcessors_ShouldEnrichLogs_WhenContextIsPresent()
     {
         // Arrange
         var context = new DefaultHttpContext();
-        context.Request.Headers["X-Tenant-ID"] = "test-tenant";
         var claims = new[] { new Claim(ClaimTypes.Name, "test-user") };
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         var httpContextAccessor = new HttpContextAccessor { HttpContext = context };
-        var processor = new TenantAndUserContextProcessor(httpContextAccessor);
+
+        // Mock tenant resolver
+        var tenantContext = new TenantContext("test-tenant", "storage");
+        var resolverMock = new Mock<ITenantContextResolver>();
+        resolverMock.Setup(x => x.Resolve()).Returns(tenantContext);
+
+        var tenantProcessor = new TenantContextProcessor(resolverMock.Object);
+        var userProcessor = new UserContextProcessor(httpContextAccessor);
 
         // Re-writing the test to use a real pipeline.
         var exporter = new InMemoryExporter();
@@ -44,7 +52,8 @@ public class LoggingTests
         {
             builder.AddOpenTelemetry(options =>
             {
-                options.AddProcessor(processor);
+                options.AddProcessor(tenantProcessor);
+                options.AddProcessor(userProcessor);
                 options.AddProcessor(new SimpleLogRecordExportProcessor(exporter));
             });
         });
@@ -55,10 +64,9 @@ public class LoggingTests
         logger.LogInformation("Test Message");
 
         // Assert
-        // Wait briefly for export if async, but SimpleLogRecordExportProcessor is synchronous usually
         exporter.ExportedRecords.ShouldNotBeEmpty();
         var logRecord = exporter.ExportedRecords.First();
-        
+
         logRecord.Attributes.ShouldNotBeNull();
         var attributes = logRecord.Attributes!.ToDictionary(kv => kv.Key, kv => kv.Value);
 
@@ -70,11 +78,17 @@ public class LoggingTests
     }
 
     [Test]
-    public void TenantAndUserContextProcessor_ShouldHandleMissingContext()
+    public void TenantAndUserContextProcessors_ShouldHandleMissingContext()
     {
         // Arrange
         var httpContextAccessor = new HttpContextAccessor { HttpContext = null };
-        var processor = new TenantAndUserContextProcessor(httpContextAccessor);
+
+        // Mock tenant resolver returning empty
+        var resolverMock = new Mock<ITenantContextResolver>();
+        resolverMock.Setup(x => x.Resolve()).Returns(TenantContext.Empty);
+
+        var tenantProcessor = new TenantContextProcessor(resolverMock.Object);
+        var userProcessor = new UserContextProcessor(httpContextAccessor);
 
         var exporter = new InMemoryExporter();
 
@@ -82,7 +96,8 @@ public class LoggingTests
         {
             builder.AddOpenTelemetry(options =>
             {
-                options.AddProcessor(processor);
+                options.AddProcessor(tenantProcessor);
+                options.AddProcessor(userProcessor);
                 options.AddProcessor(new SimpleLogRecordExportProcessor(exporter));
             });
         });
