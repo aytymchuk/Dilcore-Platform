@@ -1,13 +1,13 @@
-using Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.MultiTenant.Abstractions;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+namespace Dilcore.MultiTenant.Http.Extensions;
 
 /// <summary>
 /// Enriches OpenTelemetry logs with tenant context information.
 /// </summary>
-public class TenantContextProcessor : BaseProcessor<LogRecord>
+public sealed class TenantContextProcessor : BaseProcessor<LogRecord>
 {
     private readonly ITenantContextResolver _tenantContextResolver;
 
@@ -24,7 +24,16 @@ public class TenantContextProcessor : BaseProcessor<LogRecord>
         attributes.RemoveAll(kv => kv.Key == "tenant.id");
 
         // Resolve tenant context using the resolver directly
-        var tenantContext = _tenantContextResolver.Resolve();
+        ITenantContext? tenantContext = null;
+        try
+        {
+            tenantContext = _tenantContextResolver.Resolve();
+        }
+        catch (TenantNotResolvedException)
+        {
+            // Ignore if tenant is not resolved for logging
+        }
+
         var tenantId = tenantContext?.Name;
 
         if (!string.IsNullOrEmpty(tenantId))

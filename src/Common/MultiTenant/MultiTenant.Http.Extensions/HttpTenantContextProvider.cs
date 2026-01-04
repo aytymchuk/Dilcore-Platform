@@ -1,11 +1,12 @@
+using Dilcore.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Abstractions;
 
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+namespace Dilcore.MultiTenant.Http.Extensions;
 
 /// <summary>
 /// Resolves tenant from HTTP context using Finbuckle's accessor.
 /// </summary>
-internal sealed class HttpTenantContextProvider : ITenantContextProvider
+public sealed class HttpTenantContextProvider : ITenantContextProvider
 {
     private readonly IMultiTenantContextAccessor<AppTenantInfo> _accessor;
 

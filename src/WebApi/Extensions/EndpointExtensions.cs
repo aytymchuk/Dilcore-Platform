@@ -1,5 +1,7 @@
-using Dilcore.WebApi.Infrastructure.MultiTenant;
+
+using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApi.Infrastructure.Validation;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -42,6 +44,7 @@ public static class EndpointExtensions
         })
         .WithName("TestError")
         .WithTags("Testing")
+        .ExcludeFromMultiTenantResolution()
         .AllowAnonymous();
     }
 
@@ -78,6 +81,7 @@ public static class EndpointExtensions
         .WithTags("Testing")
         .WithDescription("Test endpoint to validate FluentValidation integration")
         .AddValidationFilter<ValidationDto>()
+        .ExcludeFromMultiTenantResolution()
         .AllowAnonymous();
     }
 
@@ -102,7 +106,6 @@ public static class EndpointExtensions
         .WithName("TestTenantInfo")
         .WithTags("Testing")
         .WithDescription("Test endpoint that requires multi-tenancy. Returns tenant information.")
-        .WithMetadata(new RequireMultiTenantAttribute()) // Marker for OpenAPI
         .AllowAnonymous();
     }
 
@@ -119,6 +122,7 @@ public static class EndpointExtensions
         .WithName("TestPublicInfo")
         .WithTags("Testing")
         .WithDescription("Test endpoint that does NOT require multi-tenancy.")
+        .ExcludeFromMultiTenantResolution()
         .AllowAnonymous();
     }
 }

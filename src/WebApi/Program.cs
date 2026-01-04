@@ -1,7 +1,7 @@
 using Dilcore.WebApi.Extensions;
+using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
-using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
@@ -31,7 +31,6 @@ logger.LogInformation("Starting the application...");
 
 // Configure middleware pipeline
 app.UseCorsPolicy();
-app.UseMultiTenant();
 app.UseApplicationMiddleware();
 
 // Map application endpoints

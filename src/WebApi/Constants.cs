@@ -35,7 +35,7 @@ public static class Constants
 
     public static class Headers
     {
-        public const string Tenant = "x-tenant";
+        public const string Tenant = MultiTenant.Abstractions.TenantConstants.HeaderName;
     }
 
     public static class ProblemDetails
@@ -76,5 +76,6 @@ public static class Constants
         public const string InvalidRequest = "INVALID_REQUEST";
         public const string JsonParseError = "JSON_PARSE_ERROR";
         public const string FormatError = "FORMAT_ERROR";
+        public const string TenantNotResolved = "TENANT_NOT_RESOLVED";
     }
 }

@@ -1,7 +1,6 @@
-using Dilcore.WebApi.Infrastructure.MultiTenant;
 using Shouldly;
 
-namespace Dilcore.WebApi.Tests;
+namespace Dilcore.MultiTenant.Abstractions.Tests;
 
 [TestFixture]
 public class TenantContextTests

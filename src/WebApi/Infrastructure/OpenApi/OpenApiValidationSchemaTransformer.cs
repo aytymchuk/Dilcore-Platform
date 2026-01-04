@@ -3,7 +3,6 @@ using System.Reflection;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;

@@ -1,4 +1,4 @@
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+namespace Dilcore.MultiTenant.Abstractions;
 
 /// <summary>
 /// Resolves tenant context by trying registered providers in priority order.

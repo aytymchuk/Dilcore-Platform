@@ -1,9 +1,9 @@
-using Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Abstractions;
 using Moq;
 using Shouldly;
 
-namespace Dilcore.WebApi.Tests;
+namespace Dilcore.MultiTenant.Http.Extensions.Tests;
 
 [TestFixture]
 public class HttpTenantContextProviderTests

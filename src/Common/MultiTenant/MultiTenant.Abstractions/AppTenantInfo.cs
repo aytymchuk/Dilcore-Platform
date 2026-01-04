@@ -1,6 +1,6 @@
 using Finbuckle.MultiTenant.Abstractions;
 
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+namespace Dilcore.MultiTenant.Abstractions;
 
 /// <summary>
 /// Custom tenant info record that extends Finbuckle's TenantInfo with additional properties.

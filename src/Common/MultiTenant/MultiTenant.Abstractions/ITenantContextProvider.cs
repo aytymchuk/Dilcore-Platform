@@ -1,4 +1,4 @@
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+namespace Dilcore.MultiTenant.Abstractions;
 
 /// <summary>
 /// Provider for resolving tenant context from different sources.

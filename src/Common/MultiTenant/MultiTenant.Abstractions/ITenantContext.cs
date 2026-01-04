@@ -1,4 +1,4 @@
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+namespace Dilcore.MultiTenant.Abstractions;
 
 /// <summary>
 /// Abstraction over Finbuckle's tenant context to minimize direct dependencies on the library.

@@ -1,10 +1,13 @@
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.MultiTenant.Abstractions;
+using Microsoft.Extensions.Logging;
+
+namespace Dilcore.MultiTenant.Http.Extensions;
 
 /// <summary>
 /// Resolves tenant context lazily using registered providers.
 /// Scoped lifetime ensures resolution happens once per request.
 /// </summary>
-internal sealed class TenantContextResolver : ITenantContextResolver
+public sealed class TenantContextResolver : ITenantContextResolver
 {
     private readonly IEnumerable<ITenantContextProvider> _providers;
     private readonly ILogger<TenantContextResolver> _logger;
@@ -31,6 +34,6 @@ internal sealed class TenantContextResolver : ITenantContextResolver
         }
 
         _logger.LogDebug("No tenant resolved by any provider");
-        return TenantContext.Empty;
+        throw new TenantNotResolvedException("No tenant could be resolved from the current request.");
     }
 }
