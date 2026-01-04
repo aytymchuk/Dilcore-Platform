@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Runtime.Serialization;
-using System.Security.Claims;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.MultiTenant;
 using Microsoft.AspNetCore.Http;
@@ -57,7 +56,9 @@ public class LoggingTests
         // Since the previous code used `new LogRecord()`, I will assume it is valid or I will mock the behavior if possible.
         // Actually, easiest way to test Processor logic is creating it manually if allowed.
 
+#pragma warning disable SYSLIB0050
         var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));
+#pragma warning restore SYSLIB0050
         logRecord.Attributes = new List<KeyValuePair<string, object?>>();
 
         // Act
@@ -79,7 +80,7 @@ public class LoggingTests
     {
         // Arrange
         var tenantResolverMock = new Mock<ITenantContextResolver>();
-        tenantResolverMock.Setup(x => x.Resolve()).Returns((TenantContext?)null);
+        tenantResolverMock.Setup(x => x.Resolve()).Returns(TenantContext.Empty);
 
         var tenantProcessor = new TenantContextProcessor(tenantResolverMock.Object);
 
@@ -88,7 +89,9 @@ public class LoggingTests
         httpContextAccessorMock.Setup(x => x.HttpContext).Returns((HttpContext?)null);
         var userProcessor = new UserContextProcessor(httpContextAccessorMock.Object);
 
+#pragma warning disable SYSLIB0050
         var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));
+#pragma warning restore SYSLIB0050
         logRecord.Attributes = new List<KeyValuePair<string, object?>>();
 
         // Act

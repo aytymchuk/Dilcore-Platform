@@ -72,10 +72,7 @@ public class OpenApiValidationSchemaTransformerTests
     public async Task TransformAsync_WithRegisteredValidator_AppliesValidationRules()
     {
         // Arrange
-        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
-        var scopeMock = new Mock<IServiceScope>();
-        scopeMock.Setup(s => s.ServiceProvider).Returns(_serviceProvider);
-        scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
+        var scopeFactoryMock = CreateScopeFactoryMock(_serviceProvider);
 
         var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = CreateValidationDtoSchema();
@@ -130,10 +127,7 @@ public class OpenApiValidationSchemaTransformerTests
         services.AddSingleton<IValidator<RegexValidationDto>, RegexValidationDtoValidator>();
         using var provider = services.BuildServiceProvider();
 
-        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
-        var scopeMock = new Mock<IServiceScope>();
-        scopeMock.Setup(s => s.ServiceProvider).Returns(provider);
-        scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
+        var scopeFactoryMock = CreateScopeFactoryMock(provider);
 
         var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = new OpenApiSchema
@@ -170,10 +164,7 @@ public class OpenApiValidationSchemaTransformerTests
         var services = new ServiceCollection();
         using var emptyServiceProvider = services.BuildServiceProvider();
 
-        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
-        var scopeMock = new Mock<IServiceScope>();
-        scopeMock.Setup(s => s.ServiceProvider).Returns(emptyServiceProvider);
-        scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
+        var scopeFactoryMock = CreateScopeFactoryMock(emptyServiceProvider);
 
         var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = CreateValidationDtoSchema();
@@ -193,10 +184,7 @@ public class OpenApiValidationSchemaTransformerTests
     public async Task TransformAsync_NullProperties_DoesNotThrow()
     {
         // Arrange
-        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
-        var scopeMock = new Mock<IServiceScope>();
-        scopeMock.Setup(s => s.ServiceProvider).Returns(_serviceProvider);
-        scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
+        var scopeFactoryMock = CreateScopeFactoryMock(_serviceProvider);
 
         var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = new OpenApiSchema { Properties = null };
@@ -211,10 +199,7 @@ public class OpenApiValidationSchemaTransformerTests
     public async Task TransformAsync_EmptyProperties_DoesNotThrow()
     {
         // Arrange
-        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
-        var scopeMock = new Mock<IServiceScope>();
-        scopeMock.Setup(s => s.ServiceProvider).Returns(_serviceProvider);
-        scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
+        var scopeFactoryMock = CreateScopeFactoryMock(_serviceProvider);
 
         var transformer = new OpenApiValidationSchemaTransformer(scopeFactoryMock.Object);
         var schema = new OpenApiSchema { Properties = new Dictionary<string, IOpenApiSchema>() };
@@ -306,5 +291,14 @@ public class OpenApiValidationSchemaTransformerTests
         {
             return true;
         }
+    }
+
+    private Mock<IServiceScopeFactory> CreateScopeFactoryMock(IServiceProvider serviceProvider)
+    {
+        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+        var scopeMock = new Mock<IServiceScope>();
+        scopeMock.Setup(s => s.ServiceProvider).Returns(serviceProvider);
+        scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
+        return scopeFactoryMock;
     }
 }

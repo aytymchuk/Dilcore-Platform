@@ -4,8 +4,8 @@ using OpenTelemetry;
 
 namespace Dilcore.WebApi.Infrastructure.MultiTenant;
 
-/// <summary>solu
-/// Enriches OpenTelemetry activities (traces) with tenant context information.
+/// <summary>
+/// Processes tenant activity events and handles related tenant-scoped operations.
 /// </summary>
 public class TenantActivityProcessor : BaseProcessor<Activity>
 {
