@@ -33,6 +33,11 @@ public static class Constants
         public const string Auth0Description = "Auth0 OAuth2 authentication";
     }
 
+    public static class Headers
+    {
+        public const string Tenant = "x-tenant";
+    }
+
     public static class ProblemDetails
     {
         public const string ContentType = "application/problem+json";

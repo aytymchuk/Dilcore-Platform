@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Dilcore.WebApi.Extensions;
+using Dilcore.WebApi.Infrastructure.MultiTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
@@ -26,7 +27,7 @@ public class LoggingTests
     }
 
     [Test]
-    public void TenantAndUserContextProcessor_ShouldEnrichLogs_WhenContextIsPresent()
+    public void TenantAndUserContextProcessors_ShouldEnrichLogs_WhenContextIsPresent()
     {
         // Arrange
         var context = new DefaultHttpContext();
@@ -35,7 +36,8 @@ public class LoggingTests
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         var httpContextAccessor = new HttpContextAccessor { HttpContext = context };
-        var processor = new TenantAndUserContextProcessor(httpContextAccessor);
+        var tenantProcessor = new TenantContextProcessor(httpContextAccessor);
+        var userProcessor = new UserContextProcessor(httpContextAccessor);
 
         // Re-writing the test to use a real pipeline.
         var exporter = new InMemoryExporter();
@@ -44,7 +46,8 @@ public class LoggingTests
         {
             builder.AddOpenTelemetry(options =>
             {
-                options.AddProcessor(processor);
+                options.AddProcessor(tenantProcessor);
+                options.AddProcessor(userProcessor);
                 options.AddProcessor(new SimpleLogRecordExportProcessor(exporter));
             });
         });
@@ -55,10 +58,9 @@ public class LoggingTests
         logger.LogInformation("Test Message");
 
         // Assert
-        // Wait briefly for export if async, but SimpleLogRecordExportProcessor is synchronous usually
         exporter.ExportedRecords.ShouldNotBeEmpty();
         var logRecord = exporter.ExportedRecords.First();
-        
+
         logRecord.Attributes.ShouldNotBeNull();
         var attributes = logRecord.Attributes!.ToDictionary(kv => kv.Key, kv => kv.Value);
 
@@ -70,11 +72,12 @@ public class LoggingTests
     }
 
     [Test]
-    public void TenantAndUserContextProcessor_ShouldHandleMissingContext()
+    public void TenantAndUserContextProcessors_ShouldHandleMissingContext()
     {
         // Arrange
         var httpContextAccessor = new HttpContextAccessor { HttpContext = null };
-        var processor = new TenantAndUserContextProcessor(httpContextAccessor);
+        var tenantProcessor = new TenantContextProcessor(httpContextAccessor);
+        var userProcessor = new UserContextProcessor(httpContextAccessor);
 
         var exporter = new InMemoryExporter();
 
@@ -82,7 +85,8 @@ public class LoggingTests
         {
             builder.AddOpenTelemetry(options =>
             {
-                options.AddProcessor(processor);
+                options.AddProcessor(tenantProcessor);
+                options.AddProcessor(userProcessor);
                 options.AddProcessor(new SimpleLogRecordExportProcessor(exporter));
             });
         });

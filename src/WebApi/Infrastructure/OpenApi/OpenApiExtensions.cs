@@ -35,6 +35,8 @@ public static class OpenApiExtensions
             options.AddOperationTransformer<OpenApiProblemDetailsTransformer>();
             // Add FluentValidation rules to schema
             options.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
+            // Add tenant header parameter to multi-tenant endpoints
+            options.AddOperationTransformer<OpenApiTenantHeaderTransformer>();
         });
 
         return services;

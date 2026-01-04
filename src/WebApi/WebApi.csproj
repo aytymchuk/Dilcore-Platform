@@ -13,6 +13,7 @@
     <PackageReference Include="Azure.Data.AppConfiguration" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
+    <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
@@ -21,6 +22,7 @@
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="MicroElements.OpenApi.FluentValidation" />
+    <PackageReference Include="Finbuckle.MultiTenant" />
   </ItemGroup>
 
 </Project>

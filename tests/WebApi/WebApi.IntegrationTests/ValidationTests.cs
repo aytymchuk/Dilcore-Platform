@@ -3,8 +3,6 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Shouldly;
-
-using Dilcore.WebApi;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 
 namespace Dilcore.WebApi.IntegrationTests;
