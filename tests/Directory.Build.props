@@ -16,4 +16,9 @@
     <PackageReference Include="Moq" />
     <PackageReference Include="Shouldly" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
 </Project>
