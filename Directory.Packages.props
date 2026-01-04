@@ -33,6 +33,7 @@
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageVersion Include="MicroElements.OpenApi.FluentValidation" Version="7.0.3" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
+    <PackageVersion Include="JunitXml.TestLogger" Version="7.1.0" />
     <PackageVersion Include="Finbuckle.MultiTenant" Version="10.0.1" />
   </ItemGroup>
 </Project>
