@@ -1,0 +1,88 @@
+name: 🚀 CI Platform API
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  build-and-test:
+    name: 🧪 Build & Test + Docker
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v6
+
+    - name: 🔧 Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+        dotnet-quality: preview
+        
+    - name: 📦 Restore dependencies
+      run: dotnet restore
+
+    - name: 🏗️ Build
+      run: dotnet build --no-restore
+
+    - name: 🐳 Build WebApi Docker image
+      run: |
+        docker build \
+          --build-arg BUILD_VERSION=${{ github.sha }} \
+          -f src/WebApi/Dockerfile \
+          -t dilcore-webapi:${{ github.sha }} \
+          .
+
+    - name: ✅ Test
+      run: |
+        dotnet test \
+          --no-build \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --logger "junit;LogFilePath=${{ github.workspace }}/TestResults/junit-{assembly}.xml" \
+          --results-directory "TestResults"
+
+    - name: 📊 Generate Coverage Report
+      uses: danielpalme/ReportGenerator-GitHub-Action@v5.5.1
+      if: always()
+      with:
+        reports: '**/coverage.cobertura.xml'
+        targetdir: 'coveragereport'
+        reporttypes: 'HtmlInline;MarkdownSummaryGithub'
+
+    - name: 📝 Add Coverage Summary
+      if: always()
+      run: |
+        if [ -f coveragereport/SummaryGithub.md ]; then
+          cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ No coverage summary found." >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: 📤 Upload Coverage Report
+      uses: actions/upload-artifact@v6
+      if: always()
+      with:
+        name: coverage-report
+        path: coveragereport
+
+    - name: 📋 Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: 'TestResults/junit-*.xml'
+
+    - name: 📤 Upload Test Results
+      uses: actions/upload-artifact@v6
+      if: always()
+      with:
+        name: test-results
+        path: TestResults
