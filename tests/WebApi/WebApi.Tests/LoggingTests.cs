@@ -31,7 +31,7 @@ public class LoggingTests
     {
         // Arrange
         var context = new DefaultHttpContext();
-        context.Request.Headers["X-Tenant-ID"] = "test-tenant";
+        context.Request.Headers[Constants.Headers.Tenant] = "test-tenant";
         var claims = new[] { new Claim(ClaimTypes.Name, "test-user") };
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 

@@ -40,8 +40,8 @@ public class TenantContextProcessor : BaseProcessor<LogRecord>
             tenantId = tenantContext?.Name;
         }
 
-        // Fallback to X-Tenant-ID header if not found via ITenantContext (for backward compatibility/testing)
-        if (string.IsNullOrEmpty(tenantId) && context.Request.Headers.TryGetValue("X-Tenant-ID", out var headerValue))
+        // Fallback to x-tenant header if not found via ITenantContext (for backward compatibility/testing)
+        if (string.IsNullOrEmpty(tenantId) && context.Request.Headers.TryGetValue(Constants.Headers.Tenant, out var headerValue))
         {
             tenantId = headerValue.ToString();
         }

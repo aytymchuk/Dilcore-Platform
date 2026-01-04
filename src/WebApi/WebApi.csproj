@@ -22,7 +22,6 @@
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="MicroElements.OpenApi.FluentValidation" />
-    <PackageReference Include="Finbuckle.MultiTenant" />
   </ItemGroup>
 
 </Project>

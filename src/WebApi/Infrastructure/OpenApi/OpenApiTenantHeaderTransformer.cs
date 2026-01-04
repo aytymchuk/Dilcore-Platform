@@ -25,6 +25,16 @@ internal sealed class OpenApiTenantHeaderTransformer : IOpenApiOperationTransfor
         // Add the x-tenant header parameter
         operation.Parameters ??= [];
 
+        // Check if parameter already exists to avoid duplicates
+        var existingParam = operation.Parameters.FirstOrDefault(p =>
+            p.Name == Constants.Headers.Tenant &&
+            p.In == ParameterLocation.Header);
+
+        if (existingParam != null)
+        {
+            return Task.CompletedTask;
+        }
+
         var tenantParameter = new OpenApiParameter
         {
             Name = Constants.Headers.Tenant,
