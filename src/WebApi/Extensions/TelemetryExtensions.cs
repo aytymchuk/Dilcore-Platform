@@ -35,24 +35,17 @@ public static class TelemetryExtensions
             lpBuilder.AddProcessor(sp.GetRequiredService<UserContextProcessor>());
         });
 
+        services.AddTelemetryEnricher<TenantTelemetryEnricher>();
+        services.AddTelemetryEnricher<UserTelemetryEnricher>();
+
         services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
         {
             options.EnrichWithHttpRequest = (activity, request) =>
             {
-                var httpContext = request.HttpContext;
-                var tenantContextResolver = httpContext.RequestServices.GetService<ITenantContextResolver>();
-
-                try
+                var enrichers = request.HttpContext.RequestServices.GetServices<ITelemetryEnricher>();
+                foreach (var enricher in enrichers)
                 {
-                    var tenantContext = tenantContextResolver?.Resolve();
-                    if (!string.IsNullOrEmpty(tenantContext?.Name))
-                    {
-                        activity.SetTag("tenant.id", tenantContext.Name);
-                    }
-                }
-                catch (TenantNotResolvedException)
-                {
-                    // Ignore if tenant is not resolved
+                    enricher.Enrich(activity, request);
                 }
             };
         });
