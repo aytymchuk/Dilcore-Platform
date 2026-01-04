@@ -1,8 +1,13 @@
+using System.Diagnostics;
 using Dilcore.WebApi.Extensions;
+using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.WebApi.Infrastructure.OpenApi;
+using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -85,5 +90,57 @@ public class DependencyInjectionTests
 
         var userActivityProcessor = serviceProvider.GetService<UserActivityProcessor>();
         userActivityProcessor.ShouldNotBeNull("UserActivityProcessor should be registered");
+    }
+
+    [Test]
+    public void Verify_DI_Container_Is_Valid()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                {"Telemetry:ServiceName", "TestService"},
+                {"Telemetry:ConnectionString", "InstrumentationKey=00000000-0000-0000-0000-000000000000;"},
+                {"ApplicationSettings:Name", "TestService"},
+                {"AuthenticationSettings:Auth0:Domain", "test-domain"},
+                {"AuthenticationSettings:Auth0:Audience", "test-audience"}
+            })
+            .Build();
+
+        var envMock = new Mock<IWebHostEnvironment>();
+        envMock.Setup(e => e.EnvironmentName).Returns("Development");
+        envMock.Setup(e => e.ApplicationName).Returns(typeof(Program).Assembly.GetName().Name!);
+
+        // Act
+        // Mimic Program.cs registration
+        services.AddSingleton<IWebHostEnvironment>(envMock.Object);
+        services.AddSingleton<IHostEnvironment>(envMock.Object);
+        services.AddControllers();
+        services.AddRouting();
+        services.AddLogging();
+        var diagnosticListener = new DiagnosticListener("Test");
+        services.AddSingleton<DiagnosticSource>(diagnosticListener);
+        services.AddSingleton(diagnosticListener);
+
+        services.AddAppSettings(configuration);
+        services.AddOpenApiDocumentation(configuration);
+        services.AddTelemetry(configuration, envMock.Object);
+        services.AddProblemDetailsServices();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddCorsPolicy();
+        services.AddAuth0Authentication(configuration);
+        services.AddFluentValidation(typeof(Program).Assembly);
+        services.AddMultiTenancy();
+
+        // Build the service provider with validation options enabled
+        using var serviceProvider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateScopes = true,
+            ValidateOnBuild = true
+        });
+
+        // Assert
+        serviceProvider.ShouldNotBeNull();
     }
 }

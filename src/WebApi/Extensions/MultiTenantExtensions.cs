@@ -26,10 +26,10 @@ public static class MultiTenantExtensions
             });
 
         // 2. Register providers
-        services.AddScoped<ITenantContextProvider, HttpTenantContextProvider>();
+        services.AddSingleton<ITenantContextProvider, HttpTenantContextProvider>();
 
         // 3. Register resolver
-        services.AddScoped<ITenantContextResolver, TenantContextResolver>();
+        services.AddSingleton<ITenantContextResolver, TenantContextResolver>();
 
         // 4. Register ITenantContext factory (resolves lazily via resolver)
         services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<ITenantContextResolver>().Resolve());

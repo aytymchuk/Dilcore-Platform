@@ -6,29 +6,31 @@ namespace Dilcore.WebApi.Infrastructure.MultiTenant;
 /// </summary>
 internal sealed class TenantContextResolver : ITenantContextResolver
 {
-    private readonly Lazy<ITenantContext> _lazyContext;
+    private readonly IEnumerable<ITenantContextProvider> _providers;
+    private readonly ILogger<TenantContextResolver> _logger;
 
     public TenantContextResolver(
         IEnumerable<ITenantContextProvider> providers,
         ILogger<TenantContextResolver> logger)
     {
-        _lazyContext = new Lazy<ITenantContext>(() =>
-        {
-            foreach (var provider in providers.OrderByDescending(p => p.Priority))
-            {
-                var context = provider.GetTenantContext();
-                if (context != null)
-                {
-                    logger.LogDebug("Tenant resolved by {Provider}: {TenantName}",
-                        provider.GetType().Name, context.Name);
-                    return context;
-                }
-            }
-
-            logger.LogDebug("No tenant resolved by any provider");
-            return TenantContext.Empty;
-        }, LazyThreadSafetyMode.ExecutionAndPublication);
+        _providers = providers.OrderByDescending(p => p.Priority);
+        _logger = logger;
     }
 
-    public ITenantContext Resolve() => _lazyContext.Value;
+    public ITenantContext Resolve()
+    {
+        foreach (var provider in _providers)
+        {
+            var context = provider.GetTenantContext();
+            if (context != null)
+            {
+                _logger.LogDebug("Tenant resolved by {Provider}: {TenantName}",
+                    provider.GetType().Name, context.Name);
+                return context;
+            }
+        }
+
+        _logger.LogDebug("No tenant resolved by any provider");
+        return TenantContext.Empty;
+    }
 }

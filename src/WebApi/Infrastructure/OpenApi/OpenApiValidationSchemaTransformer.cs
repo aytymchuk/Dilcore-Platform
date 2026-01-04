@@ -3,6 +3,7 @@ using System.Reflection;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;
@@ -11,15 +12,18 @@ namespace Dilcore.WebApi.Infrastructure.OpenApi;
 /// OpenAPI schema filter that reflects FluentValidation rules into OpenAPI schema properties.
 /// Adds required, minLength, maxLength, pattern, minimum, maximum constraints.
 /// </summary>
-internal sealed class OpenApiValidationSchemaTransformer(IServiceProvider serviceProvider) : IOpenApiSchemaTransformer
+internal sealed class OpenApiValidationSchemaTransformer(IServiceScopeFactory serviceScopeFactory) : IOpenApiSchemaTransformer
 {
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
         var type = context.JsonTypeInfo.Type;
 
+        // Create a scope to resolve validators which are likely Scoped
+        using var scope = serviceScopeFactory.CreateScope();
+
         // Get the validator for this type
         var validatorType = typeof(IValidator<>).MakeGenericType(type);
-        var validator = serviceProvider.GetService(validatorType) as IValidator;
+        var validator = scope.ServiceProvider.GetService(validatorType) as IValidator;
 
         if (validator is null)
         {
