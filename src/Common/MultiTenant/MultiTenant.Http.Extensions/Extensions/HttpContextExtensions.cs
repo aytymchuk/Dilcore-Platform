@@ -1,7 +1,5 @@
-using Dilcore.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 
 namespace Dilcore.MultiTenant.Http.Extensions;
 

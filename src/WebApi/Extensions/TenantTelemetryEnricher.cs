@@ -1,8 +1,7 @@
 using System.Diagnostics;
 using Dilcore.MultiTenant.Abstractions;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+using Dilcore.MultiTenant.Abstractions.Exceptions;
+using Dilcore.Telemetry.Abstractions;
 
 namespace Dilcore.WebApi.Extensions;
 

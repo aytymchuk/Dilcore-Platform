@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Abstractions.Exceptions;
-using Dilcore.MultiTenant.Http.Extensions.Extensions;
 using Dilcore.Telemetry.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,19 +9,14 @@ namespace Dilcore.MultiTenant.Http.Extensions.Telemetry;
 
 public class TenantTelemetryEnricher : ITelemetryEnricher
 {
-    public void Enrich(Activity activity, object request)
+    public void Enrich(Activity activity, HttpRequest request)
     {
-        if (request is not HttpRequest httpRequest)
+        if (request.HttpContext.IsExcludedFromMultiTenant())
         {
             return;
         }
 
-        if (httpRequest.HttpContext.IsExcludedFromMultiTenant())
-        {
-            return;
-        }
-
-        var tenantContextResolver = httpRequest.HttpContext.RequestServices.GetService<ITenantContextResolver>();
+        var tenantContextResolver = request.HttpContext.RequestServices.GetService<ITenantContextResolver>();
         try
         {
             var tenantContext = tenantContextResolver?.Resolve();
