@@ -1,9 +1,8 @@
-using Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.MultiTenant.Abstractions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
 using Shouldly;
 
-namespace Dilcore.WebApi.Tests;
+namespace Dilcore.MultiTenant.Http.Extensions.Tests;
 
 /// <summary>
 /// Example custom provider for testing/demonstration

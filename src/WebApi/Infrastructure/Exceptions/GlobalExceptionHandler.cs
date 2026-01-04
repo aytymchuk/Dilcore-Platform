@@ -1,4 +1,5 @@
 using System.Net;
+using Dilcore.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -88,6 +89,8 @@ public sealed partial class GlobalExceptionHandler(
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.OperationCancelled, "Operation Cancelled"),
             TimeoutException =>
                 (HttpStatusCode.RequestTimeout, Constants.ProblemDetails.Timeout, "Request Timeout"),
+            TenantNotResolvedException =>
+                (HttpStatusCode.BadRequest, Constants.ProblemDetails.TenantNotResolved, "Tenant Not Resolved"),
             _ =>
                 (HttpStatusCode.InternalServerError, Constants.ProblemDetails.UnexpectedError, "An unexpected error occurred")
         };

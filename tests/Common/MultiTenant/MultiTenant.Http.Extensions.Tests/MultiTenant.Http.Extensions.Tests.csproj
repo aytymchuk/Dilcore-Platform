@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
+  </ItemGroup>
+
+</Project>

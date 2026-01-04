@@ -1,9 +1,8 @@
 using System.Diagnostics;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
-using Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
-using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

@@ -24,4 +24,9 @@
     <PackageReference Include="MicroElements.OpenApi.FluentValidation" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+    <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>

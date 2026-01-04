@@ -1,4 +1,5 @@
 using System.Net;
+using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
 
@@ -13,6 +14,7 @@ public class SecureEndpointTests : BaseIntegrationTest
     public void SetUpClient()
     {
         _client = Factory.CreateClient();
+        _client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
     }
 
     [OneTimeTearDown]
@@ -40,6 +42,7 @@ public class SecureEndpointTests : BaseIntegrationTest
         using var factory = new CustomWebApplicationFactory();
         factory.FakeUser.IsAuthenticated = false;
         using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
 
         // Act
         var response = await client.GetAsync("/weatherforecast");
@@ -61,6 +64,7 @@ public class SecureEndpointTests : BaseIntegrationTest
                 user.TenantId = "custom-tenant";
             });
         using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
 
         // Act
         var response = await client.GetAsync("/weatherforecast");
@@ -75,6 +79,7 @@ public class SecureEndpointTests : BaseIntegrationTest
         // Arrange
         using var factory = new CustomWebApplicationFactory();
         using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
 
         // Act 1 - First request with default user
         var response1 = await client.GetAsync("/weatherforecast");

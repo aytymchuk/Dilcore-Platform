@@ -1,5 +1,6 @@
-using Dilcore.WebApi.Extensions;
+using Dilcore.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.OpenApi;
+using Finbuckle.MultiTenant.AspNetCore.Routing;
 using Microsoft.OpenApi;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;
@@ -12,12 +13,12 @@ internal sealed class OpenApiTenantHeaderTransformer : IOpenApiOperationTransfor
 {
     public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
-        // Check if the endpoint has the RequireMultiTenant metadata
-        var requiresTenant = context.Description.ActionDescriptor.EndpointMetadata
-            .OfType<RequireMultiTenantAttribute>()
+        // Check if the endpoint has the IExcludeFromMultiTenantResolutionMetadata to skip adding the header
+        var excludeTenant = context.Description.ActionDescriptor.EndpointMetadata
+            .OfType<IExcludeFromMultiTenantResolutionMetadata>()
             .Any();
 
-        if (!requiresTenant)
+        if (excludeTenant)
         {
             return Task.CompletedTask;
         }
@@ -27,7 +28,7 @@ internal sealed class OpenApiTenantHeaderTransformer : IOpenApiOperationTransfor
 
         // Check if parameter already exists to avoid duplicates
         var existingParam = operation.Parameters.FirstOrDefault(p =>
-            p.Name == Constants.Headers.Tenant &&
+            p.Name == TenantConstants.HeaderName &&
             p.In == ParameterLocation.Header);
 
         if (existingParam != null)
@@ -37,9 +38,9 @@ internal sealed class OpenApiTenantHeaderTransformer : IOpenApiOperationTransfor
 
         var tenantParameter = new OpenApiParameter
         {
-            Name = Constants.Headers.Tenant,
+            Name = TenantConstants.HeaderName,
             In = ParameterLocation.Header,
-            Required = true,
+            Required = true, // Required by TenantEnforcementMiddleware
             Schema = new OpenApiSchema
             {
                 Type = JsonSchemaType.String

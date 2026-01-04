@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using System.Runtime.Serialization;
 using Dilcore.WebApi.Extensions;
-using Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Http.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Moq;
 using OpenTelemetry;
 using OpenTelemetry.Logs;

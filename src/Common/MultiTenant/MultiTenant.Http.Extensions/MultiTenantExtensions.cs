@@ -1,9 +1,10 @@
-using Dilcore.WebApi.Infrastructure.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Finbuckle.MultiTenant.Extensions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Dilcore.WebApi.Extensions;
+namespace Dilcore.MultiTenant.Http.Extensions;
 
 public static class MultiTenantExtensions
 {
@@ -11,7 +12,7 @@ public static class MultiTenantExtensions
     {
         // 1. Configure Finbuckle
         services.AddMultiTenant<AppTenantInfo>()
-            .WithHeaderStrategy(Constants.Headers.Tenant)
+            .WithHeaderStrategy(TenantConstants.HeaderName)
             .WithInMemoryStore(options =>
             {
                 options.Tenants.Add(new AppTenantInfo("t1", "t1", "T1")
@@ -31,9 +32,18 @@ public static class MultiTenantExtensions
         // 3. Register resolver
         services.AddSingleton<ITenantContextResolver, TenantContextResolver>();
 
+
         // 4. Register ITenantContext factory (resolves lazily via resolver)
         services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<ITenantContextResolver>().Resolve());
 
+        // 5. Register middleware
+        services.AddScoped<TenantEnforcementMiddleware>();
+
         return services;
+    }
+
+    public static IApplicationBuilder UseMultiTenantEnforcement(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<TenantEnforcementMiddleware>();
     }
 }

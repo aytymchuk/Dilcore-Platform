@@ -1,5 +1,5 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Dilcore.WebApi.Infrastructure.MultiTenant;
+using Dilcore.MultiTenant.Http.Extensions;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;

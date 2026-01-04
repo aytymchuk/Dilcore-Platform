@@ -1,5 +1,7 @@
 using Dilcore.WebApi.Infrastructure.OpenApi;
 using Dilcore.WebApi.Infrastructure.Scalar;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Dilcore.MultiTenant.Http.Extensions;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -18,6 +20,9 @@ public static class MiddlewarePipelineExtensions
         }
 
         app.UseHttpsRedirection();
+        app.UseMultiTenant();
+        app.UseMultiTenantEnforcement();
+
         app.UseAuthentication();
         app.UseAuthorization();
 

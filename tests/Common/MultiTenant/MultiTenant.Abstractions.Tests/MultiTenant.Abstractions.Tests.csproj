@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

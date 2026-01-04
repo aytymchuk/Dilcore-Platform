@@ -1,9 +1,9 @@
-namespace Dilcore.WebApi.Infrastructure.MultiTenant;
+namespace Dilcore.MultiTenant.Abstractions;
 
 /// <summary>
 /// Immutable record representing resolved tenant context.
 /// </summary>
-internal sealed record TenantContext(string? Name, string? StorageIdentifier) : ITenantContext
+public sealed record TenantContext(string? Name, string? StorageIdentifier) : ITenantContext
 {
     /// <summary>
     /// Represents a null/empty tenant context (no tenant resolved).
