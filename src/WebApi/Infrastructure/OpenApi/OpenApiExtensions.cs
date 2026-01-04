@@ -1,6 +1,6 @@
 using Dilcore.WebApi.Extensions;
-
 using Dilcore.WebApi.Settings;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;
 
@@ -44,7 +44,7 @@ public static class OpenApiExtensions
 
     public static WebApplication UseOpenApiDocumentation(this WebApplication app)
     {
-        app.MapOpenApi().AllowAnonymous();
+        app.MapOpenApi().AllowAnonymous().ExcludeFromMultiTenantResolution();
         return app;
     }
 }

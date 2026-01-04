@@ -1,6 +1,7 @@
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Settings;
 using Scalar.AspNetCore;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 namespace Dilcore.WebApi.Infrastructure.Scalar;
 
@@ -39,7 +40,7 @@ public static class ScalarExtensions
                 {
                     auth.Token = string.Empty;
                 });
-        }).AllowAnonymous();
+        }).AllowAnonymous().ExcludeFromMultiTenantResolution();
 
         return app;
     }
