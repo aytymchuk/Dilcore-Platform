@@ -3,8 +3,9 @@
 ## 1. Golden Rule
 
 **Before ANY code change**: Run `git branch --show-current`.
-- If on `main`: Create new branch immediately.
-- If on other branch: Verify it matches the user's intent. If not, ask to create a new one.
+
+- **On `main`**: Create a new branch immediately.
+- **On another branch?** Verify it matches the user's intent. If not, ask to create a new one.
 
 ## 2. Naming Standards
 
