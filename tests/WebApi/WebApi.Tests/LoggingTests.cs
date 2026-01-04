@@ -3,6 +3,7 @@ using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.MultiTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Moq;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using Shouldly;
@@ -31,12 +32,17 @@ public class LoggingTests
     {
         // Arrange
         var context = new DefaultHttpContext();
-        context.Request.Headers[Constants.Headers.Tenant] = "test-tenant";
         var claims = new[] { new Claim(ClaimTypes.Name, "test-user") };
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         var httpContextAccessor = new HttpContextAccessor { HttpContext = context };
-        var tenantProcessor = new TenantContextProcessor(httpContextAccessor);
+
+        // Mock tenant resolver
+        var tenantContext = new TenantContext("test-tenant", "storage");
+        var resolverMock = new Mock<ITenantContextResolver>();
+        resolverMock.Setup(x => x.Resolve()).Returns(tenantContext);
+
+        var tenantProcessor = new TenantContextProcessor(resolverMock.Object);
         var userProcessor = new UserContextProcessor(httpContextAccessor);
 
         // Re-writing the test to use a real pipeline.
@@ -76,7 +82,12 @@ public class LoggingTests
     {
         // Arrange
         var httpContextAccessor = new HttpContextAccessor { HttpContext = null };
-        var tenantProcessor = new TenantContextProcessor(httpContextAccessor);
+
+        // Mock tenant resolver returning empty
+        var resolverMock = new Mock<ITenantContextResolver>();
+        resolverMock.Setup(x => x.Resolve()).Returns(TenantContext.Empty);
+
+        var tenantProcessor = new TenantContextProcessor(resolverMock.Object);
         var userProcessor = new UserContextProcessor(httpContextAccessor);
 
         var exporter = new InMemoryExporter();

@@ -30,6 +30,9 @@ public class DependencyInjectionTests
         var envMock = new Mock<IWebHostEnvironment>();
         envMock.Setup(e => e.ApplicationName).Returns("TestService");
 
+        // Register multi-tenancy (required by telemetry processors)
+        services.AddMultiTenancy(configuration);
+
         // Act
         services.AddTelemetry(configuration, envMock.Object);
         using var serviceProvider = services.BuildServiceProvider();
@@ -62,6 +65,9 @@ public class DependencyInjectionTests
 
         var envMock = new Mock<IWebHostEnvironment>();
         envMock.Setup(e => e.ApplicationName).Returns("TestService");
+
+        // Register multi-tenancy (required by tenant processors)
+        services.AddMultiTenancy(configuration);
 
         // Act
         services.AddTelemetry(configuration, envMock.Object);
