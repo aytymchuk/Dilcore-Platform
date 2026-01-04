@@ -102,7 +102,7 @@ public class TenantContextResolverTests
     }
 
     [Test]
-    public void Resolve_AllProvidersFail_ReturnsEmpty()
+    public void Resolve_AllProvidersFail_ThrowsTenantNotResolvedException()
     {
         // Arrange
         var provider1Mock = new Mock<ITenantContextProvider>();
@@ -117,12 +117,7 @@ public class TenantContextResolverTests
             new[] { provider1Mock.Object, provider2Mock.Object },
             NullLogger<TenantContextResolver>.Instance);
 
-        // Act
-        var result = resolver.Resolve();
-
-        // Assert
-        result.ShouldBe(TenantContext.Empty);
-        result.Name.ShouldBeNull();
-        result.StorageIdentifier.ShouldBeNull();
+        // Act & Assert
+        Should.Throw<TenantNotResolvedException>(() => resolver.Resolve());
     }
 }

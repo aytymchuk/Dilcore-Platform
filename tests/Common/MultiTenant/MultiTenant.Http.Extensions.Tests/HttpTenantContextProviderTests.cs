@@ -36,7 +36,7 @@ public class HttpTenantContextProviderTests
     {
         // Arrange
         var accessorMock = new Mock<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessorMock.Setup(x => x.MultiTenantContext).Returns((IMultiTenantContext<AppTenantInfo>?)null);
+        accessorMock.Setup(x => x.MultiTenantContext).Returns((IMultiTenantContext<AppTenantInfo>)null!);
 
         var provider = new HttpTenantContextProvider(accessorMock.Object);
 
