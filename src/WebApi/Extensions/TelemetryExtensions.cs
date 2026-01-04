@@ -1,10 +1,12 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.MultiTenant.Abstractions;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Dilcore.WebApi.Settings;
+using OpenTelemetry.Instrumentation.AspNetCore;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -31,6 +33,28 @@ public static class TelemetryExtensions
         {
             lpBuilder.AddProcessor(sp.GetRequiredService<TenantContextProcessor>());
             lpBuilder.AddProcessor(sp.GetRequiredService<UserContextProcessor>());
+        });
+
+        services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
+        {
+            options.EnrichWithHttpRequest = (activity, request) =>
+            {
+                var httpContext = request.HttpContext;
+                var tenantContextResolver = httpContext.RequestServices.GetService<ITenantContextResolver>();
+
+                try
+                {
+                    var tenantContext = tenantContextResolver?.Resolve();
+                    if (!string.IsNullOrEmpty(tenantContext?.Name))
+                    {
+                        activity.SetTag("tenant.id", tenantContext.Name);
+                    }
+                }
+                catch (TenantNotResolvedException)
+                {
+                    // Ignore if tenant is not resolved
+                }
+            };
         });
 
         var otel = services.AddOpenTelemetry()
