@@ -40,7 +40,7 @@ internal sealed class OpenApiTenantHeaderTransformer : IOpenApiOperationTransfor
         {
             Name = TenantConstants.HeaderName,
             In = ParameterLocation.Header,
-            Required = true, // Implicitly required
+            Required = true, // Required by TenantEnforcementMiddleware
             Schema = new OpenApiSchema
             {
                 Type = JsonSchemaType.String

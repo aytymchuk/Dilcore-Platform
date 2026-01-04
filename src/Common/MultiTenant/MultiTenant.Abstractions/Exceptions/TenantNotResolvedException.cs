@@ -12,4 +12,8 @@ public sealed class TenantNotResolvedException : Exception
     public TenantNotResolvedException() : base("Tenant could not be resolved.")
     {
     }
+
+    public TenantNotResolvedException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 }

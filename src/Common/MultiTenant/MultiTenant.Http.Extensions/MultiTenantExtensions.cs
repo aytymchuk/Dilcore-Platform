@@ -12,7 +12,7 @@ public static class MultiTenantExtensions
     {
         // 1. Configure Finbuckle
         services.AddMultiTenant<AppTenantInfo>()
-            .WithHeaderStrategy("x-tenant")
+            .WithHeaderStrategy(TenantConstants.HeaderName)
             .WithInMemoryStore(options =>
             {
                 options.Tenants.Add(new AppTenantInfo("t1", "t1", "T1")
