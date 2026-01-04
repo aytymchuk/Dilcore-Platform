@@ -6,9 +6,14 @@ namespace Dilcore.WebApi.Extensions;
 
 public class UserTelemetryEnricher : ITelemetryEnricher
 {
-    public void Enrich(Activity activity, HttpRequest request)
+    public void Enrich(Activity activity, object request)
     {
-        var context = request.HttpContext;
+        if (request is not HttpRequest httpRequest)
+        {
+            return;
+        }
+
+        var context = httpRequest.HttpContext;
         var userId = context.User?.Identity?.Name ?? "anonymous";
         activity.SetTag("user.id", userId);
     }

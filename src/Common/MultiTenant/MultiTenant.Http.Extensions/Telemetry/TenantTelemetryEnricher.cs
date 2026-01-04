@@ -9,9 +9,19 @@ namespace Dilcore.MultiTenant.Http.Extensions.Telemetry;
 
 public class TenantTelemetryEnricher : ITelemetryEnricher
 {
-    public void Enrich(Activity activity, HttpRequest request)
+    public void Enrich(Activity activity, object request)
     {
-        var tenantContextResolver = request.HttpContext.RequestServices.GetService<ITenantContextResolver>();
+        if (request is not HttpRequest httpRequest)
+        {
+            return;
+        }
+
+        if (httpRequest.HttpContext.IsExcludedFromMultiTenant())
+        {
+            return;
+        }
+
+        var tenantContextResolver = httpRequest.HttpContext.RequestServices.GetService<ITenantContextResolver>();
         try
         {
             var tenantContext = tenantContextResolver?.Resolve();

@@ -28,7 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
     <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
-    <ProjectReference Include="..\Common\Telemetry\Dilcore.Telemetry.Abstractions\Dilcore.Telemetry.Abstractions.csproj" />
+    <ProjectReference Include="..\Common\Telemetry\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

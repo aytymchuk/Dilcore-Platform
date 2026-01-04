@@ -18,10 +18,8 @@ public class TenantEnforcementMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var endpoint = context.GetEndpoint();
-
         // If endpoint is excluded or not found (404), skip enforcement
-        if (endpoint == null || endpoint.Metadata.GetMetadata<IExcludeFromMultiTenantResolutionMetadata>() != null)
+        if (context.IsExcludedFromMultiTenant())
         {
             await next(context);
             return;
