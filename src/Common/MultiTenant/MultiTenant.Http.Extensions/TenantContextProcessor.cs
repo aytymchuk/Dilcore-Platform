@@ -20,9 +20,6 @@ public sealed class TenantContextProcessor : BaseProcessor<LogRecord>
     {
         var attributes = data.Attributes?.ToList() ?? new List<KeyValuePair<string, object?>>();
 
-        // Remove existing tenant.id to avoid duplicates
-        attributes.RemoveAll(kv => kv.Key == "tenant.id");
-
         // Resolve tenant context using the resolver directly
         ITenantContext? tenantContext = null;
         try

@@ -1,3 +1,4 @@
+using Dilcore.Telemetry.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
