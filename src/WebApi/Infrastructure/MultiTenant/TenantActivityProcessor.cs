@@ -9,24 +9,19 @@ namespace Dilcore.WebApi.Infrastructure.MultiTenant;
 /// </summary>
 public class TenantActivityProcessor : BaseProcessor<Activity>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IServiceProvider _serviceProvider;
 
-    public TenantActivityProcessor(IHttpContextAccessor httpContextAccessor)
+    public TenantActivityProcessor(IServiceProvider serviceProvider)
     {
-        _httpContextAccessor = httpContextAccessor;
+        _serviceProvider = serviceProvider;
     }
 
     public override void OnEnd(Activity data)
     {
-        var context = _httpContextAccessor.HttpContext;
-        if (context == null)
-        {
-            base.OnEnd(data);
-            return;
-        }
+        // Resolve tenant context (must resolve from scoped provider)
+        var resolver = _serviceProvider.GetService<ITenantContextResolver>();
+        var tenantContext = resolver?.Resolve();
 
-        // Extract Tenant ID from ITenantContext
-        var tenantContext = context.RequestServices?.GetService<ITenantContext>();
         if (tenantContext?.Name != null)
         {
             data.SetTag("tenant.id", tenantContext.Name);
