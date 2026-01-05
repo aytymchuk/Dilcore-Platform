@@ -77,5 +77,6 @@ public static class Constants
         public const string JsonParseError = "JSON_PARSE_ERROR";
         public const string FormatError = "FORMAT_ERROR";
         public const string TenantNotResolved = "TENANT_NOT_RESOLVED";
+        public const string UserNotResolved = "USER_NOT_RESOLVED";
     }
 }

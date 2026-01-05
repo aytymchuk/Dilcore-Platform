@@ -29,11 +29,18 @@ public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSch
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, _fakeUser.Name),
             new Claim(ClaimTypes.NameIdentifier, _fakeUser.UserId),
-            new Claim(ClaimTypes.Email, _fakeUser.Email),
             new Claim("tenant.id", _fakeUser.TenantId)
         };
+
+        // Only add claims with non-null values
+        if (_fakeUser.FullName != null)
+            claims.Add(new Claim(ClaimTypes.Name, _fakeUser.FullName));
+        else if (_fakeUser.Name != null)
+            claims.Add(new Claim(ClaimTypes.Name, _fakeUser.Name));
+
+        if (_fakeUser.Email != null)
+            claims.Add(new Claim(ClaimTypes.Email, _fakeUser.Email));
 
         var identity = new ClaimsIdentity(claims, "Test");
         var principal = new ClaimsPrincipal(identity);

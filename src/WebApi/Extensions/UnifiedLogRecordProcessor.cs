@@ -9,14 +9,14 @@ namespace Dilcore.WebApi.Extensions;
 /// </summary>
 public class UnifiedLogRecordProcessor : BaseProcessor<LogRecord>
 {
-    private readonly IEnumerable<ITelemetryAttributeProvider> _attributeProviders;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<UnifiedLogRecordProcessor> _logger;
 
     public UnifiedLogRecordProcessor(
-        IEnumerable<ITelemetryAttributeProvider> attributeProviders,
+        IServiceProvider serviceProvider,
         ILogger<UnifiedLogRecordProcessor> logger)
     {
-        _attributeProviders = attributeProviders;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -26,8 +26,12 @@ public class UnifiedLogRecordProcessor : BaseProcessor<LogRecord>
 
         try
         {
+            // Create a scope to resolve scoped services (like UserAttributeProvider)
+            using var scope = _serviceProvider.CreateScope();
+            var attributeProviders = scope.ServiceProvider.GetServices<ITelemetryAttributeProvider>();
+
             // Collect attributes from all providers
-            foreach (var provider in _attributeProviders)
+            foreach (var provider in attributeProviders)
             {
                 try
                 {

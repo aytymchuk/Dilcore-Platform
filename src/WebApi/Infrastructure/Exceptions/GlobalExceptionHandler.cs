@@ -1,4 +1,5 @@
 using System.Net;
+using Dilcore.Authentication.Abstractions.Exceptions;
 using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -91,6 +92,8 @@ public sealed partial class GlobalExceptionHandler(
                 (HttpStatusCode.RequestTimeout, Constants.ProblemDetails.Timeout, "Request Timeout"),
             TenantNotResolvedException =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.TenantNotResolved, "Tenant Not Resolved"),
+            UserNotResolvedException =>
+                (HttpStatusCode.Unauthorized, Constants.ProblemDetails.UserNotResolved, "User Not Resolved"),
             _ =>
                 (HttpStatusCode.InternalServerError, Constants.ProblemDetails.UnexpectedError, "An unexpected error occurred")
         };

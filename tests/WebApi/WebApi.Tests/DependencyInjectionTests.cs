@@ -95,9 +95,7 @@ public class DependencyInjectionTests
             {
                 {"Telemetry:ServiceName", "TestService"},
                 {"Telemetry:ConnectionString", "InstrumentationKey=00000000-0000-0000-0000-000000000000;"},
-                {"ApplicationSettings:Name", "TestService"},
-                {"AuthenticationSettings:Auth0:Domain", "test-domain"},
-                {"AuthenticationSettings:Auth0:Audience", "test-audience"}
+                {"ApplicationSettings:Name", "TestService"}
             })
             .Build();
 
@@ -122,11 +120,11 @@ public class DependencyInjectionTests
         services.AddProblemDetailsServices();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddCorsPolicy();
-        services.AddAuth0Authentication(configuration);
+
         services.AddFluentValidation(typeof(Program).Assembly);
         services.AddMultiTenancy();
 
-        // Build the service provider with validation options enabled
+        // Build the service provider with validation enabled
         using var serviceProvider = services.BuildServiceProvider(new ServiceProviderOptions
         {
             ValidateScopes = true,

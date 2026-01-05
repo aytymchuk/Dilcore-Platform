@@ -67,9 +67,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     private static void RemoveAuthenticationServices(IServiceCollection services)
     {
         var authServices = services.Where(d =>
-            (d.ServiceType.FullName?.Contains("Authentication", StringComparison.OrdinalIgnoreCase) == true) ||
-            (d.ServiceType.FullName?.Contains("JwtBearer", StringComparison.OrdinalIgnoreCase) == true) ||
-            (d.ServiceType.FullName?.Contains("Auth0", StringComparison.OrdinalIgnoreCase) == true)
+            ((d.ServiceType.FullName?.Contains("Authentication", StringComparison.OrdinalIgnoreCase) == true) ||
+             (d.ServiceType.FullName?.Contains("JwtBearer", StringComparison.OrdinalIgnoreCase) == true) ||
+             (d.ServiceType.FullName?.Contains("Auth0", StringComparison.OrdinalIgnoreCase) == true)) &&
+            // Keep Authentication.Abstractions services (like IUserContextResolver, IUserContextProvider)
+            (d.ServiceType.Namespace?.Contains("Authentication.Abstractions") != true) &&
+            (d.ImplementationType?.Namespace?.Contains("Authentication.Abstractions") != true)
         ).ToList();
 
         foreach (var descriptor in authServices)

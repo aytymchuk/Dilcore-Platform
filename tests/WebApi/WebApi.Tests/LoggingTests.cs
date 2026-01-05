@@ -5,6 +5,7 @@ using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Dilcore.Telemetry.Abstractions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using OpenTelemetry;
@@ -61,13 +62,18 @@ public class LoggingTests
         // 3. Create attribute providers
         var tenantProvider = new TenantAttributeProvider(tenantResolverMock.Object);
         var userProvider = new UserAttributeProvider(httpContextAccessorMock.Object);
-        var providers = new List<ITelemetryAttributeProvider> { tenantProvider, userProvider };
 
-        // 4. Create unified processor
+        // 4. Create IServiceProvider mock
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<ITelemetryAttributeProvider>(tenantProvider);
+        serviceCollection.AddSingleton<ITelemetryAttributeProvider>(userProvider);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        // 5. Create unified processor
         var loggerMock = new Mock<ILogger<UnifiedLogRecordProcessor>>();
-        var unifiedProcessor = new UnifiedLogRecordProcessor(providers, loggerMock.Object);
+        var unifiedProcessor = new UnifiedLogRecordProcessor(serviceProvider, loggerMock.Object);
 
-        // 5. Setup LogRecord
+        // 6. Setup LogRecord
 #pragma warning disable SYSLIB0050
         var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));
 #pragma warning restore SYSLIB0050
@@ -103,11 +109,16 @@ public class LoggingTests
         // Create attribute providers
         var tenantProvider = new TenantAttributeProvider(tenantResolverMock.Object);
         var userProvider = new UserAttributeProvider(httpContextAccessorMock.Object);
-        var providers = new List<ITelemetryAttributeProvider> { tenantProvider, userProvider };
+
+        // Create IServiceProvider mock
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<ITelemetryAttributeProvider>(tenantProvider);
+        serviceCollection.AddSingleton<ITelemetryAttributeProvider>(userProvider);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
 
         // Create unified processor
         var loggerMock = new Mock<ILogger<UnifiedLogRecordProcessor>>();
-        var unifiedProcessor = new UnifiedLogRecordProcessor(providers, loggerMock.Object);
+        var unifiedProcessor = new UnifiedLogRecordProcessor(serviceProvider, loggerMock.Object);
 
 #pragma warning disable SYSLIB0050
         var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));

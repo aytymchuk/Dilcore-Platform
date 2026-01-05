@@ -1,6 +1,8 @@
+using Dilcore.Authentication.Abstractions;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApi.Infrastructure.Validation;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -20,6 +22,7 @@ public static class EndpointExtensions
             app.MapTestValidationEndpoint();
             app.MapTestTenantEndpoint();
             app.MapTestPublicEndpoint();
+            app.MapTestUserInfoEndpoint();
         }
 
         app.MapWeatherForecastEndpoint();
@@ -123,6 +126,33 @@ public static class EndpointExtensions
         .WithDescription("Test endpoint that does NOT require multi-tenancy.")
         .ExcludeFromMultiTenantResolution()
         .AllowAnonymous();
+    }
+
+    private static void MapTestUserInfoEndpoint(this WebApplication app)
+    {
+        app.MapGet("/test/user-info", ([FromServices] IUserContextResolver userContextResolver) =>
+        {
+            var userContext = userContextResolver.Resolve();
+
+            if (userContext == UserContext.Empty)
+            {
+                return Results.Problem(
+                    title: "User Not Found",
+                    detail: "No user could be resolved from the request. Please provide valid authentication.",
+                    statusCode: 401);
+            }
+
+            return Results.Ok(new
+            {
+                userId = userContext.Id,
+                email = userContext.Email,
+                fullName = userContext.FullName
+            });
+        })
+        .WithName("TestUserInfo")
+        .WithTags("Testing")
+        .WithDescription("Test endpoint that requires authentication. Returns current user information.")
+        .ExcludeFromMultiTenantResolution();
     }
 }
 

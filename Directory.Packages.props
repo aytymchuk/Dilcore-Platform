@@ -38,5 +38,6 @@
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="JunitXml.TestLogger" Version="7.1.0" />
     <PackageVersion Include="Finbuckle.MultiTenant" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.1.0" />
   </ItemGroup>
 </Project>

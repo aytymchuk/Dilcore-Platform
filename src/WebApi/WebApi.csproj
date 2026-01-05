@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Auth0.AspNetCore.Authentication.Api" />
     <PackageReference Include="Azure.Data.AppConfiguration" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
@@ -26,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+    <ProjectReference Include="..\Common\Authentication\Authentication.Http.Extensions\Authentication.Http.Extensions.csproj" />
+    <ProjectReference Include="..\Common\Authentication\Authentication.Auth0\Authentication.Auth0.csproj" />
     <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
     <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
     <ProjectReference Include="..\Common\Telemetry\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />

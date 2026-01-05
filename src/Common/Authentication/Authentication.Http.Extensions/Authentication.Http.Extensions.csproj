@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Auth0.AspNetCore.Authentication.Api" />
+    <PackageReference Include="OpenTelemetry" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+    <ProjectReference Include="..\Authentication.Auth0\Authentication.Auth0.csproj" />
+    <ProjectReference Include="..\..\Telemetry\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

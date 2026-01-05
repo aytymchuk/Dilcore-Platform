@@ -1,0 +1,12 @@
+namespace Dilcore.Authentication.Abstractions;
+
+/// <summary>
+/// Immutable record representing resolved user context.
+/// </summary>
+public sealed record UserContext(string? Id, string? Email, string? FullName) : IUserContext
+{
+    /// <summary>
+    /// Represents a null/empty user context (no user resolved).
+    /// </summary>
+    public static readonly UserContext Empty = new(null, null, null);
+}
