@@ -23,6 +23,17 @@ public sealed class TenantContextResolver : ITenantContextResolver
 
     public ITenantContext Resolve()
     {
+        if (TryResolve(out var tenantContext))
+        {
+            return tenantContext!;
+        }
+
+        _logger.LogDebug("No tenant resolved by any provider");
+        throw new TenantNotResolvedException("No tenant could be resolved from the current request.");
+    }
+
+    public bool TryResolve(out ITenantContext? tenantContext)
+    {
         foreach (var provider in _providers)
         {
             var context = provider.GetTenantContext();
@@ -30,11 +41,12 @@ public sealed class TenantContextResolver : ITenantContextResolver
             {
                 _logger.LogDebug("Tenant resolved by {Provider}: {TenantName}",
                     provider.GetType().Name, context.Name);
-                return context;
+                tenantContext = context;
+                return true;
             }
         }
 
-        _logger.LogDebug("No tenant resolved by any provider");
-        throw new TenantNotResolvedException("No tenant could be resolved from the current request.");
+        tenantContext = null;
+        return false;
     }
 }

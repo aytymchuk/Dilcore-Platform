@@ -1,5 +1,6 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Dilcore.Telemetry.Abstractions;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -18,21 +19,23 @@ public static class TelemetryExtensions
         var serviceVersion = configuration.GetValueOrDefault(Constants.Configuration.BuildVersionKey, Constants.Configuration.DefaultBuildVersion);
 
         services.AddHttpContextAccessor();
-        services.AddSingleton<TenantContextProcessor>();
-        services.AddSingleton<UserContextProcessor>();
-        services.AddSingleton<TenantActivityProcessor>();
-        services.AddSingleton<UserActivityProcessor>();
+
+        // Register attribute providers
+        services.AddSingleton<ITelemetryAttributeProvider, UserAttributeProvider>();
+        services.AddSingleton<ITelemetryAttributeProvider, TenantAttributeProvider>();
+
+        // Register unified processors
+        services.AddSingleton<UnifiedLogRecordProcessor>();
+        services.AddSingleton<UnifiedActivityProcessor>();
 
         services.ConfigureOpenTelemetryTracerProvider((sp, tpBuilder) =>
         {
-            tpBuilder.AddProcessor(sp.GetRequiredService<TenantActivityProcessor>());
-            tpBuilder.AddProcessor(sp.GetRequiredService<UserActivityProcessor>());
+            tpBuilder.AddProcessor(sp.GetRequiredService<UnifiedActivityProcessor>());
         });
 
         services.ConfigureOpenTelemetryLoggerProvider((sp, lpBuilder) =>
         {
-            lpBuilder.AddProcessor(sp.GetRequiredService<TenantContextProcessor>());
-            lpBuilder.AddProcessor(sp.GetRequiredService<UserContextProcessor>());
+            lpBuilder.AddProcessor(sp.GetRequiredService<UnifiedLogRecordProcessor>());
         });
 
         services.AddTelemetryEnricher<TenantTelemetryEnricher>();

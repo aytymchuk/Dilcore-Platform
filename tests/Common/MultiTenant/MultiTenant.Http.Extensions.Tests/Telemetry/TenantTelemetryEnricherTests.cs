@@ -42,6 +42,9 @@ public class TenantTelemetryEnricherTests
         var activity = new Activity("TestActivity");
         var tenantContext = new TenantContext("test-tenant", "db1");
         _tenantResolverMock.Setup(r => r.Resolve()).Returns(tenantContext);
+        
+        ITenantContext? outContext = tenantContext;
+        _tenantResolverMock.Setup(r => r.TryResolve(out outContext)).Returns(true);
 
         // Act
         _enricher.Enrich(activity, _httpContext.Request);

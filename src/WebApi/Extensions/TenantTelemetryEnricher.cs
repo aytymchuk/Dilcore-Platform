@@ -10,17 +10,10 @@ public class TenantTelemetryEnricher : ITelemetryEnricher
     public void Enrich(Activity activity, HttpRequest request)
     {
         var tenantContextResolver = request.HttpContext.RequestServices.GetService<ITenantContextResolver>();
-        try
+        if (tenantContextResolver?.TryResolve(out var tenantContext) == true &&
+            !string.IsNullOrEmpty(tenantContext?.Name))
         {
-            var tenantContext = tenantContextResolver?.Resolve();
-            if (!string.IsNullOrEmpty(tenantContext?.Name))
-            {
-                activity.SetTag("tenant.id", tenantContext.Name);
-            }
-        }
-        catch (TenantNotResolvedException)
-        {
-            // Ignore if tenant is not resolved
+            activity.SetTag("tenant.id", tenantContext.Name);
         }
     }
 }

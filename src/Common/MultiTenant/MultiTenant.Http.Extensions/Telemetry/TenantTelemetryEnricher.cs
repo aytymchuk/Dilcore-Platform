@@ -17,17 +17,10 @@ public class TenantTelemetryEnricher : ITelemetryEnricher
         }
 
         var tenantContextResolver = request.HttpContext.RequestServices.GetService<ITenantContextResolver>();
-        try
+        if (tenantContextResolver?.TryResolve(out var tenantContext) == true &&
+            !string.IsNullOrEmpty(tenantContext?.Name))
         {
-            var tenantContext = tenantContextResolver?.Resolve();
-            if (!string.IsNullOrEmpty(tenantContext?.Name))
-            {
-                activity.SetTag(TenantConstants.TelemetryTagName, tenantContext.Name);
-            }
-        }
-        catch (TenantNotResolvedException)
-        {
-            // Ignore if tenant is not resolved
+            activity.SetTag(TenantConstants.TelemetryTagName, tenantContext.Name);
         }
     }
 }
