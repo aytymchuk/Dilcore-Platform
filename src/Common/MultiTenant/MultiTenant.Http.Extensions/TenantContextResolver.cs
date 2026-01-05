@@ -28,7 +28,7 @@ public sealed class TenantContextResolver : ITenantContextResolver
             return tenantContext!;
         }
 
-        _logger.LogDebug("No tenant resolved by any provider");
+        _logger.LogNoTenantResolved();
         throw new TenantNotResolvedException("No tenant could be resolved from the current request.");
     }
 
@@ -39,8 +39,7 @@ public sealed class TenantContextResolver : ITenantContextResolver
             var context = provider.GetTenantContext();
             if (context != null)
             {
-                _logger.LogDebug("Tenant resolved by {Provider}: {TenantName}",
-                    provider.GetType().Name, context.Name);
+                _logger.LogTenantResolved(provider.GetType().Name, context.Name);
                 tenantContext = context;
                 return true;
             }

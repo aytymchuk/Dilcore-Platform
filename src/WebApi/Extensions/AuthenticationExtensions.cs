@@ -45,11 +45,7 @@ public static class AuthenticationExtensions
             OnAuthenticationFailed = context =>
             {
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
-                logger.LogWarning(
-                    context.Exception,
-                    "Authentication failed for request {Path}: {Message}",
-                    context.Request.Path,
-                    context.Exception.Message);
+                logger.LogAuthenticationFailed(context.Exception, context.Request.Path, context.Exception.Message);
                 return Task.CompletedTask;
             },
             OnChallenge = context =>
@@ -57,8 +53,7 @@ public static class AuthenticationExtensions
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
                 if (context.AuthenticateFailure != null)
                 {
-                    logger.LogWarning(
-                        "Authentication challenge issued for request {Path}: {Error} - {ErrorDescription}",
+                    logger.LogAuthenticationChallenge(
                         context.Request.Path,
                         context.Error ?? "Unknown",
                         context.ErrorDescription ?? "No description");

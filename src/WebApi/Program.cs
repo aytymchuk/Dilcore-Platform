@@ -20,14 +20,14 @@ builder.Services.AddMultiTenancy();
 var app = builder.Build();
 
 // Application lifecycle logging
-var logger = app.Services.GetRequiredService<ILogger<Dilcore.WebApi.Program>>();
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
-lifetime.ApplicationStarted.Register(() => logger.LogInformation("Application has started and is listening on its configured endpoints."));
-lifetime.ApplicationStopping.Register(() => logger.LogInformation("Application is stopping..."));
-lifetime.ApplicationStopped.Register(() => logger.LogInformation("Application has been stopped."));
+lifetime.ApplicationStarted.Register(() => logger.LogApplicationStarted());
+lifetime.ApplicationStopping.Register(() => logger.LogApplicationStopping());
+lifetime.ApplicationStopped.Register(() => logger.LogApplicationStopped());
 
-logger.LogInformation("Starting the application...");
+logger.LogStartingApplication();
 
 // Configure middleware pipeline
 app.UseCorsPolicy();

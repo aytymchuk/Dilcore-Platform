@@ -41,8 +41,7 @@ public class UnifiedLogRecordProcessor : BaseProcessor<LogRecord>
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error getting attributes from provider {ProviderType}. Continuing with remaining providers.",
-                        provider.GetType().Name);
+                    _logger.LogAttributeProviderError(ex, provider.GetType().Name);
                 }
             }
 
