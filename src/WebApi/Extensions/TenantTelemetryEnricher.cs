@@ -13,7 +13,7 @@ public class TenantTelemetryEnricher : ITelemetryEnricher
         if (tenantContextResolver?.TryResolve(out var tenantContext) == true &&
             !string.IsNullOrEmpty(tenantContext?.Name))
         {
-            activity.SetTag("tenant.id", tenantContext.Name);
+            activity.SetTag(TenantConstants.TelemetryTagName, tenantContext.Name);
         }
     }
 }

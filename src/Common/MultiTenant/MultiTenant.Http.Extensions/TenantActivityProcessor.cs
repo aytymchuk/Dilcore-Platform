@@ -32,7 +32,7 @@ public sealed class TenantActivityProcessor : BaseProcessor<Activity>
         var tenantId = tenantContext?.Name;
         if (!string.IsNullOrEmpty(tenantId))
         {
-            data.SetTag("tenant.id", tenantId);
+            data.SetTag(TenantConstants.TelemetryTagName, tenantId);
         }
 
         base.OnEnd(data);
