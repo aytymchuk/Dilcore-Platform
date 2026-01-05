@@ -19,6 +19,8 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
     private readonly ILogger<Auth0ClaimsTransformation> _logger;
     private readonly TimeSpan _cacheExpiration;
 
+    private const string BearerScheme = "Bearer";
+
     public Auth0ClaimsTransformation(
         IAuth0UserService auth0UserService,
         HybridCache cache,
@@ -108,7 +110,8 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
     private static string? GetAccessTokenFromHeader(HttpContext httpContext)
     {
         // Robustly parse Authorization header
-        var authHeader = httpContext.Request.Headers.Authorization.FirstOrDefault();
+        var authHeader = httpContext.Request.Headers.Authorization
+            .FirstOrDefault(h => h?.StartsWith(BearerScheme, StringComparison.OrdinalIgnoreCase) ?? false);
 
         if (string.IsNullOrWhiteSpace(authHeader))
             return null;
@@ -117,7 +120,7 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
 
         // Verify scheme is "Bearer" and token is present
         if (parts.Length > 1 &&
-            parts[0].Equals("Bearer", StringComparison.OrdinalIgnoreCase) &&
+            parts[0].Equals(BearerScheme, StringComparison.OrdinalIgnoreCase) &&
             !string.IsNullOrWhiteSpace(parts[1]))
         {
             return parts[1].Trim();
