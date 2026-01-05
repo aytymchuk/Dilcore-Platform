@@ -1,6 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Shouldly;

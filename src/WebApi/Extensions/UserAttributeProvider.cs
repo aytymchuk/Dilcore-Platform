@@ -1,5 +1,4 @@
 using Dilcore.Telemetry.Abstractions;
-using Microsoft.AspNetCore.Http;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -23,7 +22,7 @@ public class UserAttributeProvider : ITelemetryAttributeProvider
             yield break;
         }
 
-        var userId = context.User?.Identity?.Name ?? "anonymous";
+        var userId = context.GetUserId();
         yield return new KeyValuePair<string, object?>("user.id", userId);
     }
 }

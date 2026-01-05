@@ -2,10 +2,10 @@ using System.Security.Claims;
 using System.Runtime.Serialization;
 using Dilcore.WebApi.Extensions;
 using Dilcore.MultiTenant.Abstractions;
-using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Dilcore.Telemetry.Abstractions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
@@ -44,18 +44,19 @@ public class LoggingTests
 
         // 2. Setup User Context (via HttpContext)
         var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-        var context = new DefaultHttpContext();
-        var claims = new[] { new Claim(ClaimTypes.Name, "test-user") };
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
+        var httpContext = new DefaultHttpContext();
+        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, "test-user") };
+        var identity = new ClaimsIdentity(claims, "Test");
+        httpContext.User = new ClaimsPrincipal(identity);
 
         // Setup endpoint with empty metadata so IsExcludedFromMultiTenant returns false
         var endpoint = new Endpoint(
             requestDelegate: _ => Task.CompletedTask,
             metadata: new EndpointMetadataCollection(),
             displayName: "TestEndpoint");
-        context.SetEndpoint(endpoint);
+        httpContext.SetEndpoint(endpoint);
 
-        httpContextAccessorMock.Setup(x => x.HttpContext).Returns(context);
+        httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
 
         // 3. Create attribute providers
         var tenantProvider = new TenantAttributeProvider(tenantResolverMock.Object);
@@ -63,7 +64,8 @@ public class LoggingTests
         var providers = new List<ITelemetryAttributeProvider> { tenantProvider, userProvider };
 
         // 4. Create unified processor
-        var unifiedProcessor = new UnifiedLogRecordProcessor(providers);
+        var loggerMock = new Mock<ILogger<UnifiedLogRecordProcessor>>();
+        var unifiedProcessor = new UnifiedLogRecordProcessor(providers, loggerMock.Object);
 
         // 5. Setup LogRecord
 #pragma warning disable SYSLIB0050
@@ -104,7 +106,8 @@ public class LoggingTests
         var providers = new List<ITelemetryAttributeProvider> { tenantProvider, userProvider };
 
         // Create unified processor
-        var unifiedProcessor = new UnifiedLogRecordProcessor(providers);
+        var loggerMock = new Mock<ILogger<UnifiedLogRecordProcessor>>();
+        var unifiedProcessor = new UnifiedLogRecordProcessor(providers, loggerMock.Object);
 
 #pragma warning disable SYSLIB0050
         var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));
