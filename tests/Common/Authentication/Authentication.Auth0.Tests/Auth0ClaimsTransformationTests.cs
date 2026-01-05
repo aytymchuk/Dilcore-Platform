@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace Dilcore.Authentication.Auth0.Tests;
 
 [TestFixture]
-public class Auth0ClaimsTransformationTests : IDisposable
+public class Auth0ClaimsTransformationTests
 {
     private Auth0ClaimsTransformation _transformation = null!;
     private Mock<IAuth0UserService> _auth0UserServiceMock = null!;
@@ -45,12 +45,6 @@ public class Auth0ClaimsTransformationTests : IDisposable
     public void TearDown()
     {
         _serviceProvider?.Dispose();
-    }
-
-    public void Dispose()
-    {
-        _serviceProvider?.Dispose();
-        GC.SuppressFinalize(this);
     }
 
     [Test]

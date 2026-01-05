@@ -2,14 +2,18 @@ using System.Text.Json;
 using Azure.Data.AppConfiguration;
 using Azure.Identity;
 using Dilcore.WebApi.Settings;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Dilcore.WebApi.Extensions;
 
 public static class ConfigurationExtensions
 {
-    extension(WebApplicationBuilder builder)
-    {
-        public void AddAppConfiguration()
+    private static readonly ILogger _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger(typeof(ConfigurationExtensions));
+
+    public static void AddAppConfiguration(this WebApplicationBuilder builder)
     {
         var env = builder.Environment;
 
@@ -30,7 +34,7 @@ public static class ConfigurationExtensions
         builder.LoadAzureAppConfiguration();
     }
 
-    private void LoadAzureAppConfiguration()
+    private static void LoadAzureAppConfiguration(this WebApplicationBuilder builder)
     {
         var env = builder.Environment;
         var appConfigEndpoint = builder.Configuration[Constants.Configuration.AppConfigEndpointKey];
@@ -67,9 +71,7 @@ public static class ConfigurationExtensions
                 catch (Azure.RequestFailedException ex) when (ex.Status == 404)
                 {
                     // Configuration is optional, skip if not found
-                    using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder.AddConsole());
-                    var logger = loggerFactory.CreateLogger(typeof(ConfigurationExtensions));
-                    logger.LogDebug(ex, "Optional configuration not found: {Key}", key); // Changed setting.Key to key as setting might be null
+                    _logger.LogDebug(ex, "Optional configuration not found: {Key}", key);
                 }
             }
 
@@ -83,75 +85,68 @@ public static class ConfigurationExtensions
             throw new InvalidOperationException($"Failed to load Azure App Configuration from endpoint '{appConfigEndpoint}'.", ex);
         }
     }
-    }
 
-    extension(IServiceCollection services)
-    {
-        public IServiceCollection AddAppSettings(IConfiguration configuration)
+    public static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.RegisterConfiguration<ApplicationSettings>(configuration);
         services.RegisterConfiguration<AuthenticationSettings>(configuration);
         return services;
     }
 
-    public IServiceCollection RegisterConfiguration<T>(IConfiguration configuration) where T : class
+    public static IServiceCollection RegisterConfiguration<T>(this IServiceCollection services, IConfiguration configuration) where T : class
     {
         var section = configuration.GetSection(typeof(T).Name);
         services.Configure<T>(section);
         return services;
     }
-}
 
-extension(IConfiguration configuration)
+    public static T GetSettings<T>(this IConfiguration configuration) where T : class, new()
     {
-        public T GetSettings<T>() where T : class, new()
-{
-    return configuration.GetSection(typeof(T).Name).Get<T>() ?? new T();
-}
+        return configuration.GetSection(typeof(T).Name).Get<T>() ?? new T();
+    }
 
-public T GetRequiredSettings<T>() where T : class
-{
-    var section = configuration.GetSection(typeof(T).Name);
-    return section.Get<T>() ?? throw new InvalidOperationException($"Required configuration section '{typeof(T).Name}' is missing.");
-}
+    public static T GetRequiredSettings<T>(this IConfiguration configuration) where T : class
+    {
+        var section = configuration.GetSection(typeof(T).Name);
+        return section.Get<T>() ?? throw new InvalidOperationException($"Required configuration section '{typeof(T).Name}' is missing.");
+    }
 
-public string GetValueOrDefault(string key, string defaultValue)
-{
-    return configuration[key] ?? defaultValue;
-}
+    public static string GetValueOrDefault(this IConfiguration configuration, string key, string defaultValue)
+    {
+        return configuration[key] ?? defaultValue;
     }
 
     private static Dictionary<string, string?> ParseJson(string json)
-{
-    var data = new Dictionary<string, string?>();
-    using var jsonDocument = JsonDocument.Parse(json);
-    FlattenElement(jsonDocument.RootElement, data, string.Empty);
-    return data;
-}
-
-private static void FlattenElement(JsonElement element, Dictionary<string, string?> data, string prefix)
-{
-    switch (element.ValueKind)
     {
-        case JsonValueKind.Object:
-            foreach (var property in element.EnumerateObject())
-            {
-                var key = string.IsNullOrEmpty(prefix) ? property.Name : $"{prefix}:{property.Name}";
-                FlattenElement(property.Value, data, key);
-            }
-            break;
-        case JsonValueKind.Array:
-            int index = 0;
-            foreach (var item in element.EnumerateArray())
-            {
-                var key = $"{prefix}:{index}";
-                FlattenElement(item, data, key);
-                index++;
-            }
-            break;
-        default:
-            data[prefix] = element.ToString();
-            break;
+        var data = new Dictionary<string, string?>();
+        using var jsonDocument = JsonDocument.Parse(json);
+        FlattenElement(jsonDocument.RootElement, data, string.Empty);
+        return data;
     }
-}
+
+    private static void FlattenElement(JsonElement element, Dictionary<string, string?> data, string prefix)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject())
+                {
+                    var key = string.IsNullOrEmpty(prefix) ? property.Name : $"{prefix}:{property.Name}";
+                    FlattenElement(property.Value, data, key);
+                }
+                break;
+            case JsonValueKind.Array:
+                int index = 0;
+                foreach (var item in element.EnumerateArray())
+                {
+                    var key = $"{prefix}:{index}";
+                    FlattenElement(item, data, key);
+                    index++;
+                }
+                break;
+            default:
+                data[prefix] = element.ToString();
+                break;
+        }
+    }
 }
