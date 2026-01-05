@@ -1,5 +1,4 @@
 using Dilcore.MultiTenant.Abstractions;
-using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Dilcore.Telemetry.Abstractions;
 
 namespace Dilcore.MultiTenant.Http.Extensions.Telemetry;
