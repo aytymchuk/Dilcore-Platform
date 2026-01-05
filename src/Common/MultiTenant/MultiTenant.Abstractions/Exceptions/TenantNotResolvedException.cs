@@ -1,4 +1,4 @@
-namespace Dilcore.MultiTenant.Abstractions;
+namespace Dilcore.MultiTenant.Abstractions.Exceptions;
 
 /// <summary>
 /// Exception thrown when a tenant context cannot be resolved but is required.

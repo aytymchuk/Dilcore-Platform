@@ -2,8 +2,10 @@ using System.Security.Claims;
 using System.Runtime.Serialization;
 using Dilcore.WebApi.Extensions;
 using Dilcore.MultiTenant.Abstractions;
-using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.MultiTenant.Http.Extensions.Telemetry;
+using Dilcore.Telemetry.Abstractions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
@@ -29,7 +31,7 @@ public class LoggingTests
     }
 
     [Test]
-    public void TenantAndUserContextProcessors_ShouldEnrichLogs_WhenContextIsPresent()
+    public void UnifiedLogRecordProcessor_ShouldEnrichLogs_WhenContextIsPresent()
     {
         // Arrange
         // 1. Setup Tenant Context (via Resolver)
@@ -37,57 +39,75 @@ public class LoggingTests
         var tenantResolverMock = new Mock<ITenantContextResolver>();
         tenantResolverMock.Setup(x => x.Resolve()).Returns(tenantContext);
 
-        var tenantProcessor = new TenantContextProcessor(tenantResolverMock.Object);
+        ITenantContext? outContext = tenantContext;
+        tenantResolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
 
         // 2. Setup User Context (via HttpContext)
         var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-        var context = new DefaultHttpContext();
-        var claims = new[] { new Claim(ClaimTypes.Name, "test-user") };
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
-        httpContextAccessorMock.Setup(x => x.HttpContext).Returns(context);
+        var httpContext = new DefaultHttpContext();
+        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, "test-user") };
+        var identity = new ClaimsIdentity(claims, "Test");
+        httpContext.User = new ClaimsPrincipal(identity);
 
-        var userProcessor = new UserContextProcessor(httpContextAccessorMock.Object);
+        // Setup endpoint with empty metadata so IsExcludedFromMultiTenant returns false
+        var endpoint = new Endpoint(
+            requestDelegate: _ => Task.CompletedTask,
+            metadata: new EndpointMetadataCollection(),
+            displayName: "TestEndpoint");
+        httpContext.SetEndpoint(endpoint);
 
-        // 3. Setup LogRecord
-        // Note: LogRecord has internal constructor in some versions, but we can usually create it or use reflection/helpers if needed. 
-        // If 'new LogRecord()' fails, we might need a workaround or use 'Activity' for traces.
-        // However, LogRecord in recent OpenTelemetry versions often allows parameterless init or property setting.
-        // Let's rely on how it was done before or standard usage. 
-        // Since the previous code used `new LogRecord()`, I will assume it is valid or I will mock the behavior if possible.
-        // Actually, easiest way to test Processor logic is creating it manually if allowed.
+        httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
 
+        // 3. Create attribute providers
+        var tenantProvider = new TenantAttributeProvider(tenantResolverMock.Object);
+        var userProvider = new UserAttributeProvider(httpContextAccessorMock.Object);
+        var providers = new List<ITelemetryAttributeProvider> { tenantProvider, userProvider };
+
+        // 4. Create unified processor
+        var loggerMock = new Mock<ILogger<UnifiedLogRecordProcessor>>();
+        var unifiedProcessor = new UnifiedLogRecordProcessor(providers, loggerMock.Object);
+
+        // 5. Setup LogRecord
 #pragma warning disable SYSLIB0050
         var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));
 #pragma warning restore SYSLIB0050
         logRecord.Attributes = new List<KeyValuePair<string, object?>>();
 
         // Act
-        tenantProcessor.OnEnd(logRecord);
-        userProcessor.OnEnd(logRecord);
+        unifiedProcessor.OnEnd(logRecord);
 
         // Assert
         var attributes = logRecord.Attributes.ToDictionary(kv => kv.Key, kv => kv.Value);
 
-        attributes.ShouldContainKey("tenant.id");
-        attributes["tenant.id"].ShouldBe("test-tenant");
+        attributes.ShouldContainKey(TenantConstants.TelemetryTagName);
+        attributes[TenantConstants.TelemetryTagName].ShouldBe("test-tenant");
 
         attributes.ShouldContainKey("user.id");
         attributes["user.id"].ShouldBe("test-user");
     }
 
     [Test]
-    public void TenantAndUserContextProcessors_ShouldHandleMissingContext()
+    public void UnifiedLogRecordProcessor_ShouldHandleMissingContext()
     {
         // Arrange
         var tenantResolverMock = new Mock<ITenantContextResolver>();
         tenantResolverMock.Setup(x => x.Resolve()).Returns(TenantContext.Empty);
 
-        var tenantProcessor = new TenantContextProcessor(tenantResolverMock.Object);
+        ITenantContext? outContext = null;
+        tenantResolverMock.Setup(x => x.TryResolve(out outContext)).Returns(false);
 
         // User Processor with null HttpContext
         var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
         httpContextAccessorMock.Setup(x => x.HttpContext).Returns((HttpContext?)null);
-        var userProcessor = new UserContextProcessor(httpContextAccessorMock.Object);
+
+        // Create attribute providers
+        var tenantProvider = new TenantAttributeProvider(tenantResolverMock.Object);
+        var userProvider = new UserAttributeProvider(httpContextAccessorMock.Object);
+        var providers = new List<ITelemetryAttributeProvider> { tenantProvider, userProvider };
+
+        // Create unified processor
+        var loggerMock = new Mock<ILogger<UnifiedLogRecordProcessor>>();
+        var unifiedProcessor = new UnifiedLogRecordProcessor(providers, loggerMock.Object);
 
 #pragma warning disable SYSLIB0050
         var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));
@@ -95,11 +115,10 @@ public class LoggingTests
         logRecord.Attributes = new List<KeyValuePair<string, object?>>();
 
         // Act
-        tenantProcessor.OnEnd(logRecord);
-        userProcessor.OnEnd(logRecord);
+        unifiedProcessor.OnEnd(logRecord);
 
         // Assert
-        logRecord.Attributes.ShouldNotContain(kv => kv.Key == "tenant.id");
+        logRecord.Attributes.ShouldNotContain(kv => kv.Key == TenantConstants.TelemetryTagName);
         logRecord.Attributes.ShouldNotContain(kv => kv.Key == "user.id");
     }
 }

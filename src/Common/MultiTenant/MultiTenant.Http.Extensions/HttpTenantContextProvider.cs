@@ -1,25 +1,20 @@
 using Dilcore.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.Abstractions;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace Dilcore.MultiTenant.Http.Extensions;
 
 /// <summary>
 /// Resolves tenant from HTTP context using Finbuckle's accessor.
 /// </summary>
-public sealed class HttpTenantContextProvider : ITenantContextProvider
+public sealed class HttpTenantContextProvider(IHttpContextAccessor httpContextAccessor) : ITenantContextProvider
 {
-    private readonly IMultiTenantContextAccessor<AppTenantInfo> _accessor;
-
-    public HttpTenantContextProvider(IMultiTenantContextAccessor<AppTenantInfo> accessor)
-    {
-        _accessor = accessor;
-    }
-
     public int Priority => 100;
 
     public ITenantContext? GetTenantContext()
     {
-        var context = _accessor.MultiTenantContext;
+        var context = httpContextAccessor.HttpContext?.GetMultiTenantContext<AppTenantInfo>();
+        
         var tenantInfo = context?.TenantInfo;
 
         if (tenantInfo == null)

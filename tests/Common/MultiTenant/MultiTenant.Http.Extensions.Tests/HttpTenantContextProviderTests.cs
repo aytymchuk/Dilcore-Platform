@@ -1,5 +1,6 @@
 using Dilcore.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Abstractions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using Shouldly;
 
@@ -17,10 +18,13 @@ public class HttpTenantContextProviderTests
         var mtContextMock = new Mock<IMultiTenantContext<AppTenantInfo>>();
         mtContextMock.Setup(x => x.TenantInfo).Returns(tenantInfo);
 
-        var accessorMock = new Mock<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessorMock.Setup(x => x.MultiTenantContext).Returns(mtContextMock.Object);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Items[typeof(IMultiTenantContext)] = mtContextMock.Object;
 
-        var provider = new HttpTenantContextProvider(accessorMock.Object);
+        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
+
+        var provider = new HttpTenantContextProvider(httpContextAccessorMock.Object);
 
         // Act
         var result = provider.GetTenantContext();
@@ -35,10 +39,10 @@ public class HttpTenantContextProviderTests
     public void GetTenantContext_WhenNoTenant_ReturnsNull()
     {
         // Arrange
-        var accessorMock = new Mock<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessorMock.Setup(x => x.MultiTenantContext).Returns((IMultiTenantContext<AppTenantInfo>)null!);
+        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        httpContextAccessorMock.Setup(x => x.HttpContext).Returns((HttpContext?)null);
 
-        var provider = new HttpTenantContextProvider(accessorMock.Object);
+        var provider = new HttpTenantContextProvider(httpContextAccessorMock.Object);
 
         // Act
         var result = provider.GetTenantContext();
@@ -54,10 +58,13 @@ public class HttpTenantContextProviderTests
         var mtContextMock = new Mock<IMultiTenantContext<AppTenantInfo>>();
         mtContextMock.Setup(x => x.TenantInfo).Returns((AppTenantInfo?)null);
 
-        var accessorMock = new Mock<IMultiTenantContextAccessor<AppTenantInfo>>();
-        accessorMock.Setup(x => x.MultiTenantContext).Returns(mtContextMock.Object);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Items[typeof(IMultiTenantContext)] = mtContextMock.Object;
 
-        var provider = new HttpTenantContextProvider(accessorMock.Object);
+        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
+
+        var provider = new HttpTenantContextProvider(httpContextAccessorMock.Object);
 
         // Act
         var result = provider.GetTenantContext();
@@ -70,8 +77,8 @@ public class HttpTenantContextProviderTests
     public void Priority_Returns100()
     {
         // Arrange
-        var accessorMock = new Mock<IMultiTenantContextAccessor<AppTenantInfo>>();
-        var provider = new HttpTenantContextProvider(accessorMock.Object);
+        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        var provider = new HttpTenantContextProvider(httpContextAccessorMock.Object);
 
         // Act & Assert
         provider.Priority.ShouldBe(100);

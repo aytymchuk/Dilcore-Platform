@@ -32,7 +32,7 @@ public static class CorsExtensions
             if (allowedOrigins.Length == 0)
             {
                 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-                logger.LogWarning("CORS AllowedOrigins is empty in non-development environment. All CORS requests will be blocked.");
+                logger.LogCorsAllowedOriginsEmpty();
             }
 
             app.UseCors(policy => policy

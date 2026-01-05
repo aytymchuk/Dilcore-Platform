@@ -1,5 +1,5 @@
-using Dilcore.WebApi.Extensions;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
 
@@ -14,7 +14,7 @@ builder.Services.AddProblemDetailsServices();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddCorsPolicy();
 builder.Services.AddAuth0Authentication(builder.Configuration);
-builder.Services.AddFluentValidation(typeof(Program).Assembly);
+builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddMultiTenancy();
 
 var app = builder.Build();
@@ -23,11 +23,11 @@ var app = builder.Build();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
-lifetime.ApplicationStarted.Register(() => logger.LogInformation("Application has started and is listening on its configured endpoints."));
-lifetime.ApplicationStopping.Register(() => logger.LogInformation("Application is stopping..."));
-lifetime.ApplicationStopped.Register(() => logger.LogInformation("Application has been stopped."));
+lifetime.ApplicationStarted.Register(() => logger.LogApplicationStarted());
+lifetime.ApplicationStopping.Register(() => logger.LogApplicationStopping());
+lifetime.ApplicationStopped.Register(() => logger.LogApplicationStopped());
 
-logger.LogInformation("Starting the application...");
+logger.LogStartingApplication();
 
 // Configure middleware pipeline
 app.UseCorsPolicy();
@@ -38,4 +38,7 @@ app.MapApplicationEndpoints();
 
 await app.RunAsync();
 
-public partial class Program { }
+namespace Dilcore.WebApi
+{
+    public partial class Program { }
+}

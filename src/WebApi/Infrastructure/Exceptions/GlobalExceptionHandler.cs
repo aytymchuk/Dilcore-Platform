@@ -1,5 +1,5 @@
 using System.Net;
-using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 

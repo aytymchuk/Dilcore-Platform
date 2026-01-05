@@ -1,4 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Dilcore.MultiTenant.Http.Extensions;
@@ -22,18 +23,29 @@ public sealed class TenantContextResolver : ITenantContextResolver
 
     public ITenantContext Resolve()
     {
+        if (TryResolve(out var tenantContext))
+        {
+            return tenantContext!;
+        }
+
+        _logger.LogNoTenantResolved();
+        throw new TenantNotResolvedException("No tenant could be resolved from the current request.");
+    }
+
+    public bool TryResolve(out ITenantContext? tenantContext)
+    {
         foreach (var provider in _providers)
         {
             var context = provider.GetTenantContext();
             if (context != null)
             {
-                _logger.LogDebug("Tenant resolved by {Provider}: {TenantName}",
-                    provider.GetType().Name, context.Name);
-                return context;
+                _logger.LogTenantResolved(provider.GetType().Name, context.Name);
+                tenantContext = context;
+                return true;
             }
         }
 
-        _logger.LogDebug("No tenant resolved by any provider");
-        throw new TenantNotResolvedException("No tenant could be resolved from the current request.");
+        tenantContext = null;
+        return false;
     }
 }

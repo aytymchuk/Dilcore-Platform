@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
 

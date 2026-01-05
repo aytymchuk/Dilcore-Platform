@@ -18,6 +18,7 @@
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
@@ -27,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
     <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
+    <ProjectReference Include="..\Common\Telemetry\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Telemetry\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

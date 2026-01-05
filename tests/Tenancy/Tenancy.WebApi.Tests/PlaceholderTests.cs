@@ -1,6 +1,4 @@
-using NUnit.Framework;
-
-namespace Tenancy.WebApi.Tests;
+namespace Dilcore.Tenancy.WebApi.Tests;
 
 public class PlaceholderTests
 {

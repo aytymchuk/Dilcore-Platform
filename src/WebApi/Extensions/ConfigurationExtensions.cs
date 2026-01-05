@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Azure.Data.AppConfiguration;
 using Azure.Identity;
-
 using Dilcore.WebApi.Settings;
 
 namespace Dilcore.WebApi.Extensions;

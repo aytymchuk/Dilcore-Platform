@@ -34,7 +34,7 @@ public class DependencyInjectionTests
         var envMock = new Mock<IWebHostEnvironment>();
         envMock.Setup(e => e.ApplicationName).Returns("TestService");
 
-        // Register multi-tenancy (required by TenantContextProcessor)
+        // Register multi-tenancy (required by TenantAttributeProvider)
         services.AddMultiTenancy();
 
         // Act
@@ -70,25 +70,19 @@ public class DependencyInjectionTests
         var envMock = new Mock<IWebHostEnvironment>();
         envMock.Setup(e => e.ApplicationName).Returns("TestService");
 
-        // Register multi-tenancy (required by TenantContextProcessor)
+        // Register multi-tenancy (required by TenantAttributeProvider)
         services.AddMultiTenancy();
 
         // Act
         services.AddTelemetry(configuration, envMock.Object);
         using var serviceProvider = services.BuildServiceProvider();
 
-        // Assert - Verify all separate processors are registered
-        var tenantContextProcessor = serviceProvider.GetService<TenantContextProcessor>();
-        tenantContextProcessor.ShouldNotBeNull("TenantContextProcessor should be registered");
+        // Assert - Verify unified log processor and activity processors are registered
+        var unifiedLogProcessor = serviceProvider.GetService<UnifiedLogRecordProcessor>();
+        unifiedLogProcessor.ShouldNotBeNull("UnifiedLogRecordProcessor should be registered");
 
-        var userContextProcessor = serviceProvider.GetService<UserContextProcessor>();
-        userContextProcessor.ShouldNotBeNull("UserContextProcessor should be registered");
-
-        var tenantActivityProcessor = serviceProvider.GetService<TenantActivityProcessor>();
-        tenantActivityProcessor.ShouldNotBeNull("TenantActivityProcessor should be registered");
-
-        var userActivityProcessor = serviceProvider.GetService<UserActivityProcessor>();
-        userActivityProcessor.ShouldNotBeNull("UserActivityProcessor should be registered");
+        var unifiedActivityProcessor = serviceProvider.GetService<UnifiedActivityProcessor>();
+        unifiedActivityProcessor.ShouldNotBeNull("UnifiedActivityProcessor should be registered");
     }
 
     [Test]
