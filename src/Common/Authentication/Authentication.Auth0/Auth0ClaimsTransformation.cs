@@ -37,7 +37,7 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
     {
         if (principal.Identity?.IsAuthenticated != true)
             return principal;
-
+        
         var userId = principal.FindFirst(UserConstants.SubjectClaimType)?.Value
                      ?? principal.FindFirst(UserConstants.UserIdClaimType)?.Value
                      ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -55,6 +55,21 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
         if (hasEmail && hasName)
             return principal;
 
+        // Get access token from Authorization header (avoiding GetTokenAsync to prevent infinite recursion)
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null)
+            return principal;
+
+        var accessToken = httpContext.Request.Headers.Authorization
+            .FirstOrDefault()
+            ?.Split(' ').Last();
+
+        if (accessToken is null)
+        {
+            _logger.LogNoAccessToken();
+            return principal;
+        }
+
         // Get or create cached profile using HybridCache
         var cacheKey = $"auth0_user_{userId}";
 
@@ -62,17 +77,9 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
             cacheKey,
             async cancel =>
             {
-                // Get access token from current request
-                var accessToken = await _httpContextAccessor.HttpContext?.GetTokenAsync("access_token")!;
-                if (string.IsNullOrEmpty(accessToken))
-                {
-                    _logger.LogNoAccessToken();
-                    return null;
-                }
-
                 // Fetch from Auth0
                 _logger.LogAuth0ProfileCacheMiss(userId);
-                var userProfile = await _auth0UserService.GetUserProfileAsync(accessToken);
+                var userProfile = await _auth0UserService.GetUserProfileAsync(accessToken, cancel);
 
                 if (userProfile != null)
                 {
@@ -85,33 +92,40 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
             {
                 Expiration = _cacheExpiration,
                 LocalCacheExpiration = _cacheExpiration
-            });
+            },
+            tags: null,
+            cancellationToken: CancellationToken.None);
 
         if (profile == null)
             return principal;
 
         _logger.LogAuth0ProfileCacheHit(userId);
-        return AddMissingClaims(principal, profile, hasEmail, hasName);
+
+        // Clone the principal to avoid modifying the original
+        var currentHost = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+        return AddMissingClaims(principal, profile, hasEmail, hasName, currentHost);
     }
 
     private ClaimsPrincipal AddMissingClaims(
         ClaimsPrincipal principal,
         Auth0UserProfile profile,
         bool hasEmail,
-        bool hasName)
+        bool hasName,
+        string issuer)
     {
-        var identity = (ClaimsIdentity)principal.Identity!;
+        var clonedPrincipal = principal.Clone();
+        var identity = (ClaimsIdentity)clonedPrincipal.Identity!;
         var claimsAdded = new List<string>();
 
         if (!hasEmail && !string.IsNullOrEmpty(profile.Email))
         {
-            identity.AddClaim(new Claim(UserConstants.EmailClaimType, profile.Email));
+            identity.AddClaim(new Claim(UserConstants.EmailClaimType, profile.Email, ClaimValueTypes.String, issuer));
             claimsAdded.Add("email");
         }
 
         if (!hasName && !string.IsNullOrEmpty(profile.Name))
         {
-            identity.AddClaim(new Claim(UserConstants.NameClaimType, profile.Name));
+            identity.AddClaim(new Claim(UserConstants.NameClaimType, profile.Name, ClaimValueTypes.String, issuer));
             claimsAdded.Add("name");
         }
 
@@ -120,6 +134,6 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
             _logger.LogClaimsAdded(string.Join(", ", claimsAdded));
         }
 
-        return principal;
+        return clonedPrincipal;
     }
 }
