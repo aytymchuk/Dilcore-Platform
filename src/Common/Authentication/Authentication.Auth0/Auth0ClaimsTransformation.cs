@@ -19,6 +19,8 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
     private readonly ILogger<Auth0ClaimsTransformation> _logger;
     private readonly TimeSpan _cacheExpiration;
 
+    private const string BearerScheme = "Bearer";
+
     public Auth0ClaimsTransformation(
         IAuth0UserService auth0UserService,
         HybridCache cache,
@@ -55,24 +57,30 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
         if (hasEmail && hasName)
             return principal;
 
+        // Get access token from Authorization header (avoiding GetTokenAsync to prevent infinite recursion)
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null)
+            return principal;
+
+        var accessToken = GetAccessTokenFromHeader(httpContext);
+
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogNoAccessToken();
+            return principal;
+        }
+
         // Get or create cached profile using HybridCache
         var cacheKey = $"auth0_user_{userId}";
+        var token = httpContext.RequestAborted;
 
         var profile = await _cache.GetOrCreateAsync(
             cacheKey,
             async cancel =>
             {
-                // Get access token from current request
-                var accessToken = await _httpContextAccessor.HttpContext?.GetTokenAsync("access_token")!;
-                if (string.IsNullOrEmpty(accessToken))
-                {
-                    _logger.LogNoAccessToken();
-                    return null;
-                }
-
                 // Fetch from Auth0
                 _logger.LogAuth0ProfileCacheMiss(userId);
-                var userProfile = await _auth0UserService.GetUserProfileAsync(accessToken);
+                var userProfile = await _auth0UserService.GetUserProfileAsync(accessToken, cancel);
 
                 if (userProfile != null)
                 {
@@ -85,33 +93,62 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
             {
                 Expiration = _cacheExpiration,
                 LocalCacheExpiration = _cacheExpiration
-            });
+            },
+            tags: null,
+            cancellationToken: token);
 
         if (profile == null)
             return principal;
 
         _logger.LogAuth0ProfileCacheHit(userId);
-        return AddMissingClaims(principal, profile, hasEmail, hasName);
+
+        // Clone the principal to avoid modifying the original
+        var currentHost = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+        return AddMissingClaims(principal, profile, hasEmail, hasName, currentHost);
+    }
+
+    private static string? GetAccessTokenFromHeader(HttpContext httpContext)
+    {
+        // Robustly parse Authorization header
+        var authHeader = httpContext.Request.Headers.Authorization
+            .FirstOrDefault(h => h?.StartsWith(BearerScheme, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        if (string.IsNullOrWhiteSpace(authHeader))
+            return null;
+
+        var parts = authHeader.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        // Verify scheme is "Bearer" and token is present
+        if (parts.Length > 1 &&
+            parts[0].Equals(BearerScheme, StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(parts[1]))
+        {
+            return parts[1].Trim();
+        }
+
+        return null;
     }
 
     private ClaimsPrincipal AddMissingClaims(
         ClaimsPrincipal principal,
         Auth0UserProfile profile,
         bool hasEmail,
-        bool hasName)
+        bool hasName,
+        string issuer)
     {
-        var identity = (ClaimsIdentity)principal.Identity!;
+        var clonedPrincipal = principal.Clone();
+        var identity = (ClaimsIdentity)clonedPrincipal.Identity!;
         var claimsAdded = new List<string>();
 
         if (!hasEmail && !string.IsNullOrEmpty(profile.Email))
         {
-            identity.AddClaim(new Claim(UserConstants.EmailClaimType, profile.Email));
+            identity.AddClaim(new Claim(UserConstants.EmailClaimType, profile.Email, ClaimValueTypes.String, issuer));
             claimsAdded.Add("email");
         }
 
         if (!hasName && !string.IsNullOrEmpty(profile.Name))
         {
-            identity.AddClaim(new Claim(UserConstants.NameClaimType, profile.Name));
+            identity.AddClaim(new Claim(UserConstants.NameClaimType, profile.Name, ClaimValueTypes.String, issuer));
             claimsAdded.Add("name");
         }
 
@@ -120,6 +157,6 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
             _logger.LogClaimsAdded(string.Join(", ", claimsAdded));
         }
 
-        return principal;
+        return clonedPrincipal;
     }
 }

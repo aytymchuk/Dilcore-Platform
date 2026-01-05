@@ -2,11 +2,17 @@ using System.Text.Json;
 using Azure.Data.AppConfiguration;
 using Azure.Identity;
 using Dilcore.WebApi.Settings;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Dilcore.WebApi.Extensions;
 
 public static class ConfigurationExtensions
 {
+    private static readonly ILogger _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger(typeof(ConfigurationExtensions));
+
     public static void AddAppConfiguration(this WebApplicationBuilder builder)
     {
         var env = builder.Environment;
@@ -65,6 +71,7 @@ public static class ConfigurationExtensions
                 catch (Azure.RequestFailedException ex) when (ex.Status == 404)
                 {
                     // Configuration is optional, skip if not found
+                    _logger.LogDebug(ex, "Optional configuration not found: {Key}", key);
                 }
             }
 

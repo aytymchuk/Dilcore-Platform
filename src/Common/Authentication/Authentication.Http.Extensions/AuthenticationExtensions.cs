@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting; // Added for IHostEnvironment
 using Microsoft.Extensions.Logging;
 
 namespace Dilcore.Authentication.Http.Extensions;
@@ -63,7 +62,7 @@ public static class AuthenticationExtensions
                 {
                     logger.LogAuthenticationChallenge(
                         context.Request.Path,
-                        context.Error ?? "Unknown",
+                        context.Error ?? context.AuthenticateFailure.Message,
                         context.ErrorDescription ?? "No description");
                 }
                 return Task.CompletedTask;
