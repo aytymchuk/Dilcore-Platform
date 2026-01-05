@@ -37,7 +37,7 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
     {
         if (principal.Identity?.IsAuthenticated != true)
             return principal;
-        
+
         var userId = principal.FindFirst(UserConstants.SubjectClaimType)?.Value
                      ?? principal.FindFirst(UserConstants.UserIdClaimType)?.Value
                      ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -60,11 +60,9 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
         if (httpContext == null)
             return principal;
 
-        var accessToken = httpContext.Request.Headers.Authorization
-            .FirstOrDefault()
-            ?.Split(' ').Last();
+        var accessToken = GetAccessTokenFromHeader(httpContext);
 
-        if (accessToken is null)
+        if (string.IsNullOrEmpty(accessToken))
         {
             _logger.LogNoAccessToken();
             return principal;
@@ -72,6 +70,7 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
 
         // Get or create cached profile using HybridCache
         var cacheKey = $"auth0_user_{userId}";
+        var token = httpContext.RequestAborted;
 
         var profile = await _cache.GetOrCreateAsync(
             cacheKey,
@@ -94,7 +93,7 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
                 LocalCacheExpiration = _cacheExpiration
             },
             tags: null,
-            cancellationToken: CancellationToken.None);
+            cancellationToken: token);
 
         if (profile == null)
             return principal;
@@ -104,6 +103,27 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
         // Clone the principal to avoid modifying the original
         var currentHost = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
         return AddMissingClaims(principal, profile, hasEmail, hasName, currentHost);
+    }
+
+    private static string? GetAccessTokenFromHeader(HttpContext httpContext)
+    {
+        // Robustly parse Authorization header
+        var authHeader = httpContext.Request.Headers.Authorization.FirstOrDefault();
+
+        if (string.IsNullOrWhiteSpace(authHeader))
+            return null;
+
+        var parts = authHeader.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        // Verify scheme is "Bearer" and token is present
+        if (parts.Length > 1 &&
+            parts[0].Equals("Bearer", StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(parts[1]))
+        {
+            return parts[1].Trim();
+        }
+
+        return null;
     }
 
     private ClaimsPrincipal AddMissingClaims(

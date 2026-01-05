@@ -9,12 +9,13 @@ using System.Security.Claims;
 namespace Dilcore.Authentication.Auth0.Tests;
 
 [TestFixture]
-public class Auth0ClaimsTransformationTests
+public class Auth0ClaimsTransformationTests : IDisposable
 {
     private Auth0ClaimsTransformation _transformation = null!;
     private Mock<IAuth0UserService> _auth0UserServiceMock = null!;
     private Mock<ILogger<Auth0ClaimsTransformation>> _loggerMock = null!;
     private HybridCache _cache = null!;
+    private ServiceProvider _serviceProvider = null!;
     private Mock<Microsoft.AspNetCore.Http.IHttpContextAccessor> _httpContextAccessorMock = null!;
     private Auth0Settings _settings = null!;
 
@@ -29,8 +30,8 @@ public class Auth0ClaimsTransformationTests
         // Create a real HybridCache instance for testing
         var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
         services.AddHybridCache();
-        var serviceProvider = services.BuildServiceProvider();
-        _cache = serviceProvider.GetRequiredService<HybridCache>();
+        _serviceProvider = services.BuildServiceProvider();
+        _cache = _serviceProvider.GetRequiredService<HybridCache>();
 
         _transformation = new Auth0ClaimsTransformation(
             _auth0UserServiceMock.Object,
@@ -38,6 +39,64 @@ public class Auth0ClaimsTransformationTests
             _httpContextAccessorMock.Object,
             _loggerMock.Object,
             _settings);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _serviceProvider?.Dispose();
+    }
+
+    public void Dispose()
+    {
+        _serviceProvider?.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    [Test]
+    public async Task TransformAsync_WithAuthorizationHeader_AddsEmailAndNameClaims()
+    {
+        // Arrange
+        // 1. Setup Principal
+        var claims = new[]
+        {
+            new Claim(UserConstants.SubjectClaimType, "user-123")
+        };
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Test"));
+
+        // 2. Setup HttpContext with Auth Header
+        var context = new Microsoft.AspNetCore.Http.DefaultHttpContext();
+        context.Request.Headers.Authorization = "Bearer valid-token";
+        context.Request.Scheme = "https";
+        context.Request.Host = new Microsoft.AspNetCore.Http.HostString("localhost");
+        _httpContextAccessorMock.Setup(x => x.HttpContext).Returns(context);
+
+        // 3. Setup Auth0 Service to return profile
+        var profile = new Auth0UserProfile
+        {
+            Email = "test@example.com",
+            Name = "Test User"
+        };
+        _auth0UserServiceMock
+            .Setup(x => x.GetUserProfileAsync("valid-token", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        // Act
+        var result = await _transformation.TransformAsync(principal);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.ShouldNotBe(principal); // Should be a clone
+
+        var emailClaim = result.FindFirst(UserConstants.EmailClaimType);
+        emailClaim.ShouldNotBeNull();
+        emailClaim.Value.ShouldBe("test@example.com");
+        emailClaim.Issuer.ShouldBe("https://localhost");
+
+        var nameClaim = result.FindFirst(UserConstants.NameClaimType);
+        nameClaim.ShouldNotBeNull();
+        nameClaim.Value.ShouldBe("Test User");
+        nameClaim.Issuer.ShouldBe("https://localhost");
     }
 
     [Test]
