@@ -1,5 +1,4 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Dilcore.Telemetry.Abstractions;
 using OpenTelemetry.Logs;
@@ -7,7 +6,6 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Dilcore.WebApi.Settings;
-using OpenTelemetry.Instrumentation.AspNetCore;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -38,20 +36,6 @@ public static class TelemetryExtensions
             lpBuilder.AddProcessor(sp.GetRequiredService<UnifiedLogRecordProcessor>());
         });
 
-        services.AddTelemetryEnricher<TenantTelemetryEnricher>();
-        services.AddTelemetryEnricher<UserTelemetryEnricher>();
-
-        services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
-        {
-            options.EnrichWithHttpRequest = (activity, request) =>
-            {
-                var enrichers = request.HttpContext.RequestServices.GetServices<ITelemetryEnricher>();
-                foreach (var enricher in enrichers)
-                {
-                    enricher.Enrich(activity, request);
-                }
-            };
-        });
 
         var otel = services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(env.ApplicationName, serviceVersion: serviceVersion));
