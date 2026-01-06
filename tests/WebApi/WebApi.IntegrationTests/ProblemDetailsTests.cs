@@ -2,8 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Dilcore.Results.Abstractions;
-using Dilcore.WebApi.Features.WeatherForecast;
-using Microsoft.AspNetCore.Mvc;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
 

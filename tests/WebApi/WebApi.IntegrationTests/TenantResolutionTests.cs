@@ -1,4 +1,5 @@
 using System.Net;
+using Dilcore.Results.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
 
@@ -38,7 +39,8 @@ public class TenantResolutionTests : BaseIntegrationTest
         problemDetails.ShouldNotBeNull();
         problemDetails.Title.ShouldBe("Tenant Not Resolved");
         problemDetails.Status.ShouldBe(400);
-        content.ShouldContain(Constants.ProblemDetails.TenantNotResolved);
+        var errorCode = problemDetails.Extensions["errorCode"].ToString();
+        errorCode.ShouldBe(ProblemDetailsConstants.TenantNotResolved);
     }
 
     [Test]

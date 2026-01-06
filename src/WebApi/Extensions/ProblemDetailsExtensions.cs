@@ -50,7 +50,7 @@ public static class ProblemDetailsExtensions
                     !context.ProblemDetails.Extensions.ContainsKey(Constants.ProblemDetails.Fields.ErrorCode))
                 {
                     context.ProblemDetails.Extensions[Constants.ProblemDetails.Fields.ErrorCode] =
-                        Constants.ProblemDetails.InvalidRequest;
+                        ProblemDetailsConstants.InvalidRequest;
 
                     // Maintain consistency with GlobalExceptionHandler
                     if (context.ProblemDetails.Title == "Bad Request")

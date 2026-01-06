@@ -379,7 +379,11 @@ public class ValidationTests : BaseIntegrationTest
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(400);
         // Verify we get the specific error code we just added
-        problemDetails.GetProperty("errorCode").GetString().ShouldBe(Constants.ProblemDetails.InvalidRequest);
+        // Check if errorCode is at root level or in extensions
+        var errorCode = problemDetails.TryGetProperty("errorCode", out var errorCodeProp)
+            ? errorCodeProp.GetString()
+            : problemDetails.GetProperty("extensions").GetProperty("errorCode").GetString();
+        errorCode.ShouldBe(ProblemDetailsConstants.InvalidRequest);
         problemDetails.GetProperty("title").GetString().ShouldBe("Invalid Request");
     }
 }

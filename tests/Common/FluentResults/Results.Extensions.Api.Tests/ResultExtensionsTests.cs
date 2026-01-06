@@ -85,9 +85,21 @@ public class ResultExtensionsTests
         var problem = apiResult.ShouldBeOfType<ProblemHttpResult>();
         problem.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
         problem.ProblemDetails.Title.ShouldBe("Validation Error");
-        // Check extensions has errors list
-        var errors = problem.ProblemDetails.Extensions["errors"] as IEnumerable<object>;
+        // Check extensions has errors list with correct messages
+        var errors = problem.ProblemDetails.Extensions["errors"];
         errors.ShouldNotBeNull();
-        errors.Count().ShouldBe(2);
+
+        // Serialize to JSON and deserialize to access properties
+        var json = System.Text.Json.JsonSerializer.Serialize(errors);
+        using var doc = System.Text.Json.JsonDocument.Parse(json);
+        var errorArray = doc.RootElement.EnumerateArray().ToList();
+
+        errorArray.Count.ShouldBe(2);
+
+        // Validate first error (ValidationError)
+        errorArray[0].GetProperty("Message").GetString().ShouldBe("Field 1 invalid");
+
+        // Validate second error (NotFoundError)
+        errorArray[1].GetProperty("Message").GetString().ShouldBe("Related resource not found");
     }
 }

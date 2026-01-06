@@ -35,7 +35,7 @@ public static class Constants
     }
 
     /// <summary>
-    /// Problem Details (RFC 7807) constants.
+    /// Problem Details (RFC 7807) field names.
     /// </summary>
     public static class ProblemDetails
     {
@@ -54,17 +54,5 @@ public static class Constants
             public const string Timestamp = "timestamp";
             public const string Errors = "errors";
         }
-
-        // Data validation specific
-        public const string DataValidationFailed = "DATA_VALIDATION_FAILED";
-        public const string DataValidationTitle = "Validation Failed";
-        public const string DataValidationDetail = "One or more validation errors occurred.";
-
-        // Parsing/Request errors
-        public const string InvalidRequest = "INVALID_REQUEST";
-        public const string JsonParseError = "JSON_PARSE_ERROR";
-        public const string FormatError = "FORMAT_ERROR";
-        public const string TenantNotResolved = "TENANT_NOT_RESOLVED";
-        public const string UserNotResolved = "USER_NOT_RESOLVED";
     }
 }

@@ -4,7 +4,6 @@ using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Dilcore.Telemetry.Abstractions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;

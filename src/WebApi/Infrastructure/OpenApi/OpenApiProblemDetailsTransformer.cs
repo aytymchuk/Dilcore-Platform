@@ -1,9 +1,7 @@
 using Dilcore.Results.Abstractions;
-using Dilcore.WebApi.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;

@@ -73,11 +73,11 @@ public sealed partial class GlobalExceptionHandler(
             ArgumentException _ =>
                 (HttpStatusCode.BadRequest, ProblemDetailsConstants.ValidationError, "Validation Error"),
             BadHttpRequestException _ =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.InvalidRequest, "Invalid Request"),
+                (HttpStatusCode.BadRequest, ProblemDetailsConstants.InvalidRequest, "Invalid Request"),
             JsonException _ =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.JsonParseError, "Invalid JSON Format"),
+                (HttpStatusCode.BadRequest, ProblemDetailsConstants.JsonParseError, "Invalid JSON Format"),
             FormatException _ =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.FormatError, "Invalid Format"),
+                (HttpStatusCode.BadRequest, ProblemDetailsConstants.FormatError, "Invalid Format"),
             KeyNotFoundException _ =>
                 (HttpStatusCode.NotFound, ProblemDetailsConstants.NotFound, "Resource Not Found"),
             UnauthorizedAccessException _ =>
@@ -93,9 +93,9 @@ public sealed partial class GlobalExceptionHandler(
             TimeoutException _ =>
                 (HttpStatusCode.RequestTimeout, ProblemDetailsConstants.Timeout, "Request Timeout"),
             TenantNotResolvedException _ =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.TenantNotResolved, "Tenant Not Resolved"),
+                (HttpStatusCode.BadRequest, ProblemDetailsConstants.TenantNotResolved, "Tenant Not Resolved"),
             UserNotResolvedException _ =>
-                (HttpStatusCode.Unauthorized, Constants.ProblemDetails.UserNotResolved, "User Not Resolved"),
+                (HttpStatusCode.Unauthorized, ProblemDetailsConstants.UserNotResolved, "User Not Resolved"),
             _ =>
                 (HttpStatusCode.InternalServerError, ProblemDetailsConstants.UnexpectedError, "An unexpected error occurred")
         };
