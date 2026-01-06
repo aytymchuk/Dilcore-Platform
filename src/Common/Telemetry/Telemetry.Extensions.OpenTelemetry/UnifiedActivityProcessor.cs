@@ -21,7 +21,7 @@ public class UnifiedActivityProcessor : BaseProcessor<Activity>
         _logger = logger;
     }
 
-    public override void OnStart(Activity data)
+    public override void OnEnd(Activity data)
     {
         try
         {
@@ -45,8 +45,8 @@ public class UnifiedActivityProcessor : BaseProcessor<Activity>
         }
         finally
         {
-            // Always call base.OnStart even if enrichment fails
-            base.OnStart(data);
+            // Always call base.OnEnd even if enrichment fails
+            base.OnEnd(data);
         }
     }
 }
