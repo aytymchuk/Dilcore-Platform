@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Abstractions;
@@ -65,7 +64,7 @@ public class UnifiedLogRecordProcessorTests
         }
         else
         {
-            tenantResolverMock.Setup(x => x.Resolve()).Returns(TenantContext.Empty);
+            tenantResolverMock.Setup(x => x.Resolve()).Throws<TenantNotResolvedException>();
             ITenantContext? outContext = null;
             tenantResolverMock.Setup(x => x.TryResolve(out outContext)).Returns(false);
         }
@@ -96,10 +95,9 @@ public class UnifiedLogRecordProcessorTests
 
     private LogRecord CreateLogRecord()
     {
-#pragma warning disable SYSLIB0050
-        var logRecord = (LogRecord)FormatterServices.GetUninitializedObject(typeof(LogRecord));
-#pragma warning restore SYSLIB0050
-        logRecord.Attributes = new List<KeyValuePair<string, object?>>();
+        // Use Activator.CreateInstance with nonPublic=true to create LogRecord without calling constructor
+        var logRecord = (LogRecord)Activator.CreateInstance(typeof(LogRecord), nonPublic: true)!;
+        logRecord.Attributes = [];
         return logRecord;
     }
 }

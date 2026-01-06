@@ -1,7 +1,7 @@
 using Finbuckle.MultiTenant.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 
-namespace Dilcore.MultiTenant.Http.Extensions.Extensions;
+namespace Dilcore.MultiTenant.Http.Extensions;
 
 public static class HttpContextExtensions
 {

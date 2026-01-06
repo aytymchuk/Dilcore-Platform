@@ -37,4 +37,6 @@ public class ListLogger<T> : ILogger<T>
     {
         Logs.Add(formatter(state, exception));
     }
+
+    public void Clear() => Logs.Clear();
 }

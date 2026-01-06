@@ -33,7 +33,7 @@ public sealed partial class GlobalExceptionHandler(
             Status = (int)statusCode,
             Title = title,
             Detail = GetExceptionDetail(exception),
-            Type = BuildProblemTypeUri(errorCode)
+            Type = ProblemDetailsHelper.BuildTypeUri(errorCode)
         };
 
         // Add error code extension
@@ -45,20 +45,6 @@ public sealed partial class GlobalExceptionHandler(
             ProblemDetails = problemDetails,
             Exception = exception
         });
-    }
-
-    /// <summary>
-    /// Builds a standardized Problem Details Type URI from an error code.
-    /// Format: {TypeBaseUri}/{kebab-case-error-code}
-    /// </summary>
-    private static string BuildProblemTypeUri(string errorCode)
-    {
-        if (string.IsNullOrWhiteSpace(errorCode))
-        {
-            return ProblemDetailsConstants.TypeBaseUri;
-        }
-
-        return $"{ProblemDetailsConstants.TypeBaseUri}/{errorCode.ToLowerInvariant().Replace('_', '-')}";
     }
 
     /// <summary>

@@ -13,6 +13,7 @@ public class WeatherForecastTests
         var logger = new ListLogger<GetWeatherForecastHandler>();
         var handler = new GetWeatherForecastHandler(logger);
         var query = new GetWeatherForecastQuery();
+        var referenceDate = DateOnly.FromDateTime(DateTime.UtcNow);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -22,8 +23,8 @@ public class WeatherForecastTests
         result.Value.ShouldNotBeEmpty();
         result.Value.Count().ShouldBe(5);
 
-        // Check dates are mostly sequential/future (simple check)
-        result.Value.First().Date.ShouldBeGreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.Now));
+        // Check dates are sequential starting from reference date
+        result.Value.First().Date.ShouldBeGreaterThanOrEqualTo(referenceDate);
 
         // Verify Logging
         logger.Logs.ShouldContain(l => l.Contains("Getting weather forecast for 5 days"));
@@ -33,7 +34,9 @@ public class WeatherForecastTests
     public async Task CreateWeatherForecast_ShouldReturnRequestData()
     {
         // Arrange
-        var handler = new CreateWeatherForecastHandler(TimeProvider.System);
+        var fixedDate = new DateTimeOffset(2024, 1, 15, 10, 30, 0, TimeSpan.Zero);
+        var fakeTimeProvider = new FakeTimeProvider(fixedDate);
+        var handler = new CreateWeatherForecastHandler(fakeTimeProvider);
         var command = new CreateWeatherForecastCommand
         {
             TemperatureC = 25,
@@ -47,9 +50,22 @@ public class WeatherForecastTests
         result.IsSuccess.ShouldBeTrue();
         result.Value.TemperatureC.ShouldBe(25);
         result.Value.Summary.ShouldBe("Perfect");
-        result.Value.Date.ShouldBe(DateOnly.FromDateTime(DateTime.Now));
+        result.Value.Date.ShouldBe(DateOnly.FromDateTime(fixedDate.UtcDateTime));
         result.Value.TemperatureF.ShouldBe(76); // 32 + (int)(25 / 0.5556) = 32 + 44 = 76
     }
+
+    /// <summary>
+    /// Simple fake TimeProvider for testing with a fixed time.
+    /// </summary>
+    private class FakeTimeProvider : TimeProvider
+    {
+        private readonly DateTimeOffset _fixedTime;
+
+        public FakeTimeProvider(DateTimeOffset fixedTime)
+        {
+            _fixedTime = fixedTime;
+        }
+
+        public override DateTimeOffset GetUtcNow() => _fixedTime;
+    }
 }
-
-

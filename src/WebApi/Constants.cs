@@ -35,7 +35,7 @@ public static class Constants
     }
 
     /// <summary>
-    /// Problem Details (RFC 7807) field names.
+    /// Problem Details (RFC 9457, which obsoletes RFC 7807) field names.
     /// </summary>
     public static class ProblemDetails
     {

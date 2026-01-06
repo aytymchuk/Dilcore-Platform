@@ -85,18 +85,8 @@ public static class ResultExtensions
             statusCode: statusCode,
             title: title,
             detail: error.Message,
-            type: BuildProblemTypeUri(code),
+            type: ProblemDetailsHelper.BuildTypeUri(code),
             extensions: extensions
         );
-    }
-
-    private static string BuildProblemTypeUri(string errorCode)
-    {
-        if (string.IsNullOrWhiteSpace(errorCode))
-        {
-            return ProblemDetailsConstants.TypeBaseUri;
-        }
-
-        return $"{ProblemDetailsConstants.TypeBaseUri}/{errorCode.ToLowerInvariant().Replace('_', '-')}";
     }
 }

@@ -15,7 +15,7 @@ public class CreateWeatherForecastHandler : ICommandHandler<CreateWeatherForecas
     public Task<Result<WeatherForecast>> Handle(CreateWeatherForecastCommand request, CancellationToken cancellationToken)
     {
         var forecast = new WeatherForecast(
-            DateOnly.FromDateTime(_timeProvider.GetLocalNow().DateTime),
+            DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime),
             request.TemperatureC,
             request.Summary);
 
