@@ -72,27 +72,20 @@ public class UnifiedLogRecordProcessorTests
         }
 
         // User setup
-        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        var userResolverMock = new Mock<IUserContextResolver>();
         if (userContext != null)
         {
-            var userResolverMock = new Mock<IUserContextResolver>();
             IUserContext? outUserContext = userContext;
             userResolverMock.Setup(x => x.TryResolve(out outUserContext)).Returns(true);
-
-            var serviceProviderMock = new Mock<IServiceProvider>();
-            serviceProviderMock.Setup(x => x.GetService(typeof(IUserContextResolver))).Returns(userResolverMock.Object);
-
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(x => x.RequestServices).Returns(serviceProviderMock.Object);
-            httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContextMock.Object);
         }
         else
         {
-            httpContextAccessorMock.Setup(x => x.HttpContext).Returns((HttpContext?)null);
+            IUserContext? outUserContext = null;
+            userResolverMock.Setup(x => x.TryResolve(out outUserContext)).Returns(false);
         }
 
         var tenantProvider = new TenantAttributeProvider(tenantResolverMock.Object);
-        var userProvider = new UserAttributeProvider(httpContextAccessorMock.Object);
+        var userProvider = new UserAttributeProvider(userResolverMock.Object);
 
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<ITelemetryAttributeProvider>(tenantProvider);

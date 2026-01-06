@@ -38,8 +38,8 @@ public static class AuthenticationExtensions
 
         // Register UserContext services
         services.AddHttpContextAccessor();
-        services.AddScoped<IUserContextProvider, HttpUserContextProvider>();
-        services.AddScoped<IUserContextResolver, UserContextResolver>();
+        services.AddSingleton<IUserContextProvider, HttpUserContextProvider>();
+        services.AddSingleton<IUserContextResolver, UserContextResolver>();
 
         services.AddSingleton<ITelemetryAttributeProvider, UserAttributeProvider>();
 
