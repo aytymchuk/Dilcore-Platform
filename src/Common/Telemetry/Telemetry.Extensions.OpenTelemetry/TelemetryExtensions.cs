@@ -40,12 +40,15 @@ public static class TelemetryExtensions
         {
             // UseAzureMonitor handles its own instrumentation (AspNetCore, HttpClient, etc.)
             otel.UseAzureMonitor(options => options.ConnectionString = settings.ApplicationInsightsConnectionString);
+            // Register custom activity sources
+            otel.WithTracing(tracing => tracing.AddSource("Application.Operations"));
         }
         else
         {
             // Local development: add instrumentation + console exporters
             otel.WithTracing(tracing =>
                 {
+                    tracing.AddSource("Application.Operations");
                     tracing.AddAspNetCoreInstrumentation();
                     tracing.AddHttpClientInstrumentation();
                     tracing.AddConsoleExporter();

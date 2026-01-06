@@ -107,7 +107,7 @@ public class MediatRServiceCollectionExtensionsTests
         var activities = new List<Activity>();
         using var listener = new ActivityListener
         {
-            ShouldListenTo = s => s.Name == "Dilcore.MediatR",
+            ShouldListenTo = s => s.Name == "Application.Operations",
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
             ActivityStarted = activities.Add
         };
