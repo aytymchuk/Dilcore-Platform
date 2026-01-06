@@ -1,6 +1,7 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Dilcore.Telemetry.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,9 +96,20 @@ public class UnifiedLogRecordProcessorTests
 
     private LogRecord CreateLogRecord()
     {
-        // Use Activator.CreateInstance with nonPublic=true to create LogRecord without calling constructor
-        var logRecord = (LogRecord)Activator.CreateInstance(typeof(LogRecord), nonPublic: true)!;
-        logRecord.Attributes = [];
-        return logRecord;
+        try
+        {
+            // LogRecord has no public constructor, so we must use reflection to instantiate it for testing.
+            // This depends on OpenTelemetry's internal implementation and may break if the type changes.
+            var logRecord = (LogRecord)Activator.CreateInstance(typeof(LogRecord), nonPublic: true)!;
+            logRecord.Attributes = [];
+            return logRecord;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                "Failed to create LogRecord instance via reflection. " +
+                "This likely means OpenTelemetry's LogRecord internal structure has changed. " +
+                $"Exception: {ex.GetType().Name}: {ex.Message}", ex);
+        }
     }
 }
