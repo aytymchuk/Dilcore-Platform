@@ -8,7 +8,7 @@ public static class OpenApiExtensions
 {
     public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, IConfiguration configuration)
     {
-        var buildVersion = configuration[Constants.Configuration.BuildVersionKey] ?? Constants.Configuration.DefaultBuildVersion;
+        var buildVersion = configuration[Configuration.AspNetCore.Constants.BuildVersionKey] ?? Configuration.AspNetCore.Constants.DefaultBuildVersion;
         var appSettings = configuration.GetRequiredSettings<ApplicationSettings>();
 
         if (string.IsNullOrWhiteSpace(appSettings.Name))

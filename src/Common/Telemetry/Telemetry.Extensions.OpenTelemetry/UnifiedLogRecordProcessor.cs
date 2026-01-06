@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 
-namespace Dilcore.OpenTelemetry.Extensions;
+namespace Dilcore.Telemetry.Extensions.OpenTelemetry;
 
 /// <summary>
 /// Unified processor that enriches OpenTelemetry logs with attributes from all registered providers.

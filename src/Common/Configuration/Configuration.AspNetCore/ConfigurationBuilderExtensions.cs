@@ -10,8 +10,6 @@ namespace Dilcore.Configuration.AspNetCore;
 
 public static class ConfigurationBuilderExtensions
 {
-    private static readonly ILogger _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger(typeof(ConfigurationBuilderExtensions));
-
     public static void AddAppConfiguration(this WebApplicationBuilder builder)
     {
         var env = builder.Environment;
@@ -22,15 +20,6 @@ public static class ConfigurationBuilderExtensions
         // 2. User Secrets (if development env)
         if (env.IsDevelopment())
         {
-            // We cannot generic AddUserSecrets<Program> here easily because we don't reference Program.
-            // But usually AddUserSecrets is assembly based.
-            // However, builder.Configuration.AddUserSecrets(Assembly.GetEntryAssembly()) works?
-            // Or just rely on default builder behavior?
-            // WebApplication.CreateBuilder(args) ALREADY adds user secrets in Dev.
-            // But ConfigurationExtensions in WebApi added it explicitly: builder.Configuration.AddUserSecrets<Program>();
-
-            // If we want to support it, we might need to pass the assembly or T.
-            // For now, let's skip explicit UserSecrets adding if generic is generic, OR assume entry assembly.
             try
             {
                 var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
@@ -39,9 +28,12 @@ public static class ConfigurationBuilderExtensions
                     builder.Configuration.AddUserSecrets(entryAssembly, optional: true);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // ignore
+                // Log warning but don't fail startup just for user secrets
+                using var loggerFactory = LoggerFactory.Create(logging => logging.AddConsole());
+                var logger = loggerFactory.CreateLogger(typeof(ConfigurationBuilderExtensions));
+                logger.LogWarning(ex, "Failed to load User Secrets.");
             }
         }
 
@@ -73,6 +65,10 @@ public static class ConfigurationBuilderExtensions
             var keysToFetch = new[] { Constants.SharedKey, env.ApplicationName };
             var allConfigData = new Dictionary<string, string?>();
 
+            // Create a short-lived logger for this operation
+            using var loggerFactory = LoggerFactory.Create(logging => logging.AddConsole());
+            var logger = loggerFactory.CreateLogger(typeof(ConfigurationBuilderExtensions));
+
             foreach (var key in keysToFetch)
             {
                 try
@@ -90,7 +86,7 @@ public static class ConfigurationBuilderExtensions
                 catch (Azure.RequestFailedException ex) when (ex.Status == 404)
                 {
                     // Configuration is optional, skip if not found
-                    _logger.LogOptionalConfigurationNotFound(ex, key);
+                    logger.LogOptionalConfigurationNotFound(ex, key);
                 }
             }
 

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.MultiTenant.Http.Extensions;
-using Dilcore.OpenTelemetry.Extensions;
+using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.WebApi.Infrastructure.OpenApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

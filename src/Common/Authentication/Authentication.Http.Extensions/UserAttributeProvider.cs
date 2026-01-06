@@ -1,6 +1,5 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Telemetry.Abstractions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Authentication.Http.Extensions;
@@ -12,15 +11,8 @@ public sealed class UserAttributeProvider(IServiceProvider serviceProvider) : IT
 {
     public IEnumerable<KeyValuePair<string, object?>> GetAttributes()
     {
-        var httpContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
-        var context = httpContextAccessor?.HttpContext;
-        if (context == null)
-        {
-            return [];
-        }
-
-        var userContextResolver = context.RequestServices.GetService<IUserContextResolver>();
-        if (userContextResolver == null || !userContextResolver.TryResolve(out var userContext) || userContext?.Id == null)
+        var userContextResolver = serviceProvider.GetRequiredService<IUserContextResolver>();
+        if (!userContextResolver.TryResolve(out var userContext) || userContext?.Id == null)
         {
             return [];
         }

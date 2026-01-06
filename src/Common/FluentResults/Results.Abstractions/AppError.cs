@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace Dilcore.FluentResults;
+namespace Dilcore.Results.Abstractions;
 
 /// <summary>
 /// Base class for application errors.

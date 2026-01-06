@@ -1,13 +1,11 @@
 using System.Diagnostics;
 using Dilcore.MediatR.Abstractions;
-using Dilcore.MediatR.Extensions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Moq;
-using NUnit.Framework;
 using Shouldly;
+using Dilcore.Tests.Common;
 
 namespace Dilcore.MediatR.Extensions.Tests;
 
@@ -126,34 +124,4 @@ public class MediatRServiceCollectionExtensionsTests
         activity.OperationName.ShouldBe("MediatR: TestCommand");
         activity.GetTagItem("mediatr.request_name").ShouldBe("TestCommand");
     }
-}
-
-public class ListLogger : ILogger
-{
-    public List<string> Logs { get; } = new();
-
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-
-    public bool IsEnabled(LogLevel logLevel) => true;
-
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-    {
-        Logs.Add(formatter(state, exception));
-    }
-
-    public void Clear() => Logs.Clear();
-}
-
-public class ListLoggerProvider : ILoggerProvider
-{
-    private readonly ListLogger _logger;
-
-    public ListLoggerProvider(ListLogger logger)
-    {
-        _logger = logger;
-    }
-
-    public ILogger CreateLogger(string categoryName) => _logger;
-
-    public void Dispose() { }
 }

@@ -13,6 +13,7 @@ Enables multitenancy capabilities within the platform. This domain manages tenan
 ### Identity
 Handles user management at the platform level. It manages users and their relationships to tenants, including defining access levels and permissions.
 
+
 ### Common
 Shared libraries and infrastructure components used across all domains.
 - **MediatR**: Provides CQRS infrastructure with built-in logging and distributed tracing.

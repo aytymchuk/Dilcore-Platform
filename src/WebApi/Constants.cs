@@ -1,20 +1,21 @@
 namespace Dilcore.WebApi;
 
+/// <summary>
+/// Constants for WebApi-specific functionality.
+/// </summary>
 public static class Constants
 {
-    public static class Configuration
-    {
-        public const string SharedKey = "Shared";
-        public const string AppConfigEndpointKey = "AppConfigEndpoint";
-        public const string BuildVersionKey = "BUILD_VERSION";
-        public const string DefaultBuildVersion = "local_development";
-    }
-
+    /// <summary>
+    /// Scalar API documentation constants.
+    /// </summary>
     public static class Scalar
     {
         public const string Endpoint = "/api-doc";
     }
 
+    /// <summary>
+    /// Security and authentication constants for OpenAPI.
+    /// </summary>
     public static class Security
     {
         public const string Auth0SchemeName = "auth0";
@@ -33,11 +34,9 @@ public static class Constants
         public const string Auth0Description = "Auth0 OAuth2 authentication";
     }
 
-    public static class Headers
-    {
-        public const string Tenant = MultiTenant.Abstractions.TenantConstants.HeaderName;
-    }
-
+    /// <summary>
+    /// Problem Details (RFC 7807) constants.
+    /// </summary>
     public static class ProblemDetails
     {
         public const string ContentType = "application/problem+json";
@@ -54,6 +53,9 @@ public static class Constants
         public const string OperationCancelled = "OPERATION_CANCELLED";
         public const string Timeout = "TIMEOUT";
 
+        /// <summary>
+        /// Problem Details field names.
+        /// </summary>
         public static class Fields
         {
             public const string Type = "type";

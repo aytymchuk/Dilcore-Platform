@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\Authentication\Authentication.Http.Extensions\Authentication.Http.Extensions.csproj" />
     <ProjectReference Include="..\..\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
     <ProjectReference Include="..\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Configuration\Configuration.AspNetCore\Configuration.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>

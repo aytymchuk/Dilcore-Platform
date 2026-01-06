@@ -1,7 +1,6 @@
 using Dilcore.MediatR.Abstractions;
 using FluentResults;
 using Dilcore.WebApi.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace Dilcore.WebApi.Features.WeatherForecast;
 

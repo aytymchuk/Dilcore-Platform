@@ -1,4 +1,4 @@
-namespace Dilcore.FluentResults;
+namespace Dilcore.Results.Abstractions;
 
 public class ValidationError : AppError
 {

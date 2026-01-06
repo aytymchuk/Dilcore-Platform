@@ -1,8 +1,8 @@
+using Dilcore.Results.Abstractions;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
-using System.Net;
 
-namespace Dilcore.FluentResults.Extensions.Api;
+namespace Dilcore.Results.Extensions.Api;
 
 public static class ResultExtensions
 {
@@ -10,7 +10,7 @@ public static class ResultExtensions
     {
         if (result.IsSuccess)
         {
-            return Results.Ok(result.Value);
+            return Microsoft.AspNetCore.Http.Results.Ok(result.Value);
         }
 
         return result.ToProblemDetails();
@@ -20,7 +20,7 @@ public static class ResultExtensions
     {
         if (result.IsSuccess)
         {
-            return Results.Ok();
+            return Microsoft.AspNetCore.Http.Results.Ok();
         }
 
         return result.ToProblemDetails();
@@ -30,7 +30,7 @@ public static class ResultExtensions
     {
         if (result.Errors.Count == 0)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: "An unexpected error occurred.");
+            return Microsoft.AspNetCore.Http.Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: "An unexpected error occurred.");
         }
 
         var error = result.Errors.First(); // Use primary error for main status
@@ -80,7 +80,7 @@ public static class ResultExtensions
             { ProblemDetailsFields.Errors, result.Errors.Select(e => new { e.Message, Metadata = e.Metadata }).ToArray() }
         };
 
-        return Results.Problem(
+        return Microsoft.AspNetCore.Http.Results.Problem(
             statusCode: statusCode,
             title: title,
             detail: error.Message,

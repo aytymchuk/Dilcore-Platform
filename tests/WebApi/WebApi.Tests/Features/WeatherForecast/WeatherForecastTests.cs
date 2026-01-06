@@ -1,8 +1,6 @@
 using Dilcore.WebApi.Features.WeatherForecast;
-using Dilcore.WebApi.Extensions;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Shouldly;
+using Dilcore.Tests.Common;
 
 namespace Dilcore.WebApi.Tests.Features.WeatherForecast;
 
@@ -35,7 +33,7 @@ public class WeatherForecastTests
     public async Task CreateWeatherForecast_ShouldReturnRequestData()
     {
         // Arrange
-        var handler = new CreateWeatherForecastHandler();
+        var handler = new CreateWeatherForecastHandler(TimeProvider.System);
         var command = new CreateWeatherForecastCommand
         {
             TemperatureC = 25,
@@ -54,16 +52,4 @@ public class WeatherForecastTests
     }
 }
 
-public class ListLogger<T> : ILogger<T>
-{
-    public List<string> Logs { get; } = new();
 
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-
-    public bool IsEnabled(LogLevel logLevel) => true;
-
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-    {
-        Logs.Add(formatter(state, exception));
-    }
-}

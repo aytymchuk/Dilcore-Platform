@@ -1,4 +1,4 @@
-namespace Dilcore.OpenTelemetry.Extensions;
+namespace Dilcore.Telemetry.Extensions.OpenTelemetry;
 
 public record TelemetrySettings
 {

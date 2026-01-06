@@ -1,8 +1,8 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.Results.Extensions.Api;
 using Dilcore.WebApi.Features.WeatherForecast;
 using Dilcore.WebApi.Infrastructure.Validation;
-using Dilcore.FluentResults.Extensions.Api;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -58,16 +58,16 @@ public static class EndpointExtensions
         var group = app.MapGroup("/weatherforecast")
             .WithTags("WeatherForecast");
 
-        group.MapGet("/", async (IMediator mediator) =>
+        group.MapGet("/", async (IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new GetWeatherForecastQuery());
+            var result = await mediator.Send(new GetWeatherForecastQuery(), cancellationToken);
             return result.ToMinimalApiResult();
         })
         .WithName("GetWeatherForecast");
 
-        group.MapPost("/", async (IMediator mediator, CreateWeatherForecastCommand command) =>
+        group.MapPost("/", async (IMediator mediator, CreateWeatherForecastCommand command, CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(command);
+            var result = await mediator.Send(command, cancellationToken);
             return result.ToMinimalApiResult();
         })
         .WithName("CreateWeatherForecast");
@@ -77,7 +77,7 @@ public static class EndpointExtensions
     {
         app.MapPost("/test/validation", (ValidationDto dto) =>
         {
-            return Results.Ok(new
+            return Microsoft.AspNetCore.Http.Results.Ok(new
             {
                 message = "Validation passed successfully!",
                 data = dto
@@ -93,17 +93,19 @@ public static class EndpointExtensions
 
     private static void MapTestTenantEndpoint(this WebApplication app)
     {
-        app.MapGet("/test/tenant-info", (ITenantContext tenantContext) =>
+        app.MapGet("/test/tenant-info", (ITenantContextResolver tenantContextResolver) =>
         {
+            var tenantContext = tenantContextResolver.Resolve();
+
             if (tenantContext.Name is null)
             {
-                return Results.Problem(
+                return Microsoft.AspNetCore.Http.Results.Problem(
                     title: "Tenant Not Found",
                     detail: "No tenant could be resolved from the request. Please provide a valid x-tenant header.",
                     statusCode: 400);
             }
 
-            return Results.Ok(new
+            return Microsoft.AspNetCore.Http.Results.Ok(new
             {
                 tenantName = tenantContext.Name,
                 storageIdentifier = tenantContext.StorageIdentifier
@@ -119,7 +121,7 @@ public static class EndpointExtensions
     {
         app.MapGet("/test/public-info", () =>
         {
-            return Results.Ok(new
+            return Microsoft.AspNetCore.Http.Results.Ok(new
             {
                 message = "This is a public endpoint that does not require tenant context",
                 timestamp = DateTime.UtcNow
@@ -140,13 +142,13 @@ public static class EndpointExtensions
 
             if (userContext.Id == UserContext.Empty.Id)
             {
-                return Results.Problem(
+                return Microsoft.AspNetCore.Http.Results.Problem(
                     title: "User Not Found",
                     detail: "No user could be resolved from the request. Please provide valid authentication.",
                     statusCode: 401);
             }
 
-            return Results.Ok(new
+            return Microsoft.AspNetCore.Http.Results.Ok(new
             {
                 userId = userContext.Id,
                 email = userContext.Email,

@@ -1,4 +1,4 @@
-namespace Dilcore.FluentResults.Extensions.Api;
+namespace Dilcore.Results.Extensions.Api;
 
 internal static class ProblemDetailsFields
 {

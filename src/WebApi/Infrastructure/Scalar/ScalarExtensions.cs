@@ -12,7 +12,7 @@ public static class ScalarExtensions
         var appSettings = configuration.GetRequiredSettings<ApplicationSettings>();
         var authSettings = configuration.GetRequiredSettings<AuthenticationSettings>();
 
-        var buildVersion = configuration[Constants.Configuration.BuildVersionKey] ?? Constants.Configuration.DefaultBuildVersion;
+        var buildVersion = configuration[Configuration.AspNetCore.Constants.BuildVersionKey] ?? Configuration.AspNetCore.Constants.DefaultBuildVersion;
         var appName = appSettings.Name;
 
         app.MapScalarApiReference(Constants.Scalar.Endpoint, options =>

@@ -7,7 +7,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Dilcore.OpenTelemetry.Extensions;
+namespace Dilcore.Telemetry.Extensions.OpenTelemetry;
 
 public static class TelemetryExtensions
 {
@@ -15,9 +15,7 @@ public static class TelemetryExtensions
     {
         var settings = configuration.GetSection(nameof(TelemetrySettings)).Get<TelemetrySettings>() ?? new TelemetrySettings();
         services.AddSingleton(settings);
-        var serviceVersion = configuration[Constants.BuildVersionKey] ?? Constants.DefaultBuildVersion;
-
-        services.AddHttpContextAccessor();
+        var serviceVersion = configuration[Dilcore.Configuration.AspNetCore.Constants.BuildVersionKey] ?? Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion;
 
         services.AddHttpContextAccessor();
 
@@ -34,7 +32,6 @@ public static class TelemetryExtensions
         {
             lpBuilder.AddProcessor(sp.GetRequiredService<UnifiedLogRecordProcessor>());
         });
-
 
         var otel = services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(env.ApplicationName, serviceVersion: serviceVersion));

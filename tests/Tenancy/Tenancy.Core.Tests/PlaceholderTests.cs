@@ -1,6 +1,4 @@
 
-using NUnit.Framework;
-
 namespace Dilcore.Tenancy.Core.Tests;
 
 public class PlaceholderTests

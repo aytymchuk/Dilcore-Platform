@@ -39,7 +39,7 @@ public sealed class TenantContextResolver : ITenantContextResolver
             var context = provider.GetTenantContext();
             if (context != null)
             {
-                _logger.LogTenantResolved(provider.GetType().Name, context.Name);
+                _logger.LogTenantResolved(provider.GetType().Name, context.Name ?? "Unknown");
                 tenantContext = context;
                 return true;
             }

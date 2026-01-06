@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 
-namespace Dilcore.OpenTelemetry.Extensions;
+namespace Dilcore.Telemetry.Extensions.OpenTelemetry;
 
 /// <summary>
 /// Unified processor that enriches OpenTelemetry activities (traces) with attributes from all registered providers.
