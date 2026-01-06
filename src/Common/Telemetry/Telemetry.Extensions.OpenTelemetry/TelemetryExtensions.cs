@@ -6,46 +6,40 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-
 namespace Dilcore.Telemetry.Extensions.OpenTelemetry;
-
 public static class TelemetryExtensions
 {
     public static IServiceCollection AddTelemetry(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
     {
         var settings = configuration.GetSection(nameof(TelemetrySettings)).Get<TelemetrySettings>() ?? new TelemetrySettings();
         services.AddSingleton(settings);
+
         var serviceVersion = configuration[Dilcore.Configuration.AspNetCore.Constants.BuildVersionKey] ?? Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion;
 
         services.AddHttpContextAccessor();
-
         // Register unified processors
         services.AddSingleton<UnifiedLogRecordProcessor>();
         services.AddSingleton<UnifiedActivityProcessor>();
-
         services.ConfigureOpenTelemetryTracerProvider((sp, tpBuilder) =>
         {
             tpBuilder.AddProcessor(sp.GetRequiredService<UnifiedActivityProcessor>());
         });
-
         services.ConfigureOpenTelemetryLoggerProvider((sp, lpBuilder) =>
         {
             lpBuilder.AddProcessor(sp.GetRequiredService<UnifiedLogRecordProcessor>());
         });
-
         var otel = services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(env.ApplicationName, serviceVersion: serviceVersion));
-
         if (!string.IsNullOrEmpty(settings.ApplicationInsightsConnectionString))
         {
-            // UseAzureMonitor handles its own instrumentation (AspNetCore, HttpClient, etc.)
+            // UseAzureMonitor adds AspNetCore instrumentation but NOT HttpClient
             otel.UseAzureMonitor(options => options.ConnectionString = settings.ApplicationInsightsConnectionString);
 
-            // Explicitly configure tracing with custom sources AND HttpClient
+            // Add custom sources and HttpClient instrumentation
             otel.WithTracing(tracing =>
             {
                 tracing.AddSource("Application.Operations");
-                tracing.AddHttpClientInstrumentation(); // Ensure HttpClient instrumentation is properly configured
+                tracing.AddHttpClientInstrumentation(); // Required for outbound HTTP request tracing
             });
         }
         else
@@ -66,7 +60,6 @@ public static class TelemetryExtensions
                 })
                 .WithLogging(logging => logging.AddConsoleExporter());
         }
-
         return services;
     }
 }
