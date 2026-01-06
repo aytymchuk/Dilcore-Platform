@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Dilcore.Results.Abstractions;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -32,15 +33,15 @@ public static class ProblemDetailsExtensions
                 {
                     context.ProblemDetails.Type = context.ProblemDetails.Status switch
                     {
-                        StatusCodes.Status400BadRequest => $"{Constants.ProblemDetails.TypeBaseUri}/bad-request",
-                        StatusCodes.Status401Unauthorized => $"{Constants.ProblemDetails.TypeBaseUri}/unauthorized",
-                        StatusCodes.Status403Forbidden => $"{Constants.ProblemDetails.TypeBaseUri}/forbidden",
-                        StatusCodes.Status404NotFound => $"{Constants.ProblemDetails.TypeBaseUri}/not-found",
-                        StatusCodes.Status409Conflict => $"{Constants.ProblemDetails.TypeBaseUri}/conflict",
-                        StatusCodes.Status422UnprocessableEntity => $"{Constants.ProblemDetails.TypeBaseUri}/validation-error",
-                        StatusCodes.Status500InternalServerError => $"{Constants.ProblemDetails.TypeBaseUri}/internal-error",
-                        StatusCodes.Status501NotImplemented => $"{Constants.ProblemDetails.TypeBaseUri}/not-implemented",
-                        _ => $"{Constants.ProblemDetails.TypeBaseUri}/error"
+                        StatusCodes.Status400BadRequest => $"{ProblemDetailsConstants.TypeBaseUri}/bad-request",
+                        StatusCodes.Status401Unauthorized => $"{ProblemDetailsConstants.TypeBaseUri}/unauthorized",
+                        StatusCodes.Status403Forbidden => $"{ProblemDetailsConstants.TypeBaseUri}/forbidden",
+                        StatusCodes.Status404NotFound => $"{ProblemDetailsConstants.TypeBaseUri}/not-found",
+                        StatusCodes.Status409Conflict => $"{ProblemDetailsConstants.TypeBaseUri}/conflict",
+                        StatusCodes.Status422UnprocessableEntity => $"{ProblemDetailsConstants.TypeBaseUri}/validation-error",
+                        StatusCodes.Status500InternalServerError => $"{ProblemDetailsConstants.TypeBaseUri}/internal-error",
+                        StatusCodes.Status501NotImplemented => $"{ProblemDetailsConstants.TypeBaseUri}/not-implemented",
+                        _ => $"{ProblemDetailsConstants.TypeBaseUri}/error"
                     };
                 }
 

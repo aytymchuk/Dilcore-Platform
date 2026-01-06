@@ -1,4 +1,5 @@
 using System.Reflection;
+using Dilcore.Results.Abstractions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Shouldly;
 
@@ -25,7 +26,7 @@ public class GlobalExceptionHandlerTests
     {
         // Arrange
         var errorCode = "SOME_ERROR_CODE";
-        var expectedUri = $"{Constants.ProblemDetails.TypeBaseUri}/some-error-code";
+        var expectedUri = $"{ProblemDetailsConstants.TypeBaseUri}/some-error-code";
 
         // Act
         var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
@@ -39,7 +40,7 @@ public class GlobalExceptionHandlerTests
     {
         // Arrange
         var errorCode = "Mixed_Case_Underscore_Code";
-        var expectedUri = $"{Constants.ProblemDetails.TypeBaseUri}/mixed-case-underscore-code";
+        var expectedUri = $"{ProblemDetailsConstants.TypeBaseUri}/mixed-case-underscore-code";
 
         // Act
         var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
@@ -53,7 +54,7 @@ public class GlobalExceptionHandlerTests
     {
         // Arrange
         string? errorCode = null;
-        var expectedUri = Constants.ProblemDetails.TypeBaseUri;
+        var expectedUri = ProblemDetailsConstants.TypeBaseUri;
 
         // Act
         var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
@@ -67,7 +68,7 @@ public class GlobalExceptionHandlerTests
     {
         // Arrange
         var errorCode = "";
-        var expectedUri = Constants.ProblemDetails.TypeBaseUri;
+        var expectedUri = ProblemDetailsConstants.TypeBaseUri;
 
         // Act
         var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
@@ -81,7 +82,7 @@ public class GlobalExceptionHandlerTests
     {
         // Arrange
         var errorCode = "   ";
-        var expectedUri = Constants.ProblemDetails.TypeBaseUri;
+        var expectedUri = ProblemDetailsConstants.TypeBaseUri;
 
         // Act
         var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;

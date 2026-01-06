@@ -1,6 +1,8 @@
 using System.Net;
+using System.Text.Json;
 using Dilcore.Authentication.Abstractions.Exceptions;
 using Dilcore.MultiTenant.Abstractions.Exceptions;
+using Dilcore.Results.Abstractions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,10 +55,10 @@ public sealed partial class GlobalExceptionHandler(
     {
         if (string.IsNullOrWhiteSpace(errorCode))
         {
-            return Constants.ProblemDetails.TypeBaseUri;
+            return ProblemDetailsConstants.TypeBaseUri;
         }
 
-        return $"{Constants.ProblemDetails.TypeBaseUri}/{errorCode.ToLowerInvariant().Replace('_', '-')}";
+        return $"{ProblemDetailsConstants.TypeBaseUri}/{errorCode.ToLowerInvariant().Replace('_', '-')}";
     }
 
     /// <summary>
@@ -66,36 +68,36 @@ public sealed partial class GlobalExceptionHandler(
     {
         return exception switch
         {
-            ArgumentNullException =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Validation Error"),
-            ArgumentException =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.ValidationError, "Validation Error"),
-            BadHttpRequestException =>
+            ArgumentNullException _ =>
+                (HttpStatusCode.BadRequest, ProblemDetailsConstants.ValidationError, "Validation Error"),
+            ArgumentException _ =>
+                (HttpStatusCode.BadRequest, ProblemDetailsConstants.ValidationError, "Validation Error"),
+            BadHttpRequestException _ =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.InvalidRequest, "Invalid Request"),
-            System.Text.Json.JsonException =>
+            JsonException _ =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.JsonParseError, "Invalid JSON Format"),
-            FormatException =>
+            FormatException _ =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.FormatError, "Invalid Format"),
-            KeyNotFoundException =>
-                (HttpStatusCode.NotFound, Constants.ProblemDetails.NotFound, "Resource Not Found"),
-            UnauthorizedAccessException =>
-                (HttpStatusCode.Unauthorized, Constants.ProblemDetails.Unauthorized, "Unauthorized"),
-            InvalidOperationException =>
-                (HttpStatusCode.InternalServerError, Constants.ProblemDetails.UnexpectedError, "Internal Server Error"),
-            NotSupportedException =>
-                (HttpStatusCode.NotImplemented, Constants.ProblemDetails.NotImplemented, "Not Implemented"),
-            NotImplementedException =>
-                (HttpStatusCode.NotImplemented, Constants.ProblemDetails.NotImplemented, "Not Implemented"),
-            OperationCanceledException =>
-                (HttpStatusCode.BadRequest, Constants.ProblemDetails.OperationCancelled, "Operation Cancelled"),
-            TimeoutException =>
-                (HttpStatusCode.RequestTimeout, Constants.ProblemDetails.Timeout, "Request Timeout"),
-            TenantNotResolvedException =>
+            KeyNotFoundException _ =>
+                (HttpStatusCode.NotFound, ProblemDetailsConstants.NotFound, "Resource Not Found"),
+            UnauthorizedAccessException _ =>
+                (HttpStatusCode.Unauthorized, ProblemDetailsConstants.Unauthorized, "Unauthorized"),
+            InvalidOperationException _ =>
+                (HttpStatusCode.InternalServerError, ProblemDetailsConstants.UnexpectedError, "Internal Server Error"),
+            NotSupportedException _ =>
+                (HttpStatusCode.NotImplemented, ProblemDetailsConstants.NotImplemented, "Not Implemented"),
+            NotImplementedException _ =>
+                (HttpStatusCode.NotImplemented, ProblemDetailsConstants.NotImplemented, "Not Implemented"),
+            OperationCanceledException _ =>
+                (HttpStatusCode.BadRequest, ProblemDetailsConstants.OperationCancelled, "Operation Cancelled"),
+            TimeoutException _ =>
+                (HttpStatusCode.RequestTimeout, ProblemDetailsConstants.Timeout, "Request Timeout"),
+            TenantNotResolvedException _ =>
                 (HttpStatusCode.BadRequest, Constants.ProblemDetails.TenantNotResolved, "Tenant Not Resolved"),
-            UserNotResolvedException =>
+            UserNotResolvedException _ =>
                 (HttpStatusCode.Unauthorized, Constants.ProblemDetails.UserNotResolved, "User Not Resolved"),
             _ =>
-                (HttpStatusCode.InternalServerError, Constants.ProblemDetails.UnexpectedError, "An unexpected error occurred")
+                (HttpStatusCode.InternalServerError, ProblemDetailsConstants.UnexpectedError, "An unexpected error occurred")
         };
     }
 

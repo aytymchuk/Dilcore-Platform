@@ -38,8 +38,9 @@ public static class ResultExtensions
         // Default to 400 Bad Request
         var statusCode = StatusCodes.Status400BadRequest;
         var title = "Bad Request";
-        var type = error is AppError appError ? appError.Type : ErrorType.Failure;
-        var code = error is AppError appErrorCode ? appErrorCode.Code : ProblemDetailsConstants.UnexpectedError;
+        var (type, code) = error is AppError appError
+            ? (appError.Type, appError.Code)
+            : (ErrorType.Failure, ProblemDetailsConstants.UnexpectedError);
 
         switch (type)
         {
@@ -77,7 +78,7 @@ public static class ResultExtensions
         var extensions = new Dictionary<string, object?>
         {
             { ProblemDetailsFields.ErrorCode, code },
-            { ProblemDetailsFields.Errors, result.Errors.Select(e => new { e.Message, Metadata = e.Metadata }).ToArray() }
+            { ProblemDetailsFields.Errors, result.Errors.Select(e => new { e.Message }).ToArray() }
         };
 
         return Microsoft.AspNetCore.Http.Results.Problem(

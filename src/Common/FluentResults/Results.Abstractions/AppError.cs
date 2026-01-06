@@ -15,8 +15,6 @@ public abstract class AppError : Error
     {
         Code = code;
         Type = type;
-        Metadata.Add("Code", code);
-        Metadata.Add("Type", type.ToString());
     }
 }
 

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using Shouldly;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
+using Dilcore.Results.Abstractions;
 
 namespace Dilcore.WebApi.IntegrationTests;
 
@@ -327,7 +328,7 @@ public class ValidationTests : BaseIntegrationTest
         // Assert
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.TryGetProperty("type", out var type).ShouldBeTrue();
-        type.GetString().ShouldBe($"{Constants.ProblemDetails.TypeBaseUri}/data-validation-failed");
+        type.GetString().ShouldBe($"{ProblemDetailsConstants.TypeBaseUri}/data-validation-failed"); // Updated this line
     }
 
     [Test]

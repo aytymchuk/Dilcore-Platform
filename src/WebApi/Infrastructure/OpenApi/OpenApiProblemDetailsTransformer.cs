@@ -1,6 +1,9 @@
+using Dilcore.Results.Abstractions;
+using Dilcore.WebApi.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;
@@ -97,7 +100,7 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
             Description = description,
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                [Constants.ProblemDetails.ContentType] = new()
+                [ProblemDetailsConstants.ContentType] = new()
                 {
                     Schema = (OpenApiSchema)schema
                 }

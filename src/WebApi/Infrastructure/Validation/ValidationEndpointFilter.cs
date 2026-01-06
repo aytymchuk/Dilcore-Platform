@@ -1,3 +1,4 @@
+using Dilcore.Results.Abstractions;
 using Dilcore.WebApi.Extensions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -79,7 +80,7 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
             errors,
             title: Constants.ProblemDetails.DataValidationTitle,
             detail: Constants.ProblemDetails.DataValidationDetail,
-            type: $"{Constants.ProblemDetails.TypeBaseUri}/data-validation-failed",
+            type: $"{ProblemDetailsConstants.TypeBaseUri}/data-validation-failed",
             extensions: new Dictionary<string, object?>
             {
                 [Constants.ProblemDetails.Fields.ErrorCode] = Constants.ProblemDetails.DataValidationFailed
