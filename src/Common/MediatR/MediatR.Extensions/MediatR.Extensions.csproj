@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediatR.Abstractions\MediatR.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Telemetry\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,7 +1,10 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.WebApi.Features.WeatherForecast;
 using Dilcore.WebApi.Infrastructure.Validation;
+using Dilcore.FluentResults.Extensions.Api;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dilcore.WebApi.Extensions;
@@ -52,21 +55,22 @@ public static class EndpointExtensions
 
     private static void MapWeatherForecastEndpoint(this WebApplication app)
     {
-        app.MapGet("/weatherforecast", (ILogger<Program> logger) =>
-        {
-            logger.LogGettingWeatherForecast(5);
+        var group = app.MapGroup("/weatherforecast")
+            .WithTags("WeatherForecast");
 
-            var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    Summaries[Random.Shared.Next(Summaries.Length)]
-                ))
-                .ToArray();
-            return forecast;
+        group.MapGet("/", async (IMediator mediator) =>
+        {
+            var result = await mediator.Send(new GetWeatherForecastQuery());
+            return result.ToMinimalApiResult();
         })
         .WithName("GetWeatherForecast");
+
+        group.MapPost("/", async (IMediator mediator, CreateWeatherForecastCommand command) =>
+        {
+            var result = await mediator.Send(command);
+            return result.ToMinimalApiResult();
+        })
+        .WithName("CreateWeatherForecast");
     }
 
     private static void MapTestValidationEndpoint(this WebApplication app)

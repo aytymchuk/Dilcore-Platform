@@ -9,5 +9,5 @@ internal static partial class LoggerExtensions
     public static partial void LogNoTenantResolved(this ILogger logger);
 
     [LoggerMessage(LogLevel.Debug, "Tenant resolved by {Provider}: {TenantName}")]
-    public static partial void LogTenantResolved(this ILogger logger, string provider, string tenantName);
+    public static partial void LogTenantResolved(this ILogger logger, string provider, string? tenantName);
 }

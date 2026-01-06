@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentResults" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Results.Abstractions\Results.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

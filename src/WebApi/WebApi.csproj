@@ -33,6 +33,8 @@
     <ProjectReference Include="..\Common\Telemetry\Telemetry.Abstractions\Telemetry.Abstractions.csproj" />
     <ProjectReference Include="..\Common\Telemetry\Telemetry.Extensions.OpenTelemetry\Telemetry.Extensions.OpenTelemetry.csproj" />
     <ProjectReference Include="..\Common\Configuration\Configuration.AspNetCore\Configuration.AspNetCore.csproj" />
+    <ProjectReference Include="..\Common\MediatR\MediatR.Extensions\MediatR.Extensions.csproj" />
+    <ProjectReference Include="..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
   </ItemGroup>
 
 </Project>
