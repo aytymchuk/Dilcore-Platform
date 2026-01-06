@@ -29,8 +29,8 @@ public static class MultiTenantExtensions
             });
 
         // 2. Register providers
-        services.AddSingleton<ITenantContextProvider, HttpTenantContextProvider>();
-        services.AddSingleton<ITelemetryAttributeProvider, TenantAttributeProvider>();
+        services.AddTenantContextProvider<HttpTenantContextProvider>();
+        services.AddTelemetryAttributeProvider<TenantAttributeProvider>();
 
         // 3. Register resolver
         services.AddSingleton<ITenantContextResolver, TenantContextResolver>();
