@@ -1,7 +1,7 @@
-using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Settings;
 using Scalar.AspNetCore;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Dilcore.Configuration.Extensions;
 
 namespace Dilcore.WebApi.Infrastructure.Scalar;
 

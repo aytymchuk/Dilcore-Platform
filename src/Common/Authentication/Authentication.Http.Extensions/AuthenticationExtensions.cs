@@ -40,7 +40,8 @@ public static class AuthenticationExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContextProvider, HttpUserContextProvider>();
         services.AddScoped<IUserContextResolver, UserContextResolver>();
-        services.AddScoped<ITelemetryAttributeProvider, UserAttributeProvider>();
+        services.AddScoped<IUserContextResolver, UserContextResolver>();
+        services.AddSingleton<ITelemetryAttributeProvider, UserAttributeProvider>();
 
         return services;
     }

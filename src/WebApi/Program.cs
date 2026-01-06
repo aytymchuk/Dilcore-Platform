@@ -1,9 +1,11 @@
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.OpenTelemetry.Extensions;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
+using Dilcore.Configuration.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();

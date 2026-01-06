@@ -1,6 +1,6 @@
-using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Settings;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
+using Dilcore.Configuration.Extensions;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;
 

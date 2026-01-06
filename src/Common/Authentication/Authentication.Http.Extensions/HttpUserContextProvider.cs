@@ -28,6 +28,9 @@ public sealed class HttpUserContextProvider(IHttpContextAccessor httpContextAcce
         var fullName = user.FindFirst(UserConstants.NameClaimType)?.Value
                        ?? user.FindFirst(ClaimTypes.Name)?.Value;
 
-        return userId == null ? null : new UserContext(userId, email, fullName);
+        if (userId == null)
+            return null;
+
+        return new UserContext(userId, email, fullName);
     }
 }

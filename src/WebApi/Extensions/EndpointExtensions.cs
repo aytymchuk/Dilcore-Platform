@@ -134,7 +134,7 @@ public static class EndpointExtensions
         {
             var userContext = userContextResolver.Resolve();
 
-            if (userContext == UserContext.Empty)
+            if (userContext.Id == UserContext.Empty.Id)
             {
                 return Results.Problem(
                     title: "User Not Found",

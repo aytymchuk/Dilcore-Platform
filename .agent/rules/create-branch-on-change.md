@@ -1,3 +1,7 @@
+---
+trigger: glob
+---
+
 # Branch Management Context
 
 ## 1. Golden Rule

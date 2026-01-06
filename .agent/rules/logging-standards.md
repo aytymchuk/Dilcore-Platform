@@ -1,3 +1,8 @@
+---
+trigger: glob
+globs: *.cs
+---
+
 # Logging Standards
 
 ## Overview
