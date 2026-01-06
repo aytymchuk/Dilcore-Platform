@@ -1,20 +1,21 @@
 namespace Dilcore.WebApi;
 
+/// <summary>
+/// Constants for WebApi-specific functionality.
+/// </summary>
 public static class Constants
 {
-    public static class Configuration
-    {
-        public const string SharedKey = "Shared";
-        public const string AppConfigEndpointKey = "AppConfigEndpoint";
-        public const string BuildVersionKey = "BUILD_VERSION";
-        public const string DefaultBuildVersion = "local_development";
-    }
-
+    /// <summary>
+    /// Scalar API documentation constants.
+    /// </summary>
     public static class Scalar
     {
         public const string Endpoint = "/api-doc";
     }
 
+    /// <summary>
+    /// Security and authentication constants for OpenAPI.
+    /// </summary>
     public static class Security
     {
         public const string Auth0SchemeName = "auth0";
@@ -33,27 +34,14 @@ public static class Constants
         public const string Auth0Description = "Auth0 OAuth2 authentication";
     }
 
-    public static class Headers
-    {
-        public const string Tenant = MultiTenant.Abstractions.TenantConstants.HeaderName;
-    }
-
+    /// <summary>
+    /// Problem Details (RFC 9457, which obsoletes RFC 7807) field names.
+    /// </summary>
     public static class ProblemDetails
     {
-        public const string ContentType = "application/problem+json";
-        public const string TypeBaseUri = "https://api.dilcore.com/errors";
-
-        // Standard error codes
-        public const string UnexpectedError = "UNEXPECTED_ERROR";
-        public const string ValidationError = "VALIDATION_ERROR";
-        public const string NotFound = "NOT_FOUND";
-        public const string Unauthorized = "UNAUTHORIZED";
-        public const string Forbidden = "FORBIDDEN";
-        public const string Conflict = "CONFLICT";
-        public const string NotImplemented = "NOT_IMPLEMENTED";
-        public const string OperationCancelled = "OPERATION_CANCELLED";
-        public const string Timeout = "TIMEOUT";
-
+        /// <summary>
+        /// Problem Details field names.
+        /// </summary>
         public static class Fields
         {
             public const string Type = "type";
@@ -66,17 +54,5 @@ public static class Constants
             public const string Timestamp = "timestamp";
             public const string Errors = "errors";
         }
-
-        // Data validation specific
-        public const string DataValidationFailed = "DATA_VALIDATION_FAILED";
-        public const string DataValidationTitle = "Validation Failed";
-        public const string DataValidationDetail = "One or more validation errors occurred.";
-
-        // Parsing/Request errors
-        public const string InvalidRequest = "INVALID_REQUEST";
-        public const string JsonParseError = "JSON_PARSE_ERROR";
-        public const string FormatError = "FORMAT_ERROR";
-        public const string TenantNotResolved = "TENANT_NOT_RESOLVED";
-        public const string UserNotResolved = "USER_NOT_RESOLVED";
     }
 }

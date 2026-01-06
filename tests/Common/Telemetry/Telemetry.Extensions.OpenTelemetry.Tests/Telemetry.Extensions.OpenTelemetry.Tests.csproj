@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Common\Telemetry\Telemetry.Extensions.OpenTelemetry\Telemetry.Extensions.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Common\Authentication\Authentication.Http.Extensions\Authentication.Http.Extensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry" />
+  </ItemGroup>
+
+</Project>

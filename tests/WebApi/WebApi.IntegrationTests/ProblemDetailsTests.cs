@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Dilcore.Results.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
 
@@ -148,7 +149,7 @@ public class ProblemDetailsTests : BaseIntegrationTest
         // Assert
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.TryGetProperty("type", out var typeUri).ShouldBeTrue();
-        typeUri.GetString().ShouldStartWith($"{Constants.ProblemDetails.TypeBaseUri}/");
+        typeUri.GetString().ShouldBe($"{ProblemDetailsConstants.TypeBaseUri}/not-found");
     }
 
     [Test]

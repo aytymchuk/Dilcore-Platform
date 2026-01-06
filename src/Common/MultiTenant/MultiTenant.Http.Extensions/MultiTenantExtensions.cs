@@ -1,4 +1,6 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Http.Extensions.Telemetry;
+using Dilcore.Telemetry.Abstractions;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Finbuckle.MultiTenant.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +30,7 @@ public static class MultiTenantExtensions
 
         // 2. Register providers
         services.AddSingleton<ITenantContextProvider, HttpTenantContextProvider>();
+        services.AddSingleton<ITelemetryAttributeProvider, TenantAttributeProvider>();
 
         // 3. Register resolver
         services.AddSingleton<ITenantContextResolver, TenantContextResolver>();

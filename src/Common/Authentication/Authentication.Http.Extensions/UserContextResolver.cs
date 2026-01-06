@@ -6,7 +6,12 @@ namespace Dilcore.Authentication.Http.Extensions;
 
 /// <summary>
 /// Resolves user context lazily using registered providers.
-/// Scoped lifetime ensures resolution happens once per request.
+/// Registered as a singleton for use in telemetry enrichment (OpenTelemetry) where
+/// per-request scoped services are not available. The resolver safely accesses per-request
+/// data by delegating to IUserContextProvider implementations, which use IHttpContextAccessor
+/// to retrieve the current request's HttpContext. This design allows the singleton resolver
+/// to be injected into singleton telemetry processors while still resolving user data
+/// correctly for each request.
 /// </summary>
 public sealed class UserContextResolver : IUserContextResolver
 {

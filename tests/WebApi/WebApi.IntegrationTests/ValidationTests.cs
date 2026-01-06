@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using Shouldly;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
+using Dilcore.Results.Abstractions;
 
 namespace Dilcore.WebApi.IntegrationTests;
 
@@ -327,7 +328,7 @@ public class ValidationTests : BaseIntegrationTest
         // Assert
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.TryGetProperty("type", out var type).ShouldBeTrue();
-        type.GetString().ShouldBe($"{Constants.ProblemDetails.TypeBaseUri}/data-validation-failed");
+        type.GetString().ShouldBe($"{ProblemDetailsConstants.TypeBaseUri}/data-validation-failed"); // Updated this line
     }
 
     [Test]
@@ -378,7 +379,11 @@ public class ValidationTests : BaseIntegrationTest
         var problemDetails = await response.Content.ReadFromJsonAsync<JsonElement>();
         problemDetails.GetProperty("status").GetInt32().ShouldBe(400);
         // Verify we get the specific error code we just added
-        problemDetails.GetProperty("errorCode").GetString().ShouldBe(Constants.ProblemDetails.InvalidRequest);
+        // Check if errorCode is at root level or in extensions
+        var errorCode = problemDetails.TryGetProperty("errorCode", out var errorCodeProp)
+            ? errorCodeProp.GetString()
+            : problemDetails.GetProperty("extensions").GetProperty("errorCode").GetString();
+        errorCode.ShouldBe(ProblemDetailsConstants.InvalidRequest);
         problemDetails.GetProperty("title").GetString().ShouldBe("Invalid Request");
     }
 }

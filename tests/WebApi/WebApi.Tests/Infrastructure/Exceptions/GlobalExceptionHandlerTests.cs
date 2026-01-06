@@ -1,90 +1,79 @@
-using System.Reflection;
-using Dilcore.WebApi.Infrastructure.Exceptions;
+using Dilcore.Results.Abstractions;
 using Shouldly;
 
 namespace Dilcore.WebApi.Tests.Infrastructure.Exceptions;
 
+/// <summary>
+/// Tests for BuildTypeUri method in ProblemDetailsHelper.
+/// </summary>
 [TestFixture]
 public class GlobalExceptionHandlerTests
 {
-    private MethodInfo _buildProblemTypeUriMethod = null!;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-    {
-        var methodInfo = typeof(GlobalExceptionHandler)
-            .GetMethod("BuildProblemTypeUri", BindingFlags.NonPublic | BindingFlags.Static);
-
-        methodInfo.ShouldNotBeNull("BuildProblemTypeUri method should be found via reflection");
-
-        _buildProblemTypeUriMethod = methodInfo;
-    }
-
     [Test]
-    public void BuildProblemTypeUri_ValidErrorCode_ReturnsFormattedUri()
+    public void BuildTypeUri_ValidErrorCode_ReturnsFormattedUri()
     {
         // Arrange
         var errorCode = "SOME_ERROR_CODE";
-        var expectedUri = $"{Constants.ProblemDetails.TypeBaseUri}/some-error-code";
+        var expectedUri = $"{ProblemDetailsConstants.TypeBaseUri}/some-error-code";
 
         // Act
-        var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
+        var result = ProblemDetailsHelper.BuildTypeUri(errorCode);
 
         // Assert
         result.ShouldBe(expectedUri);
     }
 
     [Test]
-    public void BuildProblemTypeUri_MixedCaseWithUnderscores_ReturnsKebabCase()
+    public void BuildTypeUri_MixedCaseWithUnderscores_ReturnsKebabCase()
     {
         // Arrange
         var errorCode = "Mixed_Case_Underscore_Code";
-        var expectedUri = $"{Constants.ProblemDetails.TypeBaseUri}/mixed-case-underscore-code";
+        var expectedUri = $"{ProblemDetailsConstants.TypeBaseUri}/mixed-case-underscore-code";
 
         // Act
-        var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
+        var result = ProblemDetailsHelper.BuildTypeUri(errorCode);
 
         // Assert
         result.ShouldBe(expectedUri);
     }
 
     [Test]
-    public void BuildProblemTypeUri_NullErrorCode_ReturnsBaseUri()
+    public void BuildTypeUri_NullErrorCode_ReturnsBaseUri()
     {
         // Arrange
         string? errorCode = null;
-        var expectedUri = Constants.ProblemDetails.TypeBaseUri;
+        var expectedUri = ProblemDetailsConstants.TypeBaseUri;
 
         // Act
-        var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
+        var result = ProblemDetailsHelper.BuildTypeUri(errorCode!);
 
         // Assert
         result.ShouldBe(expectedUri);
     }
 
     [Test]
-    public void BuildProblemTypeUri_EmptyErrorCode_ReturnsBaseUri()
+    public void BuildTypeUri_EmptyErrorCode_ReturnsBaseUri()
     {
         // Arrange
         var errorCode = "";
-        var expectedUri = Constants.ProblemDetails.TypeBaseUri;
+        var expectedUri = ProblemDetailsConstants.TypeBaseUri;
 
         // Act
-        var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
+        var result = ProblemDetailsHelper.BuildTypeUri(errorCode);
 
         // Assert
         result.ShouldBe(expectedUri);
     }
 
     [Test]
-    public void BuildProblemTypeUri_WhitespaceErrorCode_ReturnsBaseUri()
+    public void BuildTypeUri_WhitespaceErrorCode_ReturnsBaseUri()
     {
         // Arrange
         var errorCode = "   ";
-        var expectedUri = Constants.ProblemDetails.TypeBaseUri;
+        var expectedUri = ProblemDetailsConstants.TypeBaseUri;
 
         // Act
-        var result = _buildProblemTypeUriMethod.Invoke(null, [errorCode]) as string;
+        var result = ProblemDetailsHelper.BuildTypeUri(errorCode);
 
         // Assert
         result.ShouldBe(expectedUri);

@@ -13,13 +13,76 @@ Enables multitenancy capabilities within the platform. This domain manages tenan
 ### Identity
 Handles user management at the platform level. It manages users and their relationships to tenants, including defining access levels and permissions.
 
+
+### Common
+Shared libraries and infrastructure components used across all domains.
+- **MediatR**: Provides CQRS infrastructure with built-in logging and distributed tracing.
+- **MultiTenant**: Common infrastructure for tenant resolution, context management, and logging. Supports header-based and path-based resolution strategies.
+- **FluentResults**: Extensions for Minimal APIs (`ToMinimalApiResult`) and standardized error handling.
+- **Telemetry**: OpenTelemetry integration and consolidated telemetry setup.
+- **Authentication**: Shared abstractions for user context and attribute providers.
+- **Configuration**: Extensions for standardized configuration loading and validation across services.
+
+#### Dependency Graph (Common)
+
+```mermaid
+graph TD
+    %% Telemetry Core
+    TelAbs["Telemetry.Abstractions"]
+    
+    %% Authentication
+    AuthAbs["Authentication.Abstractions"]
+    Auth0["Authentication.Auth0"]
+    AuthHttp["Authentication.Http.Extensions"]
+    
+    Auth0 --> AuthAbs
+    AuthHttp --> AuthAbs
+    AuthHttp --> Auth0
+    AuthHttp --> TelAbs
+    
+    %% MultiTenant
+    MTAbs["MultiTenant.Abstractions"]
+    MTHttp["MultiTenant.Http.Extensions"]
+    
+    MTHttp --> MTAbs
+    MTHttp --> TelAbs
+    
+    %% MediatR
+    MedAbs["MediatR.Abstractions"]
+    MedExt["MediatR.Extensions"]
+    
+    MedExt --> MedAbs
+    MedExt --> TelAbs
+    
+    %% FluentResults
+    ResAbs["Results.Abstractions"]
+    ResExt["Results.Extensions.Api"]
+    
+    ResExt --> ResAbs
+    
+    %% Configuration
+    ConfigExt["Configuration.Extensions"]
+    ConfigAsp["Configuration.AspNetCore"]
+    
+    ConfigAsp --> ConfigExt
+    
+    %% OpenTelemetry Aggregation
+    TelOT["Telemetry.Extensions.OpenTelemetry"]
+    
+    TelOT --> TelAbs
+    TelOT --> AuthAbs
+    TelOT --> AuthHttp
+    TelOT --> MTHttp
+```
+
 ### WebApi
 The main entry point for the platform. It is a Minimal API project that hosts the modular monolith. It aggregates APIs from all domains and provides a unified interface.
 - **Documentation**: Uses [Scalar](https://github.com/scalar/scalar) (available at `/api-doc`) for verifying the OpenAPI V3 specification. 
     - Provides an interactive API reference.
     - Includes authentication support for testing secure endpoints.
 - **Error Handling**: Implements standardized **Problem Details** (RFC 7807) for all API errors.
-    - **Extensions**: Custom fields `traceId`, `errorCode`, and `timestamp` are added to the standard schema for better debugging.
+    - **Extensions**: Custom fields `traceId`, `errorCode`, and `requestTime` are included.
+    - **Integration**: `FluentResults` extensions map domain errors directly to standard HTTP status codes (`VALIDATION_ERROR` -> 400, `NOT_FOUND` -> 404, etc.) with consistent `type` URIs.
     - **Compatibility**: Uses `Microsoft.AspNetCore.OpenApi` (v10) with a custom transformer to generate referenced schemas compatible with Scalar and other tools.
 - **Validation**: Uses [FluentValidation](https://docs.fluentvalidation.net/) for defining strongly-typed rules.
     - **Automatic Registration**: Validators inheriting from `AbstractValidator<T>` are automatically discovered and registered.

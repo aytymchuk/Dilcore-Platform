@@ -1,3 +1,8 @@
+---
+trigger: glob
+globs: *.csproj
+---
+
 # Project Configuration Standards
 
 ## Core Principle
@@ -29,7 +34,7 @@ Additionally inherit from `tests/Directory.Build.props`:
 ### ❌ NEVER Include in Project Files
 
 **PropertyGroup settings:**
-- `TargetFramework`, `ImplicitUsings`, `Nullable`, `Deterministic` (all projects)
+- `TargetFramework`, `ImplicitUsings`, `Nullable`, `Deterministic`, `RootNamespace` (all projects)
 - `IsPackable`, `IsTestProject` (test projects)
 - `LangVersion` (unless specific override needed)
 

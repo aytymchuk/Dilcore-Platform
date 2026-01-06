@@ -1,9 +1,12 @@
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.MediatR.Extensions;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
+using Dilcore.Configuration.AspNetCore;
+using Dilcore.Telemetry.Extensions.OpenTelemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
@@ -18,6 +21,8 @@ builder.Services.AddCorsPolicy();
 builder.Services.AddAuth0Authentication(builder.Configuration);
 builder.Services.AddAuth0ClaimsTransformation(builder.Configuration);
 builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
+builder.Services.AddMediatRInfrastructure(typeof(Dilcore.WebApi.Program).Assembly);
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddMultiTenancy();
 
 var app = builder.Build();
