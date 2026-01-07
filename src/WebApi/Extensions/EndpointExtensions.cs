@@ -3,6 +3,7 @@ using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Results.Extensions.Api;
 using Dilcore.WebApi.Features.WeatherForecast;
 using Dilcore.WebApi.Infrastructure.Validation;
+using Dilcore.WebApi.Endpoints;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +30,20 @@ public static class EndpointExtensions
         }
 
         app.MapWeatherForecastEndpoint();
+        app.MapGitHubEndpoint();
 
         return app;
     }
+
+    private static void MapGitHubEndpoint(this WebApplication app)
+    {
+        var group = app.MapGroup("/github")
+            .WithTags("GitHub");
+
+        group.MapGitHubEndpoints();
+    }
+    // ... rest of the file (Validation, Tenancy endpoints)
+
 
     private static void MapTestErrorEndpoint(this WebApplication app)
     {

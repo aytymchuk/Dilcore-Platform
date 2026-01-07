@@ -23,6 +23,7 @@ builder.Services.AddAuth0ClaimsTransformation(builder.Configuration);
 builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddMediatRInfrastructure(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddHttpClient();
 builder.Services.AddMultiTenancy();
 
 var app = builder.Build();
