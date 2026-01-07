@@ -1,6 +1,8 @@
 using Dilcore.Authentication.Abstractions;
+using Dilcore.Identity.WebApi;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Results.Extensions.Api;
+using Dilcore.Tenancy.WebApi;
 using Dilcore.WebApi.Features.WeatherForecast;
 using Dilcore.WebApi.Infrastructure.Validation;
 using Dilcore.WebApi.Endpoints;
@@ -31,6 +33,10 @@ public static class EndpointExtensions
 
         app.MapWeatherForecastEndpoint();
         app.MapGitHubEndpoint();
+
+        // Domain Module Endpoints
+        app.MapIdentityEndpoints();
+        app.MapTenancyEndpoints();
 
         return app;
     }
@@ -172,9 +178,4 @@ public static class EndpointExtensions
         .WithDescription("Test endpoint that requires authentication. Returns current user information.")
         .ExcludeFromMultiTenantResolution();
     }
-}
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }

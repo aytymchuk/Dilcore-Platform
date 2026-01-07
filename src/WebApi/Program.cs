@@ -10,6 +10,7 @@ using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
+using Dilcore.WebApi.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
@@ -50,6 +51,46 @@ builder.Services.AddHttpClient("GitHub", client =>
 .AddPolicyHandlerFromRegistry("GitHubCircuitBreaker");
 
 builder.Services.AddMultiTenancy();
+
+// Configure Orleans Silo
+builder.Host.UseOrleans((context, siloBuilder) =>
+{
+    var grainsSettings = context.Configuration
+        .GetRequiredSection(nameof(GrainsSettings))
+        .Get<GrainsSettings>() ?? new GrainsSettings();
+
+    // Use localhost clustering for Testing environment, Azure Storage for all others
+    if (context.HostingEnvironment.EnvironmentName == "Testing")
+    {
+        siloBuilder.UseLocalhostClustering();
+    }
+    else
+    {
+        // Azure Storage clustering with Managed Identity (production environments)
+        siloBuilder.UseAzureStorageClustering(options =>
+        {
+            var serviceUri = new Uri(
+                $"https://{grainsSettings.StorageAccountName}.table.core.windows.net/");
+
+            options.TableServiceClient = new Azure.Data.Tables.TableServiceClient(
+                serviceUri,
+                new Azure.Identity.DefaultAzureCredential());
+        });
+    }
+
+    siloBuilder.Configure<Orleans.Configuration.ClusterOptions>(options =>
+    {
+        options.ClusterId = grainsSettings.ClusterId;
+        options.ServiceId = grainsSettings.ServiceId;
+    });
+
+    // In-memory grain storage
+    siloBuilder.AddMemoryGrainStorage("UserStore");
+    siloBuilder.AddMemoryGrainStorage("TenantStore");
+
+    // OpenTelemetry activity propagation
+    siloBuilder.AddActivityPropagation();
+});
 
 var app = builder.Build();
 

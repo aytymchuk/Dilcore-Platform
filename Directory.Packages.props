@@ -53,5 +53,10 @@
     <PackageVersion Include="JunitXml.TestLogger" Version="7.1.0" />
     <PackageVersion Include="Finbuckle.MultiTenant" Version="10.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.1.0" />
+    <!-- Orleans Actor Model -->
+    <PackageVersion Include="Microsoft.Orleans.Server" Version="10.0.0-rc.2" />
+    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="10.0.0-rc.2" />
+    <PackageVersion Include="Microsoft.Orleans.Clustering.AzureStorage" Version="10.0.0-rc.2" />
+    <PackageVersion Include="Microsoft.Orleans.TestingHost" Version="10.0.0-rc.2" />
   </ItemGroup>
 </Project>
