@@ -6,7 +6,7 @@ namespace Dilcore.MediatR.Extensions;
 public class TracingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    private static readonly ActivitySource ActivitySource = new("Dilcore.MediatR");
+    private static readonly ActivitySource ActivitySource = new("Application.Operations");
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
@@ -21,7 +21,7 @@ public class TracingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         try
         {
-            return await next();
+            return await next(cancellationToken);
         }
         catch (Exception ex)
         {

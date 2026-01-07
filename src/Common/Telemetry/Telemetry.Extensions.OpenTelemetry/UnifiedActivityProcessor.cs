@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using Dilcore.Telemetry.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 
@@ -11,14 +10,14 @@ namespace Dilcore.Telemetry.Extensions.OpenTelemetry;
 /// </summary>
 public class UnifiedActivityProcessor : BaseProcessor<Activity>
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IEnumerable<ITelemetryAttributeProvider> _attributeProviders;
     private readonly ILogger<UnifiedActivityProcessor> _logger;
 
     public UnifiedActivityProcessor(
-        IServiceProvider serviceProvider,
+        IEnumerable<ITelemetryAttributeProvider> attributeProviders,
         ILogger<UnifiedActivityProcessor> logger)
     {
-        _serviceProvider = serviceProvider;
+        _attributeProviders = attributeProviders;
         _logger = logger;
     }
 
@@ -26,12 +25,8 @@ public class UnifiedActivityProcessor : BaseProcessor<Activity>
     {
         try
         {
-            // Create a scope to resolve scoped services (like UserAttributeProvider)
-            using var scope = _serviceProvider.CreateScope();
-            var attributeProviders = scope.ServiceProvider.GetServices<ITelemetryAttributeProvider>();
-
             // Collect attributes from all providers
-            foreach (var provider in attributeProviders)
+            foreach (var provider in _attributeProviders)
             {
                 try
                 {

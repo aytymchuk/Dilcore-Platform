@@ -39,7 +39,8 @@ public class TenantResolutionTests : BaseIntegrationTest
         problemDetails.ShouldNotBeNull();
         problemDetails.Title.ShouldBe("Tenant Not Resolved");
         problemDetails.Status.ShouldBe(400);
-        var errorCode = problemDetails.Extensions["errorCode"].ToString();
+        problemDetails.Extensions.ShouldNotBeNull();
+        var errorCode = problemDetails.Extensions["errorCode"]?.ToString();
         errorCode.ShouldBe(ProblemDetailsConstants.TenantNotResolved);
     }
 

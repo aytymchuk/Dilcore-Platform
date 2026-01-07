@@ -1,5 +1,4 @@
 using Dilcore.Telemetry.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
@@ -11,14 +10,14 @@ namespace Dilcore.Telemetry.Extensions.OpenTelemetry;
 /// </summary>
 public class UnifiedLogRecordProcessor : BaseProcessor<LogRecord>
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IEnumerable<ITelemetryAttributeProvider> _attributeProviders;
     private readonly ILogger<UnifiedLogRecordProcessor> _logger;
 
     public UnifiedLogRecordProcessor(
-        IServiceProvider serviceProvider,
+        IEnumerable<ITelemetryAttributeProvider> attributeProviders,
         ILogger<UnifiedLogRecordProcessor> logger)
     {
-        _serviceProvider = serviceProvider;
+        _attributeProviders = attributeProviders;
         _logger = logger;
     }
 
@@ -28,12 +27,8 @@ public class UnifiedLogRecordProcessor : BaseProcessor<LogRecord>
 
         try
         {
-            // Create a scope to resolve scoped services (like UserAttributeProvider)
-            using var scope = _serviceProvider.CreateScope();
-            var attributeProviders = scope.ServiceProvider.GetServices<ITelemetryAttributeProvider>();
-
             // Collect attributes from all providers
-            foreach (var provider in attributeProviders)
+            foreach (var provider in _attributeProviders)
             {
                 try
                 {

@@ -21,7 +21,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         try
         {
-            var response = await next();
+            var response = await next(cancellationToken);
 
             if (response is FluentResults.IResultBase result)
             {

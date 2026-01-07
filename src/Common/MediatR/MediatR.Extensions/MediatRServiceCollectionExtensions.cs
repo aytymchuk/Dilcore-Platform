@@ -14,8 +14,8 @@ public static class MediatRServiceCollectionExtensions
             cfg.RegisterServicesFromAssembly(assembly);
 
             // Add Behaviors
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TracingBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
             configuration?.Invoke(cfg);
         });

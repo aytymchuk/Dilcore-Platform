@@ -41,7 +41,7 @@ public static class AuthenticationExtensions
         services.AddSingleton<IUserContextProvider, HttpUserContextProvider>();
         services.AddSingleton<IUserContextResolver, UserContextResolver>();
 
-        services.AddSingleton<ITelemetryAttributeProvider, UserAttributeProvider>();
+        services.AddTelemetryAttributeProvider<UserAttributeProvider>();
 
         return services;
     }
