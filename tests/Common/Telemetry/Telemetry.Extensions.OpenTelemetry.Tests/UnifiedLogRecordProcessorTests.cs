@@ -91,7 +91,9 @@ public class UnifiedLogRecordProcessorTests
         serviceCollection.AddSingleton<ITelemetryAttributeProvider>(userProvider);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        return new UnifiedLogRecordProcessor(serviceProvider, Mock.Of<ILogger<UnifiedLogRecordProcessor>>());
+
+        var attributeProviders = serviceProvider.GetServices<ITelemetryAttributeProvider>();
+        return new UnifiedLogRecordProcessor(attributeProviders, Mock.Of<ILogger<UnifiedLogRecordProcessor>>());
     }
 
     private LogRecord CreateLogRecord()

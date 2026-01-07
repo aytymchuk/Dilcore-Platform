@@ -26,8 +26,9 @@ public class GetGitHubUserHandler : IRequestHandler<GetGitHubUserQuery, Result<G
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Dilcore-Platform");
 
+            var encodedUsername = Uri.EscapeDataString(request.Username);
             var response = await client.GetAsync(
-                $"https://api.github.com/users/{request.Username}",
+                $"https://api.github.com/users/{encodedUsername}",
                 cancellationToken);
 
             if (!response.IsSuccessStatusCode)
