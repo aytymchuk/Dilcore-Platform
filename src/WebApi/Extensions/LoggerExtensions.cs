@@ -33,4 +33,14 @@ internal static partial class LoggerExtensions
     // UnifiedActivityProcessor & UnifiedLogRecordProcessor
     [LoggerMessage(LogLevel.Error, "Error getting attributes from provider {ProviderType}. Continuing with remaining providers.")]
     public static partial void LogAttributeProviderError(this ILogger logger, Exception ex, string providerType);
+
+    // Resilience Policies
+    [LoggerMessage(LogLevel.Warning, "Retry {RetryAttempt} after {Delay}s due to {Exception}")]
+    public static partial void LogRetryWarning(this ILogger logger, int retryAttempt, double delay, string exception);
+
+    [LoggerMessage(LogLevel.Warning, "Circuit breaker opened for {Duration}s due to {Exception}")]
+    public static partial void LogCircuitBreakerOpened(this ILogger logger, double duration, string exception);
+
+    [LoggerMessage(LogLevel.Information, "Circuit breaker reset")]
+    public static partial void LogCircuitBreakerReset(this ILogger logger);
 }

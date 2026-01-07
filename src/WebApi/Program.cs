@@ -33,8 +33,8 @@ builder.Services.AddHttpClient("GitHub", client =>
     client.DefaultRequestHeaders.Add("User-Agent", "Dilcore-Platform");
     client.Timeout = TimeSpan.FromSeconds(30);
 })
-.AddPolicyHandler(GetRetryPolicy())
-.AddPolicyHandler(GetCircuitBreakerPolicy());
+.AddPolicyHandler((sp, request) => GetRetryPolicy(sp.GetRequiredService<ILogger<Program>>()))
+.AddPolicyHandler((sp, request) => GetCircuitBreakerPolicy(sp.GetRequiredService<ILogger<Program>>()));
 
 builder.Services.AddMultiTenancy();
 
@@ -59,7 +59,7 @@ app.MapApplicationEndpoints();
 
 await app.RunAsync();
 
-static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(ILogger logger)
 {
     return HttpPolicyExtensions
         .HandleTransientHttpError()
@@ -68,19 +68,14 @@ static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
             sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
             onRetry: (outcome, timespan, retryAttempt, context) =>
             {
-                var logger = context.GetLogger();
-                if (logger != null)
-                {
-                    logger.LogWarning(
-                        "Retry {RetryAttempt} after {Delay}s due to {Exception}",
-                        retryAttempt,
-                        timespan.TotalSeconds,
-                        outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString());
-                }
+                logger.LogRetryWarning(
+                    retryAttempt,
+                    timespan.TotalSeconds,
+                    outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString() ?? "Unknown");
             });
 }
 
-static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy(ILogger logger)
 {
     return HttpPolicyExtensions
         .HandleTransientHttpError()
@@ -89,22 +84,13 @@ static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
             durationOfBreak: TimeSpan.FromSeconds(30),
             onBreak: (outcome, duration, context) =>
             {
-                var logger = context.GetLogger();
-                if (logger != null)
-                {
-                    logger.LogWarning(
-                        "Circuit breaker opened for {Duration}s due to {Exception}",
-                        duration.TotalSeconds,
-                        outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString());
-                }
+                logger.LogCircuitBreakerOpened(
+                    duration.TotalSeconds,
+                    outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString() ?? "Unknown");
             },
             onReset: context =>
             {
-                var logger = context.GetLogger();
-                if (logger != null)
-                {
-                    logger.LogInformation("Circuit breaker reset");
-                }
+                logger.LogCircuitBreakerReset();
             });
 }
 
