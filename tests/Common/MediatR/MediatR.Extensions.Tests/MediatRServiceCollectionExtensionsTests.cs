@@ -121,7 +121,7 @@ public class MediatRServiceCollectionExtensionsTests
         // Assert
         activities.ShouldNotBeEmpty();
         var activity = activities.Single();
-        activity.OperationName.ShouldBe("MediatR: TestCommand");
+        activity.OperationName.ShouldBe("Command: TestCommand");
         activity.GetTagItem("mediatr.request_name").ShouldBe("TestCommand");
     }
 }
