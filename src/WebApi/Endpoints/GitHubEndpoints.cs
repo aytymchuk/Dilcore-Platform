@@ -26,6 +26,6 @@ public static class GitHubEndpoints
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetGitHubUserQuery(username), cancellationToken);
-        return ResultExtensions.ToMinimalApiResult(result);
+        return result.ToMinimalApiResult();
     }
 }

@@ -7,6 +7,8 @@ using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
 using Dilcore.Configuration.AspNetCore;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
+using Polly;
+using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
@@ -23,7 +25,17 @@ builder.Services.AddAuth0ClaimsTransformation(builder.Configuration);
 builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddMediatRInfrastructure(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddHttpClient();
+
+// Configure GitHub HttpClient with resilience policies
+builder.Services.AddHttpClient("GitHub", client =>
+{
+    client.BaseAddress = new Uri("https://api.github.com/");
+    client.DefaultRequestHeaders.Add("User-Agent", "Dilcore-Platform");
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.AddPolicyHandler(GetRetryPolicy())
+.AddPolicyHandler(GetCircuitBreakerPolicy());
+
 builder.Services.AddMultiTenancy();
 
 var app = builder.Build();
@@ -46,6 +58,55 @@ app.UseApplicationMiddleware();
 app.MapApplicationEndpoints();
 
 await app.RunAsync();
+
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(
+            retryCount: 3,
+            sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+            onRetry: (outcome, timespan, retryAttempt, context) =>
+            {
+                var logger = context.GetLogger();
+                if (logger != null)
+                {
+                    logger.LogWarning(
+                        "Retry {RetryAttempt} after {Delay}s due to {Exception}",
+                        retryAttempt,
+                        timespan.TotalSeconds,
+                        outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString());
+                }
+            });
+}
+
+static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .CircuitBreakerAsync(
+            handledEventsAllowedBeforeBreaking: 5,
+            durationOfBreak: TimeSpan.FromSeconds(30),
+            onBreak: (outcome, duration, context) =>
+            {
+                var logger = context.GetLogger();
+                if (logger != null)
+                {
+                    logger.LogWarning(
+                        "Circuit breaker opened for {Duration}s due to {Exception}",
+                        duration.TotalSeconds,
+                        outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString());
+                }
+            },
+            onReset: context =>
+            {
+                var logger = context.GetLogger();
+                if (logger != null)
+                {
+                    logger.LogInformation("Circuit breaker reset");
+                }
+            });
+}
 
 namespace Dilcore.WebApi
 {
