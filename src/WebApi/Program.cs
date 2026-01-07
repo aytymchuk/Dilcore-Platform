@@ -9,6 +9,7 @@ using Dilcore.Configuration.AspNetCore;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Polly;
 using Polly.Extensions.Http;
+using Polly.Registry;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
@@ -27,14 +28,26 @@ builder.Services.AddMediatRInfrastructure(typeof(Dilcore.WebApi.Program).Assembl
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Configure GitHub HttpClient with resilience policies
+builder.Services.AddSingleton<IPolicyRegistry<string>, PolicyRegistry>(requestServices =>
+{
+    var registry = new PolicyRegistry();
+    var logger = requestServices.GetRequiredService<ILogger<Program>>();
+
+    registry.Add("GitHubRetry", GetRetryPolicy(logger));
+    registry.Add("GitHubCircuitBreaker", GetCircuitBreakerPolicy(logger));
+
+    return registry;
+});
+
+// Configure GitHub HttpClient with resilience policies
 builder.Services.AddHttpClient("GitHub", client =>
 {
     client.BaseAddress = new Uri("https://api.github.com/");
     client.DefaultRequestHeaders.Add("User-Agent", "Dilcore-Platform");
     client.Timeout = TimeSpan.FromSeconds(30);
 })
-.AddPolicyHandler((sp, request) => GetRetryPolicy(sp.GetRequiredService<ILogger<Program>>()))
-.AddPolicyHandler((sp, request) => GetCircuitBreakerPolicy(sp.GetRequiredService<ILogger<Program>>()));
+.AddPolicyHandlerFromRegistry("GitHubRetry")
+.AddPolicyHandlerFromRegistry("GitHubCircuitBreaker");
 
 builder.Services.AddMultiTenancy();
 
