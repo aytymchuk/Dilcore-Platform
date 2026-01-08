@@ -30,10 +30,9 @@ public static class FluentResultsShouldlyExtensions
     /// Asserts that the result is successful and the value is not null.
     /// </summary>
     public static T ShouldBeSuccessWithValue<T>(this Result<T> result, string? customMessage = null)
-        where T : class
     {
         result.ShouldBeSuccess(customMessage);
-        result.Value.ShouldNotBeNull(customMessage ?? "Expected result value to not be null");
+        ((object?)result.Value).ShouldNotBeNull(customMessage ?? "Expected result value to not be null");
         return result.Value;
     }
 

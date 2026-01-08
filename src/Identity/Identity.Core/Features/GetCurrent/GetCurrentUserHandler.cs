@@ -26,7 +26,7 @@ public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, U
 
         if (userContext.Id is null)
         {
-            return Result.Fail<UserDto?>("User ID is required");
+            return Result.Fail<UserDto?>(new ValidationError("User ID is required"));
         }
 
         var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);

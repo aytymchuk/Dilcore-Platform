@@ -1,14 +1,16 @@
 using Dilcore.Authentication.Abstractions;
+using Dilcore.Results.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using FluentResults;
 using MediatR;
+using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.Identity.Core.Features.Register;
 
 /// <summary>
 /// Handles user registration by invoking the UserGrain.
 /// </summary>
-public sealed class RegisterUserHandler : IRequestHandler<RegisterUserCommand, Result<UserDto>>
+public sealed class RegisterUserHandler : ICommandHandler<RegisterUserCommand, UserDto>
 {
     private readonly IUserContextResolver _userContextResolver;
     private readonly IGrainFactory _grainFactory;
@@ -25,7 +27,7 @@ public sealed class RegisterUserHandler : IRequestHandler<RegisterUserCommand, R
 
         if (userContext.Id is null)
         {
-            return Result.Fail<UserDto>("User ID is required for registration");
+            return Result.Fail<UserDto>(new ValidationError("User ID is required for registration"));
         }
 
         var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);

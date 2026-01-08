@@ -33,14 +33,14 @@ public sealed class TenantGrain : Grain, ITenantGrain
         return base.OnDeactivateAsync(reason, cancellationToken);
     }
 
-    public async Task<TenantDto> CreateAsync(string displayName, string description)
+    public async Task<TenantCreationResult> CreateAsync(string displayName, string description)
     {
         var tenantName = this.GetPrimaryKeyString();
 
         if (_state.State.IsCreated)
         {
             _logger.LogTenantAlreadyExists(tenantName);
-            return ToDto();
+            return TenantCreationResult.Failure($"Tenant '{tenantName}' already exists.");
         }
 
         _state.State.Name = tenantName;
@@ -53,7 +53,7 @@ public sealed class TenantGrain : Grain, ITenantGrain
 
         _logger.LogTenantCreated(tenantName, displayName);
 
-        return ToDto();
+        return TenantCreationResult.Success(ToDto());
     }
 
     public Task<TenantDto?> GetAsync()

@@ -1,3 +1,5 @@
+
+
 namespace Dilcore.Tenancy.Actors.Abstractions;
 
 /// <summary>
@@ -12,8 +14,8 @@ public interface ITenantGrain : IGrainWithStringKey
     /// </summary>
     /// <param name="displayName">The human-readable display name.</param>
     /// <param name="description">Optional description of the tenant.</param>
-    /// <returns>The created tenant details.</returns>
-    Task<TenantDto> CreateAsync(string displayName, string description);
+    /// <returns>The created tenant details or a failure result.</returns>
+    Task<TenantCreationResult> CreateAsync(string displayName, string description);
 
     /// <summary>
     /// Gets the tenant details.

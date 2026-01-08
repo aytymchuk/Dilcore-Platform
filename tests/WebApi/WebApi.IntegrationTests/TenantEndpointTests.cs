@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
@@ -13,6 +14,7 @@ namespace Dilcore.WebApi.IntegrationTests;
 [TestFixture]
 public class TenantEndpointTests
 {
+    private const string TestTenantId = "test-tenant-for-auth";
     private CustomWebApplicationFactory _factory = null!;
     private HttpClient _client = null!;
 
@@ -152,7 +154,8 @@ public class TenantEndpointTests
         var response = await _client.SendAsync(request);
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        // Strict tenant enforcement returns BadRequest when tenant cannot be resolved
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -165,16 +168,31 @@ public class TenantEndpointTests
 
         // Assert
         // Without tenant header, the multi-tenant resolution should fail
-        response.StatusCode.ShouldBeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError);
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     [Test]
     public async Task GetTenant_ShouldReturnUnauthorized_WhenNotAuthenticated()
     {
         // Arrange
+        // 1. Create a tenant while authenticated
+        var tenantName = "auth-test-tenant";
+        var command = new { DisplayName = tenantName, Description = "Tenant for auth test" };
+        var createResponse = await _client.PostAsJsonAsync("/tenants", command);
+
+        // Ensure creation succeeded (or accept Conflict if it already exists from previous run)
+        if (createResponse.StatusCode != HttpStatusCode.OK && createResponse.StatusCode != HttpStatusCode.Conflict)
+        {
+            createResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        }
+
+        var expectedTenantId = "auth-test-tenant"; // Kebab case of display name
+
+        // 2. De-authenticate
         _factory.FakeUser.IsAuthenticated = false;
+
         var request = new HttpRequestMessage(HttpMethod.Get, "/tenants");
-        request.Headers.Add(TenantConstants.HeaderName, "some-tenant");
+        request.Headers.Add(TenantConstants.HeaderName, expectedTenantId);
 
         // Act
         var response = await _client.SendAsync(request);

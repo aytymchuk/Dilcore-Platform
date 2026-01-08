@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+using Dilcore.Tests.Common.Fixtures;
 using Orleans.TestingHost;
 
 namespace Dilcore.Identity.Actors.Tests;
@@ -6,29 +6,12 @@ namespace Dilcore.Identity.Actors.Tests;
 /// <summary>
 /// Configures the TestCluster for grain tests.
 /// </summary>
-public class ClusterFixture : IDisposable
+public class ClusterFixture : CommonClusterFixture<ClusterFixture.UserStoreConfigurator>
 {
-    public TestCluster Cluster { get; }
-
-    public ClusterFixture()
-    {
-        var builder = new TestClusterBuilder();
-        builder.AddSiloBuilderConfigurator<TestSiloConfigurator>();
-        Cluster = builder.Build();
-        Cluster.Deploy();
-    }
-
-    public void Dispose()
-    {
-        Cluster.StopAllSilos();
-        GC.SuppressFinalize(this);
-    }
-
-    private sealed class TestSiloConfigurator : ISiloConfigurator
+    public class UserStoreConfigurator : ISiloConfigurator
     {
         public void Configure(ISiloBuilder siloBuilder)
         {
-            // Use in-memory storage for testing
             siloBuilder.AddMemoryGrainStorage("UserStore");
         }
     }

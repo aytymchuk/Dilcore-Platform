@@ -32,7 +32,7 @@ public class CreateTenantHandlerTests
 
         var expectedDto = new TenantDto(expectedKebabName, displayName, description, DateTime.UtcNow);
         var tenantGrainMock = new Mock<ITenantGrain>();
-        tenantGrainMock.Setup(x => x.CreateAsync(displayName, description)).ReturnsAsync(expectedDto);
+        tenantGrainMock.Setup(x => x.CreateAsync(displayName, description)).ReturnsAsync(TenantCreationResult.Success(expectedDto));
 
         _grainFactoryMock.Setup(x => x.GetGrain<ITenantGrain>(expectedKebabName, null)).Returns(tenantGrainMock.Object);
 
@@ -57,7 +57,7 @@ public class CreateTenantHandlerTests
 
         var expectedDto = new TenantDto(expectedKebabName, displayName, description, DateTime.UtcNow);
         var tenantGrainMock = new Mock<ITenantGrain>();
-        tenantGrainMock.Setup(x => x.CreateAsync(displayName, description)).ReturnsAsync(expectedDto);
+        tenantGrainMock.Setup(x => x.CreateAsync(displayName, description)).ReturnsAsync(TenantCreationResult.Success(expectedDto));
 
         _grainFactoryMock.Setup(x => x.GetGrain<ITenantGrain>(expectedKebabName, null)).Returns(tenantGrainMock.Object);
 
@@ -81,7 +81,7 @@ public class CreateTenantHandlerTests
 
         var expectedDto = new TenantDto("return-test", displayName, description, createdAt);
         var tenantGrainMock = new Mock<ITenantGrain>();
-        tenantGrainMock.Setup(x => x.CreateAsync(displayName, description)).ReturnsAsync(expectedDto);
+        tenantGrainMock.Setup(x => x.CreateAsync(displayName, description)).ReturnsAsync(TenantCreationResult.Success(expectedDto));
 
         _grainFactoryMock.Setup(x => x.GetGrain<ITenantGrain>("return-test", null)).Returns(tenantGrainMock.Object);
 
@@ -91,8 +91,9 @@ public class CreateTenantHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Value.CreatedAt.ShouldBe(createdAt);
-        result.Value.DisplayName.ShouldBe(displayName);
-        result.Value.Description.ShouldBe(description);
+        var tenant = result.ShouldBeSuccessWithValue();
+        tenant.CreatedAt.ShouldBe(createdAt);
+        tenant.DisplayName.ShouldBe(displayName);
+        tenant.Description.ShouldBe(description);
     }
 }

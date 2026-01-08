@@ -3,6 +3,7 @@
   <ItemGroup>
     <PackageReference Include="FluentResults" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.TestingHost" />
   </ItemGroup>
 
 </Project>

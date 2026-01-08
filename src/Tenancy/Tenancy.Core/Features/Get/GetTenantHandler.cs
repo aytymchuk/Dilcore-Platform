@@ -1,7 +1,8 @@
+using Dilcore.MediatR.Abstractions;
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using FluentResults;
-using MediatR;
 
 namespace Dilcore.Tenancy.Core.Features.Get;
 
@@ -9,7 +10,7 @@ namespace Dilcore.Tenancy.Core.Features.Get;
 /// Handles getting the current tenant via the TenantGrain.
 /// Uses ITenantContext.Name as the grain key.
 /// </summary>
-public sealed class GetTenantHandler : IRequestHandler<GetTenantQuery, Result<TenantDto?>>
+public sealed class GetTenantHandler : IQueryHandler<GetTenantQuery, TenantDto>
 {
     private readonly ITenantContext _tenantContext;
     private readonly IGrainFactory _grainFactory;
@@ -20,15 +21,21 @@ public sealed class GetTenantHandler : IRequestHandler<GetTenantQuery, Result<Te
         _grainFactory = grainFactory;
     }
 
-    public async Task<Result<TenantDto?>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
+    public async Task<Result<TenantDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
     {
         if (_tenantContext.Name is null)
         {
-            return Result.Fail<TenantDto?>("Tenant name is required");
+            return Result.Fail<TenantDto>("Tenant name is required");
         }
 
         var grain = _grainFactory.GetGrain<ITenantGrain>(_tenantContext.Name);
         var result = await grain.GetAsync();
+
+        if (result is null)
+        {
+            return Result.Fail<TenantDto>(new NotFoundError("Tenant", _tenantContext.Name!));
+        }
+
         return Result.Ok(result);
     }
 }

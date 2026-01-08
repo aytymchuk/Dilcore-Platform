@@ -59,4 +59,10 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: {Operation} is not supported - use TenantGrain directly")]
     public static partial void LogTenantStoreModificationNotSupported(this ILogger logger, string operation);
+
+    [LoggerMessage(LogLevel.Warning, "OrleansTenantStore: Invalid identifier provided")]
+    public static partial void LogTenantStoreInvalidIdentifier(this ILogger logger);
+
+    [LoggerMessage(LogLevel.Error, "OrleansTenantStore: Error resolving tenant '{Identifier}'")]
+    public static partial void LogTenantStoreResolutionError(this ILogger logger, Exception ex, string identifier);
 }

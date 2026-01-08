@@ -27,24 +27,32 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
     public async Task<AppTenantInfo?> GetByIdentifierAsync(string identifier)
     {
         _logger.LogTenantStoreGetByIdentifier(identifier);
-
         if (string.IsNullOrWhiteSpace(identifier))
         {
+            _logger.LogTenantStoreInvalidIdentifier();
             return null;
         }
 
-        var grain = _grainFactory.GetGrain<ITenantGrain>(identifier);
-        var tenantDto = await grain.GetAsync();
-
-        if (tenantDto is null)
+        try
         {
-            _logger.LogTenantStoreNotFound(identifier);
-            return null;
-        }
+            var grain = _grainFactory.GetGrain<ITenantGrain>(identifier);
+            var tenantDto = await grain.GetAsync();
 
-        var tenantInfo = MapToAppTenantInfo(tenantDto);
-        _logger.LogTenantStoreResolved(identifier, tenantDto.DisplayName);
-        return tenantInfo;
+            if (tenantDto is null)
+            {
+                _logger.LogTenantStoreNotFound(identifier);
+                return null;
+            }
+
+            var tenantInfo = MapToAppTenantInfo(tenantDto);
+            _logger.LogTenantStoreResolved(identifier, tenantDto.DisplayName);
+            return tenantInfo;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogTenantStoreResolutionError(ex, identifier);
+            throw;
+        }
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Core.Features.Get;
 using Moq;
@@ -53,7 +54,7 @@ public class GetTenantHandlerTests
     }
 
     [Test]
-    public async Task Handle_ShouldReturnNull_WhenTenantNotFound()
+    public async Task Handle_ShouldReturnFail_WhenTenantNotFound()
     {
         // Arrange
         const string tenantName = "nonexistent";
@@ -71,7 +72,8 @@ public class GetTenantHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.ShouldBeSuccessWithNullValue();
+        result.ShouldBeFailed();
+        result.Errors.ShouldContain(e => e is NotFoundError);
     }
 
     [Test]

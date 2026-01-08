@@ -1,6 +1,9 @@
 using System.Net;
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Orleans;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
@@ -11,10 +14,11 @@ public class SecureEndpointTests : BaseIntegrationTest
     private HttpClient _client = null!;
 
     [OneTimeSetUp]
-    public void SetUpClient()
+    public async Task SetUpClient()
     {
         _client = Factory.CreateClient();
         _client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
+        await SeedTenantAsync(Factory, "t1");
     }
 
     [OneTimeTearDown]
@@ -40,6 +44,8 @@ public class SecureEndpointTests : BaseIntegrationTest
     {
         // Arrange
         using var factory = new CustomWebApplicationFactory();
+        await SeedTenantAsync(factory, "t1");
+
         factory.FakeUser.IsAuthenticated = false;
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
@@ -63,6 +69,8 @@ public class SecureEndpointTests : BaseIntegrationTest
                 user.Email = "custom@example.com";
                 user.TenantId = "custom-tenant";
             });
+        await SeedTenantAsync(factory, "t1");
+
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
 
@@ -78,6 +86,8 @@ public class SecureEndpointTests : BaseIntegrationTest
     {
         // Arrange
         using var factory = new CustomWebApplicationFactory();
+        await SeedTenantAsync(factory, "t1");
+
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
 
@@ -99,5 +109,13 @@ public class SecureEndpointTests : BaseIntegrationTest
         // Act 3 - Third request should fail
         var response3 = await client.GetAsync("/weatherforecast");
         response3.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    private static async Task SeedTenantAsync(CustomWebApplicationFactory factory, string tenantId)
+    {
+        using var scope = factory.Services.CreateScope();
+        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        var tenantGrain = grainFactory.GetGrain<ITenantGrain>(tenantId);
+        await tenantGrain.CreateAsync($"Test Tenant {tenantId}", "Seeded for SecureEndpointTests");
     }
 }

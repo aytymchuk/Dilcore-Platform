@@ -82,7 +82,8 @@ public class RegisterUserHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.Value.RegisteredAt.ShouldBe(registeredAt);
+        var user = result.ShouldBeSuccessWithValue();
+        user.RegisteredAt.ShouldBe(registeredAt);
     }
 
     [Test]

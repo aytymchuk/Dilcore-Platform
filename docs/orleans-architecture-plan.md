@@ -3,7 +3,7 @@
 
 **Version**: 1.0
 **Date**: 2026-01-07
-**Target Orleans Version**: 9.2.1 (Latest Stable)
+**Target Orleans Version**: 10.0.0-rc.2 (Latest Release)
 **Status**: Planning Phase
 
 ---
@@ -218,7 +218,7 @@ Authentication: Managed Identity (DefaultAzureCredential)
 <PackageVersion Include="OrleansDashboard" Version="8.2.0" />
 ```
 
-**Note**: Issue #36 requested Orleans 10.0.0-rc.2, but Orleans 10.0 does not exist. Latest stable is 9.2.1 (July 2025). No preview releases for .NET 10 are available as of Jan 2026.
+**Note**: We are targeting Orleans 10.0.0-rc.2 which is the current latest release compatible with .NET 10.
 
 ### 4.2 Project Structure
 

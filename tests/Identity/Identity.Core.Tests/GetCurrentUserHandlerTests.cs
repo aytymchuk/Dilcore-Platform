@@ -57,6 +57,8 @@ public class GetCurrentUserHandlerTests
         var user = result.ShouldBeSuccessWithValue();
         user.Id.ShouldBe(userId);
         user.Email.ShouldBe(email);
+        user.FullName.ShouldBe(fullName);
+        user.RegisteredAt.ShouldBe(registeredAt);
     }
 
     [Test]
@@ -78,7 +80,7 @@ public class GetCurrentUserHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.ShouldBeFailedWithError<NotFoundError>();
+        result.ShouldBeFailedWithErrorAndMessage<NotFoundError>("User not found");
     }
 
     [Test]

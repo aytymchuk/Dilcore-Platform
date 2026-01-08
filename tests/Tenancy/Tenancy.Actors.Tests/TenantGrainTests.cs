@@ -39,10 +39,12 @@ public class TenantGrainTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Name.ShouldBe(tenantName);
-        result.DisplayName.ShouldBe(displayName);
-        result.Description.ShouldBe(description);
-        result.CreatedAt.ShouldBeGreaterThan(DateTime.MinValue);
+        result.IsSuccess.ShouldBeTrue();
+        result.Tenant.ShouldNotBeNull();
+        result.Tenant.Name.ShouldBe(tenantName);
+        result.Tenant.DisplayName.ShouldBe(displayName);
+        result.Tenant.Description.ShouldBe(description);
+        result.Tenant.CreatedAt.ShouldBeGreaterThan(DateTime.MinValue);
     }
 
     [Test]
@@ -62,9 +64,9 @@ public class TenantGrainTests
 
         // Assert - Should return original data
         secondResult.ShouldNotBeNull();
-        secondResult.DisplayName.ShouldBe(displayName);
-        secondResult.Description.ShouldBe(description);
-        secondResult.CreatedAt.ShouldBe(firstResult.CreatedAt);
+        secondResult.IsSuccess.ShouldBeFalse();
+        secondResult.ErrorMessage.ShouldNotBeNull();
+        secondResult.ErrorMessage.ShouldContain("already exists");
     }
 
     [Test]
