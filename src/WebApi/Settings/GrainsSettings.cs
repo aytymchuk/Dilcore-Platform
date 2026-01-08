@@ -6,6 +6,12 @@ namespace Dilcore.WebApi.Settings;
 public class GrainsSettings
 {
     /// <summary>
+    /// Whether to use Azure Storage clustering. 
+    /// Set to false for local development or testing with localhost clustering.
+    /// </summary>
+    public bool UseAzureClustering { get; set; } = true;
+
+    /// <summary>
     /// Azure Storage account name for clustering.
     /// The connection is established via Managed Identity.
     /// </summary>

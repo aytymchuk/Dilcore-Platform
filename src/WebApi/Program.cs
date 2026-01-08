@@ -7,6 +7,8 @@ using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
 using Dilcore.Configuration.AspNetCore;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
+using Dilcore.Identity.WebApi;
+using Dilcore.Tenancy.WebApi;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
@@ -26,6 +28,11 @@ builder.Services.AddAuth0Authentication(builder.Configuration);
 builder.Services.AddAuth0ClaimsTransformation(builder.Configuration);
 builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddMediatRInfrastructure(typeof(Dilcore.WebApi.Program).Assembly);
+
+// Add domain modules (MediatR handlers, validators, etc.)
+builder.Services.AddIdentityModule();
+builder.Services.AddTenancyModule();
+
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Configure GitHub HttpClient with resilience policies
@@ -56,17 +63,13 @@ builder.Services.AddMultiTenancy();
 builder.Host.UseOrleans((context, siloBuilder) =>
 {
     var grainsSettings = context.Configuration
-        .GetRequiredSection(nameof(GrainsSettings))
+        .GetSection(nameof(GrainsSettings))
         .Get<GrainsSettings>() ?? new GrainsSettings();
 
-    // Use localhost clustering for Testing environment, Azure Storage for all others
-    if (context.HostingEnvironment.EnvironmentName == "Testing")
+    // Skip Orleans Azure clustering if disabled (allows tests to configure their own)
+    if (grainsSettings.UseAzureClustering)
     {
-        siloBuilder.UseLocalhostClustering();
-    }
-    else
-    {
-        // Azure Storage clustering with Managed Identity (production environments)
+        // Azure Storage clustering with Managed Identity
         siloBuilder.UseAzureStorageClustering(options =>
         {
             var serviceUri = new Uri(
@@ -76,6 +79,11 @@ builder.Host.UseOrleans((context, siloBuilder) =>
                 serviceUri,
                 new Azure.Identity.DefaultAzureCredential());
         });
+    }
+    else
+    {
+        // Use localhost clustering when Azure clustering is disabled
+        siloBuilder.UseLocalhostClustering();
     }
 
     siloBuilder.Configure<Orleans.Configuration.ClusterOptions>(options =>

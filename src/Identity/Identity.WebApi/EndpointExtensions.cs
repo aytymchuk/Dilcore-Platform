@@ -2,6 +2,7 @@ using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Identity.Core.Features.GetCurrent;
 using Dilcore.Identity.Core.Features.Register;
 using Dilcore.Results.Extensions.Api;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +22,7 @@ public static class EndpointExtensions
     {
         var group = endpoints.MapGroup("/users")
             .WithTags("Users")
-            .RequireAuthorization();
+            .ExcludeFromMultiTenantResolution();
 
         // POST /users/register - Register the current user
         group.MapPost("/register", async (

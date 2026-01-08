@@ -14,11 +14,6 @@ namespace Dilcore.WebApi.Extensions;
 
 public static class EndpointExtensions
 {
-    private static readonly string[] Summaries =
-    [
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    ];
-
     public static WebApplication MapApplicationEndpoints(this WebApplication app)
     {
         // Test endpoint for Problem Details demonstration (Development/Testing only)

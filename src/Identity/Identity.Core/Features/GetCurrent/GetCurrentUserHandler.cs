@@ -10,23 +10,25 @@ namespace Dilcore.Identity.Core.Features.GetCurrent;
 /// </summary>
 public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, UserDto?>
 {
-    private readonly IUserContext _userContext;
+    private readonly IUserContextResolver _userContextResolver;
     private readonly IGrainFactory _grainFactory;
 
-    public GetCurrentUserHandler(IUserContext userContext, IGrainFactory grainFactory)
+    public GetCurrentUserHandler(IUserContextResolver userContextResolver, IGrainFactory grainFactory)
     {
-        _userContext = userContext;
+        _userContextResolver = userContextResolver;
         _grainFactory = grainFactory;
     }
 
     public async Task<Result<UserDto?>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
-        if (_userContext.Id is null)
+        var userContext = _userContextResolver.Resolve();
+        
+        if (userContext.Id is null)
         {
             return Result.Fail<UserDto?>("User ID is required");
         }
 
-        var grain = _grainFactory.GetGrain<IUserGrain>(_userContext.Id);
+        var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);
         var result = await grain.GetProfileAsync();
         return Result.Ok(result);
     }

@@ -3,6 +3,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Identity.Core\Identity.Core.csproj" />
     <ProjectReference Include="..\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
