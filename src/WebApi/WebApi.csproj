@@ -44,7 +44,9 @@
     <ProjectReference Include="..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
     <!-- Orleans Actors -->
     <ProjectReference Include="..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\Identity\Identity.Actors\Identity.Actors.csproj" />
     <ProjectReference Include="..\Tenancy\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\Tenancy\Tenancy.Actors\Tenancy.Actors.csproj" />
     <!-- Domain WebApi Endpoints -->
     <ProjectReference Include="..\Identity\Identity.WebApi\Identity.WebApi.csproj" />
     <ProjectReference Include="..\Tenancy\Tenancy.WebApi\Tenancy.WebApi.csproj" />

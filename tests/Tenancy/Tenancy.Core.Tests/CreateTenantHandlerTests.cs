@@ -42,9 +42,8 @@ public class CreateTenantHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
-        result.Value.Name.ShouldBe(expectedKebabName);
+        var tenant = result.ShouldBeSuccessWithValue();
+        tenant.Name.ShouldBe(expectedKebabName);
         tenantGrainMock.Verify(x => x.CreateAsync(displayName, description), Times.Once);
     }
 
@@ -68,7 +67,7 @@ public class CreateTenantHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeTrue();
+        result.ShouldBeSuccess();
         _grainFactoryMock.Verify(x => x.GetGrain<ITenantGrain>(expectedKebabName, null), Times.Once);
     }
 

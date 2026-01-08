@@ -47,10 +47,9 @@ public class GetTenantHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
-        result.Value!.Name.ShouldBe(tenantName);
-        result.Value.DisplayName.ShouldBe(displayName);
+        var tenant = result.ShouldBeSuccessWithValue();
+        tenant.Name.ShouldBe(tenantName);
+        tenant.DisplayName.ShouldBe(displayName);
     }
 
     [Test]
@@ -72,8 +71,7 @@ public class GetTenantHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBeNull();
+        result.ShouldBeSuccessWithNullValue();
     }
 
     [Test]
@@ -88,8 +86,7 @@ public class GetTenantHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.ShouldContain(e => e.Message.Contains("Tenant name is required"));
+        result.ShouldBeFailedWithMessage("Tenant name is required");
     }
 
     [Test]

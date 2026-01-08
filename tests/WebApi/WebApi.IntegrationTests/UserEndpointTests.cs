@@ -69,21 +69,26 @@ public class UserEndpointTests
     }
 
     [Test]
-    public async Task RegisterUser_ShouldReturnConflict_WhenUserAlreadyRegistered()
+    public async Task RegisterUser_IsIdempotent_ReturnsExistingUserOnReRegistration()
     {
-        // Arrange - use a fixed user ID so the second registration fails
+        // Arrange - use a fixed user ID for re-registration
         _factory.FakeUser.UserId = "existing-user-id";
         var command = new { Email = "existing@example.com", FullName = "Existing User" };
 
         // First registration
         var firstResponse = await _client.PostAsJsonAsync("/users/register", command);
         firstResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var firstResult = await firstResponse.Content.ReadFromJsonAsync<UserDto>();
 
-        // Act - second registration with same user ID should fail
+        // Act - second registration with same user ID returns existing user (idempotent)
         var secondResponse = await _client.PostAsJsonAsync("/users/register", command);
 
-        // Assert
-        secondResponse.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        // Assert - idempotent behavior: returns OK with existing user data
+        secondResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var secondResult = await secondResponse.Content.ReadFromJsonAsync<UserDto>();
+        secondResult.ShouldNotBeNull();
+        secondResult!.Id.ShouldBe(firstResult!.Id);
+        secondResult.Email.ShouldBe(firstResult.Email);
     }
 
     [Test]

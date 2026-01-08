@@ -17,8 +17,17 @@
     <PackageReference Include="Shouldly" />
   </ItemGroup>
 
+  <!-- Common test utilities - exclude for Tests.Common itself to avoid circular dependency -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'Tests.Common'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Common\Tests.Common\Tests.Common.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'Tests.Common'">
+    <Using Include="Dilcore.Tests.Common" />
   </ItemGroup>
 
 </Project>

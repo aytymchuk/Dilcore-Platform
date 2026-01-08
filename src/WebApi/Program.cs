@@ -3,12 +3,15 @@ using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.MediatR.Extensions;
 using Dilcore.WebApi.Extensions;
+using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
 using Dilcore.Configuration.AspNetCore;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.Identity.WebApi;
+using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.WebApi;
+using Finbuckle.MultiTenant;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
@@ -57,7 +60,11 @@ builder.Services.AddHttpClient("GitHub", client =>
 .AddPolicyHandlerFromRegistry("GitHubRetry")
 .AddPolicyHandlerFromRegistry("GitHubCircuitBreaker");
 
-builder.Services.AddMultiTenancy();
+// Configure multi-tenancy with Orleans-backed tenant store
+builder.Services.AddMultiTenancy<AppTenantInfo>(mtb =>
+{
+    mtb.WithStore<OrleansTenantStore>(ServiceLifetime.Scoped);
+});
 
 // Configure Orleans Silo
 builder.Host.UseOrleans((context, siloBuilder) =>

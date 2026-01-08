@@ -1,6 +1,7 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.MediatR.Abstractions;
+using Dilcore.Results.Abstractions;
 using FluentResults;
 
 namespace Dilcore.Identity.Core.Features.GetCurrent;
@@ -22,7 +23,7 @@ public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, U
     public async Task<Result<UserDto?>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
         var userContext = _userContextResolver.Resolve();
-        
+
         if (userContext.Id is null)
         {
             return Result.Fail<UserDto?>("User ID is required");
@@ -30,6 +31,12 @@ public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, U
 
         var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);
         var result = await grain.GetProfileAsync();
-        return Result.Ok(result);
+
+        if (result is null)
+        {
+            return Result.Fail<UserDto?>(new NotFoundError("User not found"));
+        }
+
+        return Result.Ok<UserDto?>(result);
     }
 }

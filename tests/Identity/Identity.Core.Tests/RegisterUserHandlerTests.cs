@@ -13,6 +13,7 @@ namespace Dilcore.Identity.Core.Tests;
 public class RegisterUserHandlerTests
 {
     private Mock<IGrainFactory> _grainFactoryMock = null!;
+    private Mock<IUserContextResolver> _userContextResolverMock = null!;
     private Mock<IUserContext> _userContextMock = null!;
     private RegisterUserHandler _sut = null!;
 
@@ -20,8 +21,13 @@ public class RegisterUserHandlerTests
     public void SetUp()
     {
         _grainFactoryMock = new Mock<IGrainFactory>();
+        _userContextResolverMock = new Mock<IUserContextResolver>();
         _userContextMock = new Mock<IUserContext>();
-        _sut = new RegisterUserHandler(_userContextMock.Object, _grainFactoryMock.Object);
+
+        // Setup resolver to return the mocked user context
+        _userContextResolverMock.Setup(x => x.Resolve()).Returns(_userContextMock.Object);
+
+        _sut = new RegisterUserHandler(_userContextResolverMock.Object, _grainFactoryMock.Object);
     }
 
     [Test]
@@ -46,11 +52,11 @@ public class RegisterUserHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
-        result.Value.Id.ShouldBe(userId);
-        result.Value.Email.ShouldBe(email);
+        var user = result.ShouldBeSuccessWithValue();
+        user.Id.ShouldBe(userId);
+        user.Email.ShouldBe(email);
         userGrainMock.Verify(x => x.RegisterAsync(email, fullName), Times.Once);
+        _userContextResolverMock.Verify(x => x.Resolve(), Times.Once);
     }
 
     [Test]
@@ -91,7 +97,6 @@ public class RegisterUserHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.ShouldContain(e => e.Message.Contains("User ID is required"));
+        result.ShouldBeFailedWithMessage("User ID is required");
     }
 }

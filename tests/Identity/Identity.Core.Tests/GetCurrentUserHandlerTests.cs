@@ -1,6 +1,7 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Identity.Core.Features.GetCurrent;
+using Dilcore.Results.Abstractions;
 using Moq;
 using Shouldly;
 
@@ -13,6 +14,7 @@ namespace Dilcore.Identity.Core.Tests;
 public class GetCurrentUserHandlerTests
 {
     private Mock<IGrainFactory> _grainFactoryMock = null!;
+    private Mock<IUserContextResolver> _userContextResolverMock = null!;
     private Mock<IUserContext> _userContextMock = null!;
     private GetCurrentUserHandler _sut = null!;
 
@@ -20,8 +22,13 @@ public class GetCurrentUserHandlerTests
     public void SetUp()
     {
         _grainFactoryMock = new Mock<IGrainFactory>();
+        _userContextResolverMock = new Mock<IUserContextResolver>();
         _userContextMock = new Mock<IUserContext>();
-        _sut = new GetCurrentUserHandler(_userContextMock.Object, _grainFactoryMock.Object);
+
+        // Setup resolver to return the mocked user context
+        _userContextResolverMock.Setup(x => x.Resolve()).Returns(_userContextMock.Object);
+
+        _sut = new GetCurrentUserHandler(_userContextResolverMock.Object, _grainFactoryMock.Object);
     }
 
     [Test]
@@ -47,14 +54,13 @@ public class GetCurrentUserHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
-        result.Value!.Id.ShouldBe(userId);
-        result.Value.Email.ShouldBe(email);
+        var user = result.ShouldBeSuccessWithValue();
+        user.Id.ShouldBe(userId);
+        user.Email.ShouldBe(email);
     }
 
     [Test]
-    public async Task Handle_ShouldReturnNull_WhenUserNotFound()
+    public async Task Handle_ShouldReturnError_WhenUserNotFound()
     {
         // Arrange
         const string userId = "user-not-found";
@@ -72,8 +78,7 @@ public class GetCurrentUserHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBeNull();
+        result.ShouldBeFailedWithError<NotFoundError>();
     }
 
     [Test]
@@ -96,5 +101,6 @@ public class GetCurrentUserHandlerTests
 
         // Assert
         _grainFactoryMock.Verify(x => x.GetGrain<IUserGrain>(userId, null), Times.Once);
+        _userContextResolverMock.Verify(x => x.Resolve(), Times.Once);
     }
 }

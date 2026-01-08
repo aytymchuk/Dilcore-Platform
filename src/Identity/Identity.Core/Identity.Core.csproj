@@ -9,5 +9,6 @@
     <ProjectReference Include="..\..\Common\MediatR\MediatR.Abstractions\MediatR.Abstractions.csproj" />
     <ProjectReference Include="..\..\Common\MediatR\MediatR.Extensions\MediatR.Extensions.csproj" />
     <ProjectReference Include="..\..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\FluentResults\Results.Abstractions\Results.Abstractions.csproj" />
   </ItemGroup>
 </Project>

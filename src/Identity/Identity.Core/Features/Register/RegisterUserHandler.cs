@@ -10,23 +10,25 @@ namespace Dilcore.Identity.Core.Features.Register;
 /// </summary>
 public sealed class RegisterUserHandler : IRequestHandler<RegisterUserCommand, Result<UserDto>>
 {
-    private readonly IUserContext _userContext;
+    private readonly IUserContextResolver _userContextResolver;
     private readonly IGrainFactory _grainFactory;
 
-    public RegisterUserHandler(IUserContext userContext, IGrainFactory grainFactory)
+    public RegisterUserHandler(IUserContextResolver userContextResolver, IGrainFactory grainFactory)
     {
-        _userContext = userContext;
+        _userContextResolver = userContextResolver;
         _grainFactory = grainFactory;
     }
 
     public async Task<Result<UserDto>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        if (_userContext.Id is null)
+        var userContext = _userContextResolver.Resolve();
+
+        if (userContext.Id is null)
         {
             return Result.Fail<UserDto>("User ID is required for registration");
         }
 
-        var grain = _grainFactory.GetGrain<IUserGrain>(_userContext.Id);
+        var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);
         var result = await grain.RegisterAsync(request.Email, request.FullName);
         return Result.Ok(result);
     }
