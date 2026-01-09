@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using Dilcore.MediatR.Abstractions;
 using MediatR;
+using Microsoft.Extensions.Hosting;
 
 namespace Dilcore.MediatR.Extensions;
 
@@ -37,20 +38,20 @@ public class TracingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         ActivityKind = IsQuery ? ActivityKind.Client : ActivityKind.Internal;
     }
 
+    private readonly IHostEnvironment _environment;
+
+    public TracingBehavior(IHostEnvironment environment)
+    {
+        _environment = environment;
+    }
+
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         using var activity = ActivitySource.StartActivity(ActivityName, ActivityKind);
 
         if (activity != null)
         {
-            activity.SetTag("mediatr.request_name", RequestName);
-            activity.SetTag("mediatr.request_type", RequestFullName);
-
-            if (IsQuery)
-            {
-                activity.SetTag("db.system", "mediatr");
-                activity.SetTag("db.statement", JsonSerializer.Serialize(request));
-            }
+            EnrichActivity(activity, request);
         }
 
         try
@@ -66,5 +67,25 @@ public class TracingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             }
             throw;
         }
+    }
+
+    private void EnrichActivity(Activity activity, TRequest request)
+    {
+        activity.SetTag("mediatr.request_name", RequestName);
+        activity.SetTag("mediatr.request_type", RequestFullName);
+
+        if (!IsQuery)
+        {
+            return;
+        }
+
+        activity.SetTag("db.system", "mediatr");
+
+        if (_environment.IsProduction())
+        {
+            return;
+        }
+
+        activity.SetTag("db.statement", JsonSerializer.Serialize(request));
     }
 }

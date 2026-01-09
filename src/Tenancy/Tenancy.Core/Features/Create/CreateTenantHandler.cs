@@ -32,12 +32,17 @@ public sealed partial class CreateTenantHandler : ICommandHandler<CreateTenantCo
         var grain = _grainFactory.GetGrain<ITenantGrain>(tenantName);
         var result = await grain.CreateAsync(request.DisplayName, request.Description);
 
-        if (result.IsSuccess)
+        if (!result.IsSuccess)
         {
-            return Result.Ok(result.Tenant!);
+            return Result.Fail(new ConflictError(result.ErrorMessage ?? "Failed to create tenant"));
         }
 
-        return Result.Fail(new ConflictError(result.ErrorMessage));
+        if (result.Tenant is null)
+        {
+            return Result.Fail<TenantDto>("Tenant creation succeeded but returned null");
+        }
+
+        return Result.Ok(result.Tenant);
     }
 
     /// <summary>

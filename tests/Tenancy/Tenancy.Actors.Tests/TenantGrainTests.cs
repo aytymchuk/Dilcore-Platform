@@ -117,7 +117,7 @@ public class TenantGrainTests
         // Create
         await grain.CreateAsync(displayName, description);
 
-        // Act - Get a new reference and fetch tenant
+        // Act - Fetch tenant using a new grain reference to verify persistence
         var newGrainRef = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
         var result = await newGrainRef.GetAsync();
 

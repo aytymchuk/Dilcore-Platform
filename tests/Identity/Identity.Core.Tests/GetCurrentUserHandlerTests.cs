@@ -80,7 +80,7 @@ public class GetCurrentUserHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.ShouldBeFailedWithErrorAndMessage<NotFoundError>("User not found");
+        result.ShouldBeFailedWithErrorAndMessage<NotFoundError>($"User {userId} not found");
     }
 
     [Test]
@@ -104,5 +104,19 @@ public class GetCurrentUserHandlerTests
         // Assert
         _grainFactoryMock.Verify(x => x.GetGrain<IUserGrain>(userId, null), Times.Once);
         _userContextResolverMock.Verify(x => x.Resolve(), Times.Once);
+    }
+
+    [Test]
+    public async Task Handle_ShouldReturnError_WhenUserContextIdIsNull()
+    {
+        // Arrange
+        _userContextMock.Setup(x => x.Id).Returns((string?)null);
+        var query = new GetCurrentUserQuery();
+
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeFailedWithErrorAndMessage<ValidationError>("User ID is required");
     }
 }

@@ -79,6 +79,7 @@ public class UserEndpointTests
         var firstResponse = await _client.PostAsJsonAsync("/users/register", command);
         firstResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
         var firstResult = await firstResponse.Content.ReadFromJsonAsync<UserDto>();
+        firstResult.ShouldNotBeNull();
 
         // Act - second registration with same user ID returns existing user (idempotent)
         var secondResponse = await _client.PostAsJsonAsync("/users/register", command);
@@ -87,7 +88,7 @@ public class UserEndpointTests
         secondResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
         var secondResult = await secondResponse.Content.ReadFromJsonAsync<UserDto>();
         secondResult.ShouldNotBeNull();
-        secondResult!.Id.ShouldBe(firstResult!.Id);
+        secondResult.Id.ShouldBe(firstResult.Id);
         secondResult.Email.ShouldBe(firstResult.Email);
     }
 

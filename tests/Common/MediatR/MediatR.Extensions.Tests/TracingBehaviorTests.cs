@@ -3,6 +3,7 @@ using Dilcore.MediatR.Abstractions;
 using Dilcore.MediatR.Extensions;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using NUnit.Framework;
 using Shouldly;
@@ -12,6 +13,7 @@ namespace MediatR.Extensions.Tests;
 [TestFixture]
 public class TracingBehaviorTests
 {
+    private Mock<IHostEnvironment> _environmentMock;
     private ActivitySource _activitySource;
     private List<Activity> _activities;
     private ActivityListener _activityListener;
@@ -19,6 +21,9 @@ public class TracingBehaviorTests
     [SetUp]
     public void SetUp()
     {
+        _environmentMock = new Mock<IHostEnvironment>();
+        _environmentMock.Setup(x => x.EnvironmentName).Returns("Development");
+
         _activities = new List<Activity>();
         _activitySource = new ActivitySource("Application.Operations"); // Must match the one in TracingBehavior
 
@@ -44,7 +49,7 @@ public class TracingBehaviorTests
     public async Task Handle_ShouldCreateCommandActivity_WhenRequestIsCommand()
     {
         // Arrange
-        var behavior = new TracingBehavior<TestCommand, Result>();
+        var behavior = new TracingBehavior<TestCommand, Result>(_environmentMock.Object);
         var request = new TestCommand();
         RequestHandlerDelegate<Result> next = (_) => Task.FromResult(Result.Ok());
 
@@ -62,7 +67,7 @@ public class TracingBehaviorTests
     public async Task Handle_ShouldCreateQueryActivity_WithJsonPayload_WhenRequestIsQuery()
     {
         // Arrange
-        var behavior = new TracingBehavior<TestQuery, Result<string>>();
+        var behavior = new TracingBehavior<TestQuery, Result<string>>(_environmentMock.Object);
         var request = new TestQuery { Id = 123, SearchTerm = "test" };
         RequestHandlerDelegate<Result<string>> next = (_) => Task.FromResult(Result.Ok("success"));
 
@@ -82,10 +87,27 @@ public class TracingBehaviorTests
     }
 
     [Test]
+    public async Task Handle_ShouldNotLogPayload_WhenEnvironmentIsProduction()
+    {
+        // Arrange
+        _environmentMock.Setup(x => x.EnvironmentName).Returns("Production");
+        var behavior = new TracingBehavior<TestQuery, Result<string>>(_environmentMock.Object);
+        var request = new TestQuery { Id = 123, SearchTerm = "test" };
+        RequestHandlerDelegate<Result<string>> next = (_) => Task.FromResult(Result.Ok("success"));
+
+        // Act
+        await behavior.Handle(request, next, CancellationToken.None);
+
+        // Assert
+        var activity = _activities.Single();
+        activity.GetTagItem("db.statement").ShouldBeNull();
+    }
+
+    [Test]
     public async Task Handle_ShouldCreateGenericActivity_WhenRequestIsGeneralRequest()
     {
         // Arrange
-        var behavior = new TracingBehavior<TestRequest, Unit>();
+        var behavior = new TracingBehavior<TestRequest, Unit>(_environmentMock.Object);
         var request = new TestRequest();
         RequestHandlerDelegate<Unit> next = (_) => Task.FromResult(Unit.Value);
 

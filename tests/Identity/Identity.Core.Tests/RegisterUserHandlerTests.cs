@@ -1,6 +1,7 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Identity.Core.Features.Register;
+using Dilcore.Results.Abstractions;
 using Moq;
 using Shouldly;
 
@@ -98,6 +99,6 @@ public class RegisterUserHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.ShouldBeFailedWithMessage("User ID is required");
+        result.ShouldBeFailedWithErrorAndMessage<UnauthorizedError>("User ID is required for registration");
     }
 }

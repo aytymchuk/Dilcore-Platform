@@ -1,3 +1,4 @@
+using Azure.Data.Tables;
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Http.Extensions;

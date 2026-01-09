@@ -25,7 +25,7 @@ public sealed class GetTenantHandler : IQueryHandler<GetTenantQuery, TenantDto>
     {
         if (_tenantContext.Name is null)
         {
-            return Result.Fail<TenantDto>("Tenant name is required");
+            return Result.Fail<TenantDto>(new ValidationError("Tenant name is required"));
         }
 
         var grain = _grainFactory.GetGrain<ITenantGrain>(_tenantContext.Name);

@@ -110,12 +110,4 @@ public class SecureEndpointTests : BaseIntegrationTest
         var response3 = await client.GetAsync("/weatherforecast");
         response3.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
-
-    private static async Task SeedTenantAsync(CustomWebApplicationFactory factory, string tenantId)
-    {
-        using var scope = factory.Services.CreateScope();
-        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
-        var tenantGrain = grainFactory.GetGrain<ITenantGrain>(tenantId);
-        await tenantGrain.CreateAsync($"Test Tenant {tenantId}", "Seeded for SecureEndpointTests");
-    }
 }

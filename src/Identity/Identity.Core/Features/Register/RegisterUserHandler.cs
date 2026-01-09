@@ -17,8 +17,8 @@ public sealed class RegisterUserHandler : ICommandHandler<RegisterUserCommand, U
 
     public RegisterUserHandler(IUserContextResolver userContextResolver, IGrainFactory grainFactory)
     {
-        _userContextResolver = userContextResolver;
-        _grainFactory = grainFactory;
+        _userContextResolver = userContextResolver ?? throw new ArgumentNullException(nameof(userContextResolver));
+        _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
     }
 
     public async Task<Result<UserDto>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -27,7 +27,7 @@ public sealed class RegisterUserHandler : ICommandHandler<RegisterUserCommand, U
 
         if (userContext.Id is null)
         {
-            return Result.Fail<UserDto>(new ValidationError("User ID is required for registration"));
+            return Result.Fail<UserDto>(new UnauthorizedError("User ID is required for registration"));
         }
 
         var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);

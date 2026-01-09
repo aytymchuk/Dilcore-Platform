@@ -34,9 +34,9 @@ public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, U
 
         if (result is null)
         {
-            return Result.Fail<UserDto?>(new NotFoundError("User not found"));
+            return Result.Fail<UserDto?>(new NotFoundError($"User {userContext.Id} not found"));
         }
 
-        return Result.Ok<UserDto?>(result);
+        return Result.Ok(result);
     }
 }
