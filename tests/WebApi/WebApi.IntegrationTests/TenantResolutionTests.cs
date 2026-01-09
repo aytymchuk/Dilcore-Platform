@@ -1,6 +1,8 @@
 using System.Net;
 using Dilcore.Results.Abstractions;
+using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
@@ -8,12 +10,19 @@ namespace Dilcore.WebApi.IntegrationTests;
 [TestFixture]
 public class TenantResolutionTests : BaseIntegrationTest
 {
+    private const string TestTenantId = "t1";
     private HttpClient _client = null!;
 
     [OneTimeSetUp]
-    public void SetUpClient()
+    public async Task SetUpClient()
     {
         _client = Factory.CreateClient();
+
+        // Create test tenant via Orleans grain
+        using var scope = Factory.Services.CreateScope();
+        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        var tenantGrain = grainFactory.GetGrain<ITenantGrain>(TestTenantId);
+        await tenantGrain.CreateAsync("Test Tenant", "Tenant for integration tests");
     }
 
     [OneTimeTearDown]

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Dilcore.WebApi.IntegrationTests.Infrastructure;
 
@@ -10,15 +11,26 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     public FakeUser FakeUser { get; } = new FakeUser();
 
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        // Configure settings BEFORE Program.cs runs via environment variables
+        // This ensures Orleans reads our test configuration
+        builder.ConfigureHostConfiguration(config =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["GrainsSettings:UseAzureClustering"] = "false",
+                ["GrainsSettings:ClusterId"] = "test-cluster",
+                ["GrainsSettings:ServiceId"] = "test-service"
+            });
+        });
+
+        return base.CreateHost(builder);
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
-
-        builder.ConfigureAppConfiguration((_, config) =>
-        {
-            // Don't clear sources - just add the Testing config to override
-            config.AddJsonFile("appsettings.Testing.json", optional: false, reloadOnChange: false);
-        });
 
         builder.ConfigureServices(services =>
         {
@@ -81,4 +93,3 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         }
     }
 }
-

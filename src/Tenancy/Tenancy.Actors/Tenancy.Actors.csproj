@@ -1,6 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="..\Tenancy.Store\Tenancy.Store.csproj" />
+    <PackageReference Include="Microsoft.Orleans.Sdk" />
+    <PackageReference Include="Microsoft.Orleans.Server" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
   </ItemGroup>
 </Project>

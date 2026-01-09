@@ -3,11 +3,11 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Tenancy.Core\Tenancy.Core.csproj" />
-    <ProjectReference Include="..\Tenancy.Store\Tenancy.Store.csproj" />
-    <ProjectReference Include="..\Tenancy.Infrastructure\Tenancy.Infrastructure.csproj" />
-    <ProjectReference Include="..\Tenancy.Domain\Tenancy.Domain.csproj" />
-    <ProjectReference Include="..\Tenancy.Actors\Tenancy.Actors.csproj" />
     <ProjectReference Include="..\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
   </ItemGroup>
 </Project>

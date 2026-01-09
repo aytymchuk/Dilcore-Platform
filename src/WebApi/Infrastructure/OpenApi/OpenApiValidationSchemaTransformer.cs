@@ -11,7 +11,7 @@ namespace Dilcore.WebApi.Infrastructure.OpenApi;
 /// OpenAPI schema filter that reflects FluentValidation rules into OpenAPI schema properties.
 /// Adds required, minLength, maxLength, pattern, minimum, maximum constraints.
 /// </summary>
-internal sealed class OpenApiValidationSchemaTransformer(IServiceScopeFactory serviceScopeFactory) : IOpenApiSchemaTransformer
+public sealed class OpenApiValidationSchemaTransformer(IServiceScopeFactory serviceScopeFactory) : IOpenApiSchemaTransformer
 {
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {

@@ -43,4 +43,26 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(LogLevel.Information, "Circuit breaker reset")]
     public static partial void LogCircuitBreakerReset(this ILogger logger);
+
+    // OrleansTenantStore - Tenant Resolution
+    [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: Querying tenant by identifier '{Identifier}'")]
+    public static partial void LogTenantStoreGetByIdentifier(this ILogger logger, string identifier);
+
+    [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: Tenant '{Identifier}' not found in grain")]
+    public static partial void LogTenantStoreNotFound(this ILogger logger, string identifier);
+
+    [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: Resolved tenant '{Identifier}' with display name '{DisplayName}'")]
+    public static partial void LogTenantStoreResolved(this ILogger logger, string identifier, string displayName);
+
+    [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: GetAllAsync is not supported for Orleans grain store")]
+    public static partial void LogTenantStoreGetAllNotSupported(this ILogger logger);
+
+    [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: {Operation} is not supported - use TenantGrain directly")]
+    public static partial void LogTenantStoreModificationNotSupported(this ILogger logger, string operation);
+
+    [LoggerMessage(LogLevel.Warning, "OrleansTenantStore: Invalid identifier provided")]
+    public static partial void LogTenantStoreInvalidIdentifier(this ILogger logger);
+
+    [LoggerMessage(LogLevel.Error, "OrleansTenantStore: Error resolving tenant '{Identifier}'")]
+    public static partial void LogTenantStoreResolutionError(this ILogger logger, Exception ex, string identifier);
 }
