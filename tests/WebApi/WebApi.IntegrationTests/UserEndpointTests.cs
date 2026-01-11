@@ -11,29 +11,26 @@ namespace Dilcore.WebApi.IntegrationTests;
 /// Integration tests for User endpoints (/users).
 /// </summary>
 [TestFixture]
-public class UserEndpointTests
+public class UserEndpointTests : BaseIntegrationTest
 {
-    private CustomWebApplicationFactory _factory = null!;
     private HttpClient _client = null!;
-
-    [OneTimeSetUp]
-    public void SetUpFactory()
-    {
-        _factory = new CustomWebApplicationFactory();
-    }
+    private const string TenantId = "test-tenant";
 
     [SetUp]
-    public void SetUpClient()
+    public async Task SetUpClient()
     {
+        await SeedTenantAsync(Factory, TenantId);
+
         // Reset the fake user to defaults before each test
-        _factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
-        _factory.FakeUser.Email = "test@example.com";
-        _factory.FakeUser.FullName = "Test User";
-        _factory.FakeUser.TenantId = "test-tenant";
-        _factory.FakeUser.IsAuthenticated = true;
-        _client = _factory.CreateClient();
+        Factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
+        Factory.FakeUser.Email = "test@example.com";
+        Factory.FakeUser.FullName = "Test User";
+        Factory.FakeUser.TenantId = TenantId;
+        Factory.FakeUser.IsAuthenticated = true;
+
+        _client = Factory.CreateClient();
         // Set default tenant header for all requests
-        _client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "test-tenant");
+        _client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, TenantId);
     }
 
     [TearDown]
@@ -42,11 +39,7 @@ public class UserEndpointTests
         _client.Dispose();
     }
 
-    [OneTimeTearDown]
-    public void TearDownFactory()
-    {
-        _factory.Dispose();
-    }
+
 
     #region POST /users/register
 
@@ -72,7 +65,7 @@ public class UserEndpointTests
     public async Task RegisterUser_IsIdempotent_ReturnsExistingUserOnReRegistration()
     {
         // Arrange - use a fixed user ID for re-registration
-        _factory.FakeUser.UserId = "existing-user-id";
+        Factory.FakeUser.UserId = "existing-user-id";
         var command = new { Email = "existing@example.com", FullName = "Existing User" };
 
         // First registration
@@ -96,7 +89,7 @@ public class UserEndpointTests
     public async Task RegisterUser_ShouldReturnUnauthorized_WhenNotAuthenticated()
     {
         // Arrange
-        _factory.FakeUser.IsAuthenticated = false;
+        Factory.FakeUser.IsAuthenticated = false;
         var command = new { Email = "test@example.com", FullName = "Test User" };
 
         // Act
@@ -132,7 +125,7 @@ public class UserEndpointTests
     public async Task GetCurrentUser_ShouldReturnNotFound_WhenUserDoesNotExist()
     {
         // Arrange - use a new user ID that hasn't been registered
-        _factory.FakeUser.UserId = $"nonexistent-{Guid.NewGuid():N}";
+        Factory.FakeUser.UserId = $"nonexistent-{Guid.NewGuid():N}";
 
         // Act
         var response = await _client.GetAsync("/users/me");
@@ -145,7 +138,7 @@ public class UserEndpointTests
     public async Task GetCurrentUser_ShouldReturnUnauthorized_WhenNotAuthenticated()
     {
         // Arrange
-        _factory.FakeUser.IsAuthenticated = false;
+        Factory.FakeUser.IsAuthenticated = false;
 
         // Act
         var response = await _client.GetAsync("/users/me");

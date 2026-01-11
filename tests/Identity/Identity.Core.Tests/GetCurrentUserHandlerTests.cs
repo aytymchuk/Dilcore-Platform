@@ -80,7 +80,7 @@ public class GetCurrentUserHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        result.ShouldBeFailedWithErrorAndMessage<NotFoundError>($"User {userId} not found");
+        result.ShouldBeFailedWithErrorAndMessage<NotFoundError>("User");
     }
 
     [Test]

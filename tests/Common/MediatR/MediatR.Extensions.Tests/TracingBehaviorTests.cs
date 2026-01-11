@@ -14,7 +14,6 @@ namespace MediatR.Extensions.Tests;
 public class TracingBehaviorTests
 {
     private Mock<IHostEnvironment> _environmentMock;
-    private ActivitySource _activitySource;
     private List<Activity> _activities;
     private ActivityListener _activityListener;
 
@@ -25,7 +24,7 @@ public class TracingBehaviorTests
         _environmentMock.Setup(x => x.EnvironmentName).Returns("Development");
 
         _activities = new List<Activity>();
-        _activitySource = new ActivitySource("Application.Operations"); // Must match the one in TracingBehavior
+
 
         _activityListener = new ActivityListener
         {
@@ -41,7 +40,7 @@ public class TracingBehaviorTests
     public void TearDown()
     {
         _activityListener.Dispose();
-        _activitySource.Dispose();
+
         _activities.Clear();
     }
 
@@ -90,7 +89,7 @@ public class TracingBehaviorTests
     public async Task Handle_ShouldNotLogPayload_WhenEnvironmentIsProduction()
     {
         // Arrange
-        _environmentMock.Setup(x => x.EnvironmentName).Returns("Production");
+        _environmentMock.Setup(x => x.EnvironmentName).Returns(Environments.Production);
         var behavior = new TracingBehavior<TestQuery, Result<string>>(_environmentMock.Object);
         var request = new TestQuery { Id = 123, SearchTerm = "test" };
         RequestHandlerDelegate<Result<string>> next = (_) => Task.FromResult(Result.Ok("success"));

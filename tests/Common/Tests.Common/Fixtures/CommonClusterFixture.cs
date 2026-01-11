@@ -21,6 +21,4 @@ public class CommonClusterFixture<TConfigurator> : IDisposable
         Cluster.StopAllSilos();
         GC.SuppressFinalize(this);
     }
-
-
 }

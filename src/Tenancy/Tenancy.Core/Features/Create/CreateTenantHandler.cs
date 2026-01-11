@@ -16,7 +16,7 @@ public sealed partial class CreateTenantHandler : ICommandHandler<CreateTenantCo
 
     public CreateTenantHandler(IGrainFactory grainFactory)
     {
-        _grainFactory = grainFactory;
+        _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
     }
 
     public async Task<Result<TenantDto>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)

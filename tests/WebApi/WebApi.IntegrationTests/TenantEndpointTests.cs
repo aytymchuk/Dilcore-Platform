@@ -177,22 +177,21 @@ public class TenantEndpointTests
         // Arrange
         // 1. Create a tenant while authenticated
         var tenantName = "auth-test-tenant";
-        var command = new { DisplayName = tenantName, Description = "Tenant for auth test" };
-        var createResponse = await _client.PostAsJsonAsync("/tenants", command);
+        var tenantId = "auth-test-tenant"; // Kebab case
 
-        // Ensure creation succeeded (or accept Conflict if it already exists from previous run)
-        if (createResponse.StatusCode != HttpStatusCode.OK && createResponse.StatusCode != HttpStatusCode.Conflict)
+        // Seed directly via grain to ensure existence
+        using (var scope = _factory.Services.CreateScope())
         {
-            createResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+            var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+            var tenantGrain = grainFactory.GetGrain<ITenantGrain>(tenantId);
+            await tenantGrain.CreateAsync(tenantName, "Tenant for auth test");
         }
-
-        var expectedTenantId = "auth-test-tenant"; // Kebab case of display name
 
         // 2. De-authenticate
         _factory.FakeUser.IsAuthenticated = false;
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/tenants");
-        request.Headers.Add(TenantConstants.HeaderName, expectedTenantId);
+        request.Headers.Add(TenantConstants.HeaderName, tenantId);
 
         // Act
         var response = await _client.SendAsync(request);

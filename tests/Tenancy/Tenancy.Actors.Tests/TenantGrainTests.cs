@@ -62,7 +62,7 @@ public class TenantGrainTests
         // Act - Try to create again with different data
         var secondResult = await grain.CreateAsync("Different Name", "Different description");
 
-        // Assert - Should return original data
+        // Assert - Should fail and return an error indicating tenant already exists
         secondResult.ShouldNotBeNull();
         secondResult.IsSuccess.ShouldBeFalse();
         secondResult.ErrorMessage.ShouldNotBeNull();

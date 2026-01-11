@@ -1,6 +1,6 @@
 # Orleans Integration Architecture Plan
 
-**Dilcore Platform - Distributed Actor Model Implementation**
+## Dilcore Platform - Distributed Actor Model Implementation
 
 **Version**: 1.0
 **Date**: 2026-01-07
@@ -30,7 +30,7 @@
 
 ## 1. Executive Summary
 
-This document outlines the comprehensive plan for integrating Microsoft Orleans (v9.2.1) into the Dilcore Platform to enable distributed, high-performance, actor-based processing while maintaining the existing clean architecture principles with MediatR, multi-tenancy, and OpenTelemetry.
+This document outlines the comprehensive plan for integrating Microsoft Orleans (v10.0.0-rc.2) into the Dilcore Platform to enable distributed, high-performance, actor-based processing while maintaining the existing clean architecture principles with MediatR, multi-tenancy, and OpenTelemetry.
 
 ### Key Objectives
 
@@ -198,11 +198,11 @@ Authentication: Managed Identity (DefaultAzureCredential)
 
 ```xml
 <!-- Core Orleans -->
-<PackageVersion Include="Microsoft.Orleans.Server" Version="9.2.1" />
-<PackageVersion Include="Microsoft.Orleans.Sdk" Version="9.2.1" />
+<PackageVersion Include="Microsoft.Orleans.Server" Version="10.0.0-rc.2" />
+<PackageVersion Include="Microsoft.Orleans.Sdk" Version="10.0.0-rc.2" />
 
 <!-- Azure Clustering -->
-<PackageVersion Include="Microsoft.Orleans.Clustering.AzureStorage" Version="9.2.1" />
+<PackageVersion Include="Microsoft.Orleans.Clustering.AzureStorage" Version="10.0.0-rc.2" />
 
 <!-- Observability -->
 <PackageVersion Include="OrleansDashboard" Version="8.2.0" />
@@ -245,7 +245,7 @@ src/
 ```json
 {
   "GrainsSettings": {
-    "StorageAccountName": "$(PLATFORM_GRAIN_STORAGE_ACCOUNT_NAME)",
+    "StorageAccountName": "your-storage-account-name",
     "ClusterId": "dilcore-cluster",
     "ServiceId": "dilcore-platform"
   },
@@ -951,6 +951,60 @@ public class UserGrainTests
 - Test end-to-end flow: HTTP → MediatR → Grain.
 
 ---
+
+### 12.3 Error Handling & Edge Case Testing
+
+Augment standard unit and integration tests with focused scenarios for distributed actor reliability.
+
+#### Grain Exception Handling & Timeouts
+**Scenario**: Simulate network faults or timeout conditions during grain operations.
+
+**Test Setup**:
+- Use `TestCluster` with configured `SiloConfigurator` to inject fault-injecting storage or mock services.
+- Mock `IUserGrain` dependencies (e.g., repository) to throw `TimeoutException` or simulated `GrainCallException`.
+
+**Reference Methods**:
+- `IUserGrain.UpdateProfileAsync`
+- `IUserGrain.GetProfileAsync`
+
+**Assertions**:
+- Verify system retries (if configured with Policies) or fails fast with correct typed error (e.g. `SystemError` vs `TimeoutError`).
+- Ensure no phantom state is left after failed operations.
+
+#### Tenant Isolation & Security
+**Scenario**: Verify cross-tenant calls are strictly prohibited.
+
+**Test Setup**:
+- Activate a grain for Tenant A.
+- Attempt to call this grain or access its state using a context/principal from Tenant B.
+
+**Assertions**:
+- Call should be rejected with `UnauthorizedAccessException` or similar security exception.
+- Grain activation for Tenant B should result in a distinct, isolated instance/state.
+
+#### Grain Lifecycle (Deactivation/Re-activation)
+**Scenario**: Ensure state consistency across deactivation cycles.
+
+**Test Setup**:
+- Activate grain, modify state (e.g., `UpdateProfileAsync`), and ensure state is persisted.
+- Force grain deactivation (`DeactivateOnIdle` + wait, or test helper).
+- Reactivate grain by calling a read method (`GetProfileAsync`).
+
+**Assertions**:
+- Returned state must match the last persisted state.
+- In-memory state should be correctly re-hydrated from storage.
+
+#### Serialization & Malformed State
+**Scenario**: Handling of corrupted or incompatible state data in storage.
+
+**Test Setup**:
+- Manually seed storage with malformed JSON/binary data for a specific grain key.
+- Attempt to activate the grain by calling a method.
+
+**Assertions**:
+- Grain activation should fail gracefully (e.g., `StateStorageException`).
+- System should log detailed deserialization error for diagnosis.
+- Should NOT crash the silo.
 
 ## 13. Operational Considerations
 

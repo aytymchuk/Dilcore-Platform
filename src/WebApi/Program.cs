@@ -12,7 +12,6 @@ using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.Identity.WebApi;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.WebApi;
-using Finbuckle.MultiTenant;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;

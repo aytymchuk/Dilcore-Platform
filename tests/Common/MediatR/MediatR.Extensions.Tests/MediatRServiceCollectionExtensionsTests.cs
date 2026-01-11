@@ -48,7 +48,7 @@ public class MediatRServiceCollectionExtensionsTests
         });
 
         var hostEnvironment = new Mock<IHostEnvironment>();
-        hostEnvironment.Setup(x => x.EnvironmentName).Returns("Development");
+        hostEnvironment.Setup(x => x.EnvironmentName).Returns(Environments.Development);
         services.AddSingleton(hostEnvironment.Object);
 
         services.AddMediatRInfrastructure(typeof(MediatRServiceCollectionExtensionsTests).Assembly);

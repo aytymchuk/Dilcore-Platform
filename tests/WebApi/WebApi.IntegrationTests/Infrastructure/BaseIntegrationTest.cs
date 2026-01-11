@@ -26,6 +26,11 @@ public abstract class BaseIntegrationTest
         using var scope = factory.Services.CreateScope();
         var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
         var tenantGrain = grainFactory.GetGrain<ITenantGrain>(tenantId);
-        await tenantGrain.CreateAsync($"Test Tenant {tenantId}", "Seeded for Integration Tests");
+
+        var existing = await tenantGrain.GetAsync();
+        if (existing is null)
+        {
+            await tenantGrain.CreateAsync($"Test Tenant {tenantId}", "Seeded for Integration Tests");
+        }
     }
 }

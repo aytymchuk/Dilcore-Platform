@@ -17,13 +17,13 @@ public sealed class GetTenantHandler : IQueryHandler<GetTenantQuery, TenantDto>
 
     public GetTenantHandler(ITenantContext tenantContext, IGrainFactory grainFactory)
     {
-        _tenantContext = tenantContext;
-        _grainFactory = grainFactory;
+        _tenantContext = tenantContext ?? throw new ArgumentNullException(nameof(tenantContext));
+        _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
     }
 
     public async Task<Result<TenantDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
     {
-        if (_tenantContext.Name is null)
+        if (string.IsNullOrWhiteSpace(_tenantContext.Name))
         {
             return Result.Fail<TenantDto>(new ValidationError("Tenant name is required"));
         }
