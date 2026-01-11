@@ -8,6 +8,7 @@ namespace Dilcore.Tenancy.Actors.Tests;
 /// Integration tests for TenantGrain using Orleans TestCluster.
 /// </summary>
 [TestFixture]
+[NonParallelizable]
 public class TenantGrainTests
 {
     private ClusterFixture _fixture = null!;

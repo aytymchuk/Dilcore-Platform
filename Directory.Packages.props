@@ -59,5 +59,8 @@
     <PackageVersion Include="Microsoft.Orleans.Sdk" Version="10.0.0-rc.2" />
     <PackageVersion Include="Microsoft.Orleans.Clustering.AzureStorage" Version="10.0.0-rc.2" />
     <PackageVersion Include="Microsoft.Orleans.TestingHost" Version="10.0.0-rc.2" />
+    <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="10.0.0-rc.2" />
+    <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="10.0.0-rc.2" />
+    <PackageVersion Include="OrleansDashboard" Version="8.2.0" />
   </ItemGroup>
 </Project>

@@ -27,7 +27,7 @@ public sealed class RegisterUserHandler : ICommandHandler<RegisterUserCommand, U
 
         if (userContext.Id is null)
         {
-            return Result.Fail<UserDto>(new UnauthorizedError("User ID is required for registration"));
+            return Result.Fail<UserDto>(new ValidationError("User ID is required for registration"));
         }
 
         var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);

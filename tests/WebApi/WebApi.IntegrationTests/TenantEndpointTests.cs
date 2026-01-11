@@ -144,7 +144,7 @@ public class TenantEndpointTests
     }
 
     [Test]
-    public async Task GetTenant_ShouldReturnBadRequest_WhenTenantDoesNotExist()
+    public async Task GetTenant_ShouldReturnBadRequest_WhenTenantCannotBeResolved()
     {
         // Arrange - use a non-existent tenant in the header
         var request = new HttpRequestMessage(HttpMethod.Get, "/tenants");

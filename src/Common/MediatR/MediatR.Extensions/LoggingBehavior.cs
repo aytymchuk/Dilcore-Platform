@@ -24,7 +24,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         {
             var response = await next(cancellationToken);
 
-            if (response is FluentResults.IResultBase result)
+            if (response is IResultBase result)
             {
                 if (result.IsFailed)
                 {
@@ -60,7 +60,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             {
                 messages.Add(error.Message);
 
-                if (error is FluentResults.ExceptionalError exceptionalError)
+                if (error is ExceptionalError exceptionalError)
                 {
                     _logger.LogRequestFailedWithException(exceptionalError.Exception, requestName, error.Message);
                 }

@@ -51,7 +51,15 @@ public class TracingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         if (activity != null)
         {
-            EnrichActivity(activity, request);
+            try
+            {
+                EnrichActivity(activity, request);
+            }
+            catch (Exception ex)
+            {
+                activity.SetTag("mediatr.enrich_error", ex.GetType().FullName);
+                activity.SetTag("mediatr.enrich_error_message", ex.Message);
+            }
         }
 
         try

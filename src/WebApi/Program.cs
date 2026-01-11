@@ -82,7 +82,7 @@ builder.Host.UseOrleans((context, siloBuilder) =>
             var serviceUri = new Uri(
                 $"https://{grainsSettings.StorageAccountName}.table.core.windows.net/");
 
-            options.TableServiceClient = new Azure.Data.Tables.TableServiceClient(
+            options.TableServiceClient = new TableServiceClient(
                 serviceUri,
                 new Azure.Identity.DefaultAzureCredential());
         });
@@ -105,6 +105,12 @@ builder.Host.UseOrleans((context, siloBuilder) =>
 
     // OpenTelemetry activity propagation
     siloBuilder.AddActivityPropagation();
+    
+    // Config dashboard
+    siloBuilder.UseDashboard(options =>
+    {
+        options.BasePath = "/orleans-dashboard";
+    });
 });
 
 var app = builder.Build();

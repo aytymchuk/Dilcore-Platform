@@ -11,20 +11,20 @@
 
 ## Table of Contents
 
-1. [Executive Summary](#executive-summary)
-2. [Current Architecture Analysis](#current-architecture-analysis)
-3. [Orleans Architecture Overview](#orleans-architecture-overview)
-4. [Integration Strategy](#integration-strategy)
-5. [Multi-Tenancy Design](#multi-tenancy-design)
-6. [MediatR and Orleans Interaction Patterns](#mediatr-and-orleans-interaction-patterns)
-7. [OpenTelemetry Integration](#opentelemetry-integration)
-8. [Implementation Phases](#implementation-phases)
-9. [Detailed Implementation Steps](#detailed-implementation-steps)
-10. [Performance Considerations](#performance-considerations)
-11. [Security & Best Practices](#security--best-practices)
-12. [Testing Strategy](#testing-strategy)
-13. [Operational Considerations](#operational-considerations)
-14. [References & Resources](#references--resources)
+1. [Executive Summary](#1-executive-summary)
+2. [Current Architecture Analysis](#2-current-architecture-analysis)
+3. [Orleans Architecture Overview](#3-orleans-architecture-overview)
+4. [Integration Strategy](#4-integration-strategy)
+5. [Multi-Tenancy Design](#5-multi-tenancy-design)
+6. [MediatR and Orleans Interaction Patterns](#6-mediatr-and-orleans-interaction-patterns)
+7. [OpenTelemetry Integration](#7-opentelemetry-integration)
+8. [Implementation Phases](#8-implementation-phases)
+9. [Detailed Implementation Steps](#9-detailed-implementation-steps)
+10. [Performance Considerations](#10-performance-considerations)
+11. [Security & Best Practices](#11-security--best-practices)
+12. [Testing Strategy](#12-testing-strategy)
+13. [Operational Considerations](#13-operational-considerations)
+14. [References & Resources](#14-references--resources)
 
 ---
 
@@ -336,8 +336,21 @@ public class UserGrain : TenantGrainBase, IUserGrain
     protected override string ExtractTenantIdFromKey()
     {
         var key = this.GetPrimaryKeyString();
+        
+        if (string.IsNullOrEmpty(key))
+        {
+             throw new InvalidOperationException("Grain primary key cannot be null or empty.");
+        }
+
         var parts = key.Split('_', 2);
-        return parts.Length == 2 ? parts[0] : string.Empty;
+        
+        if (parts.Length != 2)
+        {
+            throw new InvalidOperationException(
+                $"Invalid grain key format: '{key}'. Expected 'tenantId_entityId'.");
+        }
+        
+        return parts[0];
     }
 
     public Task<string> GetUserNameAsync()

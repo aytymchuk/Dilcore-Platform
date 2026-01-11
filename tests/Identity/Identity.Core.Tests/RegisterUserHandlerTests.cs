@@ -99,6 +99,6 @@ public class RegisterUserHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
-        result.ShouldBeFailedWithErrorAndMessage<UnauthorizedError>("User ID is required for registration");
+        result.ShouldBeFailedWithErrorAndMessage<ValidationError>("User ID is required for registration");
     }
 }

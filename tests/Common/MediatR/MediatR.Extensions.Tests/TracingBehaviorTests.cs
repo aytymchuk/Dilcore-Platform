@@ -8,7 +8,7 @@ using Moq;
 using NUnit.Framework;
 using Shouldly;
 
-namespace MediatR.Extensions.Tests;
+namespace Dilcore.MediatR.Extensions.Tests;
 
 [TestFixture]
 public class TracingBehaviorTests
