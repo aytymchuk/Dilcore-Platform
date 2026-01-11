@@ -15,7 +15,7 @@ public class CommonClusterFixture<TConfigurator> : IDisposable
         Cluster.Deploy();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         try
         {
@@ -24,10 +24,6 @@ public class CommonClusterFixture<TConfigurator> : IDisposable
         catch (Exception)
         {
             // Ignore exceptions during shutdown to ensure Dispose doesn't throw
-        }
-        finally
-        {
-            GC.SuppressFinalize(this);
         }
     }
 }

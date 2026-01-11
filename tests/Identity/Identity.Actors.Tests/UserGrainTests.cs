@@ -35,7 +35,9 @@ public class UserGrainTests
         const string fullName = "Test User";
 
         // Act
+        var beforeRegister = DateTime.UtcNow;
         var result = await grain.RegisterAsync(email, fullName);
+        var afterRegister = DateTime.UtcNow;
 
         // Assert
         result.ShouldNotBeNull();
@@ -45,7 +47,8 @@ public class UserGrainTests
         result.User.Id.ShouldBe(userId);
         result.User.Email.ShouldBe(email);
         result.User.FullName.ShouldBe(fullName);
-        result.User.RegisteredAt.ShouldBeGreaterThan(DateTime.MinValue);
+        result.User.RegisteredAt.ShouldBeGreaterThanOrEqualTo(beforeRegister);
+        result.User.RegisteredAt.ShouldBeLessThanOrEqualTo(afterRegister);
     }
 
     [Test]

@@ -14,7 +14,6 @@ namespace Dilcore.WebApi.IntegrationTests;
 [TestFixture]
 public class TenantEndpointTests
 {
-    private const string TestTenantId = "test-tenant-for-auth";
     private CustomWebApplicationFactory _factory = null!;
     private HttpClient _client = null!;
 
@@ -71,7 +70,8 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnKebabCaseName()
     {
         // Arrange
-        var command = new { DisplayName = "Test Tenant With Spaces", Description = "Testing kebab-case" };
+        var uniqueId = Guid.NewGuid().ToString("N");
+        var command = new { DisplayName = $"Test Tenant With Spaces {uniqueId}", Description = "Testing kebab-case" };
 
         // Act
         var response = await _client.PostAsJsonAsync("/tenants", command);
@@ -80,14 +80,14 @@ public class TenantEndpointTests
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<TenantDto>();
         result.ShouldNotBeNull();
-        result.Name.ShouldBe("test-tenant-with-spaces");
+        result.Name.ShouldBe($"test-tenant-with-spaces-{uniqueId}");
     }
 
     [Test]
     public async Task CreateTenant_ShouldReturnConflict_WhenTenantAlreadyExists()
     {
         // Arrange - create the same tenant twice (using unique display name)
-        var command = new { DisplayName = "Duplicate Tenant", Description = "First creation" };
+        var command = new { DisplayName = $"Duplicate Tenant {Guid.NewGuid():N}", Description = "First creation" };
 
         // First creation
         var firstResponse = await _client.PostAsJsonAsync("/tenants", command);

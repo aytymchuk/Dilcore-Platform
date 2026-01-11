@@ -3,6 +3,8 @@ using FluentResults;
 using Microsoft.Extensions.Logging;
 using Moq;
 
+using Shouldly;
+
 namespace MediatR.Extensions.Tests;
 
 [TestFixture]
@@ -182,6 +184,29 @@ public class LoggingBehaviorTests
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Never);
+    }
+
+    [Test]
+    public void Handle_ShouldReThrowAndLogException_WhenHandlerThrows()
+    {
+        // Arrange
+        var request = new TestRequest();
+        var exception = new InvalidOperationException("Handler exploded");
+        RequestHandlerDelegate<Result> next = (ct) => throw exception;
+
+        // Act & Assert
+        Should.ThrowAsync<InvalidOperationException>(async () =>
+            await _behavior.Handle(request, next, CancellationToken.None));
+
+        // Verify LogError was called with the exception
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                exception,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
     }
 
     public class TestRequest : IRequest<Result>

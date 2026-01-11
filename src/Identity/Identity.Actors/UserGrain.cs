@@ -11,13 +11,16 @@ public sealed class UserGrain : Grain, IUserGrain
 {
     private readonly IPersistentState<UserState> _state;
     private readonly ILogger<UserGrain> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public UserGrain(
         [PersistentState("user", "UserStore")] IPersistentState<UserState> state,
-        ILogger<UserGrain> logger)
+        ILogger<UserGrain> logger,
+        TimeProvider timeProvider)
     {
         _state = state;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -45,7 +48,7 @@ public sealed class UserGrain : Grain, IUserGrain
         _state.State.Id = userId;
         _state.State.Email = email;
         _state.State.FullName = fullName;
-        _state.State.RegisteredAt = DateTime.UtcNow;
+        _state.State.RegisteredAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsRegistered = true;
 
         await _state.WriteStateAsync();
