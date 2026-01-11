@@ -29,7 +29,6 @@
     <!-- Orleans Actor Model -->
     <PackageReference Include="Microsoft.Orleans.Server" />
     <PackageReference Include="Microsoft.Orleans.Clustering.AzureStorage" />
-    <PackageReference Include="OrleansDashboard" />
   </ItemGroup>
 
   <ItemGroup>

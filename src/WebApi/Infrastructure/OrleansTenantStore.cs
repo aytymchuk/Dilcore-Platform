@@ -2,7 +2,6 @@ using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.WebApi.Extensions;
 using Finbuckle.MultiTenant.Abstractions;
-using Microsoft.Extensions.Logging;
 
 namespace Dilcore.WebApi.Infrastructure;
 

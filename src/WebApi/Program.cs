@@ -105,12 +105,6 @@ builder.Host.UseOrleans((context, siloBuilder) =>
 
     // OpenTelemetry activity propagation
     siloBuilder.AddActivityPropagation();
-    
-    // Config dashboard
-    siloBuilder.UseDashboard(options =>
-    {
-        options.BasePath = "/orleans-dashboard";
-    });
 });
 
 var app = builder.Build();

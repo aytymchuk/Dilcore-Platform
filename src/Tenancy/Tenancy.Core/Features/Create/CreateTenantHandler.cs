@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Results.Abstractions;
 using FluentResults;
-using MediatR;
 using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.Tenancy.Core.Features.Create;

@@ -1,9 +1,6 @@
 using System.Net;
 using Dilcore.MultiTenant.Abstractions;
-using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Orleans;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;

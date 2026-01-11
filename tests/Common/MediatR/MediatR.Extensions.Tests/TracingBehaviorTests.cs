@@ -1,11 +1,9 @@
 using System.Diagnostics;
 using Dilcore.MediatR.Abstractions;
-using Dilcore.MediatR.Extensions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Hosting;
 using Moq;
-using NUnit.Framework;
 using Shouldly;
 
 namespace Dilcore.MediatR.Extensions.Tests;

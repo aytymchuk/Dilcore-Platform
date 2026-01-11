@@ -2,7 +2,6 @@ using Dilcore.Authentication.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using FluentResults;
-using MediatR;
 using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.Identity.Core.Features.Register;

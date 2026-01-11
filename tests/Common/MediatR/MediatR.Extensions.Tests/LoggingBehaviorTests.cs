@@ -1,9 +1,7 @@
 using Dilcore.MediatR.Extensions;
 using FluentResults;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 
 namespace MediatR.Extensions.Tests;
 

@@ -1,6 +1,5 @@
 using Dilcore.Tenancy.Actors.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Orleans;
 
 namespace Dilcore.WebApi.IntegrationTests.Infrastructure;
 

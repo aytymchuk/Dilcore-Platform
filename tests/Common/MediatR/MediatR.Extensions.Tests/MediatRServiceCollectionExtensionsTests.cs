@@ -7,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
-using Dilcore.Tests.Common;
 
 namespace Dilcore.MediatR.Extensions.Tests;
 
