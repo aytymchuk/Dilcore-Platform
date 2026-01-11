@@ -41,9 +41,9 @@ public class TenantEndpointTests
     }
 
     [OneTimeTearDown]
-    public void TearDownFactory()
+    public async Task TearDownFactory()
     {
-        _factory.Dispose();
+        await _factory.DisposeAsync();
     }
 
     #region POST /tenants

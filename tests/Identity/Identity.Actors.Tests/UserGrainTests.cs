@@ -39,14 +39,17 @@ public class UserGrainTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Id.ShouldBe(userId);
-        result.Email.ShouldBe(email);
-        result.FullName.ShouldBe(fullName);
-        result.RegisteredAt.ShouldBeGreaterThan(DateTime.MinValue);
+        result.IsSuccess.ShouldBeTrue();
+        result.User.ShouldNotBeNull();
+
+        result.User.Id.ShouldBe(userId);
+        result.User.Email.ShouldBe(email);
+        result.User.FullName.ShouldBe(fullName);
+        result.User.RegisteredAt.ShouldBeGreaterThan(DateTime.MinValue);
     }
 
     [Test]
-    public async Task RegisterAsync_ShouldReturnExistingUser_WhenAlreadyRegistered()
+    public async Task RegisterAsync_ShouldReturnFailure_WhenAlreadyRegistered()
     {
         // Arrange
         var userId = Guid.NewGuid().ToString();
@@ -55,16 +58,16 @@ public class UserGrainTests
         const string fullName = "Existing User";
 
         // First registration
-        var firstResult = await grain.RegisterAsync(email, fullName);
+        await grain.RegisterAsync(email, fullName);
 
         // Act - Try to register again with different data
         var secondResult = await grain.RegisterAsync("different@example.com", "Different User");
 
-        // Assert - Should return original registration data
+        // Assert - Should return failure
         secondResult.ShouldNotBeNull();
-        secondResult.Email.ShouldBe(email);
-        secondResult.FullName.ShouldBe(fullName);
-        secondResult.RegisteredAt.ShouldBe(firstResult.RegisteredAt);
+        secondResult.IsSuccess.ShouldBeFalse();
+        secondResult.ErrorMessage.ShouldNotBeNullOrWhiteSpace();
+        secondResult.ErrorMessage.ShouldContain($"User '{userId}' is already registered");
     }
 
     [Test]

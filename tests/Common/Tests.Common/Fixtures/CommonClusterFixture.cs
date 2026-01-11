@@ -17,7 +17,17 @@ public class CommonClusterFixture<TConfigurator> : IDisposable
 
     public void Dispose()
     {
-        Cluster.StopAllSilos();
-        GC.SuppressFinalize(this);
+        try
+        {
+            Cluster.StopAllSilos();
+        }
+        catch (Exception)
+        {
+            // Ignore exceptions during shutdown to ensure Dispose doesn't throw
+        }
+        finally
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 }

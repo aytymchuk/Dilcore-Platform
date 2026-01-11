@@ -59,6 +59,8 @@ public class GetCurrentUserHandlerTests
         user.Email.ShouldBe(email);
         user.FullName.ShouldBe(fullName);
         user.RegisteredAt.ShouldBe(registeredAt);
+
+        userGrainMock.Verify(x => x.GetProfileAsync(), Times.Once);
     }
 
     [Test]

@@ -11,8 +11,8 @@ public interface IUserGrain : IGrainWithStringKey
     /// </summary>
     /// <param name="email">The user's email address.</param>
     /// <param name="fullName">The user's full name.</param>
-    /// <returns>The registered user profile.</returns>
-    Task<UserDto> RegisterAsync(string email, string fullName);
+    /// <returns>The result of the registration operation.</returns>
+    Task<UserCreationResult> RegisterAsync(string email, string fullName);
 
     /// <summary>
     /// Gets the user's profile information.

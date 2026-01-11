@@ -32,14 +32,14 @@ public sealed class UserGrain : Grain, IUserGrain
         return base.OnDeactivateAsync(reason, cancellationToken);
     }
 
-    public async Task<UserDto> RegisterAsync(string email, string fullName)
+    public async Task<UserCreationResult> RegisterAsync(string email, string fullName)
     {
         var userId = this.GetPrimaryKeyString();
 
         if (_state.State.IsRegistered)
         {
             _logger.LogUserAlreadyRegistered(userId);
-            return ToDto();
+            return UserCreationResult.Failure($"User '{userId}' is already registered.");
         }
 
         _state.State.Id = userId;
@@ -52,7 +52,7 @@ public sealed class UserGrain : Grain, IUserGrain
 
         _logger.LogUserRegistered(userId, email);
 
-        return ToDto();
+        return UserCreationResult.Success(ToDto());
     }
 
     public Task<UserDto?> GetProfileAsync()

@@ -42,8 +42,9 @@ public class RegisterUserHandlerTests
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
         var expectedDto = new UserDto(userId, email, fullName, DateTime.UtcNow);
+        var creationResult = UserCreationResult.Success(expectedDto);
         var userGrainMock = new Mock<IUserGrain>();
-        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(expectedDto);
+        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(creationResult);
 
         _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
 
@@ -72,8 +73,9 @@ public class RegisterUserHandlerTests
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
         var expectedDto = new UserDto(userId, email, fullName, registeredAt);
+        var creationResult = UserCreationResult.Success(expectedDto);
         var userGrainMock = new Mock<IUserGrain>();
-        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(expectedDto);
+        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(creationResult);
 
         _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
 
@@ -85,6 +87,32 @@ public class RegisterUserHandlerTests
         // Assert
         var user = result.ShouldBeSuccessWithValue();
         user.RegisteredAt.ShouldBe(registeredAt);
+    }
+
+    [Test]
+    public async Task Handle_ShouldReturnConflict_WhenUserAlreadyRegistered()
+    {
+        // Arrange
+        const string userId = "user-789";
+        const string email = "conflict@example.com";
+        const string fullName = "Conflict User";
+        const string errorMessage = "User already registered";
+
+        _userContextMock.Setup(x => x.Id).Returns(userId);
+
+        var creationResult = UserCreationResult.Failure(errorMessage);
+        var userGrainMock = new Mock<IUserGrain>();
+        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(creationResult);
+
+        _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
+
+        var command = new RegisterUserCommand(email, fullName);
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.ShouldBeFailedWithErrorAndMessage<ConflictError>(errorMessage);
     }
 
     [Test]

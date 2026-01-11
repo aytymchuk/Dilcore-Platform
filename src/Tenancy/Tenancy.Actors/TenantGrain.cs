@@ -11,13 +11,16 @@ public sealed class TenantGrain : Grain, ITenantGrain
 {
     private readonly IPersistentState<TenantState> _state;
     private readonly ILogger<TenantGrain> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public TenantGrain(
         [PersistentState("tenant", "TenantStore")] IPersistentState<TenantState> state,
-        ILogger<TenantGrain> logger)
+        ILogger<TenantGrain> logger,
+        TimeProvider timeProvider)
     {
         _state = state;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -45,7 +48,7 @@ public sealed class TenantGrain : Grain, ITenantGrain
         _state.State.Name = tenantName;
         _state.State.DisplayName = displayName;
         _state.State.Description = description;
-        _state.State.CreatedAt = DateTime.UtcNow;
+        _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
 
         await _state.WriteStateAsync();

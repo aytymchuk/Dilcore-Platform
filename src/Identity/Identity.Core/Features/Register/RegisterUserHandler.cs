@@ -31,6 +31,17 @@ public sealed class RegisterUserHandler : ICommandHandler<RegisterUserCommand, U
 
         var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);
         var result = await grain.RegisterAsync(request.Email, request.FullName);
-        return Result.Ok(result);
+
+        if (!result.IsSuccess)
+        {
+            return Result.Fail(new ConflictError(result.ErrorMessage ?? "Failed to register user."));
+        }
+
+        if (result.User is null)
+        {
+            return Result.Fail<UserDto>("User registration succeeded but returned null.");
+        }
+
+        return Result.Ok(result.User);
     }
 }
