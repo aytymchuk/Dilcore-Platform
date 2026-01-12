@@ -1,6 +1,6 @@
 using Dilcore.MultiTenant.Abstractions;
-using Microsoft.AspNetCore.OpenApi;
 using Finbuckle.MultiTenant.AspNetCore.Routing;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace Dilcore.WebApi.Infrastructure.OpenApi;

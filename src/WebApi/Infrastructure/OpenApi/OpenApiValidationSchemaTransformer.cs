@@ -1,5 +1,5 @@
-using Dilcore.WebApi.Extensions;
 using System.Reflection;
+using Dilcore.WebApi.Extensions;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
