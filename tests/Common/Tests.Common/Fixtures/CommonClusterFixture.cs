@@ -20,10 +20,12 @@ public class CommonClusterFixture<TConfigurator> : IDisposable
         try
         {
             Cluster.StopAllSilos();
+            GC.SuppressFinalize(this);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Ignore exceptions during shutdown to ensure Dispose doesn't throw
+            // Log exception to ensure visibility, but don't rethrow
+            Console.WriteLine($"Error during cluster shutdown: {ex}");
         }
     }
 }

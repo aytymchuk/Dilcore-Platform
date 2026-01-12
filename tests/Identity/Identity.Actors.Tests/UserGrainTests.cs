@@ -110,7 +110,7 @@ public class UserGrainTests
     }
 
     [Test]
-    public async Task UserState_ShouldPersist_AcrossGrainCalls()
+    public async Task UserState_ShouldBeAccessible_FromMultipleReferences()
     {
         // Arrange
         var userId = Guid.NewGuid().ToString();

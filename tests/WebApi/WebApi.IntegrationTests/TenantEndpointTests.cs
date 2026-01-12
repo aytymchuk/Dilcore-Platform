@@ -176,8 +176,9 @@ public class TenantEndpointTests
     {
         // Arrange
         // 1. Create a tenant while authenticated
-        var tenantName = "auth-test-tenant";
-        var tenantId = "auth-test-tenant"; // Kebab case
+        var uniqueSuffix = Guid.NewGuid().ToString("N");
+        var tenantName = $"auth-test-tenant-{uniqueSuffix}";
+        var tenantId = $"auth-test-tenant-{uniqueSuffix}"; // Kebab case
 
         // Seed directly via grain to ensure existence
         using (var scope = _factory.Services.CreateScope())

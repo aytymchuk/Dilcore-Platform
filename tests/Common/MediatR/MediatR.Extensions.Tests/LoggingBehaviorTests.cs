@@ -187,7 +187,7 @@ public class LoggingBehaviorTests
     }
 
     [Test]
-    public void Handle_ShouldReThrowAndLogException_WhenHandlerThrows()
+    public async Task Handle_ShouldReThrowAndLogException_WhenHandlerThrows()
     {
         // Arrange
         var request = new TestRequest();
@@ -195,7 +195,7 @@ public class LoggingBehaviorTests
         RequestHandlerDelegate<Result> next = (ct) => throw exception;
 
         // Act & Assert
-        Should.ThrowAsync<InvalidOperationException>(async () =>
+        await Should.ThrowAsync<InvalidOperationException>(async () =>
             await _behavior.Handle(request, next, CancellationToken.None));
 
         // Verify LogError was called with the exception
