@@ -13,24 +13,25 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override IHost CreateHost(IHostBuilder builder)
     {
-        // Configure settings BEFORE Program.cs runs via environment variables
-        // This ensures Orleans reads our test configuration
-        builder.ConfigureHostConfiguration(config =>
-        {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["GrainsSettings:UseAzureClustering"] = "false",
-                ["GrainsSettings:ClusterId"] = "test-cluster",
-                ["GrainsSettings:ServiceId"] = "test-service"
-            });
-        });
-
+        // No host configuration override needed here as we use ConfigureAppConfiguration
         return base.CreateHost(builder);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            // Add test configuration that overrides appsettings.Testing.json
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["GrainsSettings:ClusterId"] = "test-cluster",
+                ["GrainsSettings:ServiceId"] = "test-service",
+                ["GrainsSettings:StorageAccountName"] = "", // Force empty to disable Azure Clustering
+                ["AppConfigEndpoint"] = "" // Disable Azure App Configuration in tests
+            });
+        });
 
         builder.ConfigureServices(services =>
         {
