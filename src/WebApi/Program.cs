@@ -1,21 +1,21 @@
 using Azure.Data.Tables;
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
-using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.Configuration.AspNetCore;
+using Dilcore.Identity.WebApi;
 using Dilcore.MediatR.Extensions;
+using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.Telemetry.Extensions.OpenTelemetry;
+using Dilcore.Tenancy.WebApi;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
-using Dilcore.Configuration.AspNetCore;
-using Dilcore.Telemetry.Extensions.OpenTelemetry;
-using Dilcore.Identity.WebApi;
-using Dilcore.MultiTenant.Abstractions;
-using Dilcore.Tenancy.WebApi;
+using Dilcore.WebApi.Settings;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
-using Dilcore.WebApi.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();

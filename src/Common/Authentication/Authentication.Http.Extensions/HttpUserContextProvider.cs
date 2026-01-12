@@ -1,6 +1,6 @@
+using System.Security.Claims;
 using Dilcore.Authentication.Abstractions;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 
 namespace Dilcore.Authentication.Http.Extensions;
 

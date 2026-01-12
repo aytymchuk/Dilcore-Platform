@@ -1,10 +1,10 @@
+using System.Security.Claims;
 using Dilcore.Authentication.Abstractions;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
-using System.Security.Claims;
 
 namespace Dilcore.Authentication.Auth0.Tests;
 

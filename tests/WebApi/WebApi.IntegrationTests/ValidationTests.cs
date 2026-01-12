@@ -2,9 +2,9 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Shouldly;
-using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Dilcore.Results.Abstractions;
+using Dilcore.WebApi.IntegrationTests.Infrastructure;
+using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
 

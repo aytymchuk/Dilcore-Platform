@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Dilcore.Identity.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Identity.WebApi;
 

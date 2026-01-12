@@ -1,9 +1,9 @@
+using System.Security.Claims;
 using Dilcore.Authentication.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 
 namespace Dilcore.Authentication.Auth0;
 

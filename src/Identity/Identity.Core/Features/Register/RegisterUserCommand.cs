@@ -1,5 +1,5 @@
-using Dilcore.MediatR.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
+using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.Identity.Core.Features.Register;
 

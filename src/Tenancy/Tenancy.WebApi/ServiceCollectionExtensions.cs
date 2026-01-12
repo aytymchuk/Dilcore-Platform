@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Dilcore.Tenancy.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Tenancy.WebApi;
 
