@@ -73,8 +73,8 @@ builder.Host.UseOrleans((context, siloBuilder) =>
         .GetSection(nameof(GrainsSettings))
         .Get<GrainsSettings>() ?? new GrainsSettings();
 
-    // Skip Orleans Azure clustering if disabled (allows tests to configure their own)
-    if (grainsSettings.UseAzureClustering)
+    // Skip Orleans Azure clustering if StorageAccountName is missing
+    if (!string.IsNullOrWhiteSpace(grainsSettings.StorageAccountName))
     {
         // Azure Storage clustering with Managed Identity
         siloBuilder.UseAzureStorageClustering(options =>
@@ -89,7 +89,7 @@ builder.Host.UseOrleans((context, siloBuilder) =>
     }
     else
     {
-        // Use localhost clustering when Azure clustering is disabled
+        // Use localhost clustering when Azure clustering is disabled or misconfigured
         siloBuilder.UseLocalhostClustering();
     }
 
@@ -98,6 +98,9 @@ builder.Host.UseOrleans((context, siloBuilder) =>
         options.ClusterId = grainsSettings.ClusterId;
         options.ServiceId = grainsSettings.ServiceId;
     });
+
+    // Configure networking endpoints
+    siloBuilder.ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000);
 
     // In-memory grain storage
     siloBuilder.AddMemoryGrainStorage("UserStore");
