@@ -31,6 +31,10 @@ public static class EndpointExtensions
             CancellationToken cancellationToken) =>
         {
             var result = await mediator.Send(command, cancellationToken);
+            if (result.IsSuccess)
+            {
+                return Microsoft.AspNetCore.Http.Results.Created($"/tenants", result.Value);
+            }
             return result.ToMinimalApiResult();
         })
         .WithName("CreateTenant")

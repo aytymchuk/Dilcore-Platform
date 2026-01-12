@@ -61,7 +61,8 @@ public class UserGrainTests
         const string fullName = "Existing User";
 
         // First registration
-        await grain.RegisterAsync(email, fullName);
+        var firstResult = await grain.RegisterAsync(email, fullName);
+        firstResult.IsSuccess.ShouldBeTrue();
 
         // Act - Try to register again with different data
         var secondResult = await grain.RegisterAsync("different@example.com", "Different User");
@@ -97,7 +98,8 @@ public class UserGrainTests
         const string fullName = "Profile User";
 
         // Register first
-        await grain.RegisterAsync(email, fullName);
+        var registerResult = await grain.RegisterAsync(email, fullName);
+        registerResult.IsSuccess.ShouldBeTrue();
 
         // Act
         var result = await grain.GetProfileAsync();
@@ -119,7 +121,8 @@ public class UserGrainTests
         const string fullName = "Persist User";
 
         // Register
-        await grain.RegisterAsync(email, fullName);
+        var registerResult = await grain.RegisterAsync(email, fullName);
+        registerResult.IsSuccess.ShouldBeTrue();
 
         // Act - Get a new reference and fetch profile
         var newGrainRef = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);

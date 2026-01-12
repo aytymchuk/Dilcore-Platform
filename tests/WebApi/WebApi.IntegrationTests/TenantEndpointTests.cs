@@ -58,7 +58,7 @@ public class TenantEndpointTests
         var response = await _client.PostAsJsonAsync("/tenants", command);
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
         var result = await response.Content.ReadFromJsonAsync<TenantDto>();
         result.ShouldNotBeNull();
         result.DisplayName.ShouldBe(uniqueName);
@@ -77,7 +77,7 @@ public class TenantEndpointTests
         var response = await _client.PostAsJsonAsync("/tenants", command);
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
         var result = await response.Content.ReadFromJsonAsync<TenantDto>();
         result.ShouldNotBeNull();
         result.Name.ShouldBe($"test-tenant-with-spaces-{uniqueId}");
@@ -91,7 +91,7 @@ public class TenantEndpointTests
 
         // First creation
         var firstResponse = await _client.PostAsJsonAsync("/tenants", command);
-        firstResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        firstResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
 
         // Act - second creation should fail
         var secondResponse = await _client.PostAsJsonAsync("/tenants", command);
@@ -125,12 +125,13 @@ public class TenantEndpointTests
         var tenantName = $"existing-tenant-{Guid.NewGuid():N}";
         var command = new { DisplayName = tenantName, Description = "Existing tenant" };
         var createResponse = await _client.PostAsJsonAsync("/tenants", command);
-        createResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        createResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
         var createdTenant = await createResponse.Content.ReadFromJsonAsync<TenantDto>();
+        createdTenant.ShouldNotBeNull();
 
         // Set the tenant ID in the header for GET request
         var request = new HttpRequestMessage(HttpMethod.Get, "/tenants");
-        request.Headers.Add(TenantConstants.HeaderName, createdTenant!.Name);
+        request.Headers.Add(TenantConstants.HeaderName, createdTenant.Name);
 
         // Act
         var response = await _client.SendAsync(request);

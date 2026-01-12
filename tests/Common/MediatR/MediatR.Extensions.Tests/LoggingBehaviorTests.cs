@@ -209,15 +209,9 @@ public class LoggingBehaviorTests
             Times.Once);
     }
 
-    public class TestRequest : IRequest<Result>
-    {
-    }
+    public record TestRequest : IRequest<Result>;
 
-    public class TestRequestWithResponse : IRequest<TestResponse>
-    {
-    }
+    public record TestRequestWithResponse : IRequest<TestResponse>;
 
-    public class TestResponse
-    {
-    }
+    public record TestResponse;
 }
