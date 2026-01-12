@@ -1,6 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="FluentResults" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\MediatR\MediatR.Abstractions\MediatR.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\MediatR\MediatR.Extensions\MediatR.Extensions.csproj" />
+    <ProjectReference Include="..\..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\FluentResults\Results.Abstractions\Results.Abstractions.csproj" />
   </ItemGroup>
 </Project>

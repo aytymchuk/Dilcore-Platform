@@ -96,7 +96,7 @@ public sealed partial class GlobalExceptionHandler(
         if (environment.IsDevelopment())
         {
             var message = exception.Message;
-            if ((exception is BadHttpRequestException or System.Text.Json.JsonException or FormatException)
+            if ((exception is BadHttpRequestException or JsonException or FormatException)
                 && exception.InnerException is not null)
             {
                 message += $" Details: {exception.InnerException.Message}";

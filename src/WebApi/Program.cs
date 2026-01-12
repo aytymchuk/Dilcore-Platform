@@ -1,15 +1,21 @@
+using Azure.Data.Tables;
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
 using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.MediatR.Extensions;
 using Dilcore.WebApi.Extensions;
+using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Infrastructure.OpenApi;
 using Dilcore.Configuration.AspNetCore;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
+using Dilcore.Identity.WebApi;
+using Dilcore.MultiTenant.Abstractions;
+using Dilcore.Tenancy.WebApi;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
+using Dilcore.WebApi.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
@@ -25,6 +31,11 @@ builder.Services.AddAuth0Authentication(builder.Configuration);
 builder.Services.AddAuth0ClaimsTransformation(builder.Configuration);
 builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddMediatRInfrastructure(typeof(Dilcore.WebApi.Program).Assembly);
+
+// Add domain modules (MediatR handlers, validators, etc.)
+builder.Services.AddIdentityModule();
+builder.Services.AddTenancyModule();
+
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Configure GitHub HttpClient with resilience policies
@@ -49,7 +60,52 @@ builder.Services.AddHttpClient("GitHub", client =>
 .AddPolicyHandlerFromRegistry("GitHubRetry")
 .AddPolicyHandlerFromRegistry("GitHubCircuitBreaker");
 
-builder.Services.AddMultiTenancy();
+// Configure multi-tenancy with Orleans-backed tenant store
+builder.Services.AddMultiTenancy<AppTenantInfo>(mtb =>
+{
+    mtb.WithStore<OrleansTenantStore>(ServiceLifetime.Scoped);
+});
+
+// Configure Orleans Silo
+builder.Host.UseOrleans((context, siloBuilder) =>
+{
+    var grainsSettings = context.Configuration
+        .GetSection(nameof(GrainsSettings))
+        .Get<GrainsSettings>() ?? new GrainsSettings();
+
+    // Skip Orleans Azure clustering if disabled (allows tests to configure their own)
+    if (grainsSettings.UseAzureClustering)
+    {
+        // Azure Storage clustering with Managed Identity
+        siloBuilder.UseAzureStorageClustering(options =>
+        {
+            var serviceUri = new Uri(
+                $"https://{grainsSettings.StorageAccountName}.table.core.windows.net/");
+
+            options.TableServiceClient = new TableServiceClient(
+                serviceUri,
+                new Azure.Identity.DefaultAzureCredential());
+        });
+    }
+    else
+    {
+        // Use localhost clustering when Azure clustering is disabled
+        siloBuilder.UseLocalhostClustering();
+    }
+
+    siloBuilder.Configure<Orleans.Configuration.ClusterOptions>(options =>
+    {
+        options.ClusterId = grainsSettings.ClusterId;
+        options.ServiceId = grainsSettings.ServiceId;
+    });
+
+    // In-memory grain storage
+    siloBuilder.AddMemoryGrainStorage("UserStore");
+    siloBuilder.AddMemoryGrainStorage("TenantStore");
+
+    // OpenTelemetry activity propagation
+    siloBuilder.AddActivityPropagation();
+});
 
 var app = builder.Build();
 

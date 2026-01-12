@@ -28,7 +28,7 @@ public class Auth0ClaimsTransformationTests
         _settings = new Auth0Settings { UserProfileCacheMinutes = 30 };
 
         // Create a real HybridCache instance for testing
-        var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+        var services = new ServiceCollection();
         services.AddHybridCache();
         _serviceProvider = services.BuildServiceProvider();
         _cache = _serviceProvider.GetRequiredService<HybridCache>();

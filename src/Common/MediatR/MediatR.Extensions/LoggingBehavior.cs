@@ -1,3 +1,4 @@
+using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -23,11 +24,14 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         {
             var response = await next(cancellationToken);
 
-            if (response is FluentResults.IResultBase result)
+            if (response is IResultBase result)
             {
                 if (result.IsFailed)
                 {
-                    _logger.LogRequestFailed(requestName, string.Join(", ", result.Reasons.Select(r => r.Message)));
+                    var errorMessages = new List<string>();
+                    ProcessErrors(result.Errors, errorMessages, requestName);
+
+                    _logger.LogRequestFailed(requestName, string.Join(", ", errorMessages));
                 }
                 else
                 {
@@ -45,6 +49,24 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         {
             _logger.LogErrorHandlingRequest(ex, requestName);
             throw;
+        }
+    }
+
+    private void ProcessErrors(IEnumerable<IReason> reasons, List<string> messages, string requestName)
+    {
+        foreach (var reason in reasons)
+        {
+            if (reason is IError error)
+            {
+                messages.Add(error.Message);
+
+                if (error is ExceptionalError exceptionalError)
+                {
+                    _logger.LogRequestFailedWithException(exceptionalError.Exception, requestName, error.Message);
+                }
+
+                ProcessErrors(error.Reasons, messages, requestName);
+            }
         }
     }
 }

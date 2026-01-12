@@ -1,6 +1,8 @@
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Http.Extensions.Telemetry;
 using Dilcore.Telemetry.Abstractions;
+using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Finbuckle.MultiTenant.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -10,23 +12,32 @@ namespace Dilcore.MultiTenant.Http.Extensions;
 
 public static class MultiTenantExtensions
 {
+    /// <summary>
+    /// Adds multi-tenancy services with default in-memory store.
+    /// Use this for testing scenarios or when no custom store is needed.
+    /// </summary>
     public static IServiceCollection AddMultiTenancy(this IServiceCollection services)
     {
-        // 1. Configure Finbuckle
-        services.AddMultiTenant<AppTenantInfo>()
-            .WithHeaderStrategy(TenantConstants.HeaderName)
-            .WithInMemoryStore(options =>
-            {
-                options.Tenants.Add(new AppTenantInfo("t1", "t1", "T1")
-                {
-                    StorageIdentifier = "db-shard-01"
-                });
+        return services.AddMultiTenancy<TenantInfo>(_ => { });
+    }
 
-                options.Tenants.Add(new AppTenantInfo("t2", "t2", "T2")
-                {
-                    StorageIdentifier = "db-shard-02"
-                });
-            });
+    /// <summary>
+    /// Adds multi-tenancy services with default in-memory store for a specific tenant type.
+    /// </summary>
+    public static IServiceCollection AddMultiTenancy<TTenantInfo>(this IServiceCollection services)
+        where TTenantInfo : TenantInfo
+    {
+        return services.AddMultiTenancy<TTenantInfo>(_ => { });
+    }
+
+    public static IServiceCollection AddMultiTenancy<TTenantInfo>(this IServiceCollection services, Action<MultiTenantBuilder<TTenantInfo>> builder)
+        where TTenantInfo : TenantInfo
+    {
+        // 1. Configure Finbuckle
+        var multiTenant = services.AddMultiTenant<TTenantInfo>()
+            .WithHeaderStrategy(TenantConstants.HeaderName);
+
+        builder.Invoke(multiTenant);
 
         // 2. Register providers
         services.AddTenantContextProvider<HttpTenantContextProvider>();

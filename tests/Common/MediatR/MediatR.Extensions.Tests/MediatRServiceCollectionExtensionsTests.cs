@@ -3,9 +3,10 @@ using Dilcore.MediatR.Abstractions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Shouldly;
-using Dilcore.Tests.Common;
 
 namespace Dilcore.MediatR.Extensions.Tests;
 
@@ -44,6 +45,10 @@ public class MediatRServiceCollectionExtensionsTests
         {
             builder.AddProvider(new ListLoggerProvider(listLogger));
         });
+
+        var hostEnvironment = new Mock<IHostEnvironment>();
+        hostEnvironment.Setup(x => x.EnvironmentName).Returns(Environments.Development);
+        services.AddSingleton(hostEnvironment.Object);
 
         services.AddMediatRInfrastructure(typeof(MediatRServiceCollectionExtensionsTests).Assembly);
         _serviceProvider = services.BuildServiceProvider();
@@ -121,7 +126,7 @@ public class MediatRServiceCollectionExtensionsTests
         // Assert
         activities.ShouldNotBeEmpty();
         var activity = activities.Single();
-        activity.OperationName.ShouldBe("MediatR: TestCommand");
+        activity.OperationName.ShouldBe("Command: TestCommand");
         activity.GetTagItem("mediatr.request_name").ShouldBe("TestCommand");
     }
 }

@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.TestingHost" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Actors\Tenancy.Actors.csproj" />
   </ItemGroup>
 </Project>
-

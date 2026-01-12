@@ -1,3 +1,6 @@
+using Dilcore.Tenancy.Actors.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Dilcore.WebApi.IntegrationTests.Infrastructure;
 
 [TestFixture]
@@ -15,5 +18,18 @@ public abstract class BaseIntegrationTest
     public async Task OneTimeTearDown()
     {
         await Factory.DisposeAsync();
+    }
+
+    protected static async Task SeedTenantAsync(CustomWebApplicationFactory factory, string tenantId)
+    {
+        using var scope = factory.Services.CreateScope();
+        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        var tenantGrain = grainFactory.GetGrain<ITenantGrain>(tenantId);
+
+        var existing = await tenantGrain.GetAsync();
+        if (existing is null)
+        {
+            await tenantGrain.CreateAsync($"Test Tenant {tenantId}", "Seeded for Integration Tests");
+        }
     }
 }

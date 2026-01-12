@@ -14,7 +14,7 @@ public static class TelemetryExtensions
         var settings = configuration.GetSection(nameof(TelemetrySettings)).Get<TelemetrySettings>() ?? new TelemetrySettings();
         services.AddSingleton(settings);
 
-        var serviceVersion = configuration[Dilcore.Configuration.AspNetCore.Constants.BuildVersionKey] ?? Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion;
+        var serviceVersion = configuration[Configuration.AspNetCore.Constants.BuildVersionKey] ?? Configuration.AspNetCore.Constants.DefaultBuildVersion;
 
         services.AddHttpContextAccessor();
         // Register unified processors

@@ -13,6 +13,9 @@ internal static partial class LoggerExtensions
     [LoggerMessage(LogLevel.Warning, "Handled {RequestName} with errors: {Errors}")]
     public static partial void LogRequestFailed(this ILogger logger, string requestName, string errors);
 
+    [LoggerMessage(LogLevel.Error, "Handled {RequestName} failed with exception: {ErrorMessage}")]
+    public static partial void LogRequestFailedWithException(this ILogger logger, Exception ex, string requestName, string errorMessage);
+
     [LoggerMessage(LogLevel.Error, "Error handling {RequestName}")]
     public static partial void LogErrorHandlingRequest(this ILogger logger, Exception ex, string requestName);
 }

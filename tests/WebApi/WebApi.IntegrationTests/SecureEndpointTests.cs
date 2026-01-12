@@ -11,10 +11,11 @@ public class SecureEndpointTests : BaseIntegrationTest
     private HttpClient _client = null!;
 
     [OneTimeSetUp]
-    public void SetUpClient()
+    public async Task SetUpClient()
     {
         _client = Factory.CreateClient();
         _client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
+        await SeedTenantAsync(Factory, "t1");
     }
 
     [OneTimeTearDown]
@@ -40,6 +41,8 @@ public class SecureEndpointTests : BaseIntegrationTest
     {
         // Arrange
         using var factory = new CustomWebApplicationFactory();
+        await SeedTenantAsync(factory, "t1");
+
         factory.FakeUser.IsAuthenticated = false;
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
@@ -63,6 +66,8 @@ public class SecureEndpointTests : BaseIntegrationTest
                 user.Email = "custom@example.com";
                 user.TenantId = "custom-tenant";
             });
+        await SeedTenantAsync(factory, "t1");
+
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
 
@@ -78,6 +83,8 @@ public class SecureEndpointTests : BaseIntegrationTest
     {
         // Arrange
         using var factory = new CustomWebApplicationFactory();
+        await SeedTenantAsync(factory, "t1");
+
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, "t1");
 
