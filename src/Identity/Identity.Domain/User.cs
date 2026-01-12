@@ -21,7 +21,6 @@ public record User : BaseDomain
             FirstName = firstName,
             LastName = lastName
         }.SetCreatedOn(timeProvider)
-        .SetUpdatedOn(timeProvider)
         .UpdateETag(timeProvider);
     }
 }

@@ -9,12 +9,14 @@ public class BaseDomainTests
 {
     private record TestDomain : BaseDomain;
     private Mock<TimeProvider> _timeProviderMock;
+    private DateTimeOffset _fixedTime;
 
     [SetUp]
     public void SetUp()
     {
+        _fixedTime = DateTimeOffset.UtcNow;
         _timeProviderMock = new Mock<TimeProvider>();
-        _timeProviderMock.Setup(x => x.GetUtcNow()).Returns(DateTimeOffset.UtcNow);
+        _timeProviderMock.Setup(x => x.GetUtcNow()).Returns(_fixedTime);
     }
 
     [Test]
@@ -23,8 +25,6 @@ public class BaseDomainTests
         // Arrange
         var domain = new TestDomain();
         var initialETag = domain.ETag;
-        var now = DateTimeOffset.UtcNow;
-        _timeProviderMock.Setup(x => x.GetUtcNow()).Returns(now);
 
         // Act
         var updatedDomain = domain.UpdateETag(_timeProviderMock.Object);
@@ -32,7 +32,7 @@ public class BaseDomainTests
         // Assert
         updatedDomain.ShouldNotBeSameAs(domain);
         updatedDomain.ETag.ShouldNotBe(initialETag);
-        updatedDomain.ETag.ShouldBe(now.ToUnixTimeMilliseconds());
+        updatedDomain.ETag.ShouldBe(_fixedTime.ToUnixTimeMilliseconds());
         domain.ETag.ShouldBe(initialETag);
     }
 
@@ -41,15 +41,13 @@ public class BaseDomainTests
     {
         // Arrange
         var domain = new TestDomain();
-        var now = DateTimeOffset.UtcNow;
-        _timeProviderMock.Setup(x => x.GetUtcNow()).Returns(now);
 
         // Act
         var updatedDomain = domain.SetCreatedOn(_timeProviderMock.Object);
 
         // Assert
         updatedDomain.ShouldNotBeSameAs(domain);
-        updatedDomain.CreatedOn.ShouldBe(now.UtcDateTime);
+        updatedDomain.CreatedOn.ShouldBe(_fixedTime.UtcDateTime);
         domain.CreatedOn.ShouldBe(default);
     }
 
@@ -58,15 +56,13 @@ public class BaseDomainTests
     {
         // Arrange
         var domain = new TestDomain();
-        var now = DateTimeOffset.UtcNow;
-        _timeProviderMock.Setup(x => x.GetUtcNow()).Returns(now);
 
         // Act
         var updatedDomain = domain.SetUpdatedOn(_timeProviderMock.Object);
 
         // Assert
         updatedDomain.ShouldNotBeSameAs(domain);
-        updatedDomain.UpdatedOn.ShouldBe(now.UtcDateTime);
+        updatedDomain.UpdatedOn.ShouldBe(_fixedTime.UtcDateTime);
         domain.UpdatedOn.ShouldBeNull();
     }
 }
