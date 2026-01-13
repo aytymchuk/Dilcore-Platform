@@ -25,7 +25,6 @@
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
-    <PackageReference Include="MicroElements.OpenApi.FluentValidation" />
     <!-- Orleans Actor Model -->
     <PackageReference Include="Microsoft.Orleans.Server" />
     <PackageReference Include="Microsoft.Orleans.Clustering.AzureStorage" />
@@ -42,6 +41,11 @@
     <ProjectReference Include="..\Common\Configuration\Configuration.AspNetCore\Configuration.AspNetCore.csproj" />
     <ProjectReference Include="..\Common\MediatR\MediatR.Extensions\MediatR.Extensions.csproj" />
     <ProjectReference Include="..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
+    <ProjectReference Include="..\Common\FluentValidation\FluentValidation.Extensions.OpenApi\FluentValidation.Extensions.OpenApi.csproj" />
+    <ProjectReference Include="..\Common\FluentValidation\FluentValidation.Extensions.MinimalApi\FluentValidation.Extensions.MinimalApi.csproj" />
+    <ProjectReference Include="..\Common\OpenApi\Extensions.OpenApi.Abstractions\Extensions.OpenApi.Abstractions.csproj" />
+    <ProjectReference Include="..\Common\OpenApi\Extensions.OpenApi\Extensions.OpenApi.csproj" />
+    <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Extensions.OpenApi\MultiTenant.Extensions.OpenApi.csproj" />
     <!-- Orleans Actors -->
     <ProjectReference Include="..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\Identity\Identity.Actors\Identity.Actors.csproj" />

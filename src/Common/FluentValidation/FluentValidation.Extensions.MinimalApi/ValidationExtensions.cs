@@ -1,8 +1,10 @@
 using System.Reflection;
-using Dilcore.WebApi.Infrastructure.Validation;
 using FluentValidation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Dilcore.WebApi.Extensions;
+namespace Dilcore.FluentValidation.Extensions.MinimalApi;
 
 /// <summary>
 /// Extension methods for configuring FluentValidation services.

@@ -3,7 +3,7 @@ using Finbuckle.MultiTenant.AspNetCore.Routing;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace Dilcore.WebApi.Infrastructure.OpenApi;
+namespace Dilcore.MultiTenant.Extensions.OpenApi;
 
 /// <summary>
 /// OpenAPI operation transformer that conditionally adds the x-tenant header parameter

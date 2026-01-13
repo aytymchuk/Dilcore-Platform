@@ -1,11 +1,10 @@
-using Dilcore.MediatR.Extensions;
 using FluentResults;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
-
 using Shouldly;
 
-namespace MediatR.Extensions.Tests;
+namespace Dilcore.MediatR.Extensions.Tests;
 
 [TestFixture]
 public class LoggingBehaviorTests

@@ -1,4 +1,8 @@
 using Azure.Data.Tables;
+using Dilcore.Configuration.Extensions;
+using Dilcore.Extensions.OpenApi;
+using Dilcore.Extensions.OpenApi.Abstractions;
+using Dilcore.MultiTenant.Extensions.OpenApi;
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
 using Dilcore.Configuration.AspNetCore;
@@ -8,10 +12,12 @@ using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.Tenancy.WebApi;
+using Dilcore.FluentValidation.Extensions.MinimalApi;
+using Dilcore.FluentValidation.Extensions.OpenApi.Extensions;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;
-using Dilcore.WebApi.Infrastructure.OpenApi;
+
 using Dilcore.WebApi.Settings;
 using Polly;
 using Polly.Extensions.Http;
@@ -22,7 +28,23 @@ builder.AddAppConfiguration();
 
 // Add services to the container
 builder.Services.AddAppSettings(builder.Configuration);
-builder.Services.AddOpenApiDocumentation(builder.Configuration);
+
+var appSettings = builder.Configuration.GetRequiredSettings<ApplicationSettings>();
+var authSettings = builder.Configuration.GetRequiredSettings<AuthenticationSettings>();
+
+var buildVersion = builder.Configuration[Dilcore.Configuration.AspNetCore.Constants.BuildVersionKey] ?? Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion;
+
+builder.Services.AddOpenApiDocumentation(options =>
+    {
+        options.Settings.Name = appSettings.Name;
+        options.Settings.Version = buildVersion;
+        options.Settings.Authentication = new OpenApiAuthenticationSettings
+        {
+            Domain = authSettings.Auth0?.Domain
+        };
+    })
+    .AddMultiTenantOpenApiSupport()
+    .AddFluentValidation();
 builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddProblemDetailsServices();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

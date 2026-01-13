@@ -3,6 +3,7 @@ using Dilcore.Identity.WebApi;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Results.Extensions.Api;
 using Dilcore.Tenancy.WebApi;
+using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.WebApi.Endpoints;
 using Dilcore.WebApi.Features.WeatherForecast;
 using Dilcore.WebApi.Infrastructure.Validation;

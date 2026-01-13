@@ -1,9 +1,10 @@
 using System.Diagnostics;
+using Dilcore.Extensions.OpenApi;
 using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
+using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
-using Dilcore.WebApi.Infrastructure.OpenApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,7 +117,10 @@ public class DependencyInjectionTests
         services.AddSingleton(diagnosticListener);
 
         services.AddAppSettings(configuration);
-        services.AddOpenApiDocumentation(configuration);
+        services.AddOpenApiDocumentation(options =>
+        {
+            options.Settings.Name = "Test API";
+        });
         services.AddTelemetry(configuration, envMock.Object);
         services.AddProblemDetailsServices();
         services.AddExceptionHandler<GlobalExceptionHandler>();

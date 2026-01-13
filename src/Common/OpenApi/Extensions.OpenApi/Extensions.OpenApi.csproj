@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.OpenApi" />
+    <ProjectReference Include="..\Extensions.OpenApi.Abstractions\Extensions.OpenApi.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

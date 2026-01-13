@@ -1,5 +1,5 @@
 using Dilcore.MultiTenant.Http.Extensions;
-using Dilcore.WebApi.Infrastructure.OpenApi;
+using Dilcore.Extensions.OpenApi;
 using Dilcore.WebApi.Infrastructure.Scalar;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
@@ -15,7 +15,10 @@ public static class MiddlewarePipelineExtensions
         // Configure OpenAPI documentation in development
         if (app.Environment.IsDevelopment())
         {
-            app.UseOpenApiDocumentation();
+            app.UseOpenApiDocumentation(configure =>
+            {
+                configure.ExcludeFromMultiTenantResolution();
+            });
             app.AddScalarDocumentation(app.Configuration);
         }
 

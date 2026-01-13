@@ -1,11 +1,12 @@
 using System.Reflection;
-using Dilcore.WebApi.Extensions;
+using Dilcore.FluentValidation.Extensions.OpenApi.Internal;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
-namespace Dilcore.WebApi.Infrastructure.OpenApi;
+namespace Dilcore.FluentValidation.Extensions.OpenApi;
 
 /// <summary>
 /// OpenAPI schema filter that reflects FluentValidation rules into OpenAPI schema properties.
