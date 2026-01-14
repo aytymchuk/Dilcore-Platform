@@ -17,6 +17,7 @@ public sealed class ScalarAuthenticationSettings
     public string? ClientId { get; set; }
     public string? ClientSecret { get; set; }
     public string? Audience { get; set; }
+    public string? PreferredSecurityScheme { get; set; }
+
     public HashSet<string> Scopes { get; set; } = [];
-    public string PreferredSecurityScheme { get; set; } = Constants.Security.Auth0SchemeName;
 }

@@ -119,7 +119,7 @@ public class DependencyInjectionTests
         services.AddAppSettings(configuration);
         services.AddOpenApiDocumentation(options =>
         {
-            options.Settings.Name = "Test API";
+            options.Name = "Test API";
         });
         services.AddTelemetry(configuration, envMock.Object);
         services.AddProblemDetailsServices();

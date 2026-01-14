@@ -14,12 +14,9 @@ public static class OpenApiFluentValidationExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <returns>The builder.</returns>
-    public static IDilcoreOpenApiBuilder AddFluentValidation(this IDilcoreOpenApiBuilder builder)
+    public static OpenApiOptions AddFluentValidation(this OpenApiOptions options)
     {
-        builder.Services.Configure<OpenApiOptions>(options =>
-        {
-            options.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
-        });
-        return builder;
+        options.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
+        return options;
     }
 }

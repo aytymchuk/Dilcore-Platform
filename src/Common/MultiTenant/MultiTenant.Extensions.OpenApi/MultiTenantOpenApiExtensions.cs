@@ -6,13 +6,13 @@ namespace Dilcore.MultiTenant.Extensions.OpenApi;
 
 public static class MultipTenantOpenApiExtensions
 {
-    public static IDilcoreOpenApiBuilder AddMultiTenantOpenApiSupport(this IDilcoreOpenApiBuilder builder)
+    public static IServiceCollection AddMultiTenantOpenApiSupport(this IServiceCollection services)
     {
         // Configure the default "v1" document to use the tenant header transformer
-        builder.Services.Configure<OpenApiOptions>(Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion, options =>
+        services.Configure<OpenApiOptions>(Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion, options =>
         {
             options.AddOperationTransformer<OpenApiTenantHeaderTransformer>();
         });
-        return builder;
+        return services;
     }
 }

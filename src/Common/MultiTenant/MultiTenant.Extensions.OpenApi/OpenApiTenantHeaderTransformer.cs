@@ -9,7 +9,7 @@ namespace Dilcore.MultiTenant.Extensions.OpenApi;
 /// OpenAPI operation transformer that conditionally adds the x-tenant header parameter
 /// only to endpoints that have the RequireMultiTenantAttribute metadata.
 /// </summary>
-internal sealed class OpenApiTenantHeaderTransformer : IOpenApiOperationTransformer
+public sealed class OpenApiTenantHeaderTransformer : IOpenApiOperationTransformer
 {
     public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {

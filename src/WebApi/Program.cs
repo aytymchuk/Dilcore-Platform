@@ -13,6 +13,7 @@ using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.Tenancy.WebApi;
 using Dilcore.FluentValidation.Extensions.MinimalApi;
+using Dilcore.FluentValidation.Extensions.OpenApi;
 using Dilcore.FluentValidation.Extensions.OpenApi.Extensions;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure;
@@ -36,15 +37,20 @@ var buildVersion = builder.Configuration[Dilcore.Configuration.AspNetCore.Consta
 
 builder.Services.AddOpenApiDocumentation(options =>
     {
-        options.Settings.Name = appSettings.Name;
-        options.Settings.Version = buildVersion;
-        options.Settings.Authentication = new OpenApiAuthenticationSettings
+        options.Name = appSettings.Name;
+        options.Version = buildVersion;
+        options.Authentication = new OpenApiAuthenticationSettings
         {
             Domain = authSettings.Auth0?.Domain
         };
-    })
-    .AddMultiTenantOpenApiSupport()
-    .AddFluentValidation();
+
+        options.ConfigureOptions = apiOptions =>
+        {
+            apiOptions.AddOperationTransformer<OpenApiTenantHeaderTransformer>();
+            apiOptions.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
+        };
+    });
+
 builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddProblemDetailsServices();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

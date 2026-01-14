@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.OpenApi;
 using Dilcore.Extensions.OpenApi.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -6,26 +7,28 @@ namespace Dilcore.Extensions.OpenApi;
 
 public static class OpenApiExtensions
 {
-    public static IDilcoreOpenApiBuilder AddOpenApiDocumentation(this IServiceCollection services, Action<DilcoreOpenApiOptions> configure)
+    public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services, Action<OpenApiSettings> configure)
     {
-        var dilcoreOptions = new DilcoreOpenApiOptions();
-        configure(dilcoreOptions);
+        var settings = new OpenApiSettings();
+        configure(settings);
 
-        if (string.IsNullOrWhiteSpace(dilcoreOptions.Settings.Name))
+        if (string.IsNullOrWhiteSpace(settings.Name))
         {
             throw new InvalidOperationException("OpenApiSettings.Name is required for OpenAPI documentation.");
         }
 
+        services.AddSingleton(settings);
+
         services.AddOpenApi(options =>
         {
-            options.AddDocumentTransformer((document, _, _) =>
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
-                document.Info.Title = dilcoreOptions.Settings.Name;
-                document.Info.Version = dilcoreOptions.Settings.Version;
-                document.Servers = [];
-
-                dilcoreOptions.ConfigureDocument?.Invoke(document);
-
+                document.Info = new()
+                {
+                    Title = settings.Name,
+                    Version = settings.Version,
+                    Description = settings.Description
+                };
                 return Task.CompletedTask;
             });
 
@@ -35,20 +38,17 @@ public static class OpenApiExtensions
             options.AddDocumentTransformer<OpenApiProblemDetailsTransformer>();
             options.AddOperationTransformer<OpenApiProblemDetailsTransformer>();
 
-            dilcoreOptions.ConfigureOptions?.Invoke(options);
+            openApise
         });
 
-        // Register the settings so they can be injected if needed
-        services.AddSingleton(dilcoreOptions.Settings);
-
-        return new DilcoreOpenApiBuilder(services);
+        return services;
     }
 
     public static WebApplication UseOpenApiDocumentation(this WebApplication app, Action<IEndpointConventionBuilder>? configure = null)
     {
         var builder = app.MapOpenApi().AllowAnonymous();
         configure?.Invoke(builder);
-        
+
         return app;
     }
 }

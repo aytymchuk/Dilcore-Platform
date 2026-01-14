@@ -2,8 +2,6 @@ using Dilcore.Extensions.OpenApi.Abstractions;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-
-
 namespace Dilcore.Extensions.OpenApi;
 
 /// <summary>
