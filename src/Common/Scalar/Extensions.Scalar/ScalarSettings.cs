@@ -8,7 +8,7 @@ public sealed class ScalarSettings
     public string Title { get; set; } = "API Documentation";
     public string Version { get; set; } = "v1";
     public ScalarTheme Theme { get; set; } = ScalarTheme.DeepSpace;
-    public string Endpoint { get; set; } = Constants.Scalar.Endpoint;
+    public string Endpoint { get; set; } = ScalarConstants.Endpoint;
     public ScalarAuthenticationSettings? Authentication { get; set; }
 }
 

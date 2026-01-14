@@ -6,14 +6,6 @@ namespace Dilcore.Extensions.OpenApi.Abstractions;
 public static class Constants
 {
     /// <summary>
-    /// Scalar API documentation constants.
-    /// </summary>
-    public static class Scalar
-    {
-        public const string Endpoint = "/api-doc";
-    }
-
-    /// <summary>
     /// Security and authentication constants for OpenAPI.
     /// </summary>
     public static class Security
