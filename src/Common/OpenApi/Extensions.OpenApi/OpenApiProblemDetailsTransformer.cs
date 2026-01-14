@@ -1,3 +1,4 @@
+using Dilcore.Extensions.OpenApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;

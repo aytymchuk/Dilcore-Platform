@@ -1,4 +1,4 @@
-namespace Dilcore.Extensions.OpenApi;
+namespace Dilcore.Extensions.OpenApi.Abstractions;
 
 /// <summary>
 /// Constants for OpenApi functionality.

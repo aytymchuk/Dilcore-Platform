@@ -22,7 +22,6 @@
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
-    <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <!-- Orleans Actor Model -->
@@ -54,6 +53,7 @@
     <!-- Domain WebApi Endpoints -->
     <ProjectReference Include="..\Identity\Identity.WebApi\Identity.WebApi.csproj" />
     <ProjectReference Include="..\Tenancy\Tenancy.WebApi\Tenancy.WebApi.csproj" />
+    <ProjectReference Include="..\Common\Scalar\Extensions.Scalar\Extensions.Scalar.csproj" />
   </ItemGroup>
 
 </Project>
