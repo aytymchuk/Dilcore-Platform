@@ -4,6 +4,7 @@ public static class ProblemDetailsConstants
 {
     public const string ContentType = "application/problem+json";
     public const string TypeBaseUri = "https://api.dilcore.com/errors";
+    public const string ErrorCodeKey = "errorCode";
 
     // Standard error codes
     public const string UnexpectedError = "UNEXPECTED_ERROR";

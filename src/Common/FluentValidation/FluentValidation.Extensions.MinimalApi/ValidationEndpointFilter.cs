@@ -1,4 +1,4 @@
-using Dilcore.FluentValidation.Extensions.MinimalApi.Internal;
+using Humanizer;
 using Dilcore.Results.Abstractions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -75,7 +75,7 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
         var errors = validationResult.Errors
             .GroupBy(e => e.PropertyName)
             .ToDictionary(
-                g => g.Key.ToCamelCase(),
+                g => g.Key.Camelize(),
                 g => g.Select(e => e.ErrorMessage).ToArray()
             );
 
@@ -86,7 +86,7 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
             type: $"{ProblemDetailsConstants.TypeBaseUri}/data-validation-failed",
             extensions: new Dictionary<string, object?>
             {
-                ["errorCode"] = ProblemDetailsConstants.DataValidationFailed
+                [ProblemDetailsConstants.ErrorCodeKey] = ProblemDetailsConstants.DataValidationFailed
             }
         );
     }
