@@ -15,7 +15,7 @@ public class ValidationEndpointFilterTests
     private Mock<IValidator<TestDto>> _validatorMock;
     private Mock<ILogger<ValidationEndpointFilter<TestDto>>> _loggerMock;
     private DefaultHttpContext _httpContext;
-    private EndpointFilterInvocationContext _context;
+    private EndpointFilterInvocationContext _context = null!;
 
     [SetUp]
     public void SetUp()
@@ -34,7 +34,7 @@ public class ValidationEndpointFilterTests
     public async Task InvokeAsync_NoValidatorRegistered_InvokesNext()
     {
         // Arrange
-        _serviceProviderMock.Setup(x => x.GetService(typeof(IValidator<TestDto>))).Returns(null);
+        _serviceProviderMock.Setup(x => x.GetService(typeof(IValidator<TestDto>))).Returns((IValidator<TestDto>?)null);
         var filter = new ValidationEndpointFilter<TestDto>();
         _context = CreateContext(new TestDto());
         bool nextInvoked = false;
@@ -56,7 +56,7 @@ public class ValidationEndpointFilterTests
         // Arrange
         _serviceProviderMock.Setup(x => x.GetService(typeof(IValidator<TestDto>))).Returns(_validatorMock.Object);
         var filter = new ValidationEndpointFilter<TestDto>();
-        _context = CreateContext("someting else"); // No TestDto here
+        _context = CreateContext("something else"); // No TestDto here
         bool nextInvoked = false;
 
         // Act

@@ -14,7 +14,6 @@ using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.Tenancy.WebApi;
 using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.FluentValidation.Extensions.OpenApi;
-using Dilcore.FluentValidation.Extensions.OpenApi.Extensions;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;

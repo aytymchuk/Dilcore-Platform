@@ -1,5 +1,4 @@
 using Scalar.AspNetCore;
-using Dilcore.Extensions.Scalar;
 using Shouldly;
 
 namespace Dilcore.Extensions.Scalar.Tests;

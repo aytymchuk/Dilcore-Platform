@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Common\FluentValidation\FluentValidation.Extensions.MinimalApi\FluentValidation.Extensions.MinimalApi.csproj" />
+    <PackageReference Include="FluentValidation" />
   </ItemGroup>
 
 </Project>

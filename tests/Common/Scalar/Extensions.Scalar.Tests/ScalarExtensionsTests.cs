@@ -1,5 +1,4 @@
 using Dilcore.Extensions.OpenApi.Abstractions;
-using Dilcore.Extensions.Scalar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Scalar.AspNetCore;

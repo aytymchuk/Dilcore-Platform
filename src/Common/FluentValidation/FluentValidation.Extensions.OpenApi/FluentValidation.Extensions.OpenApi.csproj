@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Humanizer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="FluentValidation" />
     <ProjectReference Include="..\..\OpenApi\Extensions.OpenApi.Abstractions\Extensions.OpenApi.Abstractions.csproj" />

@@ -1,10 +1,9 @@
-using Dilcore.Extensions.OpenApi.Abstractions;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.MultiTenant.Extensions.OpenApi;
 
-public static class MultipTenantOpenApiExtensions
+public static class MultiTenantOpenApiExtensions
 {
     public static IServiceCollection AddMultiTenantOpenApiSupport(this IServiceCollection services)
     {

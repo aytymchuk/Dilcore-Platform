@@ -1,5 +1,5 @@
 using System.Reflection;
-using Dilcore.FluentValidation.Extensions.OpenApi.Internal;
+using Humanizer;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
@@ -50,7 +50,7 @@ public sealed class OpenApiValidationSchemaTransformer(IServiceScopeFactory serv
             }
 
             // Find validators for this property (case-insensitive match)
-            var rules = descriptor.GetRulesForMember(propertyName.ToPascalCase());
+            var rules = descriptor.GetRulesForMember(propertyName.Pascalize());
 
             foreach (var rule in rules)
             {
@@ -75,7 +75,7 @@ public sealed class OpenApiValidationSchemaTransformer(IServiceScopeFactory serv
                 var boundaryPropertyName = GetPropertyNameFromRule(rule);
                 if (!string.IsNullOrEmpty(boundaryPropertyName))
                 {
-                    parentSchema.Required.Add(boundaryPropertyName.ToCamelCase());
+                    parentSchema.Required.Add(boundaryPropertyName.Camelize());
                 }
             }
 

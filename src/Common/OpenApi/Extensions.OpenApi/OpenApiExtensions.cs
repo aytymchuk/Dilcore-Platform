@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.OpenApi;
 using Dilcore.Extensions.OpenApi.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;

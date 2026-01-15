@@ -10,11 +10,9 @@ namespace Dilcore.Extensions.OpenApi;
 /// </summary>
 internal sealed class OpenApiSecurityTransformer(OpenApiSettings settings) : IOpenApiDocumentTransformer
 {
-    private readonly OpenApiSettings _settings = settings;
-
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        var authenticationSettings = _settings.Authentication;
+        var authenticationSettings = settings.Authentication;
         if (string.IsNullOrWhiteSpace(authenticationSettings?.Domain))
         {
             return Task.CompletedTask;

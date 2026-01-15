@@ -1,4 +1,3 @@
-using Dilcore.Extensions.OpenApi.Abstractions;
 using Scalar.AspNetCore;
 
 namespace Dilcore.Extensions.Scalar;
