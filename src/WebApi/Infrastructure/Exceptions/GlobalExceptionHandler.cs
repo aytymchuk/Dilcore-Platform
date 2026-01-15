@@ -5,6 +5,7 @@ using Dilcore.MultiTenant.Abstractions.Exceptions;
 using Dilcore.Results.Abstractions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Dilcore.Extensions.OpenApi.Abstractions;
 
 namespace Dilcore.WebApi.Infrastructure.Exceptions;
 

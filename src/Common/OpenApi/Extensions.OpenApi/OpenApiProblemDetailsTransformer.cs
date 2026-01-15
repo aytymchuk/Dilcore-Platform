@@ -100,7 +100,11 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
             {
                 [Constants.ProblemDetails.ContentType] = new()
                 {
-                    Schema = (OpenApiSchema)schema
+                    Schema = schema as OpenApiSchema ?? new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Description = "Problem Details"
+                    }
                 }
             }
         };

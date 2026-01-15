@@ -7,6 +7,13 @@ namespace Dilcore.Extensions.Scalar;
 
 public static class ScalarExtensions
 {
+    /// <summary>
+    /// Configures Scalar documentation.
+    /// <para>
+    /// Note: If <see cref="ScalarSettings.Authentication"/> is null, OAuth2 configuration will be skipped.
+    /// </see>
+    /// </para>
+    /// </summary>
     public static WebApplication UseScalarDocumentation(this WebApplication app, Action<ScalarSettings>? configure = null)
     {
         var settings = new ScalarSettings();

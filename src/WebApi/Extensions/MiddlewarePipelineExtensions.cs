@@ -35,14 +35,14 @@ public static class MiddlewarePipelineExtensions
 
                 // Map Authentication settings
                 var authSettings = app.Configuration.GetRequiredSettings<AuthenticationSettings>();
-                if (authSettings?.Auth0 != null)
+                if (authSettings.Auth0 != null)
                 {
                     scalar.Authentication = new ScalarAuthenticationSettings
                     {
                         ClientId = authSettings.Auth0.ClientId,
                         ClientSecret = authSettings.Auth0.ClientSecret,
                         Audience = authSettings.Auth0.Audience,
-                        Scopes = ["openid", "profile", "email"]
+                        Scopes = new HashSet<string>(authSettings.Scopes ?? ["openid", "profile", "email"])
                     };
                 }
             });

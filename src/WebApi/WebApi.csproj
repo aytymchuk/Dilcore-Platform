@@ -45,6 +45,7 @@
     <ProjectReference Include="..\Common\FluentValidation\FluentValidation.Extensions.MinimalApi\FluentValidation.Extensions.MinimalApi.csproj" />
     <ProjectReference Include="..\Common\OpenApi\Extensions.OpenApi.Abstractions\Extensions.OpenApi.Abstractions.csproj" />
     <ProjectReference Include="..\Common\OpenApi\Extensions.OpenApi\Extensions.OpenApi.csproj" />
+    <ProjectReference Include="..\Common\Scalar\Extensions.Scalar\Extensions.Scalar.csproj" />
     <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Extensions.OpenApi\MultiTenant.Extensions.OpenApi.csproj" />
     <!-- Orleans Actors -->
     <ProjectReference Include="..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
@@ -54,7 +55,7 @@
     <!-- Domain WebApi Endpoints -->
     <ProjectReference Include="..\Identity\Identity.WebApi\Identity.WebApi.csproj" />
     <ProjectReference Include="..\Tenancy\Tenancy.WebApi\Tenancy.WebApi.csproj" />
-    <ProjectReference Include="..\Common\Scalar\Extensions.Scalar\Extensions.Scalar.csproj" />
+
   </ItemGroup>
 
 </Project>
