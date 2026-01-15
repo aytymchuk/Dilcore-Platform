@@ -1,7 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using Dilcore.WebApi.Infrastructure.OpenApi;
-using Dilcore.WebApi.Infrastructure.Validation;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
@@ -10,7 +8,7 @@ using Microsoft.OpenApi;
 using Moq;
 using Shouldly;
 
-namespace Dilcore.WebApi.Tests.Infrastructure.OpenApi;
+namespace Dilcore.FluentValidation.Extensions.OpenApi.Tests;
 
 /// <summary>
 /// Unit tests for OpenApiValidationSchemaTransformer verifying that FluentValidation
@@ -300,5 +298,30 @@ public class OpenApiValidationSchemaTransformerTests
         scopeMock.Setup(s => s.ServiceProvider).Returns(serviceProvider);
         scopeFactoryMock.Setup(s => s.CreateScope()).Returns(scopeMock.Object);
         return scopeFactoryMock;
+    }
+
+    private class ValidationDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public int Age { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string Website { get; set; } = string.Empty;
+        public List<string> Tags { get; set; } = new();
+        public string StartDate { get; set; } = string.Empty;
+        public string EndDate { get; set; } = string.Empty;
+    }
+
+    private class ValidationDtoValidator : AbstractValidator<ValidationDto>
+    {
+        public ValidationDtoValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty().Length(2, 100);
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(255);
+            RuleFor(x => x.Age).InclusiveBetween(0, 150);
+            RuleFor(x => x.PhoneNumber).Matches(@"^\+?[1-9]\d{1,14}$");
+            RuleFor(x => x.StartDate).NotEmpty();
+            RuleFor(x => x.Website).Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _));
+        }
     }
 }

@@ -1,10 +1,10 @@
-using Dilcore.Results.Abstractions;
+using Dilcore.Extensions.OpenApi.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace Dilcore.WebApi.Infrastructure.OpenApi;
+namespace Dilcore.Extensions.OpenApi;
 
 /// <summary>
 ///     OpenAPI transformer that adds standard Problem Details responses and schema.
@@ -98,9 +98,13 @@ internal sealed class OpenApiProblemDetailsTransformer : IOpenApiDocumentTransfo
             Description = description,
             Content = new Dictionary<string, OpenApiMediaType>
             {
-                [ProblemDetailsConstants.ContentType] = new()
+                [Constants.ProblemDetails.ContentType] = new()
                 {
-                    Schema = (OpenApiSchema)schema
+                    Schema = schema as OpenApiSchema ?? new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Description = "Problem Details"
+                    }
                 }
             }
         };

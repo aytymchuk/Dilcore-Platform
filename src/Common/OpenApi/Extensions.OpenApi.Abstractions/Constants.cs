@@ -1,18 +1,10 @@
-namespace Dilcore.WebApi;
+namespace Dilcore.Extensions.OpenApi.Abstractions;
 
 /// <summary>
-/// Constants for WebApi-specific functionality.
+/// Constants for OpenApi functionality.
 /// </summary>
 public static class Constants
 {
-    /// <summary>
-    /// Scalar API documentation constants.
-    /// </summary>
-    public static class Scalar
-    {
-        public const string Endpoint = "/api-doc";
-    }
-
     /// <summary>
     /// Security and authentication constants for OpenAPI.
     /// </summary>
@@ -35,10 +27,12 @@ public static class Constants
     }
 
     /// <summary>
-    /// Problem Details (RFC 9457, which obsoletes RFC 7807) field names.
+    /// Problem Details field names.
     /// </summary>
     public static class ProblemDetails
     {
+        public const string ContentType = "application/problem+json";
+
         /// <summary>
         /// Problem Details field names.
         /// </summary>

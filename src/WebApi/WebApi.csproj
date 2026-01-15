@@ -16,16 +16,15 @@
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
     <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
+    <PackageReference Include="Humanizer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Microsoft.OpenApi" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
-    <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
-    <PackageReference Include="MicroElements.OpenApi.FluentValidation" />
     <!-- Orleans Actor Model -->
     <PackageReference Include="Microsoft.Orleans.Server" />
     <PackageReference Include="Microsoft.Orleans.Clustering.AzureStorage" />
@@ -42,6 +41,12 @@
     <ProjectReference Include="..\Common\Configuration\Configuration.AspNetCore\Configuration.AspNetCore.csproj" />
     <ProjectReference Include="..\Common\MediatR\MediatR.Extensions\MediatR.Extensions.csproj" />
     <ProjectReference Include="..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
+    <ProjectReference Include="..\Common\FluentValidation\FluentValidation.Extensions.OpenApi\FluentValidation.Extensions.OpenApi.csproj" />
+    <ProjectReference Include="..\Common\FluentValidation\FluentValidation.Extensions.MinimalApi\FluentValidation.Extensions.MinimalApi.csproj" />
+    <ProjectReference Include="..\Common\OpenApi\Extensions.OpenApi.Abstractions\Extensions.OpenApi.Abstractions.csproj" />
+    <ProjectReference Include="..\Common\OpenApi\Extensions.OpenApi\Extensions.OpenApi.csproj" />
+    <ProjectReference Include="..\Common\Scalar\Extensions.Scalar\Extensions.Scalar.csproj" />
+    <ProjectReference Include="..\Common\MultiTenant\MultiTenant.Extensions.OpenApi\MultiTenant.Extensions.OpenApi.csproj" />
     <!-- Orleans Actors -->
     <ProjectReference Include="..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\Identity\Identity.Actors\Identity.Actors.csproj" />
@@ -50,6 +55,7 @@
     <!-- Domain WebApi Endpoints -->
     <ProjectReference Include="..\Identity\Identity.WebApi\Identity.WebApi.csproj" />
     <ProjectReference Include="..\Tenancy\Tenancy.WebApi\Tenancy.WebApi.csproj" />
+
   </ItemGroup>
 
 </Project>

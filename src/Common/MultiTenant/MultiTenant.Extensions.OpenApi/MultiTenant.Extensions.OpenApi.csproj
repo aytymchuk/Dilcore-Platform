@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\..\OpenApi\Extensions.OpenApi\Extensions.OpenApi.csproj" />
+    <ProjectReference Include="..\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Configuration\Configuration.AspNetCore\Configuration.AspNetCore.csproj" />
+    <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
+  </ItemGroup>
+
+</Project>

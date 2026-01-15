@@ -5,4 +5,5 @@ namespace Dilcore.WebApi.Settings;
 public class AuthenticationSettings
 {
     public Auth0Settings? Auth0 { get; set; }
+    public string[] Scopes { get; set; } = ["openid", "profile", "email"];
 }

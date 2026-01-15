@@ -1,10 +1,13 @@
+using Humanizer;
 using Dilcore.Results.Abstractions;
-using Dilcore.WebApi.Extensions;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
-namespace Dilcore.WebApi.Infrastructure.Validation;
+namespace Dilcore.FluentValidation.Extensions.MinimalApi;
 
 /// <summary>
 /// Endpoint filter that automatically validates request parameters using FluentValidation.
@@ -72,7 +75,7 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
         var errors = validationResult.Errors
             .GroupBy(e => e.PropertyName)
             .ToDictionary(
-                g => g.Key.ToCamelCase(),
+                g => g.Key.Camelize(),
                 g => g.Select(e => e.ErrorMessage).ToArray()
             );
 
@@ -83,7 +86,7 @@ public sealed partial class ValidationEndpointFilter<T> : IEndpointFilter where 
             type: $"{ProblemDetailsConstants.TypeBaseUri}/data-validation-failed",
             extensions: new Dictionary<string, object?>
             {
-                [Constants.ProblemDetails.Fields.ErrorCode] = ProblemDetailsConstants.DataValidationFailed
+                [ProblemDetailsConstants.ErrorCodeKey] = ProblemDetailsConstants.DataValidationFailed
             }
         );
     }

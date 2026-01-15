@@ -1,29 +1,26 @@
-using Dilcore.WebApi.Settings;
+using Dilcore.Extensions.OpenApi.Abstractions;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
-namespace Dilcore.WebApi.Infrastructure.OpenApi;
+namespace Dilcore.Extensions.OpenApi;
 
 /// <summary>
 /// OpenAPI document transformer that adds security schemes for Bearer token and OAuth2 authentication.
 /// This enables the Scalar API documentation to display authentication options for Auth0.
 /// </summary>
-internal sealed class OpenApiSecurityTransformer(IOptions<AuthenticationSettings> options) : IOpenApiDocumentTransformer
+internal sealed class OpenApiSecurityTransformer(OpenApiSettings settings) : IOpenApiDocumentTransformer
 {
-    private readonly AuthenticationSettings _settings = options.Value;
-
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        var auth0 = _settings.Auth0;
-        if (auth0 is null)
+        var authenticationSettings = settings.Authentication;
+        if (string.IsNullOrWhiteSpace(authenticationSettings?.Domain))
         {
             return Task.CompletedTask;
         }
 
         InitializeComponents(document);
         AddBearerSecurityScheme(document);
-        AddAuth0SecurityScheme(document, auth0.Domain);
+        AddAuth0SecurityScheme(document, authenticationSettings.Domain);
         AddSecurityRequirements(document);
 
         return Task.CompletedTask;

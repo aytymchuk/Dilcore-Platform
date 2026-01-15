@@ -1,5 +1,4 @@
 using Dilcore.MultiTenant.Abstractions;
-// HttpContextExtensions is now in Dilcore.MultiTenant.Http.Extensions namespace
 using Microsoft.AspNetCore.Http;
 
 namespace Dilcore.MultiTenant.Http.Extensions;

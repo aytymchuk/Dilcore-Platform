@@ -1,11 +1,12 @@
 using System.Reflection;
-using Dilcore.WebApi.Extensions;
+using Humanizer;
 using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
-namespace Dilcore.WebApi.Infrastructure.OpenApi;
+namespace Dilcore.FluentValidation.Extensions.OpenApi;
 
 /// <summary>
 /// OpenAPI schema filter that reflects FluentValidation rules into OpenAPI schema properties.
@@ -49,7 +50,7 @@ public sealed class OpenApiValidationSchemaTransformer(IServiceScopeFactory serv
             }
 
             // Find validators for this property (case-insensitive match)
-            var rules = descriptor.GetRulesForMember(propertyName.ToPascalCase());
+            var rules = descriptor.GetRulesForMember(propertyName.Pascalize());
 
             foreach (var rule in rules)
             {
@@ -74,7 +75,7 @@ public sealed class OpenApiValidationSchemaTransformer(IServiceScopeFactory serv
                 var boundaryPropertyName = GetPropertyNameFromRule(rule);
                 if (!string.IsNullOrEmpty(boundaryPropertyName))
                 {
-                    parentSchema.Required.Add(boundaryPropertyName.ToCamelCase());
+                    parentSchema.Required.Add(boundaryPropertyName.Camelize());
                 }
             }
 
