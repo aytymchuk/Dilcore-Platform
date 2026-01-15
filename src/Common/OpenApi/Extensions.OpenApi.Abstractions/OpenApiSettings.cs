@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.OpenApi;
 
 namespace Dilcore.Extensions.OpenApi.Abstractions;
 
-public class OpenApiSettings
+public sealed class OpenApiSettings
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -12,7 +12,7 @@ public class OpenApiSettings
     public Action<OpenApiOptions>? ConfigureOptions { get; set; }
 }
 
-public class OpenApiAuthenticationSettings
+public sealed class OpenApiAuthenticationSettings
 {
     public string? Domain { get; set; }
 }

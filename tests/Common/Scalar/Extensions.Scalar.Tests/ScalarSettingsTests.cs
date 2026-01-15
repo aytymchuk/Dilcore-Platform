@@ -13,8 +13,8 @@ public class ScalarSettingsTests
         var settings = new ScalarSettings();
 
         // Assert
-        settings.Title.ShouldBe("API Documentation");
-        settings.Version.ShouldBe("v1");
+        settings.Title.ShouldBe(ScalarConstants.DefaultTitle);
+        settings.Version.ShouldBe(ScalarConstants.DefaultVersion);
         settings.Theme.ShouldBe(ScalarTheme.DeepSpace);
         settings.Endpoint.ShouldBe(ScalarConstants.Endpoint);
         settings.Authentication.ShouldBeNull();

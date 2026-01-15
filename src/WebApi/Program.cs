@@ -45,7 +45,7 @@ builder.Services.AddOpenApiDocumentation(options =>
 
         options.ConfigureOptions = apiOptions =>
         {
-            apiOptions.AddOperationTransformer<OpenApiTenantHeaderTransformer>();
+            apiOptions.AddMultiTenantSupport();
             apiOptions.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
         };
     });

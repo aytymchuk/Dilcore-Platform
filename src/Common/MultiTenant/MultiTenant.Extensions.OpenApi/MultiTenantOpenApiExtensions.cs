@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.MultiTenant.Extensions.OpenApi;
 
 public static class MultiTenantOpenApiExtensions
 {
-    public static IServiceCollection AddMultiTenantOpenApiSupport(this IServiceCollection services)
+    /// <summary>
+    /// Adds multi-tenant OpenAPI support by registering the tenant header transformer.
+    /// </summary>
+    /// <param name="options">The OpenAPI options.</param>
+    /// <returns>The options for chaining.</returns>
+    public static OpenApiOptions AddMultiTenantSupport(this OpenApiOptions options)
     {
-        // Configure the default "v1" document to use the tenant header transformer
-        services.Configure<OpenApiOptions>(Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion, options =>
-        {
-            options.AddOperationTransformer<OpenApiTenantHeaderTransformer>();
-        });
-        return services;
+        options.AddOperationTransformer<OpenApiTenantHeaderTransformer>();
+        return options;
     }
 }

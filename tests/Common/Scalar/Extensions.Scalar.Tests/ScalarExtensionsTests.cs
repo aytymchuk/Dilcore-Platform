@@ -10,12 +10,12 @@ namespace Dilcore.Extensions.Scalar.Tests;
 public class ScalarExtensionsTests
 {
     [Test]
-    public void UseScalarDocumentation_WithDefaultSettings_ShouldReturnApp()
+    public async Task UseScalarDocumentation_WithDefaultSettings_ShouldReturnApp()
     {
         // Arrange
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddOpenApi();
-        var app = builder.Build();
+        await using var app = builder.Build();
 
         // Act
         var result = app.UseScalarDocumentation();
@@ -26,12 +26,12 @@ public class ScalarExtensionsTests
     }
 
     [Test]
-    public void UseScalarDocumentation_WithCustomSettings_ShouldReturnApp()
+    public async Task UseScalarDocumentation_WithCustomSettings_ShouldReturnApp()
     {
         // Arrange
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddOpenApi();
-        var app = builder.Build();
+        await using var app = builder.Build();
 
         const string customTitle = "My Custom API";
         const string customVersion = "v2.0";
@@ -52,12 +52,12 @@ public class ScalarExtensionsTests
     }
 
     [Test]
-    public void UseScalarDocumentation_WithAuthentication_ShouldReturnApp()
+    public async Task UseScalarDocumentation_WithAuthentication_ShouldReturnApp()
     {
         // Arrange
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddOpenApi();
-        var app = builder.Build();
+        await using var app = builder.Build();
 
         const string clientId = "test-client-id";
         const string clientSecret = "test-client-secret";
@@ -82,12 +82,12 @@ public class ScalarExtensionsTests
     }
 
     [Test]
-    public void UseScalarDocumentation_WithNullAuthentication_ShouldReturnApp()
+    public async Task UseScalarDocumentation_WithNullAuthentication_ShouldReturnApp()
     {
         // Arrange
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddOpenApi();
-        var app = builder.Build();
+        await using var app = builder.Build();
 
         // Act
         var result = app.UseScalarDocumentation(settings =>
@@ -101,12 +101,12 @@ public class ScalarExtensionsTests
     }
 
     [Test]
-    public void UseScalarDocumentation_WithConfigureAction_ShouldInvokeAction()
+    public async Task UseScalarDocumentation_WithConfigureAction_ShouldApplySettings()
     {
         // Arrange
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddOpenApi();
-        var app = builder.Build();
+        await using var app = builder.Build();
 
         var configureInvoked = false;
         ScalarSettings? capturedSettings = null;
@@ -116,30 +116,17 @@ public class ScalarExtensionsTests
         {
             configureInvoked = true;
             capturedSettings = settings;
+            settings.Title = "Modified Title";
+            settings.Version = "v2";
+            settings.Theme = ScalarTheme.BluePlanet;
         });
 
         // Assert
         configureInvoked.ShouldBeTrue();
         capturedSettings.ShouldNotBeNull();
-        capturedSettings.Title.ShouldBe("API Documentation");
-        capturedSettings.Version.ShouldBe("v1");
-        capturedSettings.Theme.ShouldBe(ScalarTheme.DeepSpace);
+        capturedSettings.Title.ShouldBe("Modified Title");
+        capturedSettings.Version.ShouldBe("v2");
+        capturedSettings.Theme.ShouldBe(ScalarTheme.BluePlanet);
         capturedSettings.Endpoint.ShouldBe(ScalarConstants.Endpoint);
-    }
-
-    [Test]
-    public void UseScalarDocumentation_WithoutConfigureAction_ShouldUseDefaults()
-    {
-        // Arrange
-        var builder = WebApplication.CreateBuilder();
-        builder.Services.AddOpenApi();
-        var app = builder.Build();
-
-        // Act  
-        var result = app.UseScalarDocumentation();
-
-        // Assert
-        result.ShouldNotBeNull();
-        result.ShouldBe(app);
     }
 }
