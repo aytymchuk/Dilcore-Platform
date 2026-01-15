@@ -38,7 +38,7 @@ public static class OpenApiExtensions
             options.AddDocumentTransformer<OpenApiProblemDetailsTransformer>();
             options.AddOperationTransformer<OpenApiProblemDetailsTransformer>();
 
-            openApise
+            settings.ConfigureOptions?.Invoke(options);
         });
 
         return services;
