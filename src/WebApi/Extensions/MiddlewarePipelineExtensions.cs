@@ -2,6 +2,7 @@ using Dilcore.Configuration.Extensions;
 using Dilcore.Extensions.OpenApi.Abstractions;
 using Dilcore.WebApi.Settings;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.CorrelationId.Http.Extensions;
 using Dilcore.Extensions.OpenApi;
 using Dilcore.Extensions.Scalar;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
@@ -49,6 +50,7 @@ public static class MiddlewarePipelineExtensions
         }
 
         app.UseHttpsRedirection();
+        app.UseCorrelationId();
         app.UseMultiTenant();
         app.UseMultiTenantEnforcement();
 
