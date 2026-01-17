@@ -17,6 +17,9 @@ public static class EndpointExtensions
 {
     public static WebApplication MapApplicationEndpoints(this WebApplication app)
     {
+        // Health check endpoint
+        app.MapHealthCheckEndpoint();
+
         // Test endpoint for Problem Details demonstration (Development/Testing only)
         if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testing")
         {
@@ -173,5 +176,23 @@ public static class EndpointExtensions
         .WithTags("Testing")
         .WithDescription("Test endpoint that requires authentication. Returns current user information.")
         .ExcludeFromMultiTenantResolution();
+    }
+
+    private static void MapHealthCheckEndpoint(this WebApplication app)
+    {
+        app.MapGet("/health", () =>
+        {
+            return Microsoft.AspNetCore.Http.Results.Ok(new
+            {
+                status = "Healthy",
+                timestamp = DateTime.UtcNow,
+                service = "Dilcore Platform"
+            });
+        })
+        .WithName("HealthCheck")
+        .WithTags("Health")
+        .WithDescription("Basic health check endpoint for monitoring.")
+        .ExcludeFromMultiTenantResolution()
+        .AllowAnonymous();
     }
 }
