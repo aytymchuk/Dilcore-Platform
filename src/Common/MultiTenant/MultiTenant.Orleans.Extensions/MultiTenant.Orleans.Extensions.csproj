@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

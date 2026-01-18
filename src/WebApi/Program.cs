@@ -10,6 +10,7 @@ using Dilcore.Identity.WebApi;
 using Dilcore.MediatR.Extensions;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.MultiTenant.Orleans.Extensions;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.Tenancy.WebApi;
 using Dilcore.FluentValidation.Extensions.MinimalApi;
@@ -135,6 +136,9 @@ builder.Host.UseOrleans((context, siloBuilder) =>
 
     // OpenTelemetry activity propagation
     siloBuilder.AddActivityPropagation();
+
+    // Multi-tenancy support for Orleans
+    siloBuilder.AddOrleansTenantContext();
 });
 
 var app = builder.Build();
