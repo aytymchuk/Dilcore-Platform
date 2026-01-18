@@ -37,7 +37,10 @@ public static class MultiTenantOrleansExtensions
 
     /// <summary>
     /// Registers a tenant context provider as a singleton.
-    /// Uses TryAddSingleton to avoid duplicate registrations if called multiple times.
+    /// Uses TryAddEnumerable to allow multiple ITenantContextProvider implementations
+    /// (e.g., HTTP provider and Orleans provider) to coexist. The TenantContextResolver
+    /// will sort them by Priority to select the highest-priority provider.
+    /// Prevents duplicate registrations of the same provider type if called multiple times.
     /// </summary>
     /// <typeparam name="TProvider">The type of the tenant context provider to register.</typeparam>
     /// <param name="services">The service collection.</param>
@@ -45,7 +48,7 @@ public static class MultiTenantOrleansExtensions
     public static IServiceCollection AddTenantContextProvider<TProvider>(this IServiceCollection services)
         where TProvider : class, ITenantContextProvider
     {
-        services.TryAddSingleton<ITenantContextProvider, TProvider>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ITenantContextProvider, TProvider>());
         return services;
     }
 }
