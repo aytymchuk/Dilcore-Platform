@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\..\OpenApi\Extensions.OpenApi\Extensions.OpenApi.csproj" />
     <ProjectReference Include="..\CorrelationId.Abstractions\CorrelationId.Abstractions.csproj" />
   </ItemGroup>
 
