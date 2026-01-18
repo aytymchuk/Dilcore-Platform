@@ -22,6 +22,9 @@ public class OrleansTenantContextProviderTests
     [Test]
     public void Priority_ShouldBe200()
     {
+        // Priority must be 200 to ensure Orleans provider is checked before HTTP provider (100)
+        // This intentionally covers both the exact contract and relative ordering requirement
+
         // Act & Assert
         _provider.Priority.ShouldBe(200);
     }
@@ -80,15 +83,5 @@ public class OrleansTenantContextProviderTests
         result.ShouldNotBeNull();
         result.Name.ShouldBeNull();
         result.StorageIdentifier.ShouldBe("storage-id-123");
-    }
-
-    [Test]
-    public void Priority_ShouldBeHigherThanHttpProvider()
-    {
-        // The Orleans provider should have higher priority (200) than HTTP provider (100)
-        // so it gets checked first in grain contexts
-
-        // Act & Assert
-        _provider.Priority.ShouldBeGreaterThan(100);
     }
 }

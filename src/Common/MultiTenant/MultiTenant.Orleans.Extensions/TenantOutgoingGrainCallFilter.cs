@@ -35,10 +35,14 @@ public sealed class TenantOutgoingGrainCallFilter : IOutgoingGrainCallFilter
             _logger.LogTenantContextPropagated(
                 context.Grain?.GetType().Name ?? "Unknown",
                 context.InterfaceMethod?.Name ?? "Unknown",
-                tenantContext.Name ?? "null");
+                tenantContext.Name,
+                tenantContext.StorageIdentifier);
         }
         else
         {
+            // Clear any stale tenant context to prevent leakage between calls
+            OrleansTenantContextAccessor.SetTenantContext(null);
+
             _logger.LogTenantContextNotPropagated(
                 context.Grain?.GetType().Name ?? "Unknown",
                 context.InterfaceMethod?.Name ?? "Unknown");

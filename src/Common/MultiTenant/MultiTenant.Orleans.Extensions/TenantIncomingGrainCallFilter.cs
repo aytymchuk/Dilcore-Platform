@@ -28,7 +28,8 @@ public sealed class TenantIncomingGrainCallFilter : IIncomingGrainCallFilter
             _logger.LogTenantContextExtracted(
                 context.Grain?.GetType().Name ?? "Unknown",
                 context.InterfaceMethod?.Name ?? "Unknown",
-                tenantContext.Name ?? "null");
+                tenantContext.Name,
+                tenantContext.StorageIdentifier);
         }
         else
         {
