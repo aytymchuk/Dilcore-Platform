@@ -1,3 +1,5 @@
+using Dilcore.MultiTenant.Abstractions;
+
 namespace Dilcore.MultiTenant.Orleans.Extensions;
 
 /// <summary>
