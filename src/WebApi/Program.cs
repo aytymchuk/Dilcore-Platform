@@ -3,8 +3,10 @@ using Dilcore.Configuration.Extensions;
 using Dilcore.Extensions.OpenApi;
 using Dilcore.Extensions.OpenApi.Abstractions;
 using Dilcore.MultiTenant.Extensions.OpenApi;
+using Dilcore.CorrelationId.Extensions.OpenApi;
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
+using Dilcore.CorrelationId.Http.Extensions;
 using Dilcore.Configuration.AspNetCore;
 using Dilcore.Identity.WebApi;
 using Dilcore.MediatR.Extensions;
@@ -46,6 +48,7 @@ builder.Services.AddOpenApiDocumentation(options =>
         options.ConfigureOptions = apiOptions =>
         {
             apiOptions.AddMultiTenantSupport();
+            apiOptions.AddCorrelationIdSupport();
             apiOptions.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
         };
     });
@@ -54,6 +57,7 @@ builder.Services.AddTelemetry(builder.Configuration, builder.Environment);
 builder.Services.AddProblemDetailsServices();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddCorsPolicy();
+builder.Services.AddCorrelationIdTracking();
 builder.Services.AddAuth0Authentication(builder.Configuration);
 builder.Services.AddAuth0ClaimsTransformation(builder.Configuration);
 builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
