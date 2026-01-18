@@ -1,5 +1,6 @@
 using Dilcore.MultiTenant.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Orleans.Hosting;
 
 namespace Dilcore.MultiTenant.Orleans.Extensions;
@@ -36,6 +37,7 @@ public static class MultiTenantOrleansExtensions
 
     /// <summary>
     /// Registers a tenant context provider as a singleton.
+    /// Uses TryAddSingleton to avoid duplicate registrations if called multiple times.
     /// </summary>
     /// <typeparam name="TProvider">The type of the tenant context provider to register.</typeparam>
     /// <param name="services">The service collection.</param>
@@ -43,7 +45,7 @@ public static class MultiTenantOrleansExtensions
     public static IServiceCollection AddTenantContextProvider<TProvider>(this IServiceCollection services)
         where TProvider : class, ITenantContextProvider
     {
-        services.AddSingleton<ITenantContextProvider, TProvider>();
+        services.TryAddSingleton<ITenantContextProvider, TProvider>();
         return services;
     }
 }
