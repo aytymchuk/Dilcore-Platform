@@ -41,7 +41,7 @@ public class CorrelationIdMiddleware : IMiddleware
         System.Diagnostics.Activity.Current?.SetBaggage(CorrelationIdConstants.HeaderName, correlationId);
 
         // Add correlation ID to response headers for client tracking
-        context.Response.Headers.Append(CorrelationIdConstants.HeaderName, correlationId);
+        context.Response.Headers[CorrelationIdConstants.HeaderName] = correlationId;
 
         await next(context);
     }

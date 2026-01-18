@@ -5,19 +5,19 @@ namespace Dilcore.CorrelationId.Http.Extensions;
 internal static partial class LoggerExtensions
 {
     [LoggerMessage(
-        EventId = 2001,
+        EventId = 2101,
         Level = LogLevel.Debug,
         Message = "Correlation ID extracted from header: {CorrelationId}")]
     public static partial void LogCorrelationIdExtracted(this ILogger logger, string correlationId);
 
     [LoggerMessage(
-        EventId = 2002,
+        EventId = 2102,
         Level = LogLevel.Debug,
         Message = "Correlation ID generated: {CorrelationId}")]
     public static partial void LogCorrelationIdGenerated(this ILogger logger, string correlationId);
 
     [LoggerMessage(
-        EventId = 2003,
+        EventId = 2103,
         Level = LogLevel.Debug,
         Message = "Correlation ID resolved by provider '{ProviderName}': {CorrelationId}")]
     public static partial void LogCorrelationIdResolved(
@@ -26,7 +26,7 @@ internal static partial class LoggerExtensions
         string correlationId);
 
     [LoggerMessage(
-        EventId = 2004,
+        EventId = 2104,
         Level = LogLevel.Debug,
         Message = "No correlation ID could be resolved from any registered provider")]
     public static partial void LogNoCorrelationIdResolved(this ILogger logger);

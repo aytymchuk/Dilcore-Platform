@@ -8,5 +8,5 @@ public sealed record CorrelationIdContext(string? CorrelationId) : ICorrelationI
     /// <summary>
     /// Represents a null/empty correlation ID context (no correlation ID resolved).
     /// </summary>
-    public static readonly CorrelationIdContext Empty = new((string?)null);
+    public static readonly CorrelationIdContext Empty = new(correlationId: null);
 }

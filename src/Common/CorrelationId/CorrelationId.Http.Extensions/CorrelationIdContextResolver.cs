@@ -21,7 +21,7 @@ public sealed class CorrelationIdContextResolver : ICorrelationIdContextResolver
         IEnumerable<ICorrelationIdContextProvider> providers,
         ILogger<CorrelationIdContextResolver> logger)
     {
-        _providers = providers.OrderByDescending(p => p.Priority);
+        _providers = providers.OrderByDescending(p => p.Priority).ToList();
         _logger = logger;
     }
 
