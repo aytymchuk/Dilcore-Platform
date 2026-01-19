@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Auth0.AspNetCore.Authentication.Api" Version="1.0.0-beta.2" />
+    <PackageVersion Include="Auth0.AspNetCore.Authentication.Api" Version="1.0.0-beta.3" />
     <PackageVersion Include="Azure.Data.AppConfiguration" Version="1.7.0" />
     <PackageVersion Include="Azure.Identity" Version="1.17.1" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.4.0" />
@@ -11,8 +11,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="Finbuckle.MultiTenant.Abstractions" Version="10.0.1" />
-    <PackageVersion Include="Finbuckle.MultiTenant.AspNetCore" Version="10.0.1" />
+    <PackageVersion Include="Finbuckle.MultiTenant.Abstractions" Version="10.0.2" />
+    <PackageVersion Include="Finbuckle.MultiTenant.AspNetCore" Version="10.0.2" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.1" />
@@ -46,13 +46,13 @@
     <PackageVersion Include="FluentResults" Version="4.0.0" />
     <PackageVersion Include="TngTech.ArchUnitNET.NUnit" Version="0.13.1" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.4" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.11" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageVersion Include="MicroElements.OpenApi.FluentValidation" Version="7.0.3" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="JunitXml.TestLogger" Version="7.1.0" />
-    <PackageVersion Include="Finbuckle.MultiTenant" Version="10.0.1" />
+    <PackageVersion Include="Finbuckle.MultiTenant" Version="10.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.1.0" />
     <!-- Orleans Actor Model -->
     <PackageVersion Include="Microsoft.Orleans.Server" Version="10.0.0-rc.2" />
