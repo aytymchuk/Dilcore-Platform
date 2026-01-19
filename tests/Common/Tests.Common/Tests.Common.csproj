@@ -2,7 +2,11 @@
 
   <ItemGroup>
     <PackageReference Include="FluentResults" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" VersionOverride="10.0.2" />
+  <PackageReference Include="Microsoft.Extensions.Configuration.Json" VersionOverride="10.0.2" />
+  <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  <PackageReference Include="Microsoft.Extensions.Logging.Console" VersionOverride="10.0.2" />
     <PackageReference Include="Microsoft.Orleans.TestingHost" />
   </ItemGroup>
 
