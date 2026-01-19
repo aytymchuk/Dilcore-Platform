@@ -1,4 +1,5 @@
 using Dilcore.Tenancy.Core;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Tenancy.WebApi;
@@ -11,11 +12,11 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds all Tenancy module services including Core and WebApi components.
     /// </summary>
-    public static IServiceCollection AddTenancyModule(this IServiceCollection services)
+    public static WebApplicationBuilder AddTenancyModule(this WebApplicationBuilder builder)
     {
         // Add Tenancy Core services (MediatR handlers and behaviors)
-        services.AddTenancyApplication();
+        builder.Services.AddTenancyApplication();
 
-        return services;
+        return builder;
     }
 }
