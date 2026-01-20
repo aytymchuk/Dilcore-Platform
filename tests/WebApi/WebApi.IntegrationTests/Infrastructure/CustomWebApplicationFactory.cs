@@ -30,7 +30,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 ["GrainsSettings:ServiceId"] = "test-service",
                 ["GrainsSettings:StorageAccountName"] = "", // Force empty to disable Azure Clustering
                 ["AppConfigEndpoint"] = "", // Disable Azure App Configuration in tests
-                ["ConnectionStrings:MongoDb"] = Dilcore.WebApi.IntegrationTests.SharedMongoFixture.Container.GetConnectionString()
+                ["ConnectionStrings:MongoDb"] = TestContainerFixture.MongoDbConnectionString,
+                ["MongoDbSettings:ConnectionString"] = TestContainerFixture.MongoDbConnectionString
             });
         });
 
