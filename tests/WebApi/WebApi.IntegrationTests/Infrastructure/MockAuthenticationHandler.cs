@@ -34,8 +34,13 @@ public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSch
         };
 
         // Only add claims with non-null values
-        if (_fakeUser.FullName != null)
-            claims.Add(new Claim(ClaimTypes.Name, _fakeUser.FullName));
+        // Use FirstName + LastName to construct a displayable name, fall back to Name
+        var fullName = (_fakeUser.FirstName != null && _fakeUser.LastName != null)
+            ? $"{_fakeUser.FirstName} {_fakeUser.LastName}"
+            : null;
+
+        if (fullName != null)
+            claims.Add(new Claim(ClaimTypes.Name, fullName));
         else if (_fakeUser.Name != null)
             claims.Add(new Claim(ClaimTypes.Name, _fakeUser.Name));
 

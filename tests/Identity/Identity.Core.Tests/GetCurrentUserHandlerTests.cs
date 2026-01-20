@@ -37,12 +37,13 @@ public class GetCurrentUserHandlerTests
         // Arrange
         const string userId = "user-123";
         const string email = "test@example.com";
-        const string fullName = "Test User";
+        const string firstName = "Test";
+        const string lastName = "User";
         var registeredAt = DateTime.UtcNow;
 
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
-        var expectedDto = new UserDto(userId, email, fullName, registeredAt);
+        var expectedDto = new UserResponse(Guid.NewGuid(), email, firstName, lastName, registeredAt);
         var userGrainMock = new Mock<IUserGrain>();
         userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync(expectedDto);
 
@@ -55,9 +56,10 @@ public class GetCurrentUserHandlerTests
 
         // Assert
         var user = result.ShouldBeSuccessWithValue();
-        user.Id.ShouldBe(userId);
+        user.Id.ShouldNotBe(Guid.Empty);
         user.Email.ShouldBe(email);
-        user.FullName.ShouldBe(fullName);
+        user.FirstName.ShouldBe(firstName);
+        user.LastName.ShouldBe(lastName);
         user.RegisteredAt.ShouldBe(registeredAt);
 
         userGrainMock.Verify(x => x.GetProfileAsync(), Times.Once);
@@ -72,7 +74,7 @@ public class GetCurrentUserHandlerTests
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
         var userGrainMock = new Mock<IUserGrain>();
-        userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync((UserDto?)null);
+        userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync((UserResponse?)null);
 
         _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
 
@@ -94,7 +96,7 @@ public class GetCurrentUserHandlerTests
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
         var userGrainMock = new Mock<IUserGrain>();
-        userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync((UserDto?)null);
+        userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync((UserResponse?)null);
 
         _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
 

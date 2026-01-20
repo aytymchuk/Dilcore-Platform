@@ -59,10 +59,6 @@ builder.Services.AddAuth0ClaimsTransformation(builder.Configuration);
 builder.Services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
 builder.Services.AddMediatRInfrastructure(typeof(Dilcore.WebApi.Program).Assembly);
 
-// Add domain modules (MediatR handlers, validators, etc.)
-builder.Services.AddIdentityModule();
-builder.Services.AddTenancyModule();
-
 builder.Services.AddSingleton(TimeProvider.System);
 
 // Configure GitHub HttpClient with resilience policies
@@ -92,6 +88,10 @@ builder.Services.AddMultiTenancy<AppTenantInfo>(mtb =>
 {
     mtb.WithStore<OrleansTenantStore>(ServiceLifetime.Scoped);
 });
+
+// Add domain modules (MediatR handlers, validators, etc.)
+builder.AddIdentityModule();
+builder.AddTenancyModule();
 
 // Configure Orleans Silo
 builder.Host.UseOrleans((context, siloBuilder) =>
@@ -130,7 +130,7 @@ builder.Host.UseOrleans((context, siloBuilder) =>
     siloBuilder.ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000);
 
     // In-memory grain storage
-    siloBuilder.AddMemoryGrainStorage("UserStore");
+    siloBuilder.AddUserGrainStorage();
     siloBuilder.AddMemoryGrainStorage("TenantStore");
 
     // OpenTelemetry activity propagation

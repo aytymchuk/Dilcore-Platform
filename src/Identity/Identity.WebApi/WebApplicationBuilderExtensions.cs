@@ -9,7 +9,7 @@ namespace Dilcore.Identity.WebApi;
 /// <summary>
 /// Service collection extensions for Identity.WebApi dependency injection.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static class WebApplicationBuilderExtensions
 {
     /// <summary>
     /// Adds all Identity module services including Core and WebApi components.

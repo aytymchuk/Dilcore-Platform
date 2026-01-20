@@ -32,7 +32,8 @@ public class UserContextTests : IDisposable
         _factory.FakeUser.IsAuthenticated = true;
         _factory.FakeUser.UserId = "test-user-123";
         _factory.FakeUser.Email = "test@example.com";
-        _factory.FakeUser.FullName = "Test User";
+        _factory.FakeUser.FirstName = "Test";
+        _factory.FakeUser.LastName = "User";
 
         // Act
         var response = await _client.GetAsync("/test/user-info");
@@ -44,6 +45,7 @@ public class UserContextTests : IDisposable
         content.ShouldNotBeNull();
         content.userId.ShouldBe("test-user-123");
         content.email.ShouldBe("test@example.com");
+        // FullName is constructed from FirstName + LastName in MockAuthenticationHandler
         content.fullName.ShouldBe("Test User");
     }
 
@@ -73,7 +75,8 @@ public class UserContextTests : IDisposable
         _factory.FakeUser.UserId = "partial-user-456";
         _factory.FakeUser.TenantId = "test-tenant";
         _factory.FakeUser.Email = null!; // No email
-        _factory.FakeUser.FullName = null; // No full name
+        _factory.FakeUser.FirstName = null; // No first name
+        _factory.FakeUser.LastName = null; // No last name
         _factory.FakeUser.Name = null!; // No name either
 
         // Act

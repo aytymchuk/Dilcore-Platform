@@ -37,27 +37,28 @@ public class RegisterUserHandlerTests
         // Arrange
         const string userId = "user-123";
         const string email = "test@example.com";
-        const string fullName = "Test User";
+        const string firstName = "Test";
+        const string lastName = "User";
 
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
-        var expectedDto = new UserDto(userId, email, fullName, DateTime.UtcNow);
+        var expectedDto = new UserResponse(Guid.NewGuid(), email, firstName, lastName, DateTime.UtcNow);
         var creationResult = UserCreationResult.Success(expectedDto);
         var userGrainMock = new Mock<IUserGrain>();
-        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(creationResult);
+        userGrainMock.Setup(x => x.RegisterAsync(email, firstName, lastName)).ReturnsAsync(creationResult);
 
         _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
 
-        var command = new RegisterUserCommand(email, fullName);
+        var command = new RegisterUserCommand(email, firstName, lastName);
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
 
         // Assert
         var user = result.ShouldBeSuccessWithValue();
-        user.Id.ShouldBe(userId);
+        user.Id.ShouldNotBe(Guid.Empty);
         user.Email.ShouldBe(email);
-        userGrainMock.Verify(x => x.RegisterAsync(email, fullName), Times.Once);
+        userGrainMock.Verify(x => x.RegisterAsync(email, firstName, lastName), Times.Once);
         _userContextResolverMock.Verify(x => x.Resolve(), Times.Once);
     }
 
@@ -67,19 +68,20 @@ public class RegisterUserHandlerTests
         // Arrange
         const string userId = "user-456";
         const string email = "another@example.com";
-        const string fullName = "Another User";
+        const string firstName = "Another";
+        const string lastName = "User";
         var registeredAt = DateTime.UtcNow;
 
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
-        var expectedDto = new UserDto(userId, email, fullName, registeredAt);
+        var expectedDto = new UserResponse(Guid.NewGuid(), email, firstName, lastName, registeredAt);
         var creationResult = UserCreationResult.Success(expectedDto);
         var userGrainMock = new Mock<IUserGrain>();
-        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(creationResult);
+        userGrainMock.Setup(x => x.RegisterAsync(email, firstName, lastName)).ReturnsAsync(creationResult);
 
         _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
 
-        var command = new RegisterUserCommand(email, fullName);
+        var command = new RegisterUserCommand(email, firstName, lastName);
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -95,18 +97,19 @@ public class RegisterUserHandlerTests
         // Arrange
         const string userId = "user-789";
         const string email = "conflict@example.com";
-        const string fullName = "Conflict User";
+        const string firstName = "Conflict";
+        const string lastName = "User";
         const string errorMessage = "User already registered";
 
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
         var creationResult = UserCreationResult.Failure(errorMessage);
         var userGrainMock = new Mock<IUserGrain>();
-        userGrainMock.Setup(x => x.RegisterAsync(email, fullName)).ReturnsAsync(creationResult);
+        userGrainMock.Setup(x => x.RegisterAsync(email, firstName, lastName)).ReturnsAsync(creationResult);
 
         _grainFactoryMock.Setup(x => x.GetGrain<IUserGrain>(userId, null)).Returns(userGrainMock.Object);
 
-        var command = new RegisterUserCommand(email, fullName);
+        var command = new RegisterUserCommand(email, firstName, lastName);
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);
@@ -121,7 +124,7 @@ public class RegisterUserHandlerTests
         // Arrange
         _userContextMock.Setup(x => x.Id).Returns((string?)null);
 
-        var command = new RegisterUserCommand("test@example.com", "Test User");
+        var command = new RegisterUserCommand("test@example.com", "Test", "User");
 
         // Act
         var result = await _sut.Handle(command, CancellationToken.None);

@@ -8,17 +8,26 @@ namespace Dilcore.Identity.Actors;
 public sealed class UserState
 {
     [Id(0)]
-    public string? Id { get; set; }
+    public string? IdentityId { get; set; }
+
+    [Id(7)]
+    public Guid Id { get; set; }
 
     [Id(1)]
     public string Email { get; set; } = string.Empty;
 
     [Id(2)]
-    public string FullName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
 
     [Id(3)]
-    public DateTime RegisteredAt { get; set; }
+    public string LastName { get; set; } = string.Empty;
 
     [Id(4)]
+    public DateTime RegisteredAt { get; set; }
+
+    [Id(5)]
     public bool IsRegistered { get; set; }
+
+    [Id(6)]
+    public long ETag { get; set; }
 }

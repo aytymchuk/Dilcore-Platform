@@ -1,5 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Dilcore.DocumentDb.MongoDb" />
+    <PackageReference Include="Dilcore.DocumentDb.MongoDb.Repositories" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Identity.Core\Identity.Core.csproj" />
+    <ProjectReference Include="..\..\Common\Configuration\Configuration.Extensions\Configuration.Extensions.csproj" />
   </ItemGroup>
 </Project>
