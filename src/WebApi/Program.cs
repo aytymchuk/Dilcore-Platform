@@ -1,7 +1,5 @@
 using Dilcore.Configuration.AspNetCore;
 using Dilcore.WebApi.Extensions;
-using Dilcore.WebApi.Infrastructure;
-using Dilcore.WebApi.Infrastructure.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddAppConfiguration();
@@ -12,26 +10,12 @@ builder.Services
     .AddAuthenticationServices(builder.Configuration)
     .AddMultiTenancyServices()
     .AddObservability(builder.Configuration, builder.Environment);
-builder.Services.AddCorrelationIdTracking();
-
-
-/*
- * options.ConfigureOptions = apiOptions =>
-   {
-       apiOptions.AddMultiTenantSupport();
-       apiOptions.AddCorrelationIdSupport();
-       apiOptions.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
-   };
- */
 
 // Add domain modules (MediatR handlers, validators, etc.)
 builder.AddDomainModules();
 
 // Configure Orleans Silo
 builder.Host.AddOrleansConfiguration();
-
-// Multi-tenancy support for Orleans
-siloBuilder.AddOrleansTenantContext();
 
 var app = builder.Build();
 

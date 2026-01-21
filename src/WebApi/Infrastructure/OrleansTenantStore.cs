@@ -25,7 +25,7 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
     /// </summary>
     public async Task<AppTenantInfo?> GetByIdentifierAsync(string identifier)
     {
-        _logger.LogTenantStoreGetByIdentifier(identifier);
+        _logger.LogTenantStoreGetActorByIdentifier(identifier);
         if (string.IsNullOrWhiteSpace(identifier))
         {
             _logger.LogTenantStoreInvalidIdentifier();

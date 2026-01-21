@@ -1,14 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Orleans.TestingHost" />
-    <PackageReference Include="Moq" />
-    <PackageReference Include="NSubstitute" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
     <ProjectReference Include="..\..\..\..\src\Common\MultiTenant\MultiTenant.Orleans.Extensions\MultiTenant.Orleans.Extensions.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Common\MultiTenant\MultiTenant.Http.Extensions\MultiTenant.Http.Extensions.csproj" />
     <ProjectReference Include="..\..\..\Common\Tests.Common\Tests.Common.csproj" />
   </ItemGroup>
 

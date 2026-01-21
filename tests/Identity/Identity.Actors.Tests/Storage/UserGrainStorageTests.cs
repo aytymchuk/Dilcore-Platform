@@ -6,8 +6,6 @@ using FluentResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Orleans.Core;
-using Orleans.Runtime;
 
 namespace Dilcore.Identity.Actors.Tests.Storage;
 

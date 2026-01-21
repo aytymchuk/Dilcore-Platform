@@ -2,7 +2,6 @@ using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.Identity.Core;
 using Dilcore.Identity.Store;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Identity.WebApi;
 

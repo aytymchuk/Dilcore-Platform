@@ -1,7 +1,8 @@
 using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
-using Dilcore.Configuration.AspNetCore;
 using Dilcore.Configuration.Extensions;
+using Dilcore.CorrelationId.Extensions.OpenApi;
+using Dilcore.CorrelationId.Http.Extensions;
 using Dilcore.Extensions.OpenApi;
 using Dilcore.Extensions.OpenApi.Abstractions;
 using Dilcore.FluentValidation.Extensions.MinimalApi;
@@ -15,7 +16,6 @@ using Dilcore.Tenancy.WebApi;
 using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Dilcore.WebApi.Settings;
-using FluentValidation;
 
 namespace Dilcore.WebApi.Extensions;
 
@@ -41,10 +41,12 @@ internal static class ServiceCollectionExtensions
             options.ConfigureOptions = apiOptions =>
             {
                 apiOptions.AddMultiTenantSupport();
+                apiOptions.AddCorrelationIdSupport();
                 apiOptions.AddSchemaTransformer<OpenApiValidationSchemaTransformer>();
             };
         });
 
+        services.AddCorrelationIdTracking();
         services.AddProblemDetailsServices();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddCorsPolicy();

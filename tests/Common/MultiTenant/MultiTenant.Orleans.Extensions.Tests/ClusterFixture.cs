@@ -1,4 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.Tests.Common.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans.TestingHost;

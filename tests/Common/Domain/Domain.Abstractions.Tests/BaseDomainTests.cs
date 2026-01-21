@@ -1,9 +1,8 @@
-using Dilcore.Common.Domain.Abstractions;
-using Dilcore.Common.Domain.Abstractions.Extensions;
+using Dilcore.Domain.Abstractions.Extensions;
 using Moq;
 using Shouldly;
 
-namespace Dilcore.Common.Domain.Abstractions.Tests;
+namespace Dilcore.Domain.Abstractions.Tests;
 
 public class BaseDomainTests
 {
@@ -43,12 +42,12 @@ public class BaseDomainTests
         var domain = new TestDomain();
 
         // Act
-        var updatedDomain = domain.SetCreatedOn(_timeProviderMock.Object);
+        var updatedDomain = domain.SetCreatedAt(_timeProviderMock.Object);
 
         // Assert
         updatedDomain.ShouldNotBeSameAs(domain);
-        updatedDomain.CreatedOn.ShouldBe(_fixedTime.UtcDateTime);
-        domain.CreatedOn.ShouldBe(default);
+        updatedDomain.CreatedAt.ShouldBe(_fixedTime.UtcDateTime);
+        domain.CreatedAt.ShouldBe(default);
     }
 
     [Test]
@@ -58,11 +57,11 @@ public class BaseDomainTests
         var domain = new TestDomain();
 
         // Act
-        var updatedDomain = domain.SetUpdatedOn(_timeProviderMock.Object);
+        var updatedDomain = domain.SetUpdatedAt(_timeProviderMock.Object);
 
         // Assert
         updatedDomain.ShouldNotBeSameAs(domain);
-        updatedDomain.UpdatedOn.ShouldBe(_fixedTime.UtcDateTime);
-        domain.UpdatedOn.ShouldBeNull();
+        updatedDomain.UpdatedAt.ShouldBe(_fixedTime.UtcDateTime);
+        domain.UpdatedAt.ShouldBe(default);
     }
 }

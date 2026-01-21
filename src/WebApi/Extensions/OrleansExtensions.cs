@@ -1,5 +1,5 @@
 using Azure.Data.Tables;
-using Dilcore.Identity.Actors;
+using Dilcore.MultiTenant.Orleans.Extensions;
 using Dilcore.WebApi.Settings;
 
 namespace Dilcore.WebApi.Extensions;
@@ -49,6 +49,10 @@ internal static class OrleansExtensions
 
             // OpenTelemetry activity propagation
             siloBuilder.AddActivityPropagation();
+            
+            
+            // Multi-tenancy support for Orleans
+            siloBuilder.AddOrleansTenantContext();
         });
     }
 }

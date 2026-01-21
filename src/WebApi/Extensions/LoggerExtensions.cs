@@ -32,7 +32,7 @@ internal static partial class LoggerExtensions
 
     // OrleansTenantStore - Tenant Resolution
     [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: Querying tenant by identifier '{Identifier}'")]
-    public static partial void LogTenantStoreGetByIdentifier(this ILogger logger, string identifier);
+    public static partial void LogTenantStoreGetActorByIdentifier(this ILogger logger, string identifier);
 
     [LoggerMessage(LogLevel.Debug, "OrleansTenantStore: Tenant '{Identifier}' not found in grain")]
     public static partial void LogTenantStoreNotFound(this ILogger logger, string identifier);
