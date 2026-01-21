@@ -1,0 +1,43 @@
+using Dilcore.MultiTenant.Abstractions;
+using Orleans;
+
+namespace Dilcore.MultiTenant.Orleans.Extensions.Tests.TestGrains;
+
+/// <summary>
+/// Test grain implementation for verifying tenant context propagation.
+/// </summary>
+public class TenantTestGrain : Grain, ITenantTestGrain
+{
+    private readonly ITenantContextResolver _tenantContextResolver;
+
+    public TenantTestGrain(ITenantContextResolver tenantContextResolver)
+    {
+        _tenantContextResolver = tenantContextResolver;
+    }
+
+    public Task<string?> GetCurrentTenantNameAsync()
+    {
+        if (_tenantContextResolver.TryResolve(out var tenantContext))
+        {
+            return Task.FromResult(tenantContext?.Name);
+        }
+
+        return Task.FromResult<string?>(null);
+    }
+
+    public Task<string?> GetCurrentTenantStorageIdentifierAsync()
+    {
+        if (_tenantContextResolver.TryResolve(out var tenantContext))
+        {
+            return Task.FromResult(tenantContext?.StorageIdentifier);
+        }
+
+        return Task.FromResult<string?>(null);
+    }
+
+    public async Task<string?> CallAnotherGrainAndGetTenantNameAsync(string otherGrainId)
+    {
+        var otherGrain = GrainFactory.GetGrain<ITenantTestGrain>(otherGrainId);
+        return await otherGrain.GetCurrentTenantNameAsync();
+    }
+}
