@@ -6,7 +6,6 @@
     <PackageVersion Include="Auth0.AspNetCore.Authentication.Api" Version="1.0.0-beta.2" />
     <PackageVersion Include="AutoFixture" Version="4.18.1" />
     <PackageVersion Include="AutoMapper" Version="14.0.0" />
-    <PackageVersion Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageVersion Include="Azure.Data.AppConfiguration" Version="1.7.0" />
     <PackageVersion Include="Azure.Identity" Version="1.17.1" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.4.0" />
