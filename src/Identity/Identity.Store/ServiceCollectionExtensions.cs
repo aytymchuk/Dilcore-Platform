@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddIdentityMongoDb(mongoDbSettings);
 
         // Register AutoMapper profiles from this assembly
-        services.AddAutoMapper(typeof(ServiceCollectionExtensions).Assembly);
+        services.AddAutoMapper(opts => opts.AddMaps(typeof(ServiceCollectionExtensions).Assembly));
 
         // Register repositories
         services.AddScoped<IUserRepository, UserRepository>();

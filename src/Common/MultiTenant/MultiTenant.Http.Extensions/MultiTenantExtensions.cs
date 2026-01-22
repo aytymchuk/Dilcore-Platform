@@ -31,7 +31,7 @@ public static class MultiTenantExtensions
     }
 
     public static IServiceCollection AddMultiTenancy<TTenantInfo>(this IServiceCollection services, Action<MultiTenantBuilder<TTenantInfo>> builder)
-        where TTenantInfo : TenantInfo
+        where TTenantInfo : ITenantInfo
     {
         // 1. Configure Finbuckle
         var multiTenant = services.AddMultiTenant<TTenantInfo>()
