@@ -10,12 +10,16 @@ permissions:
   checks: write
   pull-requests: write
   contents: read
+  packages: read
 
 jobs:
   build-and-test:
     name: 🧪 Build & Test + Docker
 
     runs-on: ubuntu-latest
+    
+    env:
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: 📥 Checkout
@@ -37,6 +41,7 @@ jobs:
       run: |
         docker build \
           --build-arg BUILD_VERSION=${{ github.sha }} \
+          --secret id=GITHUB_PACKAGES_TOKEN,env=GITHUB_PACKAGES_TOKEN \
           -f src/WebApi/Dockerfile \
           -t dilcore-webapi:${{ github.sha }} \
           .
