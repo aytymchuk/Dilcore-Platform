@@ -8,7 +8,7 @@ internal static class ValidationConstants
     /// <summary>
     /// Regex pattern for names (letters, spaces, hyphens, apostrophes).
     /// </summary>
-    public const string NameRegex = @"^[a-zA-Z\s-']*$";
+    public const string NameRegex = @"^[\p{L}\p{M}\s'-]*$";
 
     /// <summary>
     /// Error message for invalid characters in names.

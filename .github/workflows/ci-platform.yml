@@ -31,17 +31,17 @@ jobs:
         dotnet-version: 10.0.x
         dotnet-quality: preview
         
+    - name: 🔐 Configure NuGet authentication
+      run: |
+        sed -i "s|%GITHUB_PACKAGES_TOKEN%|$GITHUB_PACKAGES_TOKEN|g" nuget.config
+
     - name: 📦 Restore dependencies
       run: dotnet restore
 
     - name: 🏗️ Build
       run: dotnet build --no-restore
 
-    - name: � Configure NuGet authentication
-      run: |
-        sed -i "s|%GITHUB_PACKAGES_TOKEN%|${{ secrets.GITHUB_TOKEN }}|g" nuget.config
-
-    - name: �🐳 Build WebApi Docker image
+    - name: 🐳 Build WebApi Docker image
       run: |
         docker build \
           --build-arg BUILD_VERSION=${{ github.sha }} \
@@ -75,7 +75,7 @@ jobs:
           echo "⚠️ No coverage summary found." >> $GITHUB_STEP_SUMMARY
         fi
 
-    - name: 📤 Upload Coverage Report
+    - name: 📥 Upload Coverage Report
       uses: actions/upload-artifact@v6
       if: always()
       with:
@@ -88,7 +88,7 @@ jobs:
       with:
         files: 'TestResults/junit-*.xml'
 
-    - name: 📤 Upload Test Results
+    - name: 📥 Upload Test Results
       uses: actions/upload-artifact@v6
       if: always()
       with:

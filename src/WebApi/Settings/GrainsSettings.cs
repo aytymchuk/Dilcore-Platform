@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Dilcore.WebApi.Settings;
 
 /// <summary>
@@ -24,10 +26,12 @@ public class GrainsSettings
     /// <summary>
     /// Port for Silo-to-Silo communication.
     /// </summary>
+    [Range(1, 65535)]
     public int SiloPort { get; set; } = 11111;
 
     /// <summary>
     /// Port for Client-to-Silo communication.
     /// </summary>
+    [Range(1, 65535)]
     public int GatewayPort { get; set; } = 30000;
 }

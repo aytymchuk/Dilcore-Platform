@@ -122,8 +122,7 @@ public sealed class UserGrainStorage : IGrainStorage
             grainState.State = Activator.CreateInstance<T>();
             grainState.RecordExists = false;
             grainState.ETag = null;
+            _logger.LogUserStateCleared(identityId);
         }
-
-        _logger.LogUserStateCleared(identityId);
     }
 }

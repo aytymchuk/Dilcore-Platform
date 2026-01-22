@@ -10,9 +10,6 @@ public sealed class UserState
     [Id(0)]
     public string? IdentityId { get; set; }
 
-    [Id(7)]
-    public Guid Id { get; set; }
-
     [Id(1)]
     public string Email { get; set; } = string.Empty;
 
@@ -30,6 +27,9 @@ public sealed class UserState
 
     [Id(6)]
     public long ETag { get; set; }
+
+    [Id(7)]
+    public Guid Id { get; set; }
 
     [Id(8)]
     public DateTime? UpdatedAt { get; set; }
