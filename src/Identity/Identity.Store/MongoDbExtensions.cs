@@ -62,7 +62,8 @@ public static class MongoDbExtensions
         yield return new CreateIndexModel<UserDocument>(
             Builders<UserDocument>.IndexKeys.Ascending(x => x.Email), new CreateIndexOptions
             {
-                Unique = true
+                Unique = true,
+                Collation = new Collation("en", strength: CollationStrength.Secondary)
             });
     }
 }

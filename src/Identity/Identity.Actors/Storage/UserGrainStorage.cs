@@ -82,6 +82,8 @@ public sealed class UserGrainStorage : IGrainStorage
             throw new InvalidOperationException($"Failed to write state for user '{identityId}': {string.Join(", ", result.Errors.Select(e => e.Message))}");
         }
 
+        // Update grain state with the persisted entity to reflect any repository-side changes
+        grainState.State = _mapper.Map<T>(result.Value);
         grainState.RecordExists = true;
         grainState.ETag = result.Value.ETag.ToString();
 
@@ -124,6 +126,10 @@ public sealed class UserGrainStorage : IGrainStorage
             grainState.ETag = null;
 
             _logger.LogUserStateCleared(identityId);
+        }
+        else
+        {
+            _logger.LogUserStateClearSkipped(identityId, grainState.ETag);
         }
     }
 }

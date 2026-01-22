@@ -9,10 +9,12 @@ EXPOSE 30000
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
-COPY ["src/WebApi/WebApi.csproj", "src/WebApi/"]
 COPY ["nuget.config", "."]
+
+COPY ["src/WebApi/WebApi.csproj", "src/WebApi/"]
 RUN dotnet restore "src/WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/src/WebApi"

@@ -154,8 +154,9 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: 🔐 Configure NuGet authentication
-        run: |
-          sed -i "s|%GITHUB_PACKAGES_TOKEN%|${{ secrets.GITHUB_TOKEN }}|g" nuget.config
+        uses: ./.github/actions/configure-nuget-auth
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🔨 Build and push Docker image
         uses: docker/build-push-action@v6

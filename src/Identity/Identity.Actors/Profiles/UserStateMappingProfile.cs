@@ -17,8 +17,6 @@ public class UserStateMappingProfile : Profile
 
         // Map from UserState to User domain entity (for writing to repository)
         CreateMap<UserState, User>()
-            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.RegisteredAt))
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.ETag, opt => opt.Ignore());
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.RegisteredAt));
     }
 }

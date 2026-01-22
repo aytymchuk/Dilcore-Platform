@@ -21,8 +21,10 @@ public sealed class RegisterUserDtoValidatorTests
     public void Validate_WithValidInput_ShouldPass()
     {
         // Arrange
+        const string domain = "@example.com";
+        var localPart = _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxEmailLength - domain.Length));
         var dto = new RegisterUserDto(
-            Email: _fixture.Create<string>() + "@example.com",
+            Email: localPart + domain,
             FirstName: "ValidFirst",
             LastName: "ValidLast");
 
@@ -39,8 +41,8 @@ public sealed class RegisterUserDtoValidatorTests
         // Arrange
         var dto = new RegisterUserDto(
             Email: string.Empty,
-            FirstName: _fixture.Create<string>(),
-            LastName: _fixture.Create<string>());
+            FirstName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxFirstNameLength)),
+            LastName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxLastNameLength)));
 
         // Act
         var result = _validator.TestValidate(dto);
@@ -55,8 +57,8 @@ public sealed class RegisterUserDtoValidatorTests
         // Arrange
         var dto = new RegisterUserDto(
             Email: "invalid-email",
-            FirstName: _fixture.Create<string>(),
-            LastName: _fixture.Create<string>());
+            FirstName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxFirstNameLength)),
+            LastName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxLastNameLength)));
 
         // Act
         var result = _validator.TestValidate(dto);
@@ -72,8 +74,8 @@ public sealed class RegisterUserDtoValidatorTests
         var email = new string('a', RegisterUserDtoValidator.MaxEmailLength + 1) + "@example.com";
         var dto = new RegisterUserDto(
             Email: email,
-            FirstName: _fixture.Create<string>(),
-            LastName: _fixture.Create<string>());
+            FirstName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxFirstNameLength)),
+            LastName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxLastNameLength)));
 
         // Act
         var result = _validator.TestValidate(dto);
@@ -86,10 +88,12 @@ public sealed class RegisterUserDtoValidatorTests
     public void Validate_WithEmptyFirstName_ShouldFail()
     {
         // Arrange
+        const string domain = "@example.com";
+        var localPart = _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxEmailLength - domain.Length));
         var dto = new RegisterUserDto(
-            Email: _fixture.Create<string>() + "@example.com",
+            Email: localPart + domain,
             FirstName: string.Empty,
-            LastName: _fixture.Create<string>());
+            LastName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxLastNameLength)));
 
         // Act
         var result = _validator.TestValidate(dto);
@@ -102,10 +106,12 @@ public sealed class RegisterUserDtoValidatorTests
     public void Validate_WithFirstNameExceedingMaxLength_ShouldFail()
     {
         // Arrange
+        const string domain = "@example.com";
+        var localPart = _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxEmailLength - domain.Length));
         var dto = new RegisterUserDto(
-            Email: _fixture.Create<string>() + "@example.com",
+            Email: localPart + domain,
             FirstName: new string('a', RegisterUserDtoValidator.MaxFirstNameLength + 1),
-            LastName: _fixture.Create<string>());
+            LastName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxLastNameLength)));
 
         // Act
         var result = _validator.TestValidate(dto);
@@ -118,9 +124,11 @@ public sealed class RegisterUserDtoValidatorTests
     public void Validate_WithEmptyLastName_ShouldFail()
     {
         // Arrange
+        const string domain = "@example.com";
+        var localPart = _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxEmailLength - domain.Length));
         var dto = new RegisterUserDto(
-            Email: _fixture.Create<string>() + "@example.com",
-            FirstName: _fixture.Create<string>(),
+            Email: localPart + domain,
+            FirstName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxFirstNameLength)),
             LastName: string.Empty);
 
         // Act
@@ -134,9 +142,11 @@ public sealed class RegisterUserDtoValidatorTests
     public void Validate_WithLastNameExceedingMaxLength_ShouldFail()
     {
         // Arrange
+        const string domain = "@example.com";
+        var localPart = _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxEmailLength - domain.Length));
         var dto = new RegisterUserDto(
-            Email: _fixture.Create<string>() + "@example.com",
-            FirstName: _fixture.Create<string>(),
+            Email: localPart + domain,
+            FirstName: _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxFirstNameLength)),
             LastName: new string('a', RegisterUserDtoValidator.MaxLastNameLength + 1));
 
         // Act
@@ -153,8 +163,10 @@ public sealed class RegisterUserDtoValidatorTests
     public void Validate_WithInvalidCharactersInFirstName_ShouldFail(string firstName)
     {
         // Arrange
+        const string domain = "@example.com";
+        var localPart = _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxEmailLength - domain.Length));
         var dto = new RegisterUserDto(
-            Email: _fixture.Create<string>() + "@example.com",
+            Email: localPart + domain,
             FirstName: firstName,
             LastName: "ValidLast");
 
@@ -173,8 +185,10 @@ public sealed class RegisterUserDtoValidatorTests
     public void Validate_WithInvalidCharactersInLastName_ShouldFail(string lastName)
     {
         // Arrange
+        const string domain = "@example.com";
+        var localPart = _fixture.Create<string>().Substring(0, Math.Min(10, RegisterUserDtoValidator.MaxEmailLength - domain.Length));
         var dto = new RegisterUserDto(
-            Email: _fixture.Create<string>() + "@example.com",
+            Email: localPart + domain,
             FirstName: "ValidFirst",
             LastName: lastName);
 

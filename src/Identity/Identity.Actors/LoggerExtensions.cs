@@ -57,4 +57,7 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(LogLevel.Warning, "Invalid user ID for clear operation: {UserId}")]
     public static partial void LogInvalidUserId(this ILogger logger, string userId);
+
+    [LoggerMessage(LogLevel.Information, "User state clear skipped for UserId: {UserId}, ETag: {ETag} (possible ETag mismatch)")]
+    public static partial void LogUserStateClearSkipped(this ILogger logger, string userId, string? eTag);
 }

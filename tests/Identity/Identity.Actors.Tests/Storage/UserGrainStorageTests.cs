@@ -139,7 +139,7 @@ public class UserGrainStorageTests
     }
 
     [Test]
-    public void ReadStateAsync_ShouldThrow_WhenRepositoryFails()
+    public async Task ReadStateAsync_ShouldThrow_WhenRepositoryFails()
     {
         // Arrange
         _userRepositoryMock.Setup(x => x.GetByIdentityIdAsync(IdentityId, It.IsAny<CancellationToken>()))
@@ -148,10 +148,14 @@ public class UserGrainStorageTests
         // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(() =>
             _storage.ReadStateAsync("UserStore", _grainId, _grainStateMock.Object));
+
+        // Verify scope was created before failure
+        await Task.Delay(10); // Allow async to execute
+        _scopeFactoryMock.Verify(x => x.CreateScope(), Times.Once);
     }
 
     [Test]
-    public void WriteStateAsync_ShouldThrow_WhenRepositoryFails()
+    public async Task WriteStateAsync_ShouldThrow_WhenRepositoryFails()
     {
         // Arrange
         var userState = new UserState { IdentityId = IdentityId };
@@ -164,6 +168,12 @@ public class UserGrainStorageTests
         // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(() =>
             _storage.WriteStateAsync("UserStore", _grainId, _grainStateMock.Object));
+
+        // Verify scope was created and RecordExists/ETag not set on failure
+        await Task.Delay(10); // Allow async to execute
+        _scopeFactoryMock.Verify(x => x.CreateScope(), Times.Once);
+        _grainStateMock.VerifySet(x => x.RecordExists = true, Times.Never);
+        _grainStateMock.VerifySet(x => x.ETag = It.IsAny<string>(), Times.Never);
     }
 
     [Test]
@@ -183,6 +193,9 @@ public class UserGrainStorageTests
         // Assert
         _grainStateMock.VerifySet(x => x.State = It.IsAny<object>(), Times.Never);
         _grainStateMock.VerifySet(x => x.RecordExists = false, Times.Never);
+        _grainStateMock.VerifySet(x => x.ETag = null, Times.Never);
+        _scopeFactoryMock.Verify(x => x.CreateScope(), Times.Once);
+        _userRepositoryMock.Verify(x => x.DeleteByIdentityIdAsync(IdentityId, 123, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -194,5 +207,32 @@ public class UserGrainStorageTests
         // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(() =>
             _storage.WriteStateAsync("UserStore", _grainId, _grainStateMock.Object));
+    }
+
+    [Test]
+    public void ClearStateAsync_ShouldThrow_WhenStateIsInvalidType()
+    {
+        // Arrange
+        _grainStateMock.SetupGet(x => x.State).Returns(new object()); // Invalid type
+
+        // Act & Assert
+        Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _storage.ClearStateAsync("UserStore", _grainId, _grainStateMock.Object));
+    }
+
+    [Test]
+    public void ClearStateAsync_ShouldThrow_WhenRepositoryFails()
+    {
+        // Arrange
+        var userState = new UserState { IdentityId = IdentityId };
+        _grainStateMock.SetupGet(x => x.State).Returns(userState);
+        _grainStateMock.SetupGet(x => x.ETag).Returns("123");
+
+        _userRepositoryMock.Setup(x => x.DeleteByIdentityIdAsync(IdentityId, 123, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Fail("DB error"));
+
+        // Act & Assert
+        Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _storage.ClearStateAsync("UserStore", _grainId, _grainStateMock.Object));
     }
 }
