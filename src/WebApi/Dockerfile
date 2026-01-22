@@ -9,20 +9,18 @@ EXPOSE 30000
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["nuget.config", "."]
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["src/WebApi/WebApi.csproj", "src/WebApi/"]
-RUN --mount=type=secret,id=GITHUB_PACKAGES_TOKEN \
-  GITHUB_PACKAGES_TOKEN=$(cat /run/secrets/GITHUB_PACKAGES_TOKEN) \
-  dotnet restore "src/WebApi/WebApi.csproj"
+COPY ["nuget.config", "."]
+RUN dotnet restore "src/WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/src/WebApi"
-RUN dotnet build "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build --no-restore
+RUN dotnet build "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
+RUN dotnet publish "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 ARG BUILD_VERSION=1.0.0
