@@ -1,9 +1,12 @@
 name: 'Configure NuGet Authentication'
-description: 'Validates and configures NuGet authentication by replacing token placeholder in nuget.config'
+description: 'Validates and configures NuGet authentication by replacing token and username placeholders in nuget.config'
 
 inputs:
   github-token:
     description: 'GitHub token for NuGet package authentication'
+    required: true
+  github-username:
+    description: 'GitHub username for NuGet package authentication'
     required: true
 
 runs:
@@ -20,18 +23,29 @@ runs:
           exit 1
         fi
         
-        # Verify placeholder is present before replacement
+        # Verify placeholders are present before replacement
         if ! grep -q "%GITHUB_PACKAGES_TOKEN%" nuget.config; then
           echo "::error::Placeholder %GITHUB_PACKAGES_TOKEN% not found in nuget.config"
           exit 1
         fi
         
-        # Perform the replacement
-        sed -i "s|%GITHUB_PACKAGES_TOKEN%|${{ inputs.github-token }}|g" nuget.config
+        if ! grep -q "%GITHUB_USERNAME%" nuget.config; then
+          echo "::error::Placeholder %GITHUB_USERNAME% not found in nuget.config"
+          exit 1
+        fi
         
-        # Verify the placeholder was removed (token was injected)
+        # Perform the replacements
+        sed -i "s|%GITHUB_PACKAGES_TOKEN%|${{ inputs.github-token }}|g" nuget.config
+        sed -i "s|%GITHUB_USERNAME%|${{ inputs.github-username }}|g" nuget.config
+        
+        # Verify the placeholders were removed (credentials were injected)
         if grep -q "%GITHUB_PACKAGES_TOKEN%" nuget.config; then
           echo "::error::Failed to replace %GITHUB_PACKAGES_TOKEN% in nuget.config"
+          exit 1
+        fi
+        
+        if grep -q "%GITHUB_USERNAME%" nuget.config; then
+          echo "::error::Failed to replace %GITHUB_USERNAME% in nuget.config"
           exit 1
         fi
         

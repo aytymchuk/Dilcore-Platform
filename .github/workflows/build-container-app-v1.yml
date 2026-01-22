@@ -157,6 +157,7 @@ jobs:
         uses: ./.github/actions/configure-nuget-auth
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-username: ${{ github.repository_owner }}
 
       - name: 🔨 Build and push Docker image
         uses: docker/build-push-action@v6
