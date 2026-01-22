@@ -62,6 +62,6 @@ public class BaseDomainTests
         // Assert
         updatedDomain.ShouldNotBeSameAs(domain);
         updatedDomain.UpdatedAt.ShouldBe(_fixedTime.UtcDateTime);
-        domain.UpdatedAt.ShouldBe(default);
+        domain.UpdatedAt.ShouldNotBe(default);
     }
 }

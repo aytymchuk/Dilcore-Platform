@@ -4,7 +4,7 @@ namespace Dilcore.Identity.Actors.Abstractions;
 /// Represents a user entity in the Orleans actor system.
 /// Grain key is the user ID from IUserContext.Id.
 /// </summary>
-[Alias("Dilcore.Identity.Actors.IUserGrain")]
+[Alias("Dilcore.Identity.Actors.Abstractions.IUserGrain")]
 public interface IUserGrain : IGrainWithStringKey
 {
     /// <summary>

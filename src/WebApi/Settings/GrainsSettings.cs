@@ -20,4 +20,14 @@ public class GrainsSettings
     /// Service identifier for the Orleans application.
     /// </summary>
     public string ServiceId { get; set; } = "dilcore-platform";
+
+    /// <summary>
+    /// Port for Silo-to-Silo communication.
+    /// </summary>
+    public int SiloPort { get; set; } = 11111;
+
+    /// <summary>
+    /// Port for Client-to-Silo communication.
+    /// </summary>
+    public int GatewayPort { get; set; } = 30000;
 }

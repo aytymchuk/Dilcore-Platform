@@ -121,19 +121,18 @@ public class UserGrainStorageTests
     public async Task ClearStateAsync_ShouldDeleteUser_WhenCalled()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
-        var userState = new UserState { Id = Guid.NewGuid(), IdentityId = userId };
+        var userState = new UserState { Id = Guid.NewGuid(), IdentityId = IdentityId };
         _grainStateMock.SetupGet(x => x.State).Returns(userState);
         _grainStateMock.SetupGet(x => x.ETag).Returns("123");
 
-        _userRepositoryMock.Setup(x => x.DeleteByIdentityIdAsync(userId, 123, It.IsAny<CancellationToken>()))
+        _userRepositoryMock.Setup(x => x.DeleteByIdentityIdAsync(IdentityId, 123, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(true));
 
         // Act
         await _storage.ClearStateAsync("UserStore", _grainId, _grainStateMock.Object);
 
         // Assert
-        _userRepositoryMock.Verify(x => x.DeleteByIdentityIdAsync(userId, 123, It.IsAny<CancellationToken>()), Times.Once);
+        _userRepositoryMock.Verify(x => x.DeleteByIdentityIdAsync(IdentityId, 123, It.IsAny<CancellationToken>()), Times.Once);
         _grainStateMock.VerifySet(x => x.RecordExists = false);
         _grainStateMock.VerifySet(x => x.ETag = null);
         _scopeFactoryMock.Verify(x => x.CreateScope(), Times.Once);

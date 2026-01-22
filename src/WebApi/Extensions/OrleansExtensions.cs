@@ -41,16 +41,18 @@ internal static class OrleansExtensions
             });
 
             // Configure networking endpoints
-            siloBuilder.ConfigureEndpoints(siloPort: 11111, gatewayPort: 30000);
+            siloBuilder.ConfigureEndpoints(
+                siloPort: grainsSettings.SiloPort,
+                gatewayPort: grainsSettings.GatewayPort);
 
-            // In-memory grain storage
+            // Identity custom grain storage
             siloBuilder.AddUserGrainStorage();
             siloBuilder.AddMemoryGrainStorage("TenantStore");
 
             // OpenTelemetry activity propagation
             siloBuilder.AddActivityPropagation();
-            
-            
+
+
             // Multi-tenancy support for Orleans
             siloBuilder.AddOrleansTenantContext();
         });

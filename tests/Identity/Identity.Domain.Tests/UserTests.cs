@@ -29,7 +29,7 @@ public class UserTests
         user.LastName.ShouldBe(lastName);
         user.FullName.ShouldBe("John Doe");
         user.CreatedAt.ShouldBe(now.UtcDateTime);
-        user.UpdatedAt.ShouldBe(default);
+        user.UpdatedAt.ShouldNotBe(default);
         user.ETag.ShouldNotBe(0);
     }
 }

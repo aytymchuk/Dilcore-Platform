@@ -34,10 +34,12 @@ public sealed class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto
 
         RuleFor(x => x.FirstName)
             .NotEmpty()
-            .MaximumLength(MaxFirstNameLength);
+            .MaximumLength(MaxFirstNameLength)
+            .Matches(ValidationConstants.NameRegex).WithMessage(ValidationConstants.InvalidCharactersMessage);
 
         RuleFor(x => x.LastName)
             .NotEmpty()
-            .MaximumLength(MaxLastNameLength);
+            .MaximumLength(MaxLastNameLength)
+            .Matches(ValidationConstants.NameRegex).WithMessage(ValidationConstants.InvalidCharactersMessage);
     }
 }

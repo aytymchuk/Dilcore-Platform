@@ -23,8 +23,8 @@ public sealed class RegisterUserDtoValidatorTests
         // Arrange
         var dto = new RegisterUserDto(
             Email: _fixture.Create<string>() + "@example.com",
-            FirstName: _fixture.Create<string>(),
-            LastName: _fixture.Create<string>());
+            FirstName: "ValidFirst",
+            LastName: "ValidLast");
 
         // Act
         var result = _validator.TestValidate(dto);
@@ -144,5 +144,45 @@ public sealed class RegisterUserDtoValidatorTests
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.LastName);
+    }
+
+    [Test]
+    [TestCase("John123")]
+    [TestCase("John!")]
+    [TestCase("John@")]
+    public void Validate_WithInvalidCharactersInFirstName_ShouldFail(string firstName)
+    {
+        // Arrange
+        var dto = new RegisterUserDto(
+            Email: _fixture.Create<string>() + "@example.com",
+            FirstName: firstName,
+            LastName: "ValidLast");
+
+        // Act
+        var result = _validator.TestValidate(dto);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
+            .WithErrorMessage("First Name contains invalid characters.");
+    }
+
+    [Test]
+    [TestCase("Doe123")]
+    [TestCase("Doe!")]
+    [TestCase("Doe@")]
+    public void Validate_WithInvalidCharactersInLastName_ShouldFail(string lastName)
+    {
+        // Arrange
+        var dto = new RegisterUserDto(
+            Email: _fixture.Create<string>() + "@example.com",
+            FirstName: "ValidFirst",
+            LastName: lastName);
+
+        // Act
+        var result = _validator.TestValidate(dto);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.LastName)
+            .WithErrorMessage("Last Name contains invalid characters.");
     }
 }

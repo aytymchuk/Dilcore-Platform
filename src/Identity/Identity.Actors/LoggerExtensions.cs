@@ -25,36 +25,36 @@ internal static partial class LoggerExtensions
     public static partial void LogUserNotFound(this ILogger logger, string userId);
 
     // Storage Operations
-    [LoggerMessage(LogLevel.Debug, "Reading user state for IdentityId: {IdentityId}")]
-    public static partial void LogReadingUserState(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Debug, "Reading user state for UserId: {UserId}")]
+    public static partial void LogReadingUserState(this ILogger logger, string userId);
 
-    [LoggerMessage(LogLevel.Debug, "User state loaded for IdentityId: {IdentityId}")]
-    public static partial void LogUserStateLoaded(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Debug, "User state loaded for UserId: {UserId}")]
+    public static partial void LogUserStateLoaded(this ILogger logger, string userId);
 
-    [LoggerMessage(LogLevel.Debug, "User not found for read: {IdentityId}")]
-    public static partial void LogUserNotFoundForRead(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Debug, "User not found for read: {UserId}")]
+    public static partial void LogUserNotFoundForRead(this ILogger logger, string userId);
 
-    [LoggerMessage(LogLevel.Warning, "Failed to read state for user '{IdentityId}': {Error}")]
-    public static partial void LogReadStateError(this ILogger logger, string identityId, string error);
+    [LoggerMessage(LogLevel.Error, "Failed to read state for user '{UserId}'")]
+    public static partial void LogReadStateError(this ILogger logger, Exception? ex, string userId);
 
-    [LoggerMessage(LogLevel.Debug, "Writing user state for IdentityId: {IdentityId}")]
-    public static partial void LogWritingUserState(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Debug, "Writing user state for UserId: {UserId}")]
+    public static partial void LogWritingUserState(this ILogger logger, string userId);
 
-    [LoggerMessage(LogLevel.Debug, "User state written for IdentityId: {IdentityId}")]
-    public static partial void LogUserStateWritten(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Debug, "User state written for UserId: {UserId}")]
+    public static partial void LogUserStateWritten(this ILogger logger, string userId);
 
-    [LoggerMessage(LogLevel.Warning, "Failed to write state for user '{IdentityId}': {Error}")]
-    public static partial void LogWriteStateError(this ILogger logger, string identityId, string error);
+    [LoggerMessage(LogLevel.Error, "Failed to write state for user '{UserId}'")]
+    public static partial void LogWriteStateError(this ILogger logger, Exception? ex, string userId);
 
-    [LoggerMessage(LogLevel.Debug, "Clearing user state for IdentityId: {IdentityId}")]
-    public static partial void LogClearingUserState(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Debug, "Clearing user state for UserId: {UserId}")]
+    public static partial void LogClearingUserState(this ILogger logger, string userId);
 
-    [LoggerMessage(LogLevel.Debug, "User state cleared for IdentityId: {IdentityId}")]
-    public static partial void LogUserStateCleared(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Debug, "User state cleared for UserId: {UserId}")]
+    public static partial void LogUserStateCleared(this ILogger logger, string userId);
 
-    [LoggerMessage(LogLevel.Warning, "Failed to clear state for user '{IdentityId}': {Error}")]
-    public static partial void LogClearStateError(this ILogger logger, string identityId, string error);
+    [LoggerMessage(LogLevel.Error, "Failed to clear state for user '{UserId}'")]
+    public static partial void LogClearStateError(this ILogger logger, Exception? ex, string userId);
 
-    [LoggerMessage(LogLevel.Warning, "Invalid user ID for clear operation: {IdentityId}")]
-    public static partial void LogInvalidUserId(this ILogger logger, string identityId);
+    [LoggerMessage(LogLevel.Warning, "Invalid user ID for clear operation: {UserId}")]
+    public static partial void LogInvalidUserId(this ILogger logger, string userId);
 }

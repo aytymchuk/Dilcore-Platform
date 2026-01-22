@@ -38,7 +38,7 @@ public sealed class UserGrainStorage : IGrainStorage
 
         if (result.IsFailed)
         {
-            _logger.LogReadStateError(identityId, string.Join(", ", result.Errors.Select(e => e.Message)));
+            _logger.LogReadStateError(null, identityId);
             throw new InvalidOperationException($"Failed to read state for user '{identityId}': {string.Join(", ", result.Errors.Select(e => e.Message))}");
         }
 
@@ -78,7 +78,7 @@ public sealed class UserGrainStorage : IGrainStorage
 
         if (result.IsFailed)
         {
-            _logger.LogWriteStateError(identityId, string.Join(", ", result.Errors.Select(e => e.Message)));
+            _logger.LogWriteStateError(null, identityId);
             throw new InvalidOperationException($"Failed to write state for user '{identityId}': {string.Join(", ", result.Errors.Select(e => e.Message))}");
         }
 
@@ -113,13 +113,16 @@ public sealed class UserGrainStorage : IGrainStorage
 
         if (result.IsFailed)
         {
-            _logger.LogClearStateError(identityId, string.Join(", ", result.Errors.Select(e => e.Message)));
+            _logger.LogClearStateError(null, identityId);
             throw new InvalidOperationException($"Failed to clear state for user '{identityId}': {string.Join(", ", result.Errors.Select(e => e.Message))}");
         }
 
-        grainState.State = Activator.CreateInstance<T>();
-        grainState.RecordExists = false;
-        grainState.ETag = null;
+        if (result.Value)
+        {
+            grainState.State = Activator.CreateInstance<T>();
+            grainState.RecordExists = false;
+            grainState.ETag = null;
+        }
 
         _logger.LogUserStateCleared(identityId);
     }
