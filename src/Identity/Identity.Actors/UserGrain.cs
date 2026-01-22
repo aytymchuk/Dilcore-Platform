@@ -35,7 +35,7 @@ public sealed class UserGrain : Grain, IUserGrain
         return base.OnDeactivateAsync(reason, cancellationToken);
     }
 
-    public async Task<UserCreationResult> RegisterAsync(string email, string fullName)
+    public async Task<UserCreationResult> RegisterAsync(string email, string firstName, string lastName)
     {
         var userId = this.GetPrimaryKeyString();
 
@@ -45,9 +45,11 @@ public sealed class UserGrain : Grain, IUserGrain
             return UserCreationResult.Failure($"User '{userId}' is already registered.");
         }
 
-        _state.State.Id = userId;
+        _state.State.Id = Guid.NewGuid();
+        _state.State.IdentityId = userId;
         _state.State.Email = email;
-        _state.State.FullName = fullName;
+        _state.State.FirstName = firstName;
+        _state.State.LastName = lastName;
         _state.State.RegisteredAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsRegistered = true;
 
@@ -55,23 +57,24 @@ public sealed class UserGrain : Grain, IUserGrain
 
         _logger.LogUserRegistered(userId, email);
 
-        return UserCreationResult.Success(ToDto());
+        return UserCreationResult.Success(ToResponse());
     }
 
-    public Task<UserDto?> GetProfileAsync()
+    public Task<UserResponse?> GetProfileAsync()
     {
         if (!_state.State.IsRegistered)
         {
             _logger.LogUserNotFound(this.GetPrimaryKeyString());
-            return Task.FromResult<UserDto?>(null);
+            return Task.FromResult<UserResponse?>(null);
         }
 
-        return Task.FromResult<UserDto?>(ToDto());
+        return Task.FromResult<UserResponse?>(ToResponse());
     }
 
-    private UserDto ToDto() => new(
-        _state.State.Id ?? this.GetPrimaryKeyString(),
+    private UserResponse ToResponse() => new(
+        _state.State.Id,
         _state.State.Email,
-        _state.State.FullName,
+        _state.State.FirstName,
+        _state.State.LastName,
         _state.State.RegisteredAt);
 }

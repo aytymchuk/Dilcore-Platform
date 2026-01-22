@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="FluentResults" />
     <PackageReference Include="Microsoft.Orleans.Sdk" />
     <PackageReference Include="Microsoft.Orleans.Server" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
@@ -7,5 +9,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\Identity.Core\Identity.Core.csproj" />
+    <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
   </ItemGroup>
 </Project>

@@ -11,11 +11,11 @@ public sealed record UserCreationResult
     public bool IsSuccess { get; init; }
 
     [Id(1)]
-    public UserDto? User { get; init; }
+    public UserResponse? User { get; init; }
 
     [Id(2)]
     public string? ErrorMessage { get; init; }
 
-    public static UserCreationResult Success(UserDto user) => new() { IsSuccess = true, User = user };
+    public static UserCreationResult Success(UserResponse user) => new() { IsSuccess = true, User = user };
     public static UserCreationResult Failure(string error) => new() { IsSuccess = false, ErrorMessage = error };
 }

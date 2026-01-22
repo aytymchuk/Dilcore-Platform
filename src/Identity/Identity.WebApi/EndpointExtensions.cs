@@ -1,4 +1,6 @@
-using Dilcore.Identity.Actors.Abstractions;
+using Dilcore.FluentValidation.Extensions.MinimalApi;
+using Dilcore.Identity.Contracts.Profile;
+using Dilcore.Identity.Contracts.Register;
 using Dilcore.Identity.Core.Features.GetCurrent;
 using Dilcore.Identity.Core.Features.Register;
 using Dilcore.Results.Extensions.Api;
@@ -7,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using HttpResults = Microsoft.AspNetCore.Http.Results;
 
 namespace Dilcore.Identity.WebApi;
 
@@ -26,14 +29,28 @@ public static class EndpointExtensions
 
         // POST /users/register - Register the current user
         group.MapPost("/register", async (
-            RegisterUserCommand command,
+            RegisterUserDto dto,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
+            var command = new RegisterUserCommand(dto.Email, dto.FirstName, dto.LastName);
             var result = await mediator.Send(command, cancellationToken);
-            return result.ToMinimalApiResult();
+
+            if (result.IsFailed)
+            {
+                return result.ToMinimalApiResult();
+            }
+
+            var userResponse = result.Value;
+            return HttpResults.Ok(new UserDto(
+                userResponse.Id,
+                userResponse.Email,
+                userResponse.FirstName,
+                userResponse.LastName,
+                userResponse.RegisteredAt));
         })
         .WithName("RegisterUser")
+        .AddValidationFilter<RegisterUserDto>()
         .Produces<UserDto>()
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -44,7 +61,24 @@ public static class EndpointExtensions
             CancellationToken cancellationToken) =>
         {
             var result = await mediator.Send(new GetCurrentUserQuery(), cancellationToken);
-            return result.ToMinimalApiResult();
+
+            if (result.IsFailed)
+            {
+                return result.ToMinimalApiResult();
+            }
+
+            var userResponse = result.Value;
+            if (userResponse is null)
+            {
+                return HttpResults.NotFound();
+            }
+
+            return HttpResults.Ok(new UserDto(
+                userResponse.Id,
+                userResponse.Email,
+                userResponse.FirstName,
+                userResponse.LastName,
+                userResponse.RegisteredAt));
         })
         .WithName("GetCurrentUser")
         .Produces<UserDto>()

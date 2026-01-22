@@ -4,11 +4,12 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Auth0.AspNetCore.Authentication.Api" Version="1.0.0-beta.2" />
+    <PackageVersion Include="AutoFixture" Version="4.18.1" />
+    <PackageVersion Include="AutoMapper" Version="14.0.0" />
     <PackageVersion Include="Azure.Data.AppConfiguration" Version="1.7.0" />
     <PackageVersion Include="Azure.Identity" Version="1.17.1" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.4.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4">
-      <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
     <PackageVersion Include="Finbuckle.MultiTenant.Abstractions" Version="10.0.1" />
@@ -62,5 +63,10 @@
     <PackageVersion Include="Microsoft.Orleans.Core.Abstractions" Version="10.0.0-rc.2" />
     <PackageVersion Include="Microsoft.Orleans.CodeGenerator" Version="10.0.0-rc.2" />
     <PackageVersion Include="Humanizer" Version="3.0.1" />
+    <!-- DocumentDb MongoDB -->
+    <PackageVersion Include="Dilcore.DocumentDb.MongoDb" Version="0.0.2" />
+    <PackageVersion Include="Dilcore.DocumentDb.MongoDb.Repositories" Version="0.0.2" />
+    <!-- Testcontainers -->
+    <PackageVersion Include="Testcontainers.MongoDb" Version="4.10.0" />
   </ItemGroup>
 </Project>

@@ -29,7 +29,7 @@ public class UnifiedLogRecordProcessorTests
         unifiedProcessor.OnEnd(logRecord);
 
         // Assert
-        var attributes = logRecord.Attributes.ToDictionary(kv => kv.Key, kv => kv.Value);
+        var attributes = logRecord.Attributes!.ToDictionary(kv => kv.Key, kv => kv.Value);
 
         attributes.ShouldContainKey(TenantConstants.TelemetryTagName);
         attributes[TenantConstants.TelemetryTagName].ShouldBe("test-tenant");
@@ -49,8 +49,8 @@ public class UnifiedLogRecordProcessorTests
         unifiedProcessor.OnEnd(logRecord);
 
         // Assert
-        logRecord.Attributes.ShouldNotContain(kv => kv.Key == TenantConstants.TelemetryTagName);
-        logRecord.Attributes.ShouldNotContain(kv => kv.Key == "user.id");
+        logRecord.Attributes!.ShouldNotContain(kv => kv.Key == TenantConstants.TelemetryTagName);
+        logRecord.Attributes!.ShouldNotContain(kv => kv.Key == "user.id");
     }
 
     private UnifiedLogRecordProcessor CreateLogProcessor(ITenantContext? tenantContext, IUserContext? userContext)

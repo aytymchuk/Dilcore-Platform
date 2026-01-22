@@ -9,7 +9,7 @@ namespace Dilcore.Identity.Core.Features.GetCurrent;
 /// <summary>
 /// Handles getting the current user's profile via the UserGrain.
 /// </summary>
-public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, UserDto?>
+public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, UserResponse?>
 {
     private readonly IUserContextResolver _userContextResolver;
     private readonly IGrainFactory _grainFactory;
@@ -20,13 +20,13 @@ public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, U
         _grainFactory = grainFactory;
     }
 
-    public async Task<Result<UserDto?>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse?>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
         var userContext = _userContextResolver.Resolve();
 
         if (userContext.Id is null)
         {
-            return Result.Fail<UserDto?>(new ValidationError("User ID is required"));
+            return Result.Fail<UserResponse?>(new ValidationError("User ID is required"));
         }
 
         var grain = _grainFactory.GetGrain<IUserGrain>(userContext.Id);
@@ -34,9 +34,9 @@ public sealed class GetCurrentUserHandler : IQueryHandler<GetCurrentUserQuery, U
 
         if (result is null)
         {
-            return Result.Fail<UserDto?>(new NotFoundError("User", userContext.Id!));
+            return Result.Fail<UserResponse?>(new NotFoundError("User", userContext.Id!));
         }
 
-        return Result.Ok<UserDto?>(result);
+        return Result.Ok<UserResponse?>(result);
     }
 }
