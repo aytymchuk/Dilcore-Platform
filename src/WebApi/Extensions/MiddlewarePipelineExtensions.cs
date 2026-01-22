@@ -19,34 +19,7 @@ public static class MiddlewarePipelineExtensions
         // Configure OpenAPI documentation in development
         if (app.Environment.IsDevelopment())
         {
-            app.UseOpenApiDocumentation(configure =>
-            {
-                configure.ExcludeFromMultiTenantResolution();
-            });
-
-            app.UseScalarDocumentation(scalar =>
-            {
-                // Map OpenAPI settings
-                var openApiSettings = app.Services.GetService<OpenApiSettings>();
-                if (openApiSettings != null)
-                {
-                    scalar.Title = openApiSettings.Name;
-                    scalar.Version = openApiSettings.Version;
-                }
-
-                // Map Authentication settings
-                var authSettings = app.Configuration.GetRequiredSettings<AuthenticationSettings>();
-                if (authSettings.Auth0 != null)
-                {
-                    scalar.Authentication = new ScalarAuthenticationSettings
-                    {
-                        ClientId = authSettings.Auth0.ClientId,
-                        ClientSecret = authSettings.Auth0.ClientSecret,
-                        Audience = authSettings.Auth0.Audience,
-                        Scopes = new HashSet<string>(authSettings.Scopes ?? ["openid", "profile", "email"])
-                    };
-                }
-            });
+            app.UseApiDocumentation();
         }
 
         app.UseHttpsRedirection();
@@ -58,5 +31,37 @@ public static class MiddlewarePipelineExtensions
         app.UseAuthorization();
 
         return app;
+    }
+
+    private static void UseApiDocumentation(this WebApplication app)
+    {
+        app.UseOpenApiDocumentation(configure =>
+        {
+            configure.ExcludeFromMultiTenantResolution();
+        });
+
+        app.UseScalarDocumentation(scalar =>
+        {
+            // Map OpenAPI settings
+            var openApiSettings = app.Services.GetService<OpenApiSettings>();
+            if (openApiSettings != null)
+            {
+                scalar.Title = openApiSettings.Name;
+                scalar.Version = openApiSettings.Version;
+            }
+
+            // Map Authentication settings
+            var authSettings = app.Configuration.GetRequiredSettings<AuthenticationSettings>();
+            if (authSettings.Auth0 != null)
+            {
+                scalar.Authentication = new ScalarAuthenticationSettings
+                {
+                    ClientId = authSettings.Auth0.ClientId,
+                    ClientSecret = authSettings.Auth0.ClientSecret,
+                    Audience = authSettings.Auth0.Audience,
+                    Scopes = new HashSet<string>(authSettings.Scopes ?? ["openid", "profile", "email"])
+                };
+            }
+        });
     }
 }

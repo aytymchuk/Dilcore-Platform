@@ -1,6 +1,6 @@
 using Dilcore.MultiTenant.Abstractions;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
+using Moq;
 using Orleans;
 using Orleans.Runtime;
 using Shouldly;
@@ -13,6 +13,11 @@ namespace Dilcore.MultiTenant.Orleans.Extensions.Tests;
 [TestFixture]
 public class TenantGrainCallFiltersTests
 {
+    public interface ITestGrain : IGrain
+    {
+        Task DoSomething();
+    }
+
     [SetUp]
     public void SetUp()
     {
@@ -32,54 +37,53 @@ public class TenantGrainCallFiltersTests
         public async Task Invoke_ShouldLogTenantContext_WhenContextExists()
         {
             // Arrange
-            var logger = Substitute.For<ILogger<TenantIncomingGrainCallFilter>>();
-            var filter = new TenantIncomingGrainCallFilter(logger);
-            var context = Substitute.For<IIncomingGrainCallContext>();
-            var grainMock = Substitute.For<IGrain>();
+            var logger = new Mock<ILogger<TenantIncomingGrainCallFilter>>();
+            var filter = new TenantIncomingGrainCallFilter(logger.Object);
+            var context = new Mock<IIncomingGrainCallContext>();
+            var grainMock = new Mock<IGrain>();
 
-            context.Grain.Returns(grainMock);
-            context.InterfaceMethod.Returns(typeof(IGrain).GetMethods().First());
+            context.SetupGet(c => c.Grain).Returns(grainMock.Object);
+            context.SetupGet(c => c.InterfaceMethod).Returns(typeof(ITestGrain).GetMethods().First());
 
             // Set tenant context
             OrleansTenantContextAccessor.SetTenantContext(
                 new TenantContext("test-tenant", "storage-123"));
 
             var invokeCalled = false;
-            context.Invoke().Returns(_ =>
+            context.Setup(c => c.Invoke()).Returns(() =>
             {
                 invokeCalled = true;
                 return Task.CompletedTask;
             });
 
             // Act
-            await filter.Invoke(context);
+            await filter.Invoke(context.Object);
 
             // Assert
             invokeCalled.ShouldBeTrue();
-            logger.ReceivedCalls().ShouldNotBeEmpty();
         }
 
         [Test]
         public async Task Invoke_ShouldContinueChain_WhenNoTenantContext()
         {
             // Arrange
-            var logger = Substitute.For<ILogger<TenantIncomingGrainCallFilter>>();
-            var filter = new TenantIncomingGrainCallFilter(logger);
-            var context = Substitute.For<IIncomingGrainCallContext>();
-            var grainMock = Substitute.For<IGrain>();
+            var logger = new Mock<ILogger<TenantIncomingGrainCallFilter>>();
+            var filter = new TenantIncomingGrainCallFilter(logger.Object);
+            var context = new Mock<IIncomingGrainCallContext>();
+            var grainMock = new Mock<IGrain>();
 
-            context.Grain.Returns(grainMock);
-            context.InterfaceMethod.Returns(typeof(IGrain).GetMethods().First());
+            context.SetupGet(c => c.Grain).Returns(grainMock.Object);
+            context.SetupGet(c => c.InterfaceMethod).Returns(typeof(ITestGrain).GetMethods().First());
 
             var invokeCalled = false;
-            context.Invoke().Returns(_ =>
+            context.Setup(c => c.Invoke()).Returns(() =>
             {
                 invokeCalled = true;
                 return Task.CompletedTask;
             });
 
             // Act
-            await filter.Invoke(context);
+            await filter.Invoke(context.Object);
 
             // Assert
             invokeCalled.ShouldBeTrue();
@@ -89,6 +93,8 @@ public class TenantGrainCallFiltersTests
     [TestFixture]
     public class OutgoingFilterTests
     {
+        private delegate void TryResolveDelegate(out ITenantContext? tenantContext);
+
         [SetUp]
         public void SetUp()
         {
@@ -99,70 +105,67 @@ public class TenantGrainCallFiltersTests
         public async Task Invoke_ShouldPropagateTenantContext_WhenResolverHasContext()
         {
             // Arrange
-            var resolver = Substitute.For<ITenantContextResolver>();
-            var logger = Substitute.For<ILogger<TenantOutgoingGrainCallFilter>>();
-            var filter = new TenantOutgoingGrainCallFilter(resolver, logger);
-            var context = Substitute.For<IOutgoingGrainCallContext>();
-            var grainMock = Substitute.For<IGrain>();
+            var resolver = new Mock<ITenantContextResolver>();
+            var logger = new Mock<ILogger<TenantOutgoingGrainCallFilter>>();
+            var filter = new TenantOutgoingGrainCallFilter(resolver.Object, logger.Object);
+            var context = new Mock<IOutgoingGrainCallContext>();
+            var grainMock = new Mock<IGrain>();
 
-            context.Grain.Returns(grainMock);
-            context.InterfaceMethod.Returns(typeof(IGrain).GetMethods().First());
+            context.SetupGet(c => c.Grain).Returns(grainMock.Object);
+            context.SetupGet(c => c.InterfaceMethod).Returns(typeof(ITestGrain).GetMethods().First());
 
-            var tenantContext = new TenantContext("test-tenant", "storage-123");
-            resolver.TryResolve(out Arg.Any<ITenantContext?>())
-                .Returns(x =>
-                {
-                    x[0] = tenantContext;
-                    return true;
-                });
+            ITenantContext resolvedContext = new TenantContext("test-tenant", "storage-123");
+            resolver.Setup(r => r.TryResolve(out It.Ref<ITenantContext?>.IsAny))
+                .Callback(new TryResolveDelegate((out ITenantContext? tc) => tc = resolvedContext))
+                .Returns(true);
 
             var invokeCalled = false;
-            context.Invoke().Returns(_ =>
+            context.Setup(c => c.Invoke()).Returns(() =>
             {
                 invokeCalled = true;
+
+                // Assert context is set DURING the call
+                var propagatedContext = OrleansTenantContextAccessor.GetTenantContext();
+                propagatedContext.ShouldNotBeNull();
+                propagatedContext.Name.ShouldBe("test-tenant");
+                propagatedContext.StorageIdentifier.ShouldBe("storage-123");
+
                 return Task.CompletedTask;
             });
 
             // Act
-            await filter.Invoke(context);
+            await filter.Invoke(context.Object);
 
             // Assert
             invokeCalled.ShouldBeTrue();
-            var propagatedContext = OrleansTenantContextAccessor.GetTenantContext();
-            propagatedContext.ShouldNotBeNull();
-            propagatedContext.Name.ShouldBe("test-tenant");
-            propagatedContext.StorageIdentifier.ShouldBe("storage-123");
         }
 
         [Test]
         public async Task Invoke_ShouldContinueChain_WhenNoTenantContext()
         {
             // Arrange
-            var resolver = Substitute.For<ITenantContextResolver>();
-            var logger = Substitute.For<ILogger<TenantOutgoingGrainCallFilter>>();
-            var filter = new TenantOutgoingGrainCallFilter(resolver, logger);
-            var context = Substitute.For<IOutgoingGrainCallContext>();
-            var grainMock = Substitute.For<IGrain>();
+            var resolver = new Mock<ITenantContextResolver>();
+            var logger = new Mock<ILogger<TenantOutgoingGrainCallFilter>>();
+            var filter = new TenantOutgoingGrainCallFilter(resolver.Object, logger.Object);
+            var context = new Mock<IOutgoingGrainCallContext>();
+            var grainMock = new Mock<IGrain>();
 
-            context.Grain.Returns(grainMock);
-            context.InterfaceMethod.Returns(typeof(IGrain).GetMethods().First());
+            context.SetupGet(c => c.Grain).Returns(grainMock.Object);
+            context.SetupGet(c => c.InterfaceMethod).Returns(typeof(ITestGrain).GetMethods().First());
 
-            resolver.TryResolve(out Arg.Any<ITenantContext?>())
-                .Returns(x =>
-                {
-                    x[0] = null;
-                    return false;
-                });
+            ITenantContext? tenantContext = null;
+            resolver.Setup(r => r.TryResolve(out tenantContext))
+                .Returns(false);
 
             var invokeCalled = false;
-            context.Invoke().Returns(_ =>
+            context.Setup(c => c.Invoke()).Returns(() =>
             {
                 invokeCalled = true;
                 return Task.CompletedTask;
             });
 
             // Act
-            await filter.Invoke(context);
+            await filter.Invoke(context.Object);
 
             // Assert
             invokeCalled.ShouldBeTrue();

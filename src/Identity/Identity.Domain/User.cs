@@ -1,5 +1,5 @@
-using Dilcore.Common.Domain.Abstractions;
-using Dilcore.Common.Domain.Abstractions.Extensions;
+using Dilcore.Domain.Abstractions;
+using Dilcore.Domain.Abstractions.Extensions;
 
 namespace Dilcore.Identity.Domain;
 
@@ -20,7 +20,7 @@ public record User : BaseDomain
             Email = email,
             FirstName = firstName,
             LastName = lastName
-        }.SetCreatedOn(timeProvider)
+        }.SetCreatedAt(timeProvider)
         .UpdateETag(timeProvider);
     }
 }

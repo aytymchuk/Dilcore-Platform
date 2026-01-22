@@ -6,8 +6,11 @@
     <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\Identity.Core\Identity.Core.csproj" />
     <ProjectReference Include="..\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
+    <ProjectReference Include="..\..\Common\FluentValidation\FluentValidation.Extensions.MinimalApi\FluentValidation.Extensions.MinimalApi.csproj" />
+    <ProjectReference Include="..\Identity.Store\Identity.Store.csproj" />
   </ItemGroup>
 </Project>

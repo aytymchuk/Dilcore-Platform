@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Dilcore.Identity.Actors.Abstractions;
+using Dilcore.Identity.Contracts.Profile;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Shouldly;
@@ -24,7 +24,8 @@ public class UserEndpointTests : BaseIntegrationTest
         // Reset the fake user to defaults before each test
         Factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
         Factory.FakeUser.Email = "test@example.com";
-        Factory.FakeUser.FullName = "Test User";
+        Factory.FakeUser.FirstName = "Test";
+        Factory.FakeUser.LastName = "User";
         Factory.FakeUser.TenantId = TenantId;
         Factory.FakeUser.IsAuthenticated = true;
 
@@ -39,15 +40,13 @@ public class UserEndpointTests : BaseIntegrationTest
         _client.Dispose();
     }
 
-
-
     #region POST /users/register
 
     [Test]
     public async Task RegisterUser_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        var command = new { Email = "new.user@example.com", FullName = "New User" };
+        var command = new { Email = "new.user@example.com", FirstName = "New", LastName = "User" };
 
         // Act
         var response = await _client.PostAsJsonAsync("/users/register", command);
@@ -57,8 +56,9 @@ public class UserEndpointTests : BaseIntegrationTest
         var result = await response.Content.ReadFromJsonAsync<UserDto>();
         result.ShouldNotBeNull();
         result.Email.ShouldBe("new.user@example.com");
-        result.FullName.ShouldBe("New User");
-        result.Id.ShouldNotBeNullOrEmpty();
+        result.FirstName.ShouldBe("New");
+        result.LastName.ShouldBe("User");
+        result.Id.ShouldNotBe(Guid.Empty);
     }
 
     [Test]
@@ -66,7 +66,7 @@ public class UserEndpointTests : BaseIntegrationTest
     {
         // Arrange - use a fixed user ID for re-registration
         Factory.FakeUser.UserId = "existing-user-id";
-        var command = new { Email = "existing@example.com", FullName = "Existing User" };
+        var command = new { Email = "existing@example.com", FirstName = "Existing", LastName = "User" };
 
         // First registration
         var firstResponse = await _client.PostAsJsonAsync("/users/register", command);
@@ -86,7 +86,7 @@ public class UserEndpointTests : BaseIntegrationTest
     {
         // Arrange
         Factory.FakeUser.IsAuthenticated = false;
-        var command = new { Email = "test@example.com", FullName = "Test User" };
+        var command = new { Email = "test@example.com", FirstName = "Test", LastName = "User" };
 
         // Act
         var response = await _client.PostAsJsonAsync("/users/register", command);
@@ -103,7 +103,7 @@ public class UserEndpointTests : BaseIntegrationTest
     public async Task GetCurrentUser_ShouldReturnOk_WhenUserExists()
     {
         // Arrange - first register the user
-        var registerCommand = new { Email = "me@example.com", FullName = "Me User" };
+        var registerCommand = new { Email = "me@example.com", FirstName = "Me", LastName = "User" };
         await _client.PostAsJsonAsync("/users/register", registerCommand);
 
         // Act
@@ -114,7 +114,8 @@ public class UserEndpointTests : BaseIntegrationTest
         var result = await response.Content.ReadFromJsonAsync<UserDto>();
         result.ShouldNotBeNull();
         result.Email.ShouldBe("me@example.com");
-        result.FullName.ShouldBe("Me User");
+        result.FirstName.ShouldBe("Me");
+        result.LastName.ShouldBe("User");
     }
 
     [Test]

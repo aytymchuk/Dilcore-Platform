@@ -32,11 +32,12 @@ public class UserGrainTests
         var userId = Guid.NewGuid().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "test@example.com";
-        const string fullName = "Test User";
+        const string firstName = "Test";
+        const string lastName = "User";
 
         // Act
         var beforeRegister = DateTime.UtcNow;
-        var result = await grain.RegisterAsync(email, fullName);
+        var result = await grain.RegisterAsync(email, firstName, lastName);
         var afterRegister = DateTime.UtcNow;
 
         // Assert
@@ -44,9 +45,10 @@ public class UserGrainTests
         result.IsSuccess.ShouldBeTrue();
         result.User.ShouldNotBeNull();
 
-        result.User.Id.ShouldBe(userId);
+        result.User.Id.ShouldNotBe(Guid.Empty);
         result.User.Email.ShouldBe(email);
-        result.User.FullName.ShouldBe(fullName);
+        result.User.FirstName.ShouldBe(firstName);
+        result.User.LastName.ShouldBe(lastName);
         result.User.RegisteredAt.ShouldBeGreaterThanOrEqualTo(beforeRegister);
         result.User.RegisteredAt.ShouldBeLessThanOrEqualTo(afterRegister);
     }
@@ -58,14 +60,15 @@ public class UserGrainTests
         var userId = Guid.NewGuid().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "existing@example.com";
-        const string fullName = "Existing User";
+        const string firstName = "Existing";
+        const string lastName = "User";
 
         // First registration
-        var firstResult = await grain.RegisterAsync(email, fullName);
+        var firstResult = await grain.RegisterAsync(email, firstName, lastName);
         firstResult.IsSuccess.ShouldBeTrue();
 
         // Act - Try to register again with different data
-        var secondResult = await grain.RegisterAsync("different@example.com", "Different User");
+        var secondResult = await grain.RegisterAsync("different@example.com", "Different", "Person");
 
         // Assert - Should return failure
         secondResult.ShouldNotBeNull();
@@ -95,10 +98,11 @@ public class UserGrainTests
         var userId = Guid.NewGuid().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "profile@example.com";
-        const string fullName = "Profile User";
+        const string firstName = "Profile";
+        const string lastName = "User";
 
         // Register first
-        var registerResult = await grain.RegisterAsync(email, fullName);
+        var registerResult = await grain.RegisterAsync(email, firstName, lastName);
         registerResult.IsSuccess.ShouldBeTrue();
 
         // Act
@@ -106,9 +110,10 @@ public class UserGrainTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Id.ShouldBe(userId);
+        result.Id.ShouldNotBe(Guid.Empty);
         result.Email.ShouldBe(email);
-        result.FullName.ShouldBe(fullName);
+        result.FirstName.ShouldBe(firstName);
+        result.LastName.ShouldBe(lastName);
     }
 
     [Test]
@@ -118,10 +123,11 @@ public class UserGrainTests
         var userId = Guid.NewGuid().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "persist@example.com";
-        const string fullName = "Persist User";
+        const string firstName = "Persist";
+        const string lastName = "User";
 
         // Register
-        var registerResult = await grain.RegisterAsync(email, fullName);
+        var registerResult = await grain.RegisterAsync(email, firstName, lastName);
         registerResult.IsSuccess.ShouldBeTrue();
 
         // Act - Get a new reference and fetch profile

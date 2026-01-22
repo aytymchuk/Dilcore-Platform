@@ -1,4 +1,4 @@
-namespace Dilcore.Common.Domain.Abstractions.Extensions;
+namespace Dilcore.Domain.Abstractions.Extensions;
 
 public static class BaseDomainExtensions
 {
@@ -7,13 +7,14 @@ public static class BaseDomainExtensions
         return domain with { ETag = timeProvider.GetUtcNow().ToUnixTimeMilliseconds() };
     }
 
-    public static T SetCreatedOn<T>(this T domain, TimeProvider timeProvider) where T : BaseDomain
+    public static T SetCreatedAt<T>(this T domain, TimeProvider timeProvider) where T : BaseDomain
     {
-        return domain with { CreatedOn = timeProvider.GetUtcNow().UtcDateTime };
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        return domain with { CreatedAt = now, UpdatedAt = now };
     }
 
-    public static T SetUpdatedOn<T>(this T domain, TimeProvider timeProvider) where T : BaseDomain
+    public static T SetUpdatedAt<T>(this T domain, TimeProvider timeProvider) where T : BaseDomain
     {
-        return domain with { UpdatedOn = timeProvider.GetUtcNow().UtcDateTime };
+        return domain with { UpdatedAt = timeProvider.GetUtcNow().UtcDateTime };
     }
 }

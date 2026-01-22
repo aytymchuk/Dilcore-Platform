@@ -153,6 +153,12 @@ jobs:
       - name: 🧰 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: 🔐 Configure NuGet authentication
+        uses: ./.github/actions/configure-nuget-auth
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-username: ${{ github.repository_owner }}
+
       - name: 🔨 Build and push Docker image
         uses: docker/build-push-action@v6
         with:
