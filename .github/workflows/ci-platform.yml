@@ -33,7 +33,8 @@ jobs:
         
     - name: 🔐 Configure NuGet authentication
       run: |
-        sed -i "s|%GITHUB_PACKAGES_TOKEN%|$GITHUB_PACKAGES_TOKEN|g" nuget.config
+        sed -i "s|%GITHUB_PACKAGES_TOKEN%|${{ secrets.GITHUB_TOKEN }}|g" nuget.config
+        sed -i "s|%GITHUB_USERNAME%|${{ github.repository_owner }}|g" nuget.config
 
     - name: 📦 Restore dependencies
       run: dotnet restore
