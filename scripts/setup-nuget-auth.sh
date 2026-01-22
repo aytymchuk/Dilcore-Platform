@@ -1,23 +1,10 @@
 #!/bin/bash
 
-# Detect if script is being sourced or executed
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    echo "❌ Error: This script must be sourced, not executed directly."
-    echo ""
-    echo "Run one of these commands instead:"
-    echo "  source scripts/setup-nuget-auth.sh"
-    echo "  . scripts/setup-nuget-auth.sh"
-    echo ""
-    echo "This is required so that GITHUB_USERNAME and GITHUB_PACKAGES_TOKEN"
-    echo "are exported into your current shell session."
-    exit 1
-fi
-
 # Ensure gh cli is installed
 if ! command -v gh &> /dev/null
 then
     echo "❌ GitHub CLI (gh) could not be found. Please install it first."
-    return 1
+    exit 1
 fi
 
 # Ensure user is logged in and has read:packages scope
@@ -35,7 +22,7 @@ GITHUB_PACKAGES_TOKEN=$(gh auth token)
 export GITHUB_USERNAME
 export GITHUB_PACKAGES_TOKEN
 
-echo "✅ Environment variables exported to your shell:"
+echo "✅ Environment variables set for this session:"
 echo "   GITHUB_USERNAME: $GITHUB_USERNAME"
 echo "   GITHUB_PACKAGES_TOKEN: (retrieved from gh auth token)"
 echo ""
