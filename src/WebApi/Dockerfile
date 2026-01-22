@@ -18,11 +18,11 @@ RUN --mount=type=secret,id=GITHUB_PACKAGES_TOKEN \
   dotnet restore "src/WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/src/WebApi"
-RUN dotnet build "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build --no-restore
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
 
 FROM base AS final
 ARG BUILD_VERSION=1.0.0
