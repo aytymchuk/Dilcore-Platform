@@ -2,6 +2,7 @@ using Dilcore.DocumentDb.MongoDb.Extensions;
 using Dilcore.DocumentDb.MongoDb.Repositories;
 using Dilcore.Identity.Store.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 
 namespace Dilcore.Identity.Store;
 
@@ -38,12 +39,30 @@ public static class MongoDbExtensions
                 {
                     db.AddGenericRepository<UserDocument>(options =>
                     {
+                        var indexes = CreateIndexes().ToArray();
+
                         options.WithCollectionName(UsersCollectionName);
                         options.WithDatabaseName(DatabaseName);
+                        options.WithIndexes(indexes);
                     });
                 });
             });
 
         return services;
+    }
+
+    private static IEnumerable<CreateIndexModel<UserDocument>> CreateIndexes()
+    {
+        yield return new CreateIndexModel<UserDocument>(
+            Builders<UserDocument>.IndexKeys.Ascending(x => x.IdentityId), new CreateIndexOptions
+            {
+                Unique = true
+            });
+
+        yield return new CreateIndexModel<UserDocument>(
+            Builders<UserDocument>.IndexKeys.Ascending(x => x.Email), new CreateIndexOptions
+            {
+                Unique = true
+            });
     }
 }
