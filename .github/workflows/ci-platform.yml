@@ -37,11 +37,14 @@ jobs:
     - name: 🏗️ Build
       run: dotnet build --no-restore
 
-    - name: 🐳 Build WebApi Docker image
+    - name: � Configure NuGet authentication
+      run: |
+        sed -i "s|%GITHUB_PACKAGES_TOKEN%|${{ secrets.GITHUB_TOKEN }}|g" nuget.config
+
+    - name: �🐳 Build WebApi Docker image
       run: |
         docker build \
           --build-arg BUILD_VERSION=${{ github.sha }} \
-          --secret id=GITHUB_PACKAGES_TOKEN,env=GITHUB_PACKAGES_TOKEN \
           -f src/WebApi/Dockerfile \
           -t dilcore-webapi:${{ github.sha }} \
           .
