@@ -1,0 +1,27 @@
+name: 🚀 CD Platform WebApp
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'src/Web/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  deploy-platform:
+    uses: ./.github/workflows/build-and-deploy-container-app-v2.yml
+    with:
+      componentName: "PLATFORM"
+      serviceName: "web-app"
+      dockerfile: "src/Web/WebApp/Dockerfile"
+      environments: |
+        [
+          { "name": "Development", "region": "westeurope" },
+          { "name": "QA", "region": "westeurope" }
+        ]
+    secrets: inherit
