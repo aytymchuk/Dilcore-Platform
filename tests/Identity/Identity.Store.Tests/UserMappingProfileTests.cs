@@ -2,6 +2,8 @@ using AutoMapper;
 using Dilcore.Identity.Domain;
 using Dilcore.Identity.Store.Entities;
 using Dilcore.Identity.Store.Profiles;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
 
 namespace Dilcore.Identity.Store.Tests;
@@ -17,10 +19,12 @@ public class UserMappingProfileTests
     [SetUp]
     public void SetUp()
     {
+        var loggerFactory = new LoggerFactory([NullLoggerProvider.Instance]);
+        
         var configuration = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<UserMappingProfile>();
-        });
+        }, loggerFactory);
 
         _mapper = configuration.CreateMapper();
     }
@@ -28,11 +32,13 @@ public class UserMappingProfileTests
     [Test]
     public void Configuration_ShouldBeValid()
     {
+        var loggerFactory = new LoggerFactory([NullLoggerProvider.Instance]);
+        
         // Assert that the AutoMapper configuration is valid
         var configuration = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<UserMappingProfile>();
-        });
+        }, loggerFactory);
 
         configuration.AssertConfigurationIsValid();
     }

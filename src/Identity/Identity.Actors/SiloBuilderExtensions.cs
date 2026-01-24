@@ -21,7 +21,7 @@ public static class SiloBuilderExtensions
         // Add AutoMapper profiles from this assembly
         siloBuilder.ConfigureServices(services =>
         {
-            services.AddAutoMapper(typeof(UserStateMappingProfile).Assembly);
+            services.AddAutoMapper(opt => opt.AddMaps(typeof(UserStateMappingProfile).Assembly));
 
             // Register the grain storage provider named "UserStore"
             services.AddKeyedSingleton<IGrainStorage>("UserStore", (sp, key) =>
