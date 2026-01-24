@@ -3,4 +3,16 @@
         <RouteView RouteData="routeData" DefaultLayout="typeof(Dilcore.WebApp.Components.Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(Dilcore.WebApp.Components.Layout.MainLayout)">
+            <MudGrid Class="mt-4">
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText Typo="Typo.h3">404 - Page not found</MudText>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudText>Sorry, there's nothing at this address.</MudText>
+                </MudItem>
+            </MudGrid>
+        </LayoutView>
+    </NotFound>
 </Router>
