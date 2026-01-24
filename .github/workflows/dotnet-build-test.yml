@@ -1,0 +1,123 @@
+name: .NET Build & Test Template
+
+on:
+  workflow_call:
+    inputs:
+      build-target:
+        required: true
+        type: string
+        description: "Project or solution to build"
+      test-target:
+        required: false
+        type: string
+        description: "Project or solution or pattern to test"
+        default: ""
+      test-arguments:
+        required: false
+        type: string
+        description: "Additional arguments to pass to dotnet test"
+        default: ""
+      docker-enabled:
+        required: false
+        type: boolean
+        default: false
+      docker-image-name:
+        required: false
+        type: string
+      dockerfile-path:
+        required: false
+        type: string
+
+jobs:
+  build-and-test:
+    name: 🏗️ Build & Test
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_USERNAME: ${{ github.repository_owner }}
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+          
+      - name: 🔐 Configure NuGet authentication
+        uses: ./.github/actions/configure-nuget-auth
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-username: ${{ github.repository_owner }}
+
+
+      - name: 🔍 Validate Docker Inputs
+        if: ${{ inputs.docker-enabled }}
+        run: |
+          if [ -z "${{ inputs.docker-image-name }}" ] || [ -z "${{ inputs.dockerfile-path }}" ]; then
+            echo "::error::Both docker-image-name and dockerfile-path inputs are required when docker-enabled is true."
+            exit 1
+          fi
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore "${{ inputs.build-target }}"
+
+      - name: 🏗️ Build
+        run: dotnet build "${{ inputs.build-target }}" --no-restore
+
+      - name: 🐳 Build Docker image
+        if: ${{ inputs.docker-enabled }}
+        run: |
+          docker build \
+            --build-arg "BUILD_VERSION=${{ github.sha }}" \
+            -f "${{ inputs.dockerfile-path }}" \
+            -t "${{ inputs.docker-image-name }}:${{ github.sha }}" \
+            .
+
+      - name: ✅ Test
+        if: ${{ inputs.test-target != '' }}
+        run: |
+          dotnet test ${{ inputs.test-target }} \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --logger "junit;LogFilePath=${{ github.workspace }}/TestResults/junit-{assembly}.xml" \
+            --results-directory "TestResults" \
+            ${{ inputs.test-arguments }}
+
+      - name: 📊 Generate Coverage Report
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        if: always() && inputs.test-target != ''
+        with:
+          reports: '**/coverage.cobertura.xml'
+          targetdir: 'coveragereport'
+          reporttypes: 'HtmlInline;MarkdownSummaryGithub'
+
+      - name: 📝 Add Coverage Summary
+        if: always() && inputs.test-target != ''
+        run: |
+          if [ -f coveragereport/SummaryGithub.md ]; then
+            cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No coverage summary found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 📤 Upload Coverage Report
+        uses: actions/upload-artifact@v6
+        if: always() && inputs.test-target != ''
+        with:
+          name: coverage-report
+          path: coveragereport
+
+      - name: 📋 Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always() && inputs.test-target != ''
+        with:
+          files: 'TestResults/junit-*.xml'
+
+      - name: 📤 Upload Test Results
+        uses: actions/upload-artifact@v6
+        if: always() && inputs.test-target != ''
+        with:
+          name: test-results
+          path: TestResults
