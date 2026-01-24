@@ -44,7 +44,6 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
-          dotnet-quality: preview
           
       - name: 🔐 Configure NuGet authentication
         uses: ./.github/actions/configure-nuget-auth
