@@ -61,18 +61,18 @@ jobs:
           fi
 
       - name: 📦 Restore dependencies
-        run: dotnet restore ${{ inputs.build-target }}
+        run: dotnet restore "${{ inputs.build-target }}"
 
       - name: 🏗️ Build
-        run: dotnet build ${{ inputs.build-target }} --no-restore
+        run: dotnet build "${{ inputs.build-target }}" --no-restore
 
       - name: 🐳 Build Docker image
         if: ${{ inputs.docker-enabled }}
         run: |
           docker build \
-            --build-arg BUILD_VERSION=${{ github.sha }} \
-            -f ${{ inputs.dockerfile-path }} \
-            -t ${{ inputs.docker-image-name }}:${{ github.sha }} \
+            --build-arg "BUILD_VERSION=${{ github.sha }}" \
+            -f "${{ inputs.dockerfile-path }}" \
+            -t "${{ inputs.docker-image-name }}:${{ github.sha }}" \
             .
 
       - name: ✅ Test
@@ -86,7 +86,7 @@ jobs:
             ${{ inputs.test-arguments }}
 
       - name: 📊 Generate Coverage Report
-        uses: danielpalme/ReportGenerator-GitHub-Action@v5.5.1
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
         if: always() && inputs.test-target != ''
         with:
           reports: '**/coverage.cobertura.xml'
