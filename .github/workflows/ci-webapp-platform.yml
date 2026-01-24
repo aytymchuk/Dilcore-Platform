@@ -1,0 +1,30 @@
+name: 🚀 CI Platform WebApp
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'src/Web/**'
+      - '.github/workflows/ci-webapp-platform.yml'
+      - '.github/workflows/dotnet-build-test.yml'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'src/Web/**'
+      - '.github/workflows/ci-webapp-platform.yml'
+      - '.github/workflows/dotnet-build-test.yml'
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+  packages: read
+
+jobs:
+  run-ci:
+    uses: ./.github/workflows/dotnet-build-test.yml
+    secrets: inherit
+    with:
+      build-target: 'src/Web/WebApp/WebApp.csproj'
+      # test-target: 'tests/WebApp.Tests/**/*.csproj' # Uncomment when tests are added
+      docker-enabled: false

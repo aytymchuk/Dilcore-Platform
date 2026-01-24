@@ -1,0 +1,40 @@
+name: 🚀 CI Platform API
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'src/WebApi/**'
+      - 'src/Common/**'
+      - 'src/Identity/**'
+      - 'src/Tenancy/**'
+      - 'tests/**'
+      - '.github/workflows/ci-api-platform.yml'
+      - '.github/workflows/dotnet-build-test.yml'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'src/WebApi/**'
+      - 'src/Common/**'
+      - 'src/Identity/**'
+      - 'src/Tenancy/**'
+      - 'tests/**'
+      - '.github/workflows/ci-api-platform.yml'
+      - '.github/workflows/dotnet-build-test.yml'
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+  packages: read
+
+jobs:
+  run-ci:
+    uses: ./.github/workflows/dotnet-build-test.yml
+    secrets: inherit
+    with:
+      build-target: 'src/WebApi/WebApi.csproj'
+      test-target: 'tests/**/*.csproj'
+      docker-enabled: true
+      docker-image-name: 'dilcore-webapi'
+      dockerfile-path: 'src/WebApi/Dockerfile'
