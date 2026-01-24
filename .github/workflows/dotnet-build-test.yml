@@ -12,6 +12,11 @@ on:
         type: string
         description: "Project or solution or pattern to test"
         default: ""
+      test-arguments:
+        required: false
+        type: string
+        description: "Additional arguments to pass to dotnet test"
+        default: ""
       docker-enabled:
         required: false
         type: boolean
@@ -69,7 +74,8 @@ jobs:
             --verbosity normal \
             --collect:"XPlat Code Coverage" \
             --logger "junit;LogFilePath=${{ github.workspace }}/TestResults/junit-{assembly}.xml" \
-            --results-directory "TestResults"
+            --results-directory "TestResults" \
+            ${{ inputs.test-arguments }}
 
       - name: 📊 Generate Coverage Report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5.5.1
