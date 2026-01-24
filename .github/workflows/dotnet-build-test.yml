@@ -51,6 +51,15 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-username: ${{ github.repository_owner }}
 
+
+      - name: 🔍 Validate Docker Inputs
+        if: ${{ inputs.docker-enabled }}
+        run: |
+          if [ -z "${{ inputs.docker-image-name }}" ] || [ -z "${{ inputs.dockerfile-path }}" ]; then
+            echo "::error::Both docker-image-name and dockerfile-path inputs are required when docker-enabled is true."
+            exit 1
+          fi
+
       - name: 📦 Restore dependencies
         run: dotnet restore ${{ inputs.build-target }}
 
