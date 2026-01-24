@@ -1,0 +1,57 @@
+@page "/weather"
+
+<PageTitle>Weather</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Weather</MudText>
+<MudText Class="mb-8">This component demonstrates showing data.</MudText>
+
+@if (forecasts == null)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="forecasts" Hover="true" SortLabel="Sort By" Elevation="0">
+    <HeaderContent>
+        <MudTh>Date</MudTh>
+        <MudTh>Temp. (C)</MudTh>
+        <MudTh>Temp. (F)</MudTh>
+        <MudTh>Summary</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
+        <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
+        <MudTd DataLabel="Summary">@context.Summary</MudTd>
+    </RowTemplate>
+</MudTable>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate async loading
+        await Task.Delay(500);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering",
+"Scorching" };
+
+        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = startDate.AddDays(index),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = summaries[Random.Shared.Next(summaries.Length)]
+            }).ToArray();
+    }
+
+    private sealed class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}
