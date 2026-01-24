@@ -90,6 +90,13 @@ The main entry point for the platform. It is a Minimal API project that hosts th
     - **OpenAPI**: Validation rules (required, length, regex, ranges) are automatically reflected in the OpenAPI V3 schema.
 - **Deployment**: Automated via GitHub Actions using a [Reusable Container App Workflow](.github/workflows/templates/README.md).
 
+### Web
+The global frontend application built with **Blazor Server**. It provides a rich, responsive user interface for the platform.
+- **Framework**: Blazor Server with .NET 10.
+- **Components**: Shared UI logic and razor components are located in `WebApp.Components`.
+- **Styling**: Uses **MudBlazor** for a modern Material Design look and feel.
+- **Rendering**: Configured with `InteractiveServer` render mode for real-time user interaction.
+
 ## Project Structure
 
 The solution is organized into modular domains (e.g., **Tenancy**, **Identity**). Each domain follows a strict Clean Architecture layering strategy with the following projects:

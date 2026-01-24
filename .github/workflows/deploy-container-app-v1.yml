@@ -59,7 +59,8 @@ jobs:
         run: |
           # Force Uppercase for construction
           COMPONENT_NAME="${INPUT_COMPONENT^^}"
-          SERVICE_SUFFIX="${INPUT_SERVICE^^}"
+          SANITIZED_SERVICE="${INPUT_SERVICE//[^a-zA-Z0-9_]/_}"
+          SERVICE_SUFFIX="${SANITIZED_SERVICE^^}"
           
           # Variable names based on convention
           RG_VAR_NAME="${COMPONENT_NAME}_RESOURCE_GROUP"
