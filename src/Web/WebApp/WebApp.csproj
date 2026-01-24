@@ -14,8 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebApp.Components\WebApp.Components.csproj" />
+    <PackageReference Include="Auth0.AspNetCore.Authentication" />
     <PackageReference Include="MudBlazor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebApp.Components\WebApp.Components.csproj" />
+    <ProjectReference Include="..\..\Common\Configuration\Configuration.AspNetCore\Configuration.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\Common\Telemetry\Telemetry.Extensions.OpenTelemetry\Telemetry.Extensions.OpenTelemetry.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,28 +1,24 @@
+using Dilcore.Configuration.AspNetCore;
 using Dilcore.WebApp;
-using MudBlazor.Services;
+using Dilcore.WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddAppConfiguration();
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddMudServices();
+builder.Services.AddWebAppServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
-}
+// Application lifecycle logging
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
-app.UseHttpsRedirection();
-app.UseAntiforgery();
-app.MapStaticAssets();
+lifetime.ApplicationStarted.Register(() => logger.LogApplicationStarted());
+lifetime.ApplicationStopping.Register(() => logger.LogApplicationStopping());
+lifetime.ApplicationStopped.Register(() => logger.LogApplicationStopped());
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+logger.LogStartingApplication();
+
+app.ConfigureWebApp();
 
 await app.RunAsync();
