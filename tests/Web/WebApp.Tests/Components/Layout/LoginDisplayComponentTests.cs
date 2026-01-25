@@ -18,7 +18,9 @@ public class LoginDisplayComponentTests : Bunit.TestContext
 
     public LoginDisplayComponentTests()
     {
-        if (Services.GetService<ISnackbar>() == null)
+        JSInterop.Mode = JSRuntimeMode.Loose;
+
+        if (!Services.Any(d => d.ServiceType == typeof(ISnackbar)))
         {
             Services.AddMudServices();
         }
@@ -28,6 +30,8 @@ public class LoginDisplayComponentTests : Bunit.TestContext
         Services.AddSingleton(mockEnv.Object);
 
         _authContext = this.AddTestAuthorization();
+        
+        RenderComponent<MudPopoverProvider>();
     }
 
     [Test]
@@ -71,7 +75,9 @@ public class LoginDisplayComponentTests : Bunit.TestContext
 
         // Assert
         // Check for the key icon button which indicates the token functionality is present
-        cut.FindAll("button").Any(b => b.ToMarkup().Contains("Key")).ShouldBeTrue();
+        cut.FindComponents<MudIconButton>()
+           .Any(b => b.Instance.Icon == Icons.Material.Filled.Key)
+           .ShouldBeTrue();
     }
 
     [Test]
@@ -85,6 +91,8 @@ public class LoginDisplayComponentTests : Bunit.TestContext
         var cut = RenderComponent<LoginDisplay>();
 
         // Assert
-        cut.FindAll("button").Any(b => b.ToMarkup().Contains("Key")).ShouldBeFalse();
+        cut.FindComponents<MudIconButton>()
+           .Any(b => b.Instance.Icon == Icons.Material.Filled.Key)
+           .ShouldBeFalse();
     }
 }

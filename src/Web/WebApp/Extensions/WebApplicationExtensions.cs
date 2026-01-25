@@ -1,6 +1,4 @@
 using Auth0.AspNetCore.Authentication;
-using Dilcore.WebApp;
-using Dilcore.WebApp.Components;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Helpers;
 using Microsoft.AspNetCore.Authentication;

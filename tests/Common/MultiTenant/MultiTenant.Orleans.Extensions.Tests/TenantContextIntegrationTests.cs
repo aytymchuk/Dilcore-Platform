@@ -1,6 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Orleans.Extensions.Tests.TestGrains;
-using Orleans.Runtime;
 using Orleans.TestingHost;
 using Shouldly;
 

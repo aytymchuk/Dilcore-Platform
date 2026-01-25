@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Dilcore.WebApp.Extensions;
 
 internal static partial class LoggerExtensions

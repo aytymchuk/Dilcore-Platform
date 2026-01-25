@@ -1,5 +1,4 @@
 using Dilcore.Configuration.AspNetCore;
-using Dilcore.WebApp;
 using Dilcore.WebApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

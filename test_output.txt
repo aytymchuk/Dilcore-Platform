@@ -1,0 +1,67 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Authentication.Abstractions -> /Users/arsen/Projects/Dilcore/Platform/src/Common/Authentication/Authentication.Abstractions/bin/Debug/net10.0/Authentication.Abstractions.dll
+  Configuration.Extensions -> /Users/arsen/Projects/Dilcore/Platform/src/Common/Configuration/Configuration.Extensions/bin/Debug/net10.0/Configuration.Extensions.dll
+  Tests.Common -> /Users/arsen/Projects/Dilcore/Platform/tests/Common/Tests.Common/bin/Debug/net10.0/Tests.Common.dll
+  Telemetry.Abstractions -> /Users/arsen/Projects/Dilcore/Platform/src/Common/Telemetry/Telemetry.Abstractions/bin/Debug/net10.0/Telemetry.Abstractions.dll
+  MultiTenant.Abstractions -> /Users/arsen/Projects/Dilcore/Platform/src/Common/MultiTenant/MultiTenant.Abstractions/bin/Debug/net10.0/MultiTenant.Abstractions.dll
+  Authentication.Auth0 -> /Users/arsen/Projects/Dilcore/Platform/src/Common/Authentication/Authentication.Auth0/bin/Debug/net10.0/Authentication.Auth0.dll
+  Configuration.AspNetCore -> /Users/arsen/Projects/Dilcore/Platform/src/Common/Configuration/Configuration.AspNetCore/bin/Debug/net10.0/Configuration.AspNetCore.dll
+  MultiTenant.Http.Extensions -> /Users/arsen/Projects/Dilcore/Platform/src/Common/MultiTenant/MultiTenant.Http.Extensions/bin/Debug/net10.0/MultiTenant.Http.Extensions.dll
+  WebApp.Components -> /Users/arsen/Projects/Dilcore/Platform/src/Web/WebApp.Components/bin/Debug/net10.0/WebApp.Components.dll
+  Authentication.Http.Extensions -> /Users/arsen/Projects/Dilcore/Platform/src/Common/Authentication/Authentication.Http.Extensions/bin/Debug/net10.0/Authentication.Http.Extensions.dll
+  Telemetry.Extensions.OpenTelemetry -> /Users/arsen/Projects/Dilcore/Platform/src/Common/Telemetry/Telemetry.Extensions.OpenTelemetry/bin/Debug/net10.0/Telemetry.Extensions.OpenTelemetry.dll
+  WebApp -> /Users/arsen/Projects/Dilcore/Platform/src/Web/WebApp/bin/Debug/net10.0/WebApp.dll
+  WebApp.Tests -> /Users/arsen/Projects/Dilcore/Platform/tests/Web/WebApp.Tests/bin/Debug/net10.0/WebApp.Tests.dll
+Test run for /Users/arsen/Projects/Dilcore/Platform/tests/Web/WebApp.Tests/bin/Debug/net10.0/WebApp.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.1 (arm64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Failed AddWebAppServices_RegistersExpectedServices [2 s]
+  Error Message:
+   System.InvalidOperationException : 'RemoteNavigationManager' has not been initialized.
+  Stack Trace:
+     at Microsoft.AspNetCore.Components.NavigationManager.AssertInitialized()
+   at Microsoft.AspNetCore.Components.NavigationManager.add_LocationChanged(EventHandler`1 value)
+   at MudBlazor.SnackbarService..ctor(NavigationManager navigationManager, IOptions`1 configuration)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService[T](IServiceProvider provider)
+   at Dilcore.WebApp.Tests.Extensions.DependencyInjectionTests.AddWebAppServices_RegistersExpectedServices() in /Users/arsen/Projects/Dilcore/Platform/tests/Web/WebApp.Tests/Extensions/DependencyInjectionTests.cs:line 42
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+1)    at Microsoft.AspNetCore.Components.NavigationManager.AssertInitialized()
+   at Microsoft.AspNetCore.Components.NavigationManager.add_LocationChanged(EventHandler`1 value)
+   at MudBlazor.SnackbarService..ctor(NavigationManager navigationManager, IOptions`1 configuration)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService[T](IServiceProvider provider)
+   at Dilcore.WebApp.Tests.Extensions.DependencyInjectionTests.AddWebAppServices_RegistersExpectedServices() in /Users/arsen/Projects/Dilcore/Platform/tests/Web/WebApp.Tests/Extensions/DependencyInjectionTests.cs:line 42
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - WebApp.Tests.dll (net10.0)

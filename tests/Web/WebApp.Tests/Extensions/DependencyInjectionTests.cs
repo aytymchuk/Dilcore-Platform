@@ -1,9 +1,7 @@
-using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.WebApp.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Moq;
 using Shouldly;
 
@@ -30,15 +28,30 @@ public class DependencyInjectionTests
             
         var mockEnvironment = new Mock<IWebHostEnvironment>();
         mockEnvironment.Setup(e => e.EnvironmentName).Returns("Development");
+        mockEnvironment.Setup(e => e.ApplicationName).Returns("TestApp");
 
         // Act
-        services.AddMultiTenancy();
+        services.AddLogging();
         services.AddWebAppServices(configuration, mockEnvironment.Object);
-        var provider = services.BuildServiceProvider();
+
+        // Register FakeNavigationManager to satisfy initialization requirements
+        services.AddScoped<Microsoft.AspNetCore.Components.NavigationManager, FakeNavigationManager>();
+
+        var provider = services.BuildServiceProvider(validateScopes: true);
 
         // Assert
         // Check for MudBlazor services
-        var snackbarProvider = provider.GetService<MudBlazor.ISnackbar>();
+        // ISnackbar is a scoped service, so we must resolve it from a scope
+        using var scope = provider.CreateScope();
+        var snackbarProvider = scope.ServiceProvider.GetService<MudBlazor.ISnackbar>();
         snackbarProvider.ShouldNotBeNull();
+    }
+
+    private class FakeNavigationManager : Microsoft.AspNetCore.Components.NavigationManager
+    {
+        public FakeNavigationManager()
+        {
+            Initialize("http://localhost/", "http://localhost/");
+        }
     }
 }

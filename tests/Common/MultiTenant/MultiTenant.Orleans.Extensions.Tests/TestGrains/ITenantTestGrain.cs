@@ -1,5 +1,3 @@
-using Orleans;
-
 namespace Dilcore.MultiTenant.Orleans.Extensions.Tests.TestGrains;
 
 /// <summary>
