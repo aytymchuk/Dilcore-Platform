@@ -1,8 +1,6 @@
 using Dilcore.MultiTenant.Abstractions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Orleans;
-using Orleans.Runtime;
 using Shouldly;
 
 namespace Dilcore.MultiTenant.Orleans.Extensions.Tests;

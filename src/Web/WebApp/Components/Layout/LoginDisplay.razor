@@ -1,0 +1,42 @@
+@using Dilcore.WebApp.Constants
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment Env
+
+<AuthorizeView>
+    <Authorized>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+            <MudText>Hello, @context.User.Identity?.Name!</MudText>
+            @if (Env.IsDevelopment() && context.User.HasClaim(c => c.Type == AuthConstants.AccessTokenClaim))
+            {
+                <MudTooltip Text="Access Token">
+                    <MudIconButton Icon="@Icons.Material.Filled.Key" OnClick="@(() => _showToken = !_showToken)" Color="Color.Inherit" data-testid="access-token-button" />
+                </MudTooltip>
+            }
+            <MudLink Href="@RouteConstants.Identity.Logout" Color="Color.Inherit">Sign Out</MudLink>
+        </MudStack>
+        
+        @if (_showToken)
+        {
+            <MudOverlay Visible="@_showToken" OnClick="@(() => _showToken = false)" ZIndex="1200" AutoClose="true" />
+            <MudPopover Open="@_showToken" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Class="pa-4" Style="max-width: 500px; word-break: break-all; z-index: 1300;">
+                <MudText Typo="Typo.h6">Access Token</MudText>
+                <MudDivider Class="my-2" />
+                <MudText Typo="Typo.body2">@GetMaskedToken(context.User.FindFirst(AuthConstants.AccessTokenClaim)?.Value)</MudText>
+            </MudPopover>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <MudLink Href="@RouteConstants.Identity.Login" Color="Color.Inherit">Sign In</MudLink>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool _showToken;
+
+    private string GetMaskedToken(string? token)
+    {
+        if (string.IsNullOrEmpty(token)) return string.Empty;
+        if (token.Length <= 4) return token;
+        return new string('•', token.Length - 4) + token[^4..];
+    }
+}

@@ -34,8 +34,8 @@ jobs:
     secrets: inherit
     with:
       build-target: 'src/WebApi/WebApi.csproj'
-      test-target: 'Dilcore.Platform.sln'
-      test-arguments: '--filter "FullyQualifiedName!~WebApp"'
+      test-target: 'Dilcore.Platform.Api.slnf'
       docker-enabled: true
       docker-image-name: 'dilcore-webapi'
       dockerfile-path: 'src/WebApi/Dockerfile'
+      check-name: 'Test Results - Platform API'

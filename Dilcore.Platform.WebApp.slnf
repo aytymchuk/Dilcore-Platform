@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "Dilcore.Platform.sln",
+    "projects": [
+      "src/Web/WebApp.Components/WebApp.Components.csproj",
+      "src/Web/WebApp/WebApp.csproj",
+      "tests/Web/WebApp.Tests/WebApp.Tests.csproj"
+    ]
+  }
+}

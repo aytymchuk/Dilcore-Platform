@@ -1,5 +1,3 @@
-using Dilcore.MultiTenant.Abstractions;
-using Orleans.Runtime;
 using Shouldly;
 
 namespace Dilcore.MultiTenant.Orleans.Extensions.Tests;
