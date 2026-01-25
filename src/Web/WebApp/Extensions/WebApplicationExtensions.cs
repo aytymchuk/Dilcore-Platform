@@ -44,6 +44,10 @@ public static class WebApplicationExtensions
             {
                 returnUrl = "/";
             }
+            else if (returnUrl.StartsWith("~/"))
+            {
+                returnUrl = "/" + returnUrl.Substring(2);
+            }
 
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
                 .WithRedirectUri(returnUrl)

@@ -1,3 +1,4 @@
+using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.WebApp.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +12,6 @@ namespace Dilcore.WebApp.Tests.Extensions;
 public class DependencyInjectionTests
 {
     [Test]
-    [Ignore("Fails to resolve OpenTelemetry services in test environment")]
     public void AddWebAppServices_RegistersExpectedServices()
     {
         // Arrange
@@ -32,6 +32,7 @@ public class DependencyInjectionTests
         mockEnvironment.Setup(e => e.EnvironmentName).Returns("Development");
 
         // Act
+        services.AddMultiTenancy();
         services.AddWebAppServices(configuration, mockEnvironment.Object);
         var provider = services.BuildServiceProvider();
 

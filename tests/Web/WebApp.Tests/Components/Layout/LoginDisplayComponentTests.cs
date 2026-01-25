@@ -3,6 +3,7 @@ using Bunit.TestDoubles;
 using Dilcore.WebApp.Components.Layout;
 using Dilcore.WebApp.Constants;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor;
 using MudBlazor.Services;
 using Shouldly;
 
@@ -17,7 +18,10 @@ public class LoginDisplayComponentTests : Bunit.TestContext
 
     public LoginDisplayComponentTests()
     {
-        Services.AddMudServices();
+        if (Services.GetService<ISnackbar>() == null)
+        {
+            Services.AddMudServices();
+        }
         
         var mockEnv = new Mock<IWebHostEnvironment>();
         mockEnv.Setup(e => e.EnvironmentName).Returns("Development");
@@ -56,7 +60,6 @@ public class LoginDisplayComponentTests : Bunit.TestContext
     }
 
     [Test]
-    [Ignore("Fails with duplicate service registration error")]
     public void ShowsAccessTokenButton_WhenClaimExists()
     {
         // Arrange

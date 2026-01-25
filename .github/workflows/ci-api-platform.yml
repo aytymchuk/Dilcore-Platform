@@ -39,3 +39,4 @@ jobs:
       docker-enabled: true
       docker-image-name: 'dilcore-webapi'
       dockerfile-path: 'src/WebApi/Dockerfile'
+      check-name: 'Test Results - Platform API'
