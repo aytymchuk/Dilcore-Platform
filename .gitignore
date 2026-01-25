@@ -67,3 +67,20 @@ BenchmarkDotNet.Artifacts/
 
 # Trae AI
 .trae/
+
+# Test output
+test*.txt
+test*.log
+test*.json
+TestResults/
+
+# Debug output
+debug*.txt
+debug*.log
+debug*.json
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+
