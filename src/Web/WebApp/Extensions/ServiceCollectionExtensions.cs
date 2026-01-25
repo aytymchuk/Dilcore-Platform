@@ -89,7 +89,7 @@ public static class ServiceCollectionExtensions
             async Task OnMissingToken(HttpContext context)
             {
                 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                var authenticationProperties = new LogoutAuthenticationPropertiesBuilder().WithRedirectUri("/").Build();
+                var authenticationProperties = new LoginAuthenticationPropertiesBuilder().WithRedirectUri("/").Build();
                 await context.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
             }
         });
