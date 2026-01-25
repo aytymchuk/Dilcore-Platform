@@ -26,7 +26,7 @@ jobs:
     secrets: inherit
     with:
       build-target: 'src/Web/WebApp/WebApp.csproj'
-      # test-target: 'tests/WebApp.Tests/**/*.csproj' # Uncomment when tests are added
+      test-target: 'tests/WebApp.Tests/**/*.csproj'
       docker-enabled: true
       docker-image-name: 'dilcore-webapp'
       dockerfile-path: 'src/Web/WebApp/Dockerfile'

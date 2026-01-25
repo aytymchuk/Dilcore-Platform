@@ -1,4 +1,4 @@
-@using MudBlazor
+@using Dilcore.WebApp.Constants
 <Router AppAssembly="typeof(Routes).Assembly">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Dilcore.WebApp.Components.Layout.MainLayout)">
@@ -8,7 +8,7 @@
                         <MudText Typo="Typo.h3">Not Authorized</MudText>
                     </MudItem>
                      <MudItem xs="12" Class="d-flex justify-center">
-                        <MudText>You are not authorized to view this page. <MudLink Href="Account/Login">Sign In</MudLink></MudText>
+                        <MudText>You are not authorized to view this page. <MudLink Href="@RouteConstants.Identity.Login">Sign In</MudLink></MudText>
                     </MudItem>
                 </MudGrid>
             </NotAuthorized>

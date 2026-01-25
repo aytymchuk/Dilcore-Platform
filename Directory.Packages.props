@@ -71,5 +71,6 @@
     <PackageVersion Include="Testcontainers.MongoDb" Version="4.10.0" />
     <!-- Blazor UI -->
     <PackageVersion Include="MudBlazor" Version="8.15.0" />
+    <PackageVersion Include="bunit.web" Version="1.40.0" />
   </ItemGroup>
 </Project>

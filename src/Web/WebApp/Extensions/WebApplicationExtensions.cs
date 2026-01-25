@@ -1,7 +1,8 @@
 using Auth0.AspNetCore.Authentication;
 using Dilcore.WebApp;
-using Dilcore.WebApp.Components; // Assuming App is here or accessible via project ref
+using Dilcore.WebApp.Components;
 using Dilcore.WebApp.Constants;
+using Dilcore.WebApp.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -39,6 +40,11 @@ public static class WebApplicationExtensions
     {
         app.MapGet(RouteConstants.Identity.Login, async (HttpContext httpContext, string returnUrl = "/") =>
         {
+            if (!UrlHelper.IsLocalUrl(returnUrl))
+            {
+                returnUrl = "/";
+            }
+
             var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
                 .WithRedirectUri(returnUrl)
                 .Build();
