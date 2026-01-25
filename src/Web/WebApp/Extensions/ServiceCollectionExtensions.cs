@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<ForwardedHeadersOptions>(options =>
         {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
         });
         return services;
     }
