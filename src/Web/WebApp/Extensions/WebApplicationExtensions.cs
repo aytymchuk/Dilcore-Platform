@@ -12,6 +12,15 @@ public static class WebApplicationExtensions
     {
         app.UseForwardedHeaders();
 
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Headers.ContainsKey("X-Forwarded-Proto"))
+            {
+                context.Request.Scheme = "https";
+            }
+            await next();
+        });
+
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
