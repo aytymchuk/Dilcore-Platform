@@ -95,6 +95,6 @@ public class LoginDisplayComponentTests
         var cut = _ctx.RenderComponent<LoginDisplay>();
 
         // Assert
-        Assert.Throws<ElementNotFoundException>(() => cut.Find("[data-testid='access-token-button']"));
+        cut.FindAll("[data-testid='access-token-button']").Count.ShouldBe(0);
     }
 }

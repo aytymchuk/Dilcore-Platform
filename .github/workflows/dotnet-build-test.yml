@@ -111,6 +111,9 @@ jobs:
         id: sanitize
         run: |
           sanitized_name=$(echo "${{ inputs.check-name }}" | tr -cd '[:alnum:]-')
+          if [ -z "$sanitized_name" ]; then
+            sanitized_name="unnamed-check-${{ github.run_id }}"
+          fi
           echo "artifact-suffix=${sanitized_name}" >> $GITHUB_OUTPUT
 
       - name: 📤 Upload Coverage Report
