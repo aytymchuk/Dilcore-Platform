@@ -5,8 +5,8 @@ inputs:
     description: 'Mode of operation: extract or calculate'
     required: false
     default: 'calculate'
-  tag-prefix:
-    description: 'Prefix for tags (e.g., "my-lib.")'
+  tag-name:
+    description: 'Tag name identifier (e.g., "webapi-client")'
     required: false
     default: ''
   bump-type:
@@ -19,7 +19,7 @@ outputs:
     description: 'Calculated semantic version (e.g., 1.0.1)'
     value: ${{ steps.calc.outputs.version }}
   tag:
-    description: 'Full tag string (e.g., my-lib.v1.0.1)'
+    description: 'Full tag string (e.g., webapi-client.v1.0.1)'
     value: ${{ steps.calc.outputs.tag }}
 
 runs:
@@ -32,11 +32,20 @@ runs:
         set -euo pipefail
         
         MODE="${{ inputs.mode }}"
-        PREFIX="${{ inputs.tag-prefix }}"
+        TAG_NAME="${{ inputs.tag-name }}"
         BUMP_TYPE="${{ inputs.bump-type }}"
         
         echo "Mode: $MODE"
-        echo "Prefix: '$PREFIX'"
+        echo "Tag Name: '$TAG_NAME'"
+
+        # Construct prefix with separator if tag-name is present
+        if [[ -n "$TAG_NAME" ]]; then
+          PREFIX="${TAG_NAME}."
+        else
+          PREFIX=""
+        fi
+        
+        echo "Constructed Prefix: '$PREFIX'"
         
         if [[ "$MODE" == "extract" ]]; then
           # Extract version from current GITHUB_REF

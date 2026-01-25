@@ -10,56 +10,9 @@ on:
 
 jobs:
   publish:
-    name: 🚀 Pack & Publish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-    
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 🏷️ Calculate Version
-        id: version
-        uses: ./.github/actions/git-version-manager
-        with:
-          tag-prefix: 'webapi-client.'
-          bump-type: 'patch'
-
-      - name: 🛠️ Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 📦 Restore dependencies
-        run: dotnet restore src/WebApi.Client/WebApi.Client.csproj
-
-      - name: 🔨 Build
-        run: dotnet build src/WebApi.Client/WebApi.Client.csproj -c Release --no-restore
-
-      - name: 📦 Pack
-        run: dotnet pack src/WebApi.Client/WebApi.Client.csproj -c Release --no-build -p:PackageVersion=${{ steps.version.outputs.version }} -o packages
-
-      - name: 🚀 Push to GitHub Packages
-        run: dotnet nuget push "packages/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github" --skip-duplicate
-
-      - name: 🏷️ Create Git Tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          TAG_NAME="${{ steps.version.outputs.tag }}"
-          
-          # Check if tag exists (extra safety, though action bumped it)
-          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-             echo "Tag $TAG_NAME already exists locally. Skipping creation."
-          else
-             echo "Creating tag $TAG_NAME"
-             git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
-             git push origin "$TAG_NAME"
-          fi
+    uses: ./.github/workflows/nuget-publish-template.yml
+    with:
+      project_path: 'src/WebApi.Client/WebApi.Client.csproj'
+      tag_name: 'webapi-client'
+      bump_type: 'patch'
+    secrets: inherit

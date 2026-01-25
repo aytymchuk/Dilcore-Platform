@@ -12,6 +12,11 @@ on:
         type: string
         default: "patch"
         description: "Which part of version to bump (major, minor, patch)"
+      tag_name:
+        required: false
+        type: string
+        default: ""
+        description: "Tag name identifier (e.g., 'myservice')"
     outputs:
       image_tag:
         description: "The full image tag"
@@ -42,57 +47,11 @@ jobs:
 
       - name: 🏷️ Calculate Version
         id: calculate_version
-        run: |
-          set -euo pipefail
-          
-          # Fetch all tags to ensure we have the complete list
-          git fetch --tags --force
-          
-          # Find the highest version tag (vX.Y.Z)
-          # We list tags matching v*.*.*, sort by version (V), and take the last one (highest)
-          LATEST_TAG=$(git tag -l "v*.*.*" | sort -V | tail -n 1 || echo "")
-          
-          if [ -z "$LATEST_TAG" ]; then
-             LATEST_TAG="v0.0.0"
-          fi
-          
-          VERSION=${LATEST_TAG#v}
-          echo "Latest tag found: $LATEST_TAG"
-          
-          if ! [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            echo "::error::Latest tag '$LATEST_TAG' is not strict semver (expected vMAJOR.MINOR.PATCH)."
-            exit 1
-          fi
-          
-          MAJOR="${BASH_REMATCH[1]}"
-          MINOR="${BASH_REMATCH[2]}"
-          PATCH="${BASH_REMATCH[3]}"
-          
-          BUMP_TYPE="${{ inputs.version_bump_type }}"
-          echo "Bump type: $BUMP_TYPE"
-          
-          if [[ "$BUMP_TYPE" == "major" ]]; then
-            NEW_MAJOR=$((MAJOR + 1))
-            NEW_MINOR=0
-            NEW_PATCH=0
-          elif [[ "$BUMP_TYPE" == "minor" ]]; then
-            NEW_MAJOR=$MAJOR
-            NEW_MINOR=$((MINOR + 1))
-            NEW_PATCH=0
-          else
-            NEW_MAJOR=$MAJOR
-            NEW_MINOR=$MINOR
-            NEW_PATCH=$((PATCH + 1))
-          fi
-          
-          NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
-          
-          echo "Previous version: $VERSION"
-          echo "New version: $NEW_VERSION"
-          
-          # Output variables for next steps
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/git-version-manager
+        with:
+          mode: 'calculate'
+          tag-name: ${{ inputs.tag_name }}
+          bump-type: ${{ inputs.version_bump_type }}
 
       - name: 🖊️ Create and Push Tag
         run: |
