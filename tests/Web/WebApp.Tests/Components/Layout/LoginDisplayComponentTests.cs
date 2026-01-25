@@ -12,26 +12,32 @@ using Moq;
 
 namespace Dilcore.WebApp.Tests.Components.Layout;
 
-public class LoginDisplayComponentTests : Bunit.TestContext
+public class LoginDisplayComponentTests
 {
+    private Bunit.TestContext _ctx;
     private TestAuthorizationContext _authContext;
 
-    public LoginDisplayComponentTests()
+    [SetUp]
+    public void Setup()
     {
-        JSInterop.Mode = JSRuntimeMode.Loose;
+        _ctx = new Bunit.TestContext();
+        _ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
-        if (!Services.Any(d => d.ServiceType == typeof(ISnackbar)))
-        {
-            Services.AddMudServices();
-        }
+        _ctx.Services.AddMudServices();
         
         var mockEnv = new Mock<IWebHostEnvironment>();
         mockEnv.Setup(e => e.EnvironmentName).Returns("Development");
-        Services.AddSingleton(mockEnv.Object);
+        _ctx.Services.AddSingleton(mockEnv.Object);
 
-        _authContext = this.AddTestAuthorization();
+        _authContext = _ctx.AddTestAuthorization();
         
-        RenderComponent<MudPopoverProvider>();
+        _ctx.RenderComponent<MudPopoverProvider>();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _ctx?.Dispose();
     }
 
     [Test]
@@ -41,7 +47,7 @@ public class LoginDisplayComponentTests : Bunit.TestContext
         _authContext.SetAuthorized("Test User");
 
         // Act
-        var cut = RenderComponent<LoginDisplay>();
+        var cut = _ctx.RenderComponent<LoginDisplay>();
 
         // Assert
         cut.Markup.ShouldContain("Hello, Test User!");
@@ -56,7 +62,7 @@ public class LoginDisplayComponentTests : Bunit.TestContext
         _authContext.SetNotAuthorized();
 
         // Act
-        var cut = RenderComponent<LoginDisplay>();
+        var cut = _ctx.RenderComponent<LoginDisplay>();
 
         // Assert
         cut.Markup.ShouldContain("Sign In");
@@ -71,13 +77,11 @@ public class LoginDisplayComponentTests : Bunit.TestContext
         _authContext.SetClaims(new System.Security.Claims.Claim(AuthConstants.AccessTokenClaim, "test-token"));
 
         // Act
-        var cut = RenderComponent<LoginDisplay>();
+        var cut = _ctx.RenderComponent<LoginDisplay>();
 
         // Assert
         // Check for the key icon button which indicates the token functionality is present
-        cut.FindComponents<MudIconButton>()
-           .Any(b => b.Instance.Icon == Icons.Material.Filled.Key)
-           .ShouldBeTrue();
+        cut.Find("[data-testid='access-token-button']").ShouldNotBeNull();
     }
 
     [Test]
@@ -88,11 +92,9 @@ public class LoginDisplayComponentTests : Bunit.TestContext
         // No access_token claim
 
         // Act
-        var cut = RenderComponent<LoginDisplay>();
+        var cut = _ctx.RenderComponent<LoginDisplay>();
 
         // Assert
-        cut.FindComponents<MudIconButton>()
-           .Any(b => b.Instance.Icon == Icons.Material.Filled.Key)
-           .ShouldBeFalse();
+        Assert.Throws<ElementNotFoundException>(() => cut.Find("[data-testid='access-token-button']"));
     }
 }

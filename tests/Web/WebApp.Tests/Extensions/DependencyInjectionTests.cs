@@ -45,6 +45,11 @@ public class DependencyInjectionTests
         using var scope = provider.CreateScope();
         var snackbarProvider = scope.ServiceProvider.GetService<MudBlazor.ISnackbar>();
         snackbarProvider.ShouldNotBeNull();
+
+        // Check for other expected services
+        scope.ServiceProvider.GetService<Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider>().ShouldNotBeNull();
+        scope.ServiceProvider.GetService<Microsoft.AspNetCore.Authorization.IAuthorizationService>().ShouldNotBeNull();
+        scope.ServiceProvider.GetService<Microsoft.AspNetCore.Components.NavigationManager>().ShouldNotBeNull();
     }
 
     private class FakeNavigationManager : Microsoft.AspNetCore.Components.NavigationManager

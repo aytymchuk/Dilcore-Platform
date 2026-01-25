@@ -107,11 +107,17 @@ jobs:
             echo "⚠️ No coverage summary found." >> $GITHUB_STEP_SUMMARY
           fi
 
+      - name: 🧹 Sanitize check name
+        id: sanitize
+        run: |
+          sanitized_name=$(echo "${{ inputs.check-name }}" | tr -cd '[:alnum:]-')
+          echo "artifact-suffix=${sanitized_name}" >> $GITHUB_OUTPUT
+
       - name: 📤 Upload Coverage Report
         uses: actions/upload-artifact@v6
         if: always() && inputs.test-target != ''
         with:
-          name: coverage-report-${{ inputs.check-name }}
+          name: coverage-report-${{ steps.sanitize.outputs.artifact-suffix }}
           path: coveragereport
 
       - name: 📋 Publish Test Results
@@ -125,5 +131,5 @@ jobs:
         uses: actions/upload-artifact@v6
         if: always() && inputs.test-target != ''
         with:
-          name: test-results-${{ inputs.check-name }}
+          name: test-results-${{ steps.sanitize.outputs.artifact-suffix }}
           path: TestResults

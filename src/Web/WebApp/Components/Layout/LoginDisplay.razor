@@ -9,7 +9,7 @@
             @if (Env.IsDevelopment() && context.User.HasClaim(c => c.Type == AuthConstants.AccessTokenClaim))
             {
                 <MudTooltip Text="Access Token">
-                    <MudIconButton Icon="@Icons.Material.Filled.Key" OnClick="@(() => _showToken = !_showToken)" Color="Color.Inherit" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Key" OnClick="@(() => _showToken = !_showToken)" Color="Color.Inherit" data-testid="access-token-button" />
                 </MudTooltip>
             }
             <MudLink Href="@RouteConstants.Identity.Logout" Color="Color.Inherit">Sign Out</MudLink>
@@ -37,6 +37,6 @@
     {
         if (string.IsNullOrEmpty(token)) return string.Empty;
         if (token.Length <= 4) return token;
-        return string.Concat(Enumerable.Repeat("•", token.Length - 4)) + token[^4..];
+        return new string('•', token.Length - 4) + token[^4..];
     }
 }
