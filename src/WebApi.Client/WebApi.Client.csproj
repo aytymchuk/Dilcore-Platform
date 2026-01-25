@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>Dilcore.WebApi.Client</PackageId>
+    <Description>HTTP client library for Dilcore Platform API</Description>
+    <Authors>Dilcore</Authors>
+    <PackageTags>dilcore;webapi;client;refit</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\FluentResults\Results.Abstractions\Results.Abstractions.csproj" />
+    <ProjectReference Include="..\Identity\Identity.Contracts\Identity.Contracts.csproj" />
+    <ProjectReference Include="..\Tenancy\Tenancy.Core\Tenancy.Core.csproj" />
+  </ItemGroup>
+</Project>

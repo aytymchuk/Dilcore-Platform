@@ -5,6 +5,7 @@ namespace Dilcore.MultiTenant.Orleans.Extensions.Tests.TestGrains;
 /// <summary>
 /// Test grain implementation for verifying tenant context propagation.
 /// </summary>
+[GrainType("dilcore-tenant-test-grain")]
 public class TenantTestGrain : Grain, ITenantTestGrain
 {
     private readonly ITenantContextResolver _tenantContextResolver;

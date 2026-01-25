@@ -1,0 +1,130 @@
+name: 'Git Version Manager'
+description: 'Calculates the next semantic version based on git tags and prefixes'
+inputs:
+  mode:
+    description: 'Mode of operation: extract or calculate'
+    required: false
+    default: 'calculate'
+  tag-prefix:
+    description: 'Prefix for tags (e.g., "my-lib.")'
+    required: false
+    default: ''
+  bump-type:
+    description: 'Type of version bump: major, minor, patch'
+    required: false
+    default: 'patch'
+
+outputs:
+  version:
+    description: 'Calculated semantic version (e.g., 1.0.1)'
+    value: ${{ steps.calc.outputs.version }}
+  tag:
+    description: 'Full tag string (e.g., my-lib.v1.0.1)'
+    value: ${{ steps.calc.outputs.tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Calculate Version
+      id: calc
+      shell: bash
+      run: |
+        set -euo pipefail
+        
+        MODE="${{ inputs.mode }}"
+        PREFIX="${{ inputs.tag-prefix }}"
+        BUMP_TYPE="${{ inputs.bump-type }}"
+        
+        echo "Mode: $MODE"
+        echo "Prefix: '$PREFIX'"
+        
+        if [[ "$MODE" == "extract" ]]; then
+          # Extract version from current GITHUB_REF
+          REF="${GITHUB_REF#refs/tags/}"
+          
+          if [[ -n "$PREFIX" ]]; then
+            if [[ "$REF" != "$PREFIX"* ]]; then
+               echo "::error::Current tag '$REF' does not start with expected prefix '$PREFIX'"
+               exit 1
+            fi
+            VERSION_TAG="${REF#$PREFIX}"
+          else
+            VERSION_TAG="$REF"
+          fi
+          
+          # Remove 'v' prefix if present from the version part
+          VERSION="${VERSION_TAG#v}"
+          
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+             echo "::error::Extracted version '$VERSION' is not valid SemVer X.Y.Z"
+             exit 1
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$REF" >> $GITHUB_OUTPUT
+          
+        else
+          # Calculate (Bump) Mode
+          
+          # Fetch tags
+          git fetch --tags --force
+          
+          # Find highest version tag matching prefix
+          # Pattern: prefix + v + numbers
+          PATTERN="${PREFIX}v*.*.*"
+          
+          echo "Searching for tags matching: $PATTERN"
+          
+          LATEST_TAG=$(git tag -l "$PATTERN" | sort -V | tail -n 1 || echo "")
+          
+          if [ -z "$LATEST_TAG" ]; then
+             echo "No existing tag found. Starting at 0.0.0"
+             # If no tag, we assume we are starting freshly.
+             # If we want to start at 0.0.1, we treat "current" as 0.0.0 and bump it.
+             # Or if user wants to start at 1.0.0?
+             # User said "Major version is 0". So 0.0.0 -> 0.0.1.
+             LATEST_TAG="${PREFIX}v0.0.0"
+          fi
+          
+          echo "Latest tag found: $LATEST_TAG"
+          
+          # Strip prefix to get vX.Y.Z
+          VERSION_TAG="${LATEST_TAG#$PREFIX}"
+          # Strip v to get X.Y.Z
+          VERSION="${VERSION_TAG#v}"
+          
+          if ! [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::Latest tag version '$VERSION' is not strict semver (expected MAJOR.MINOR.PATCH)."
+            exit 1
+          fi
+          
+          MAJOR="${BASH_REMATCH[1]}"
+          MINOR="${BASH_REMATCH[2]}"
+          PATCH="${BASH_REMATCH[3]}"
+          
+          echo "Current Version: $MAJOR.$MINOR.$PATCH"
+          echo "Bump Type: $BUMP_TYPE"
+          
+          if [[ "$BUMP_TYPE" == "major" ]]; then
+            NEW_MAJOR=$((MAJOR + 1))
+            NEW_MINOR=0
+            NEW_PATCH=0
+          elif [[ "$BUMP_TYPE" == "minor" ]]; then
+            NEW_MAJOR=$MAJOR
+            NEW_MINOR=$((MINOR + 1))
+            NEW_PATCH=0
+          else
+            NEW_MAJOR=$MAJOR
+            NEW_MINOR=$MINOR
+            NEW_PATCH=$((PATCH + 1))
+          fi
+          
+          NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
+          NEW_TAG="${PREFIX}v${NEW_VERSION}"
+          
+          echo "New Version: $NEW_VERSION"
+          echo "New Tag: $NEW_TAG"
+          
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
+        fi

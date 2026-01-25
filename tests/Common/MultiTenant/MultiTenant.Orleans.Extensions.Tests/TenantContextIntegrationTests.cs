@@ -23,6 +23,8 @@ public class TenantContextIntegrationTests
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {
+        Cluster.StopAllSilos();
+        Cluster.Dispose();
         _fixture.Dispose();
     }
 
