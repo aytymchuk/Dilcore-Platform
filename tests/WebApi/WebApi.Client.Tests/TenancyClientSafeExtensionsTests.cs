@@ -51,7 +51,7 @@ public class TenancyClientSafeExtensionsTests
             Name = "test-tenant",
             DisplayName = "Test Tenant",
             Description = "Test Tenant Description",
-            CreatedAt =  DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
 
         _mockHttp.When(HttpMethod.Post, "https://api.example.com/tenants")
@@ -127,8 +127,8 @@ public class TenancyClientSafeExtensionsTests
             timestamp = DateTime.UtcNow,
             errors = new Dictionary<string, string[]>
             {
-                ["Name"] = new[] { "Name is required." },
-                ["Slug"] = new[] { "Description is required." }
+                ["DisplayName"] = new[] { "DisplayName is required." },
+                ["Description"] = new[] { "Description is required." }
             }
         };
 
@@ -313,6 +313,29 @@ public class TenancyClientSafeExtensionsTests
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(408);
         error.Code.ShouldBe("TIMEOUT");
+        error.Type.ShouldBe(ErrorType.Unexpected);
+    }
+
+    [Test]
+    public async Task SafeGetTenantAsync_ShouldReturnFailure_OnCancellation()
+    {
+        // Arrange
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+        var token = cts.Token;
+
+        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
+            .Throw(new TaskCanceledException("The API request was cancelled.", null, token));
+
+        // Act
+        var result = await _client.SafeGetTenantAsync();
+
+        // Assert
+        result.IsFailed.ShouldBeTrue();
+
+        var error = result.Errors.First().ShouldBeOfType<ApiError>();
+        error.StatusCode.ShouldBe(400); // Bad Request (cancellation)
+        error.Code.ShouldBe("CANCELLED");
         error.Type.ShouldBe(ErrorType.Unexpected);
     }
 
