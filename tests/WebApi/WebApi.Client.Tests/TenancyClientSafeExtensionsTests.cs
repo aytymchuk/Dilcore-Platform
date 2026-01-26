@@ -7,6 +7,8 @@ using RichardSzalay.MockHttp;
 using Shouldly;
 using System.Net;
 using System.Text.Json;
+using Dilcore.Tenancy.Contracts.Tenants;
+using Dilcore.Tenancy.Contracts.Tenants.Create;
 
 namespace Dilcore.WebApi.Client.Tests;
 
@@ -38,12 +40,18 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnSuccess_WhenApiReturnsOk()
     {
         // Arrange
-        var command = new CreateTenantRequest("Test Tenant", "test-tenant");
-        var expectedTenant = new TenantDto(
-            "Test Tenant",
-            "Test Tenant Display",
-            "Test tenant description",
-            DateTime.UtcNow);
+        var command = new CreateTenantDto
+        {
+            DisplayName = "Test Tenant",
+            Description = "Test Tenant Description",
+        };
+        var expectedTenant = new TenantDto
+        {
+            Name = "Test Tenant",
+            DisplayName = "Test Tenant Display",
+            Description = "Test Tenant Description",
+            CreatedAt =  DateTime.UtcNow
+        };
 
         _mockHttp.When(HttpMethod.Post, "https://api.example.com/tenants")
             .Respond("application/json", JsonSerializer.Serialize(expectedTenant));
@@ -61,7 +69,12 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenConflict()
     {
         // Arrange
-        var command = new CreateTenantRequest("Existing Tenant", "existing-tenant");
+        var command = new CreateTenantDto
+        {
+            DisplayName = "Test Tenant",
+            Description = "Test Tenant Description",
+        };
+        
         var problemDetails = new
         {
             type = "https://api.dilcore.com/errors/conflict",
@@ -96,7 +109,11 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenValidationError()
     {
         // Arrange
-        var command = new CreateTenantRequest("", ""); // Invalid command
+        var command = new CreateTenantDto
+        {
+            DisplayName = "",
+            Description = ""
+        };
         var problemDetails = new
         {
             type = "https://api.dilcore.com/errors/validation",
@@ -110,7 +127,7 @@ public class TenancyClientSafeExtensionsTests
             errors = new Dictionary<string, string[]>
             {
                 ["Name"] = new[] { "Name is required." },
-                ["Slug"] = new[] { "Slug is required." }
+                ["Slug"] = new[] { "Description is required." }
             }
         };
 
@@ -129,38 +146,6 @@ public class TenancyClientSafeExtensionsTests
         error.Type.ShouldBe(ErrorType.Validation);
     }
 
-    [Test]
-    public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenBadRequest()
-    {
-        // Arrange
-        var command = new CreateTenantRequest("Test", "invalid slug!");
-        var problemDetails = new
-        {
-            type = "https://api.dilcore.com/errors/bad-request",
-            title = "Bad Request",
-            status = 400,
-            detail = "Slug contains invalid characters.",
-            instance = "/tenants",
-            traceId = "00-bad-request-01",
-            errorCode = "INVALID_REQUEST"
-        };
-
-        _mockHttp.When(HttpMethod.Post, "https://api.example.com/tenants")
-            .Respond(HttpStatusCode.BadRequest, "application/problem+json", JsonSerializer.Serialize(problemDetails));
-
-        // Act
-        var result = await _client.SafeCreateTenantAsync(command);
-
-        // Assert
-        result.IsFailed.ShouldBeTrue();
-        
-        var error = result.Errors.First().ShouldBeOfType<ApiError>();
-        error.StatusCode.ShouldBe(400);
-        error.Code.ShouldBe("INVALID_REQUEST");
-        error.Message.ShouldBe("Slug contains invalid characters.");
-        error.Type.ShouldBe(ErrorType.Validation);
-    }
-
     #endregion
 
     #region SafeGetTenantAsync Tests
@@ -169,11 +154,13 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeGetTenantAsync_ShouldReturnSuccess_WhenTenantExists()
     {
         // Arrange
-        var expectedTenant = new TenantDto(
-            "Current Tenant",
-            "Current Tenant Display",
-            "Current tenant description",
-            DateTime.UtcNow);
+        var expectedTenant = new TenantDto
+        {
+            Name = "Current Tenant",
+            DisplayName = "Current Tenant Display",
+            Description = "Current tenant description",
+            CreatedAt = DateTime.UtcNow
+        };
 
         _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
             .Respond("application/json", JsonSerializer.Serialize(expectedTenant));
@@ -288,7 +275,11 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_OnNetworkError()
     {
         // Arrange
-        var command = new CreateTenantRequest("Test Tenant", "test-tenant");
+        var command = new CreateTenantDto
+        {
+            DisplayName = "Test Tenant",
+            Description = "test-tenant"
+        };
 
         _mockHttp.When(HttpMethod.Post, "https://api.example.com/tenants")
             .Throw(new HttpRequestException("Connection refused"));

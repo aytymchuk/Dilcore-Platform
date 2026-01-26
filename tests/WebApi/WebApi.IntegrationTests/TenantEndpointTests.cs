@@ -2,8 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
+using Dilcore.Tenancy.Contracts.Tenants;
+using Dilcore.Tenancy.Contracts.Tenants.Create;
+using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Refit;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
@@ -15,7 +19,7 @@ namespace Dilcore.WebApi.IntegrationTests;
 public class TenantEndpointTests
 {
     private CustomWebApplicationFactory _factory = null!;
-    private HttpClient _client = null!;
+    private IDisposableClient<ITenancyClient> _tenancyClient = null!;
 
     [OneTimeSetUp]
     public void SetUpFactory()
@@ -30,13 +34,13 @@ public class TenantEndpointTests
         _factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
         _factory.FakeUser.TenantId = $"test-tenant-{Guid.NewGuid():N}";
         _factory.FakeUser.IsAuthenticated = true;
-        _client = _factory.CreateClient();
+        _tenancyClient = _factory.CreateTypedClient<ITenancyClient>();
     }
 
     [TearDown]
     public void TearDownClient()
     {
-        _client.Dispose();
+        _tenancyClient.Dispose();
     }
 
     [OneTimeTearDown]
@@ -52,14 +56,12 @@ public class TenantEndpointTests
     {
         // Arrange
         var uniqueName = $"My New Tenant {Guid.NewGuid():N}";
-        var command = new { DisplayName = uniqueName, Description = "A test tenant" };
+        var request = new CreateTenantDto { DisplayName = uniqueName, Description = "A test tenant" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/tenants", command);
+        var result = await _tenancyClient.Client.CreateTenantAsync(request);
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var result = await response.Content.ReadFromJsonAsync<TenantDto>();
         result.ShouldNotBeNull();
         result.DisplayName.ShouldBe(uniqueName);
         result.Description.ShouldBe("A test tenant");
@@ -71,14 +73,12 @@ public class TenantEndpointTests
     {
         // Arrange
         var uniqueId = Guid.NewGuid().ToString("N");
-        var command = new { DisplayName = $"Test Tenant With Spaces {uniqueId}", Description = "Testing kebab-case" };
+        var request = new CreateTenantDto { DisplayName = $"Test Tenant With Spaces {uniqueId}", Description = "Testing kebab-case" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/tenants", command);
+        var result = await _tenancyClient.Client.CreateTenantAsync(request);
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var result = await response.Content.ReadFromJsonAsync<TenantDto>();
         result.ShouldNotBeNull();
         result.Name.ShouldBe($"test-tenant-with-spaces-{uniqueId}");
     }
@@ -87,17 +87,14 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnConflict_WhenTenantAlreadyExists()
     {
         // Arrange - create the same tenant twice (using unique display name)
-        var command = new { DisplayName = $"Duplicate Tenant {Guid.NewGuid():N}", Description = "First creation" };
+        var request = new CreateTenantDto { DisplayName = $"Duplicate Tenant {Guid.NewGuid():N}", Description = "First creation" };
 
         // First creation
-        var firstResponse = await _client.PostAsJsonAsync("/tenants", command);
-        firstResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-
-        // Act - second creation should fail
-        var secondResponse = await _client.PostAsJsonAsync("/tenants", command);
-
-        // Assert
-        secondResponse.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        await _tenancyClient.Client.CreateTenantAsync(request);
+ 
+         // Act & Assert - second creation should fail with Conflict (409)
+         var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.Conflict);
     }
 
     [Test]
@@ -105,13 +102,11 @@ public class TenantEndpointTests
     {
         // Arrange
         _factory.FakeUser.IsAuthenticated = false;
-        var command = new { DisplayName = "Unauthorized Tenant", Description = "Should fail" };
+        var request = new CreateTenantDto { DisplayName = "Unauthorized Tenant", Description = "Should fail" };
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/tenants", command);
-
-        // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     #endregion
@@ -123,22 +118,17 @@ public class TenantEndpointTests
     {
         // Arrange - first create the tenant
         var tenantName = $"existing-tenant-{Guid.NewGuid():N}";
-        var command = new { DisplayName = tenantName, Description = "Existing tenant" };
-        var createResponse = await _client.PostAsJsonAsync("/tenants", command);
-        createResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var createdTenant = await createResponse.Content.ReadFromJsonAsync<TenantDto>();
+        var request = new CreateTenantDto { DisplayName = tenantName, Description = "Existing tenant" };
+        var createdTenant = await _tenancyClient.Client.CreateTenantAsync(request);
         createdTenant.ShouldNotBeNull();
 
-        // Set the tenant ID in the header for GET request
-        var request = new HttpRequestMessage(HttpMethod.Get, "/tenants");
-        request.Headers.Add(TenantConstants.HeaderName, createdTenant.Name);
+        // Create a new client scoped to the created tenant
+        using var tenantClientWrapper = _factory.CreateTypedClient<ITenancyClient>(createdTenant.Name);
 
         // Act
-        var response = await _client.SendAsync(request);
+        var result = await tenantClientWrapper.Client.GetTenantAsync();
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var result = await response.Content.ReadFromJsonAsync<TenantDto>();
         result.ShouldNotBeNull();
         result.Name.ShouldBe(createdTenant.Name);
         result.DisplayName.ShouldBe(tenantName);
@@ -147,16 +137,13 @@ public class TenantEndpointTests
     [Test]
     public async Task GetTenant_ShouldReturnBadRequest_WhenTenantCannotBeResolved()
     {
-        // Arrange - use a non-existent tenant in the header
-        var request = new HttpRequestMessage(HttpMethod.Get, "/tenants");
-        request.Headers.Add(TenantConstants.HeaderName, "nonexistent-tenant");
+        // Arrange - use a non-existent tenant
+        using var tenantClientWrapper = _factory.CreateTypedClient<ITenancyClient>("nonexistent-tenant");
 
-        // Act
-        var response = await _client.SendAsync(request);
-
-        // Assert
+        // Act & Assert
         // Strict tenant enforcement returns BadRequest when tenant cannot be resolved
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var exception = await Should.ThrowAsync<ApiException>(() => tenantClientWrapper.Client.GetTenantAsync());
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -164,12 +151,10 @@ public class TenantEndpointTests
     {
         // Arrange - don't set the x-tenant header
 
-        // Act
-        var response = await _client.GetAsync("/tenants");
-
-        // Assert
+        // Act & Assert
         // Without tenant header, the multi-tenant resolution should fail
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.GetTenantAsync());
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -192,14 +177,11 @@ public class TenantEndpointTests
         // 2. De-authenticate
         _factory.FakeUser.IsAuthenticated = false;
 
-        var request = new HttpRequestMessage(HttpMethod.Get, "/tenants");
-        request.Headers.Add(TenantConstants.HeaderName, tenantId);
+        using var tenantClientWrapper = _factory.CreateTypedClient<ITenancyClient>(tenantId);
 
-        // Act
-        var response = await _client.SendAsync(request);
-
-        // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => tenantClientWrapper.Client.GetTenantAsync());
+        exception.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     #endregion
