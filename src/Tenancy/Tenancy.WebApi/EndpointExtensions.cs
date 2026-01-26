@@ -50,6 +50,7 @@ public static class EndpointExtensions
         })
         .WithName("CreateTenant")
         .Produces<ContractTenantDto>()
+        .AddValidationFilter<CreateTenantDto>()
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status401Unauthorized)
         .ExcludeFromMultiTenantResolution();

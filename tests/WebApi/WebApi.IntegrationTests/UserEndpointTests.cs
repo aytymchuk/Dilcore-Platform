@@ -37,7 +37,7 @@ public class UserEndpointTests : BaseIntegrationTest
     [TearDown]
     public void TearDownClient()
     {
-        _identityClient.Dispose();
+        _identityClient?.Dispose();
     }
 
     #region POST /users/register

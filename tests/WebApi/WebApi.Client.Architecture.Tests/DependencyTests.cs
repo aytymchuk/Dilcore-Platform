@@ -76,6 +76,7 @@ public class DependencyTests
     {
         Types().That().ResideInNamespace("Dilcore.WebApi.Client.Clients")
             .Should().BePublic()
+            .AndShould().Be(Interfaces())
             .Check(Architecture);
     }
 
