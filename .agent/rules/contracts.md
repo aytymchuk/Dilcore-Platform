@@ -25,7 +25,8 @@ Contracts projects must follow a feature-based structure:
     - **Validator** (Optional): FluentValidation validator if the class is a request body requiring validation.
 
 Example:
-```
+
+```text
 - Tenants
   - Create
     - CreateTenantDto.cs

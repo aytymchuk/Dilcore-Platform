@@ -80,7 +80,7 @@ runs:
           
           # Find highest version tag matching prefix
           # Pattern: prefix + v + numbers
-          PATTERN="${PREFIX}v*.*.*"
+          PATTERN="${PREFIX}v[0-9]*.[0-9]*.[0-9]*"
           
           echo "Searching for tags matching: $PATTERN"
           

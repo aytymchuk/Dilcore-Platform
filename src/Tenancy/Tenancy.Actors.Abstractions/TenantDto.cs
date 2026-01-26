@@ -11,5 +11,5 @@ namespace Dilcore.Tenancy.Actors.Abstractions;
 public sealed record TenantDto(
     string Name,
     string DisplayName,
-    string Description,
+    string? Description,
     DateTime CreatedAt);

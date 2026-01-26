@@ -37,7 +37,14 @@ public static class EndpointExtensions
             var result = await mediator.Send(command, cancellationToken);
             if (result.IsSuccess)
             {
-                return Microsoft.AspNetCore.Http.Results.Created($"/tenants", result.Value);
+                var response = new ContractTenantDto
+                {
+                    Name = result.Value.Name,
+                    DisplayName = result.Value.DisplayName,
+                    Description = result.Value.Description,
+                    CreatedAt = result.Value.CreatedAt
+                };
+                return Microsoft.AspNetCore.Http.Results.Created($"/tenants", response);
             }
             return result.ToMinimalApiResult();
         })
@@ -52,8 +59,15 @@ public static class EndpointExtensions
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new GetTenantQuery(), cancellationToken);
-            return result.ToMinimalApiResult();
+            var query = new GetTenantQuery(); // Restored missing command/query variable
+            var result = await mediator.Send(query, cancellationToken);
+            return result.Map(v => new ContractTenantDto
+            {
+                Name = v.Name,
+                DisplayName = v.DisplayName,
+                Description = v.Description,
+                CreatedAt = v.CreatedAt
+            }).ToMinimalApiResult();
         })
         .WithName("GetTenant")
         .Produces<ContractTenantDto>()

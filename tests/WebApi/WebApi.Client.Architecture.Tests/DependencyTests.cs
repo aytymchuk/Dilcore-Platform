@@ -2,6 +2,7 @@ using ArchUnitNET.Domain;
 using ArchUnitNET.Loader;
 using ArchUnitNET.NUnit;
 using Dilcore.WebApi.Client.Clients;
+using Shouldly;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace Dilcore.WebApi.Client.Architecture.Tests;
@@ -66,7 +67,8 @@ public class DependencyTests
         var tenancyClientType = typeof(ITenancyClient);
 
         // Assert
-        Assert.That(identityClientType.IsPublic, Is.True, "IIdentityClient should be public");
+        identityClientType.IsPublic.ShouldBeTrue("IIdentityClient should be public");
+        tenancyClientType.IsPublic.ShouldBeTrue("ITenancyClient should be public");
     }
 
     [Test]

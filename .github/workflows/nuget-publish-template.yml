@@ -66,11 +66,9 @@ jobs:
         run: dotnet pack "${{ inputs.project_path }}" -c Release --no-build -p:PackageVersion=${{ steps.version.outputs.version }} -o packages
 
       - name: 🚀 Push to GitHub Packages
+        env:
+          API_KEY: ${{ secrets.nuget_key || secrets.GITHUB_TOKEN }}
         run: |
-          API_KEY="${{ secrets.nuget_key }}"
-          if [ -z "$API_KEY" ]; then
-            API_KEY="${{ secrets.GITHUB_TOKEN }}"
-          fi
           dotnet nuget push "packages/*.nupkg" --api-key "$API_KEY" --source "github" --skip-duplicate
 
       - name: 🏷️ Create Git Tag

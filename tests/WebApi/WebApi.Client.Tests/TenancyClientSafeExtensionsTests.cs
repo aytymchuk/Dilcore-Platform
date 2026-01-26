@@ -40,15 +40,15 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnSuccess_WhenApiReturnsOk()
     {
         // Arrange
-        var command = new CreateTenantDto
+        var request = new CreateTenantDto
         {
             DisplayName = "Test Tenant",
             Description = "Test Tenant Description",
         };
         var expectedTenant = new TenantDto
         {
-            Name = "Test Tenant",
-            DisplayName = "Test Tenant Display",
+            Name = "test-tenant",
+            DisplayName = "Test Tenant",
             Description = "Test Tenant Description",
             CreatedAt =  DateTime.UtcNow
         };
@@ -57,19 +57,19 @@ public class TenancyClientSafeExtensionsTests
             .Respond("application/json", JsonSerializer.Serialize(expectedTenant));
 
         // Act
-        var result = await _client.SafeCreateTenantAsync(command);
+        var result = await _client.SafeCreateTenantAsync(request);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Value.Name.ShouldBe("Test Tenant");
-        result.Value.DisplayName.ShouldBe("Test Tenant Display");
+        result.Value.Name.ShouldBe("test-tenant");
+        result.Value.DisplayName.ShouldBe("Test Tenant");
     }
 
     [Test]
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenConflict()
     {
         // Arrange
-        var command = new CreateTenantDto
+        var request = new CreateTenantDto
         {
             DisplayName = "Test Tenant",
             Description = "Test Tenant Description",
@@ -91,7 +91,7 @@ public class TenancyClientSafeExtensionsTests
             .Respond(HttpStatusCode.Conflict, "application/problem+json", JsonSerializer.Serialize(problemDetails));
 
         // Act
-        var result = await _client.SafeCreateTenantAsync(command);
+        var result = await _client.SafeCreateTenantAsync(request);
 
         // Assert
         result.IsFailed.ShouldBeTrue();
@@ -109,7 +109,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenValidationError()
     {
         // Arrange
-        var command = new CreateTenantDto
+        var request = new CreateTenantDto
         {
             DisplayName = "",
             Description = ""
@@ -135,7 +135,7 @@ public class TenancyClientSafeExtensionsTests
             .Respond(HttpStatusCode.UnprocessableEntity, "application/problem+json", JsonSerializer.Serialize(problemDetails));
 
         // Act
-        var result = await _client.SafeCreateTenantAsync(command);
+        var result = await _client.SafeCreateTenantAsync(request);
 
         // Assert
         result.IsFailed.ShouldBeTrue();

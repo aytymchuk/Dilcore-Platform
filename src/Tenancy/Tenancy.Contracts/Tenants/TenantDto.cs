@@ -18,7 +18,7 @@ public class TenantDto
     /// <summary>
     /// Gets or sets the optional description of the tenant.
     /// </summary>
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
 
     /// <summary>
     /// Gets or sets when the tenant was created.
