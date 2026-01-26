@@ -1,0 +1,93 @@
+name: 📦 Reusable NuGet Publish
+
+on:
+  workflow_call:
+    inputs:
+      project_path:
+        required: true
+        type: string
+        description: "Path to the csproj file to pack and publish"
+      tag_name:
+        required: false
+        type: string
+        default: ""
+        description: "Tag name identifier (e.g., 'webapi-client')"
+      dotnet_version:
+        required: false
+        type: string
+        default: "10.0.x"
+        description: ".NET SDK version"
+      bump_type:
+        required: false
+        type: string
+        default: "patch"
+        description: "Version bump type (major, minor, patch)"
+    secrets:
+      nuget_key:
+        required: false
+        description: "NuGet API Key (defaults to GITHUB_TOKEN if not provided)"
+
+jobs:
+  publish:
+    name: 🚀 Pack & Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Calculate Version
+        id: version
+        uses: ./.github/actions/git-version-manager
+        with:
+          tag-name: ${{ inputs.tag_name }}
+          bump-type: ${{ inputs.bump_type }}
+
+      - name: 🛠️ Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📦 Restore dependencies
+        run: dotnet restore "${{ inputs.project_path }}"
+
+      - name: 🔨 Build
+        run: dotnet build "${{ inputs.project_path }}" -c Release --no-restore
+
+      - name: 📦 Pack
+        run: dotnet pack "${{ inputs.project_path }}" -c Release --no-build -p:PackageVersion=${{ steps.version.outputs.version }} -o packages
+
+      - name: 🚀 Push to GitHub Packages
+        env:
+          API_KEY: ${{ secrets.nuget_key || secrets.GITHUB_TOKEN }}
+        run: |
+          dotnet nuget push "packages/*.nupkg" --api-key "$API_KEY" --source "github" --skip-duplicate
+
+      - name: 🏷️ Create Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          TAG_NAME="${{ steps.version.outputs.tag }}"
+          
+          # Check if tag exists on remote
+          if git ls-remote --exit-code "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+             echo "Tag $TAG_NAME already exists on remote. Skipping push."
+          else
+             # Check if tag exists locally
+             if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+                echo "Tag $TAG_NAME already exists locally but not on remote. Pushing..."
+                git push origin "$TAG_NAME"
+             else
+                echo "Creating and pushing tag $TAG_NAME"
+                git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+                git push origin "$TAG_NAME"
+             fi
+          fi

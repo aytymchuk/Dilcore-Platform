@@ -16,6 +16,7 @@ public static class ProblemDetailsConstants
     public const string NotImplemented = "NOT_IMPLEMENTED";
     public const string OperationCancelled = "OPERATION_CANCELLED";
     public const string Timeout = "TIMEOUT";
+    public const string ServiceUnavailable = "SERVICE_UNAVAILABLE";
 
     // Parsing/Request errors
     public const string InvalidRequest = "INVALID_REQUEST";

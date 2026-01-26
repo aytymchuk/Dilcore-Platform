@@ -1,0 +1,33 @@
+name: 🧪 CI WebAPI Client
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'src/WebApi.Client/**'
+      - 'tests/WebApi/WebApi.Client.Tests/**'
+      - 'tests/WebApi/WebApi.Client.Architecture.Tests/**'
+      - 'src/**/*.Contracts/**'
+      - '.github/workflows/ci-webapi-client.yml'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'src/WebApi.Client/**'
+      - 'tests/WebApi/WebApi.Client.Tests/**'
+      - 'tests/WebApi/WebApi.Client.Architecture.Tests/**'
+      - 'src/**/*.Contracts/**'
+      - '.github/workflows/ci-webapi-client.yml'
+
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  build-and-test:
+    uses: ./.github/workflows/dotnet-build-test.yml
+    with:
+      build-target: 'Dilcore.Platform.Client.slnf'
+      test-target: 'Dilcore.Platform.Client.slnf'
+      test-arguments: '--no-build'
+      check-name: 'Test Results - WebAPI Client'

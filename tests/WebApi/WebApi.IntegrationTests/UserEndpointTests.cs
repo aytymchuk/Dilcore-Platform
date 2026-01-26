@@ -1,8 +1,8 @@
 using System.Net;
-using System.Net.Http.Json;
-using Dilcore.Identity.Contracts.Profile;
-using Dilcore.MultiTenant.Abstractions;
+using Dilcore.Identity.Contracts.Register;
+using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
+using Refit;
 using Shouldly;
 
 namespace Dilcore.WebApi.IntegrationTests;
@@ -13,7 +13,7 @@ namespace Dilcore.WebApi.IntegrationTests;
 [TestFixture]
 public class UserEndpointTests : BaseIntegrationTest
 {
-    private HttpClient _client = null!;
+    private IDisposableClient<IIdentityClient> _identityClient = null!;
     private const string TenantId = "test-tenant";
 
     [SetUp]
@@ -29,15 +29,13 @@ public class UserEndpointTests : BaseIntegrationTest
         Factory.FakeUser.TenantId = TenantId;
         Factory.FakeUser.IsAuthenticated = true;
 
-        _client = Factory.CreateClient();
-        // Set default tenant header for all requests
-        _client.DefaultRequestHeaders.Add(TenantConstants.HeaderName, TenantId);
+        _identityClient = Factory.CreateIdentityClient(TenantId);
     }
 
     [TearDown]
     public void TearDownClient()
     {
-        _client.Dispose();
+        _identityClient?.Dispose();
     }
 
     #region POST /users/register
@@ -46,14 +44,12 @@ public class UserEndpointTests : BaseIntegrationTest
     public async Task RegisterUser_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        var command = new { Email = "new.user@example.com", FirstName = "New", LastName = "User" };
+        var request = new RegisterUserDto("new.user@example.com", "New", "User");
 
         // Act
-        var response = await _client.PostAsJsonAsync("/users/register", command);
+        var result = await _identityClient.Client.RegisterUserAsync(request);
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var result = await response.Content.ReadFromJsonAsync<UserDto>();
         result.ShouldNotBeNull();
         result.Email.ShouldBe("new.user@example.com");
         result.FirstName.ShouldBe("New");
@@ -66,19 +62,14 @@ public class UserEndpointTests : BaseIntegrationTest
     {
         // Arrange - use a fixed user ID for re-registration
         Factory.FakeUser.UserId = "existing-user-id";
-        var command = new { Email = "existing@example.com", FirstName = "Existing", LastName = "User" };
+        var request = new RegisterUserDto("existing@example.com", "Existing", "User");
 
         // First registration
-        var firstResponse = await _client.PostAsJsonAsync("/users/register", command);
-        firstResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var firstResult = await firstResponse.Content.ReadFromJsonAsync<UserDto>();
-        firstResult.ShouldNotBeNull();
+        await _identityClient.Client.RegisterUserAsync(request);
 
-        // Act - second registration with same user ID should return Conflict
-        var secondResponse = await _client.PostAsJsonAsync("/users/register", command);
-
-        // Assert - Conflict behavior
-        secondResponse.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        // Act & Assert - second registration with same user ID should return Conflict
+        var exception = await Should.ThrowAsync<ApiException>(() => _identityClient.Client.RegisterUserAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.Conflict);
     }
 
     [Test]
@@ -86,13 +77,11 @@ public class UserEndpointTests : BaseIntegrationTest
     {
         // Arrange
         Factory.FakeUser.IsAuthenticated = false;
-        var command = new { Email = "test@example.com", FirstName = "Test", LastName = "User" };
+        var request = new RegisterUserDto("test@example.com", "Test", "User");
 
-        // Act
-        var response = await _client.PostAsJsonAsync("/users/register", command);
-
-        // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _identityClient.Client.RegisterUserAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     #endregion
@@ -103,15 +92,13 @@ public class UserEndpointTests : BaseIntegrationTest
     public async Task GetCurrentUser_ShouldReturnOk_WhenUserExists()
     {
         // Arrange - first register the user
-        var registerCommand = new { Email = "me@example.com", FirstName = "Me", LastName = "User" };
-        await _client.PostAsJsonAsync("/users/register", registerCommand);
+        var request = new RegisterUserDto("me@example.com", "Me", "User");
+        await _identityClient.Client.RegisterUserAsync(request);
 
         // Act
-        var response = await _client.GetAsync("/users/me");
+        var result = await _identityClient.Client.GetCurrentUserAsync();
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var result = await response.Content.ReadFromJsonAsync<UserDto>();
         result.ShouldNotBeNull();
         result.Email.ShouldBe("me@example.com");
         result.FirstName.ShouldBe("Me");
@@ -124,11 +111,9 @@ public class UserEndpointTests : BaseIntegrationTest
         // Arrange - use a new user ID that hasn't been registered
         Factory.FakeUser.UserId = $"nonexistent-{Guid.NewGuid():N}";
 
-        // Act
-        var response = await _client.GetAsync("/users/me");
-
-        // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _identityClient.Client.GetCurrentUserAsync());
+        exception.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
     [Test]
@@ -137,11 +122,9 @@ public class UserEndpointTests : BaseIntegrationTest
         // Arrange
         Factory.FakeUser.IsAuthenticated = false;
 
-        // Act
-        var response = await _client.GetAsync("/users/me");
-
-        // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _identityClient.Client.GetCurrentUserAsync());
+        exception.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     #endregion

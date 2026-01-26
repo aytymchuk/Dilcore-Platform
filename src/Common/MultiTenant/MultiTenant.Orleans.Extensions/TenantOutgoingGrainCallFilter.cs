@@ -1,6 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
 using Microsoft.Extensions.Logging;
-using Orleans;
 
 namespace Dilcore.MultiTenant.Orleans.Extensions;
 

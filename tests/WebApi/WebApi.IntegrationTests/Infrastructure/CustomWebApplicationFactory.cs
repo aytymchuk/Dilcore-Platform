@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Refit;
+using Dilcore.MultiTenant.Abstractions;
+using Dilcore.WebApi.Client.Clients;
 
 namespace Dilcore.WebApi.IntegrationTests.Infrastructure;
 
@@ -61,6 +64,36 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         configure(FakeUser);
         return this;
+    }
+
+    /// <summary>
+    /// Creates a disposable typed Refit client, optionally scoped to a tenant.
+    /// </summary>
+    public IDisposableClient<TClient> CreateTypedClient<TClient>(string? tenantId = null) where TClient : class
+    {
+        var httpClient = CreateClient();
+        if (!string.IsNullOrEmpty(tenantId))
+        {
+            httpClient.DefaultRequestHeaders.Add(TenantConstants.HeaderName, tenantId);
+        }
+        var typedClient = RestService.For<TClient>(httpClient);
+        return new DisposableClient<TClient>(typedClient, httpClient);
+    }
+
+    /// <summary>
+    /// Creates a disposable IIdentityClient, optionally scoped to a tenant.
+    /// </summary>
+    public IDisposableClient<IIdentityClient> CreateIdentityClient(string? tenantId = null)
+    {
+        return CreateTypedClient<IIdentityClient>(tenantId);
+    }
+
+    /// <summary>
+    /// Creates a disposable ITenancyClient, optionally scoped to a tenant.
+    /// </summary>
+    public IDisposableClient<ITenancyClient> CreateTenancyClient(string? tenantId = null)
+    {
+        return CreateTypedClient<ITenancyClient>(tenantId);
     }
 
     private static void RemoveOpenTelemetryServices(IServiceCollection services)
