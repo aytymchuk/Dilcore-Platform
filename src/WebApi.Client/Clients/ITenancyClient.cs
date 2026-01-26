@@ -1,6 +1,5 @@
 using Dilcore.Tenancy.Contracts.Tenants;
 using Dilcore.Tenancy.Contracts.Tenants.Create;
-using Dilcore.Tenancy.Contracts;
 using Refit;
 
 namespace Dilcore.WebApi.Client.Clients;

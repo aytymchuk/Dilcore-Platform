@@ -1,8 +1,5 @@
 using System.Net;
-using System.Net.Http.Json;
-using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
-using Dilcore.Tenancy.Contracts.Tenants;
 using Dilcore.Tenancy.Contracts.Tenants.Create;
 using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;

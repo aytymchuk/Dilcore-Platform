@@ -6,6 +6,7 @@
     <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\FluentValidation\FluentValidation.Extensions.MinimalApi\FluentValidation.Extensions.MinimalApi.csproj" />
     <ProjectReference Include="..\Tenancy.Core\Tenancy.Core.csproj" />
     <ProjectReference Include="..\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\Tenancy.Contracts\Tenancy.Contracts.csproj" />

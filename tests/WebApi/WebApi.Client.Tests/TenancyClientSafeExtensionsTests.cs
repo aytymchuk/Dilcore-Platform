@@ -1,5 +1,4 @@
 using Dilcore.Results.Abstractions;
-using Dilcore.Tenancy.Contracts;
 using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.Client.Errors;
 using Dilcore.WebApi.Client.Extensions;

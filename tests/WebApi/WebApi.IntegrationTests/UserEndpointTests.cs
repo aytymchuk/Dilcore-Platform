@@ -1,7 +1,5 @@
 using System.Net;
-using Dilcore.Identity.Contracts.Profile;
 using Dilcore.Identity.Contracts.Register;
-using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Refit;
