@@ -67,6 +67,22 @@ public class DependencyTests
 
         // Assert
         Assert.That(identityClientType.IsPublic, Is.True, "IIdentityClient should be public");
-        Assert.That(tenancyClientType.IsPublic, Is.True, "ITenancyClient should be public");
+    }
+
+    [Test]
+    public void Clients_Should_Only_Expose_Interfaces_Publicly()
+    {
+        Types().That().ResideInNamespace("Dilcore.WebApi.Client.Clients")
+            .Should().BePublic()
+            .Check(Architecture);
+    }
+
+    [Test]
+    public void Internal_Namespaces_Should_Not_Be_Public()
+    {
+        Types().That().ResideInNamespace("Dilcore.WebApi.Client.Errors")
+            .Or().ResideInNamespace("Dilcore.WebApi.Client.Extensions")
+            .Should().NotBePublic()
+            .Check(Architecture);
     }
 }

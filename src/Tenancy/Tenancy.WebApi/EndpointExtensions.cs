@@ -1,4 +1,7 @@
 using Dilcore.Results.Extensions.Api;
+using Dilcore.Tenancy.Contracts.Tenants;
+using CreateTenantDto = Dilcore.Tenancy.Contracts.Tenants.Create.CreateTenantDto;
+using ContractTenantDto = Dilcore.Tenancy.Contracts.Tenants.TenantDto;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Core.Features.Create;
 using Dilcore.Tenancy.Core.Features.Get;
@@ -26,10 +29,11 @@ public static class EndpointExtensions
 
         // POST /tenants - Create a new tenant (not tenant-specific)
         group.MapPost("/", async (
-            CreateTenantCommand command,
+            CreateTenantDto request,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
+            var command = new CreateTenantCommand(request.DisplayName, request.Description);
             var result = await mediator.Send(command, cancellationToken);
             if (result.IsSuccess)
             {
@@ -38,7 +42,7 @@ public static class EndpointExtensions
             return result.ToMinimalApiResult();
         })
         .WithName("CreateTenant")
-        .Produces<TenantDto>()
+        .Produces<ContractTenantDto>()
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status401Unauthorized)
         .ExcludeFromMultiTenantResolution();
@@ -52,7 +56,7 @@ public static class EndpointExtensions
             return result.ToMinimalApiResult();
         })
         .WithName("GetTenant")
-        .Produces<TenantDto>()
+        .Produces<ContractTenantDto>()
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status401Unauthorized);
     }

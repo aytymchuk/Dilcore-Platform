@@ -5,16 +5,23 @@
     <Description>HTTP client library for Dilcore Platform API</Description>
     <Authors>Dilcore</Authors>
     <PackageTags>dilcore;webapi;client;refit</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WebApi.Client.Tests" />
+    <InternalsVisibleTo Include="WebApi.Client.Architecture.Tests" />
+  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Refit" />
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
-  <ItemGroup>
+    <ItemGroup>
     <ProjectReference Include="..\Common\FluentResults\Results.Abstractions\Results.Abstractions.csproj" />
     <ProjectReference Include="..\Identity\Identity.Contracts\Identity.Contracts.csproj" />
-    <ProjectReference Include="..\Tenancy\Tenancy.Core\Tenancy.Core.csproj" />
+    <ProjectReference Include="..\Tenancy\Tenancy.Contracts\Tenancy.Contracts.csproj" />
   </ItemGroup>
 </Project>

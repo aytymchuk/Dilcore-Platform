@@ -13,7 +13,7 @@ public interface ITenantGrain : IGrainWithStringKey
     /// <param name="displayName">The human-readable display name.</param>
     /// <param name="description">Optional description of the tenant.</param>
     /// <returns>The created tenant details or a failure result.</returns>
-    Task<TenantCreationResult> CreateAsync(string displayName, string description);
+    Task<TenantCreationResult> CreateAsync(string displayName, string? description);
 
     /// <summary>
     /// Gets the tenant details.

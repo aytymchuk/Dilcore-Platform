@@ -14,7 +14,7 @@ public sealed class TenantState
     public string DisplayName { get; set; } = string.Empty;
 
     [Id(2)]
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; } = string.Empty;
 
     [Id(3)]
     public DateTime CreatedAt { get; set; }

@@ -5,7 +5,7 @@ namespace Dilcore.WebApi.Client.Errors;
 /// <summary>
 /// Represents an API error with ProblemDetails information.
 /// </summary>
-public class ApiError : AppError
+internal class ApiError : AppError
 {
     public int StatusCode { get; }
     public string? Instance { get; }
@@ -92,7 +92,7 @@ public class ApiError : AppError
         409 => ProblemDetailsConstants.Conflict,
         422 => ProblemDetailsConstants.ValidationError,
         500 => ProblemDetailsConstants.UnexpectedError,
-        503 => ProblemDetailsConstants.Timeout,
+        503 => ProblemDetailsConstants.ServiceUnavailable,
         _ => ProblemDetailsConstants.UnexpectedError
     };
 

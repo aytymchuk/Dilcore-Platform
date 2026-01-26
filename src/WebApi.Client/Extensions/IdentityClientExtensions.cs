@@ -1,16 +1,14 @@
 using Dilcore.Identity.Contracts.Profile;
 using Dilcore.Identity.Contracts.Register;
 using Dilcore.WebApi.Client.Clients;
-using Dilcore.WebApi.Client.Errors;
 using FluentResults;
-using Refit;
 
 namespace Dilcore.WebApi.Client.Extensions;
 
 /// <summary>
 /// Extension methods for IIdentityClient that provide Result-based error handling.
 /// </summary>
-public static class IdentityClientExtensions
+internal static class IdentityClientExtensions
 {
     /// <summary>
     /// Safely registers a new user, returning a Result instead of throwing exceptions.

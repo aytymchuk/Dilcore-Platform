@@ -1,6 +1,5 @@
 using Dilcore.Results.Abstractions;
-using Dilcore.Tenancy.Actors.Abstractions;
-using Dilcore.Tenancy.Core.Features.Create;
+using Dilcore.Tenancy.Contracts;
 using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.Client.Errors;
 using Dilcore.WebApi.Client.Extensions;
@@ -39,7 +38,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnSuccess_WhenApiReturnsOk()
     {
         // Arrange
-        var command = new CreateTenantCommand("Test Tenant", "test-tenant");
+        var command = new CreateTenantRequest("Test Tenant", "test-tenant");
         var expectedTenant = new TenantDto(
             "Test Tenant",
             "Test Tenant Display",
@@ -62,7 +61,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenConflict()
     {
         // Arrange
-        var command = new CreateTenantCommand("Existing Tenant", "existing-tenant");
+        var command = new CreateTenantRequest("Existing Tenant", "existing-tenant");
         var problemDetails = new
         {
             type = "https://api.dilcore.com/errors/conflict",
@@ -97,7 +96,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenValidationError()
     {
         // Arrange
-        var command = new CreateTenantCommand("", ""); // Invalid command
+        var command = new CreateTenantRequest("", ""); // Invalid command
         var problemDetails = new
         {
             type = "https://api.dilcore.com/errors/validation",
@@ -134,7 +133,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_WhenBadRequest()
     {
         // Arrange
-        var command = new CreateTenantCommand("Test", "invalid slug!");
+        var command = new CreateTenantRequest("Test", "invalid slug!");
         var problemDetails = new
         {
             type = "https://api.dilcore.com/errors/bad-request",
@@ -289,7 +288,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_OnNetworkError()
     {
         // Arrange
-        var command = new CreateTenantCommand("Test Tenant", "test-tenant");
+        var command = new CreateTenantRequest("Test Tenant", "test-tenant");
 
         _mockHttp.When(HttpMethod.Post, "https://api.example.com/tenants")
             .Throw(new HttpRequestException("Connection refused"));

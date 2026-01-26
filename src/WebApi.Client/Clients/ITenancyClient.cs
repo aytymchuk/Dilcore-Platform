@@ -1,5 +1,6 @@
-using Dilcore.Tenancy.Actors.Abstractions;
-using Dilcore.Tenancy.Core.Features.Create;
+using Dilcore.Tenancy.Contracts.Tenants;
+using Dilcore.Tenancy.Contracts.Tenants.Create;
+using Dilcore.Tenancy.Contracts;
 using Refit;
 
 namespace Dilcore.WebApi.Client.Clients;
@@ -12,11 +13,11 @@ public interface ITenancyClient
     /// <summary>
     /// Creates a new tenant in the system.
     /// </summary>
-    /// <param name="command">Tenant creation command.</param>
+    /// <param name="request">Tenant creation request.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The created tenant details.</returns>
     [Post("/tenants")]
-    Task<TenantDto> CreateTenantAsync([Body] CreateTenantCommand command, CancellationToken cancellationToken = default);
+    Task<TenantDto> CreateTenantAsync([Body] CreateTenantDto request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the current tenant based on the x-tenant header.

@@ -79,11 +79,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           TAG_NAME="${{ steps.version.outputs.tag }}"
           
-          # Check if tag exists (extra safety, though action bumped it)
-          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-             echo "Tag $TAG_NAME already exists locally. Skipping creation."
+          # Check if tag exists on remote
+          if git ls-remote --exit-code "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+             echo "Tag $TAG_NAME already exists on remote. Skipping push."
           else
-             echo "Creating tag $TAG_NAME"
-             git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
-             git push origin "$TAG_NAME"
+             # Check if tag exists locally
+             if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+                echo "Tag $TAG_NAME already exists locally but not on remote. Pushing..."
+                git push origin "$TAG_NAME"
+             else
+                echo "Creating and pushing tag $TAG_NAME"
+                git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+                git push origin "$TAG_NAME"
+             fi
           fi

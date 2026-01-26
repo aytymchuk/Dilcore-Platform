@@ -39,7 +39,7 @@ internal static class ApiErrorHelper
                         problemDetails.Extensions);
                 }
             }
-            catch
+            catch (JsonException)
             {
                 // If parsing fails, fall through to default error
             }
@@ -54,11 +54,29 @@ internal static class ApiErrorHelper
     /// </summary>
     public static ApiError CreateNetworkError(HttpRequestException exception)
     {
+        var message = $"A network error occurred while communicating with the API: {exception.Message}";
+        if (exception.InnerException != null)
+        {
+            message += $" ({exception.InnerException.Message})";
+        }
+
         return new ApiError(
-            "A network error occurred while communicating with the API.",
+            message,
             "NETWORK_ERROR",
             ErrorType.Unexpected,
             (int)HttpStatusCode.ServiceUnavailable);
+    }
+
+    /// <summary>
+    /// Creates an ApiError for request cancellation.
+    /// </summary>
+    public static ApiError CreateCancellationError()
+    {
+        return new ApiError(
+            "The API request was cancelled.",
+            "CANCELLED",
+            ErrorType.Unexpected,
+            (int)HttpStatusCode.BadRequest);
     }
 
     /// <summary>

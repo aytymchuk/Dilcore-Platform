@@ -64,7 +64,7 @@ runs:
           # Remove 'v' prefix if present from the version part
           VERSION="${VERSION_TAG#v}"
           
-          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+          if ! [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
              echo "::error::Extracted version '$VERSION' is not valid SemVer X.Y.Z"
              exit 1
           fi

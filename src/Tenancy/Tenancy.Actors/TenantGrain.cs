@@ -35,7 +35,7 @@ public sealed class TenantGrain : Grain, ITenantGrain
         return base.OnDeactivateAsync(reason, cancellationToken);
     }
 
-    public async Task<TenantCreationResult> CreateAsync(string displayName, string description)
+    public async Task<TenantCreationResult> CreateAsync(string displayName, string? description)
     {
         var tenantName = this.GetPrimaryKeyString();
 

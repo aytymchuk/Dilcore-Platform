@@ -32,9 +32,11 @@ internal static class SafeApiInvoker
             var error = ApiErrorHelper.CreateNetworkError(httpEx);
             return Result.Fail(error);
         }
-        catch (TaskCanceledException)
+        catch (TaskCanceledException ex)
         {
-            var error = ApiErrorHelper.CreateTimeoutError();
+            var error = ex.CancellationToken.IsCancellationRequested
+                ? ApiErrorHelper.CreateCancellationError()
+                : ApiErrorHelper.CreateTimeoutError();
             return Result.Fail(error);
         }
         catch (Exception ex)

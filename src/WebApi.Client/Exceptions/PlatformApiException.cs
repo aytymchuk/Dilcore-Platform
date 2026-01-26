@@ -43,6 +43,8 @@ public class PlatformApiException : Exception
     /// <returns>A new PlatformApiException instance.</returns>
     public static PlatformApiException FromApiException(ApiException apiException)
     {
+        ArgumentNullException.ThrowIfNull(apiException);
+
         var message = $"API request failed with status {apiException.StatusCode}: {apiException.Message}";
         return new PlatformApiException(
             message,

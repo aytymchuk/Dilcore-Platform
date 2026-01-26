@@ -56,7 +56,7 @@ public class IdentityClientTests
     }
 
     [Test]
-    public void RegisterUserAsync_ShouldThrowException_WhenConflict()
+    public async Task RegisterUserAsync_ShouldThrowException_WhenConflict()
     {
         // Arrange
         var registerDto = new RegisterUserDto("existing@example.com", "Existing", "User");
@@ -65,7 +65,7 @@ public class IdentityClientTests
             .Respond(HttpStatusCode.Conflict);
 
         // Act & Assert
-        Should.Throw<Refit.ApiException>(async () => await _client.RegisterUserAsync(registerDto));
+        await Should.ThrowAsync<Refit.ApiException>(async () => await _client.RegisterUserAsync(registerDto));
     }
 
     [Test]
@@ -93,13 +93,13 @@ public class IdentityClientTests
     }
 
     [Test]
-    public void GetCurrentUserAsync_ShouldThrowException_WhenNotFound()
+    public async Task GetCurrentUserAsync_ShouldThrowException_WhenNotFound()
     {
         // Arrange
         _mockHttp.When(HttpMethod.Get, "https://api.example.com/users/me")
             .Respond(HttpStatusCode.NotFound);
 
         // Act & Assert
-        Should.Throw<Refit.ApiException>(async () => await _client.GetCurrentUserAsync());
+        await Should.ThrowAsync<Refit.ApiException>(async () => await _client.GetCurrentUserAsync());
     }
 }

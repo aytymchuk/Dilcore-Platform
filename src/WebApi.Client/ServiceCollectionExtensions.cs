@@ -1,6 +1,5 @@
 using Dilcore.WebApi.Client.Clients;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 using Refit;
@@ -68,6 +67,6 @@ public static class ServiceCollectionExtensions
             .WaitAndRetryAsync(
                 retryCount: options.RetryCount,
                 sleepDurationProvider: retryAttempt =>
-                    TimeSpan.FromSeconds(Math.Pow(options.RetryDelaySeconds, retryAttempt)));
+                    TimeSpan.FromSeconds(options.RetryDelaySeconds * Math.Pow(2, retryAttempt)));
     }
 }
