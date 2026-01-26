@@ -16,21 +16,23 @@ namespace Dilcore.WebApi.Client.Tests;
 public class TenancyClientSafeExtensionsTests
 {
     private MockHttpMessageHandler _mockHttp = null!;
+    private HttpClient _httpClient = null!;
     private ITenancyClient _client = null!;
 
     [SetUp]
     public void Setup()
     {
         _mockHttp = new MockHttpMessageHandler();
-        var httpClient = _mockHttp.ToHttpClient();
-        httpClient.BaseAddress = new Uri("https://api.example.com");
+        _httpClient = _mockHttp.ToHttpClient();
+        _httpClient.BaseAddress = new Uri("https://api.example.com");
 
-        _client = Refit.RestService.For<ITenancyClient>(httpClient);
+        _client = Refit.RestService.For<ITenancyClient>(_httpClient);
     }
 
     [TearDown]
     public void TearDown()
     {
+        _httpClient.Dispose();
         _mockHttp.Dispose();
     }
 

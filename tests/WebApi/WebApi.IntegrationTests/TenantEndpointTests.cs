@@ -91,9 +91,9 @@ public class TenantEndpointTests
 
         // First creation
         await _tenancyClient.Client.CreateTenantAsync(request);
- 
-         // Act & Assert - second creation should fail with Conflict (409)
-         var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
+
+        // Act & Assert - second creation should fail with Conflict (409)
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
         exception.StatusCode.ShouldBe(HttpStatusCode.Conflict);
     }
 

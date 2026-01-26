@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using Dilcore.Identity.Contracts.Profile;
 using Dilcore.Identity.Contracts.Register;
 using Dilcore.MultiTenant.Abstractions;

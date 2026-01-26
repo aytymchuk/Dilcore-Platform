@@ -88,6 +88,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         return CreateTypedClient<IIdentityClient>(tenantId);
     }
 
+    /// <summary>
+    /// Creates a disposable ITenancyClient, optionally scoped to a tenant.
+    /// </summary>
+    public IDisposableClient<ITenancyClient> CreateTenancyClient(string? tenantId = null)
+    {
+        return CreateTypedClient<ITenancyClient>(tenantId);
+    }
+
     private static void RemoveOpenTelemetryServices(IServiceCollection services)
     {
         var otelServices = services.Where(d =>
