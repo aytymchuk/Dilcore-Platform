@@ -276,7 +276,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeCreateTenantAsync_ShouldReturnFailure_OnNetworkError()
     {
         // Arrange
-        var command = new CreateTenantDto
+        var request = new CreateTenantDto
         {
             DisplayName = "Test Tenant",
             Description = "test-tenant"
@@ -286,7 +286,7 @@ public class TenancyClientSafeExtensionsTests
             .Throw(new HttpRequestException("Connection refused"));
 
         // Act
-        var result = await _client.SafeCreateTenantAsync(command);
+        var result = await _client.SafeCreateTenantAsync(request);
 
         // Assert
         result.IsFailed.ShouldBeTrue();

@@ -37,7 +37,7 @@ public class TenantEndpointTests
     [TearDown]
     public void TearDownClient()
     {
-        _tenancyClient.Dispose();
+        _tenancyClient?.Dispose();
     }
 
     [OneTimeTearDown]

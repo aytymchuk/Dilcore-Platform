@@ -114,12 +114,6 @@ runs:
           echo "Current Version: $MAJOR.$MINOR.$PATCH"
           echo "Bump Type: $BUMP_TYPE"
           
-          # Validate Bump Type
-          if [[ "$BUMP_TYPE" != "major" && "$BUMP_TYPE" != "minor" && "$BUMP_TYPE" != "patch" ]]; then
-            echo "::error::Invalid bump-type '$BUMP_TYPE'. Must be one of: major, minor, patch."
-            exit 1
-          fi
-          
           if [[ "$BUMP_TYPE" == "major" ]]; then
             NEW_MAJOR=$((MAJOR + 1))
             NEW_MINOR=0
