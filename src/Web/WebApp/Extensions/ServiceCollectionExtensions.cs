@@ -24,6 +24,8 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpContextAccessor();
 
+        services.AddScoped<Services.IAppNavigator, Services.AppNavigator>();
+
         services.AddMudServices();
         services.AddMediatRInfrastructure();
         services.AddPlatformApiServices(configuration);

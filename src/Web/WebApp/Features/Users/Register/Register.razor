@@ -4,51 +4,61 @@
 
 <PageTitle>Complete Your Registration</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="min-height: 100vh;">
-    <MudPaper Class="pa-8" Elevation="4" Style="width: 100%; max-width: 480px;">
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 100dvh; overflow-y: auto;">
+    <MudPaper Class="pa-6 backdrop-blur" Elevation="0" Outlined="true" Style="width: 100%; max-width: 440px; background: var(--mud-palette-surface-quarter-transparent); overflow: hidden; position: relative;">
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="rounded-0" Style="position: absolute; top: 0; left: 0; width: 100%; height: 4px;" Visible="@_isSubmitting" />
         <MudStack Spacing="4">
-            <MudStack Spacing="1" AlignItems="AlignItems.Center">
-                <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Size="Size.Large" Color="Color.Primary" />
-                <MudText Typo="Typo.h4" Align="Align.Center">Complete Your Profile</MudText>
+            <!-- Header Section -->
+            <MudStack Spacing="1" AlignItems="AlignItems.Center" Class="mb-2">
+                <MudAvatar Color="Color.Primary" Variant="Variant.Filled" Size="Size.Medium" Class="mb-1">
+                    <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Size="Size.Small" />
+                </MudAvatar>
+                <MudText Typo="Typo.h5" Align="Align.Center" Class="fw-bold">
+                    Complete Profile
+                </MudText>
                 <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
-                    Please provide your details to complete registration
+                   Finalize your account setup to get started
                 </MudText>
             </MudStack>
 
+            <!-- Form Section -->
             <MudForm @ref="_form" Model="@_model" Validation="@ValidateValue">
                 <MudStack Spacing="3">
                     <MudTextField @bind-Value="_model.Email"
-                                  Label="Email"
-                                  Variant="Variant.Outlined"
+                                  Label="Email Address"
                                   InputType="InputType.Email"
                                   For="@(() => _model.Email)"
                                   Immediate="true"
-                                  Disabled="@_isSubmitting" />
+                                  Disabled="true"
+                                  Margin="Margin.Dense"
+                                  HelperText="Your verified email address" />
 
                     <MudTextField @bind-Value="_model.FirstName"
                                   Label="First Name"
-                                  Variant="Variant.Outlined"
                                   For="@(() => _model.FirstName)"
                                   Immediate="true"
-                                  Disabled="@_isSubmitting" />
+                                  Disabled="@_isSubmitting" 
+                                  Margin="Margin.Dense" />
 
                     <MudTextField @bind-Value="_model.LastName"
                                   Label="Last Name"
-                                  Variant="Variant.Outlined"
                                   For="@(() => _model.LastName)"
                                   Immediate="true"
-                                  Disabled="@_isSubmitting" />
+                                  Disabled="@_isSubmitting"
+                                  Margin="Margin.Dense" />
 
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                                FullWidth="true"
-                               Size="Size.Large"
+                               Size="Size.Medium"
                                OnClick="@OnSubmitAsync"
-                               Disabled="@_isSubmitting">
+                               Disabled="@_isSubmitting"
+                               Class="py-2 mt-2 rounded-lg shadow-sm"
+                               Elevation="0">
                         @if (_isSubmitting)
                         {
                             <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                            <span>Registering...</span>
+                            <span>Creating Profile...</span>
                         }
                         else
                         {

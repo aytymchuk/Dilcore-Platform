@@ -14,10 +14,13 @@ public partial class Register
     private ISender Sender { get; set; } = null!;
 
     [Inject]
-    private NavigationManager NavigationManager { get; set; } = null!;
+    private Services.IAppNavigator AppNavigator { get; set; } = null!;
 
     [Inject]
     private MudBlazor.ISnackbar Snackbar { get; set; } = null!;
+
+    [Inject]
+    private Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
 
     private MudBlazor.MudForm _form = null!;
     private readonly RegisterUserParameters _model = new();
@@ -28,6 +31,27 @@ public partial class Register
     /// FluentValidation wrapper for MudBlazor form validation.
     /// </summary>
     private Func<object, string, Task<IEnumerable<string>>> ValidateValue => _validationAdapter.ValidateValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            _model.Email = user.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                           ?? user.FindFirst("email")?.Value
+                           ?? string.Empty;
+                           
+            _model.FirstName = user.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value
+                               ?? user.FindFirst("given_name")?.Value
+                               ?? string.Empty;
+                               
+            _model.LastName = user.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value
+                               ?? user.FindFirst("family_name")?.Value
+                               ?? string.Empty;
+        }
+    }
 
     private async Task OnSubmitAsync()
     {
@@ -48,7 +72,7 @@ public partial class Register
             if (result.IsSuccess)
             {
                 Snackbar.Add("Registration successful! Welcome to the platform.", MudBlazor.Severity.Success);
-                NavigationManager.NavigateTo("/", forceLoad: true);
+                AppNavigator.ToHome(forceLoad: true);
             }
             // Note: Errors are handled by SnackbarResultBehavior
         }

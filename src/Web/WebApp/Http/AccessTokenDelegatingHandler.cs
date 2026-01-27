@@ -20,11 +20,15 @@ internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
         CancellationToken cancellationToken)
     {
         var httpContext = _httpContextAccessor.HttpContext;
-        var accessToken = httpContext?.User?.FindFirst(AuthConstants.AccessTokenClaim)?.Value;
 
-        if (!string.IsNullOrEmpty(accessToken))
+        if (httpContext?.User?.Identity?.IsAuthenticated == true)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var accessToken = httpContext.User.FindFirst(AuthConstants.AccessTokenClaim)?.Value;
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            }
         }
 
         return await base.SendAsync(request, cancellationToken);

@@ -1,0 +1,27 @@
+@using MudBlazor
+@inherits ErrorBoundary
+@inject ISnackbar Snackbar
+
+@if (CurrentException is null)
+{
+    @ChildContent
+}
+else
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" ShowCloseIcon="true" CloseIconClicked="Recover">
+            An unexpected error has occurred. Please try again.
+        </MudAlert>
+        <div class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Recover">Retry</MudButton>
+        </div>
+    </MudContainer>
+}
+
+@code {
+    protected override Task OnErrorAsync(Exception exception)
+    {
+        Snackbar.Add($"Error: {exception.Message}", Severity.Error);
+        return Task.CompletedTask;
+    }
+}
