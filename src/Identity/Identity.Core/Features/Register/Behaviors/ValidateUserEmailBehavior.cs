@@ -3,6 +3,7 @@ using Dilcore.Identity.Core.Abstractions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Dilcore.Results.Abstractions;
 
 namespace Dilcore.Identity.Core.Features.Register.Behaviors;
 
@@ -29,7 +30,8 @@ public class ValidateUserEmailBehavior : IPipelineBehavior<RegisterUserCommand, 
         if (userResult.Value is not null)
         {
             _logger.LogUserAlreadyExists(request.Email);
-            return Result.Fail($"User with email '{request.Email}' already exists.");
+            return Result.Fail(new ConflictError($"User with email '{request.Email}' already exists.")
+                .WithMetadata("UserId", userResult.Value.Id));
         }
 
         return await next(cancellationToken);

@@ -15,13 +15,17 @@
 
   <ItemGroup>
     <PackageReference Include="Auth0.AspNetCore.Authentication" />
+    <PackageReference Include="FluentValidation" />
     <PackageReference Include="MudBlazor" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\WebApi.Client\WebApi.Client.csproj" />
     <ProjectReference Include="..\WebApp.Components\WebApp.Components.csproj" />
     <ProjectReference Include="..\..\Common\Configuration\Configuration.AspNetCore\Configuration.AspNetCore.csproj" />
     <ProjectReference Include="..\..\Common\Telemetry\Telemetry.Extensions.OpenTelemetry\Telemetry.Extensions.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\..\Common\MediatR\MediatR.Abstractions\MediatR.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\MediatR\MediatR.Extensions\MediatR.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

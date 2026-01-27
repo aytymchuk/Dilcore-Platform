@@ -1,0 +1,12 @@
+<CascadingValue Value="this">
+    @if (IsLoading)
+    {
+        <MudOverlay Visible="true" DarkBackground="true" Absolute="false" ZIndex="9999">
+            <MudStack AlignItems="AlignItems.Center" Spacing="4">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+                <MudText Typo="Typo.h6" Color="Color.Primary">Loading your profile...</MudText>
+            </MudStack>
+        </MudOverlay>
+    }
+    @ChildContent
+</CascadingValue>
