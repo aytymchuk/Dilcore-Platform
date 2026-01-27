@@ -1,5 +1,6 @@
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Validation;
+using Dilcore.WebApp.Features.Users.CurrentUser;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -27,6 +28,7 @@ public partial class Register
     private readonly FluentValidationAdapter<RegisterUserParameters> _validationAdapter = new(new RegisterUserParametersValidator());
     private bool _isSubmitting;
     private bool _isFormValid;
+    private bool _isLoading = true;
 
     /// <summary>
     /// FluentValidation wrapper for MudBlazor form validation.
@@ -53,7 +55,17 @@ public partial class Register
                                ?? string.Empty;
         }
 
+        // Check if user already exists in the system
+        var existingUserResult = await Sender.Send(new GetCurrentUserQuery());
+        
+        if (existingUserResult.IsSuccess && existingUserResult.Value is not null)
+        {
+            AppNavigator.ToHome(forceLoad: true);
+            return;
+        }
+
         _isFormValid = await _validationAdapter.ValidateAsync(_model);
+        _isLoading = false;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
