@@ -6,7 +6,10 @@
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 100dvh; overflow-y: auto;">
     <MudPaper Class="pa-6 backdrop-blur" Elevation="0" Outlined="true" Style="width: 100%; max-width: 440px; background: var(--mud-palette-surface-quarter-transparent); overflow: hidden; position: relative;">
-        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="rounded-0" Style="position: absolute; top: 0; left: 0; width: 100%; height: 4px;" Visible="@_isSubmitting" />
+        @if (_isSubmitting)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="rounded-0" Style="position: absolute; top: 0; left: 0; width: 100%; height: 4px;" />
+        }
         <MudStack Spacing="4">
             <!-- Header Section -->
             <MudStack Spacing="1" AlignItems="AlignItems.Center" Class="mb-2">
@@ -22,50 +25,53 @@
             </MudStack>
 
             <!-- Form Section -->
-            <MudForm @ref="_form" Model="@_model" Validation="@ValidateValue">
-                <MudStack Spacing="3">
-                    <MudTextField @bind-Value="_model.Email"
-                                  Label="Email Address"
-                                  InputType="InputType.Email"
-                                  For="@(() => _model.Email)"
-                                  Immediate="true"
-                                  Disabled="true"
-                                  Margin="Margin.Dense"
-                                  HelperText="Your verified email address" />
-
-                    <MudTextField @bind-Value="_model.FirstName"
-                                  Label="First Name"
-                                  For="@(() => _model.FirstName)"
-                                  Immediate="true"
-                                  Disabled="@_isSubmitting" 
-                                  Margin="Margin.Dense" />
-
-                    <MudTextField @bind-Value="_model.LastName"
-                                  Label="Last Name"
-                                  For="@(() => _model.LastName)"
-                                  Immediate="true"
-                                  Disabled="@_isSubmitting"
-                                  Margin="Margin.Dense" />
-
-                    <MudButton Variant="Variant.Filled"
+            <MudForm Model="@_model" @ref="@_form" Validation="@ValidateValue" @bind-IsValid="@_isFormValid">
+                <MudCardContent Class="px-0">
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12">
+                            <MudTextField Label="Email Address"
+                                          @bind-Value="_model.Email"
+                                          For="@(() => _model.Email)"
+                                          Margin="Margin.Dense"
+                                          Required="true"
+                                          Class="mb-4" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField Label="First Name"
+                                          @bind-Value="_model.FirstName"
+                                          For="@(() => _model.FirstName)"
+                                          Margin="Margin.Dense"
+                                          Required="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField Label="Last Name"
+                                          @bind-Value="_model.LastName"
+                                          For="@(() => _model.LastName)"
+                                          Margin="Margin.Dense"
+                                          Required="true" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+                <MudCardActions Class="px-0 pt-4">
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
                                Color="Color.Primary"
+                               Size="Size.Large"
                                FullWidth="true"
-                               Size="Size.Medium"
-                               OnClick="@OnSubmitAsync"
-                               Disabled="@_isSubmitting"
-                               Class="py-2 mt-2 rounded-lg shadow-sm"
-                               Elevation="0">
+                               Class="py-3 font-weight-bold"
+                               Disabled="@(!_isFormValid || _isSubmitting)"
+                               OnClick="OnSubmitAsync">
                         @if (_isSubmitting)
                         {
-                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                            <span>Creating Profile...</span>
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">PROCESSING</MudText>
                         }
                         else
                         {
-                            <span>Complete Registration</span>
+                            <MudText>COMPLETE REGISTRATION</MudText>
                         }
                     </MudButton>
-                </MudStack>
+                </MudCardActions>
             </MudForm>
         </MudStack>
     </MudPaper>

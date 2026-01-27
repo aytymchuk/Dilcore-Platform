@@ -26,6 +26,7 @@ public partial class Register
     private readonly RegisterUserParameters _model = new();
     private readonly FluentValidationAdapter<RegisterUserParameters> _validationAdapter = new(new RegisterUserParametersValidator());
     private bool _isSubmitting;
+    private bool _isFormValid;
 
     /// <summary>
     /// FluentValidation wrapper for MudBlazor form validation.
@@ -50,6 +51,24 @@ public partial class Register
             _model.LastName = user.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value
                                ?? user.FindFirst("family_name")?.Value
                                ?? string.Empty;
+        }
+
+        _isFormValid = await _validationAdapter.ValidateAsync(_model);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Allow MudBlazor components to initialize their internal state
+            await Task.Delay(500);
+            await _form.Validate();
+            
+            if (_isFormValid != _form.IsValid)
+            {
+                _isFormValid = _form.IsValid;
+                StateHasChanged();
+            }
         }
     }
 

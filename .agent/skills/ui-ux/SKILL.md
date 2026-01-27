@@ -128,6 +128,9 @@ Ensure `MainLayout` wraps content correctly and `MudThemeProvider` is configured
 -   **Cards (`MudPaper`)**:
     -   Use `Elevation="0"` + `Outlined="true"` for a clean, modern look.
     -   Use `Class="pa-6"` (24px) for content padding.
+-   **Inputs (`MudTextField`, `MudSelect`)**:
+    -   **Do not hardcode `Variant`**. Rely on `MudThemeProvider` defaults to ensure global consistency.
+    -   Only use explicit variants if a specific deviation is required for a unique UI context.
 -   **Buttons (`MudButton`)**:
     -   Primary: `Variant="Variant.Filled" Color="Color.Primary"`.
     -   Secondary: `Variant="Variant.Text"`.

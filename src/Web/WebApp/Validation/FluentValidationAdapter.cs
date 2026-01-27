@@ -30,4 +30,13 @@ public class FluentValidationAdapter<T>
         
         return result.Errors.Select(e => e.ErrorMessage);
     }
+
+    /// <summary>
+    /// Validates the entire model.
+    /// </summary>
+    public async Task<bool> ValidateAsync(T model)
+    {
+        var result = await _validator.ValidateAsync(model);
+        return result.IsValid;
+    }
 }
