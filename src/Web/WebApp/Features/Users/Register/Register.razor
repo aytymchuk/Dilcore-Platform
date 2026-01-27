@@ -1,0 +1,62 @@
+@page "/register"
+@layout EmptyLayout
+@using Dilcore.WebApp.Components.Layout
+
+<PageTitle>Complete Your Registration</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="min-height: 100vh;">
+    <MudPaper Class="pa-8" Elevation="4" Style="width: 100%; max-width: 480px;">
+        <MudStack Spacing="4">
+            <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Size="Size.Large" Color="Color.Primary" />
+                <MudText Typo="Typo.h4" Align="Align.Center">Complete Your Profile</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
+                    Please provide your details to complete registration
+                </MudText>
+            </MudStack>
+
+            <MudForm @ref="_form" Model="@_model" Validation="@ValidateValue">
+                <MudStack Spacing="3">
+                    <MudTextField @bind-Value="_model.Email"
+                                  Label="Email"
+                                  Variant="Variant.Outlined"
+                                  InputType="InputType.Email"
+                                  For="@(() => _model.Email)"
+                                  Immediate="true"
+                                  Disabled="@_isSubmitting" />
+
+                    <MudTextField @bind-Value="_model.FirstName"
+                                  Label="First Name"
+                                  Variant="Variant.Outlined"
+                                  For="@(() => _model.FirstName)"
+                                  Immediate="true"
+                                  Disabled="@_isSubmitting" />
+
+                    <MudTextField @bind-Value="_model.LastName"
+                                  Label="Last Name"
+                                  Variant="Variant.Outlined"
+                                  For="@(() => _model.LastName)"
+                                  Immediate="true"
+                                  Disabled="@_isSubmitting" />
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               Size="Size.Large"
+                               OnClick="@OnSubmitAsync"
+                               Disabled="@_isSubmitting">
+                        @if (_isSubmitting)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                            <span>Registering...</span>
+                        }
+                        else
+                        {
+                            <span>Complete Registration</span>
+                        }
+                    </MudButton>
+                </MudStack>
+            </MudForm>
+        </MudStack>
+    </MudPaper>
+</MudContainer>

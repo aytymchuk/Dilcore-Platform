@@ -1,8 +1,12 @@
 using Auth0.AspNetCore.Authentication;
 using Dilcore.Configuration.Extensions;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
-using Dilcore.WebApp.Settings;
+using Dilcore.WebApi.Client;
+using Dilcore.WebApp.Behaviors;
+using Dilcore.WebApp.Http;
 using Dilcore.WebApp.Constants;
+using Dilcore.WebApp.Settings;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -18,11 +22,48 @@ public static class ServiceCollectionExtensions
         services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        services.AddHttpContextAccessor();
+
         services.AddMudServices();
+        services.AddMediatRInfrastructure();
+        services.AddPlatformApiServices(configuration);
 
         services.AddObservability(configuration, environment);
         services.AddAuthenticationServices(configuration);
         services.AddForwardedHeaders();
+
+        return services;
+    }
+
+    public static IServiceCollection AddMediatRInfrastructure(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+        });
+
+        // Register the snackbar result behavior for all ResultBase responses
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SnackbarResultBehavior<,>));
+
+        return services;
+    }
+
+    public static IServiceCollection AddPlatformApiServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        var settings = configuration.GetRequiredSettings<ApiSettings>();
+
+        services.AddTransient<AccessTokenDelegatingHandler>();
+
+        services.AddPlatformApiClients(options =>
+        {
+            options.BaseUrl = settings.BaseUrl;
+            options.Timeout = settings.Timeout;
+            options.RetryCount = settings.RetryCount;
+            options.RetryDelaySeconds = settings.RetryDelaySeconds;
+        }, builder =>
+        {
+            builder.AddHttpMessageHandler<AccessTokenDelegatingHandler>();
+        });
 
         return services;
     }

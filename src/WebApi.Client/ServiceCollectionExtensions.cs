@@ -21,11 +21,11 @@ public static class ServiceCollectionExtensions
     /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddPlatformApiClients(
         this IServiceCollection services,
-        Action<PlatformApiClientOptions> configureOptions,
+        Action<ApiSettings> configureOptions,
         Action<IHttpClientBuilder>? configureClient = null)
     {
         // Create options instance directly
-        var options = new PlatformApiClientOptions();
+        var options = new ApiSettings();
         configureOptions(options);
 
         // Register all clients
@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     private static void RegisterRefitClient<TClient>(
         IServiceCollection services,
-        PlatformApiClientOptions options,
+        ApiSettings options,
         Action<IHttpClientBuilder>? configureClient)
         where TClient : class
     {
@@ -48,7 +48,7 @@ public static class ServiceCollectionExtensions
             .AddRefitClient<TClient>()
             .ConfigureHttpClient(c =>
             {
-                c.BaseAddress = options.BaseAddress;
+                c.BaseAddress = options.BaseUrl;
                 c.Timeout = options.Timeout;
             })
             .AddPolicyHandler(GetRetryPolicy(options));
@@ -60,7 +60,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Creates a Polly retry policy for handling transient HTTP errors.
     /// </summary>
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(PlatformApiClientOptions options)
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(ApiSettings options)
     {
         return HttpPolicyExtensions
             .HandleTransientHttpError() // Handles 5xx and 408

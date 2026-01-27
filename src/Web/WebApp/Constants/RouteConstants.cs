@@ -7,4 +7,9 @@ public static class RouteConstants
         public const string Login = "/Account/Login";
         public const string Logout = "/Account/Logout";
     }
+
+    public static class Users
+    {
+        public const string Register = "/register";
+    }
 }

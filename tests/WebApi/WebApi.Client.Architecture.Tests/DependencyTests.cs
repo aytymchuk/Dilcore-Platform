@@ -1,4 +1,3 @@
-using ArchUnitNET.Domain;
 using ArchUnitNET.Loader;
 using ArchUnitNET.NUnit;
 using Dilcore.WebApi.Client.Clients;

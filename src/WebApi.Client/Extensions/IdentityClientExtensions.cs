@@ -8,7 +8,7 @@ namespace Dilcore.WebApi.Client.Extensions;
 /// <summary>
 /// Extension methods for IIdentityClient that provide Result-based error handling.
 /// </summary>
-internal static class IdentityClientExtensions
+public static class IdentityClientExtensions
 {
     /// <summary>
     /// Safely registers a new user, returning a Result instead of throwing exceptions.
