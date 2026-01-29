@@ -12,7 +12,7 @@ public class FluentValidationAdapter<T>
 
     public FluentValidationAdapter(IValidator<T> validator)
     {
-        _validator = validator;
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
     /// <summary>
@@ -23,14 +23,14 @@ public class FluentValidationAdapter<T>
     {
         if (model is not T typedModel)
         {
-            return Array.Empty<string>();
+            return [];
         }
 
         var result = await _validator.ValidateAsync(ValidationContext<T>.CreateWithOptions(typedModel, x => x.IncludeProperties(propertyName)));
         
         if (result.IsValid)
         {
-            return Array.Empty<string>();
+            return [];
         }
         
         return result.Errors.Select(e => e.ErrorMessage);

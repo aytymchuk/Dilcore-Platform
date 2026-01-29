@@ -1,7 +1,5 @@
-using Dilcore.WebApp.Features.Users.Register;
 using Dilcore.WebApp.Models.Users;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
 
 namespace Dilcore.WebApp.Tests.Models.Users;
 

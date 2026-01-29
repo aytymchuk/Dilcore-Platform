@@ -102,10 +102,10 @@ AI interactions should feel special, not just another form field.
 
 ### 3. Glassmorphism & Depth
 Use depth to indicate hierarchy in complex apps.
--   **Base Layer**: The background/canvas.
--   **Layer 1 (Context)**: Sidebars, navigation (Solid/Opaque).
--   **Layer 2 (Content)**: Cards, Tables (Solid/Opaque).
--   **Layer 3 (Overlays)**: Modals, Floating Toolbars, AI Toasts.
+- **Base Layer**: Serves as the primary background or canvas.
+- **Context (Layer 1)**: Sidebars and navigation systems (Solid/Opaque).
+- **Content (Layer 2)**: Main information displays like Cards and Tables (Solid/Opaque).
+- **Overlays (Layer 3)**: Modals, Floating Toolbars, and AI Toasts.
     -   *Style*: `backdrop-filter: blur(8px); background: rgba(255,255,255,0.8);` (Adjust for dark mode).
 
 ### 4. Progressive Disclosure

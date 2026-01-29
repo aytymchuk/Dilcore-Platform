@@ -69,7 +69,7 @@ This document outlines the mandatory coding standards and best practices for the
   }
   ```
 
-## 6. Naming Conventions implementation
+## 6. Naming Conventions
 - **Private Fields**: Must start with an underscore and be `_camelCase`.
   ```csharp
   private readonly ILogger _logger;

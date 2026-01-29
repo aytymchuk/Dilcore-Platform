@@ -1,10 +1,8 @@
 using Dilcore.Identity.Contracts.Profile;
 using Dilcore.Identity.Contracts.Register;
 using Dilcore.WebApi.Client.Clients;
-using Dilcore.WebApi.Client.Extensions;
 using Dilcore.WebApp.Features.Users.Register;
 using Dilcore.WebApp.Models.Users;
-using FluentResults;
 using Moq;
 using Shouldly;
 
