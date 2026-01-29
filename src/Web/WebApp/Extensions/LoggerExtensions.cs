@@ -14,4 +14,7 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(EventId = 1003, Level = LogLevel.Information, Message = "Application stopped")]
     public static partial void LogApplicationStopped(this ILogger logger);
+
+    [LoggerMessage(EventId = 2000, Level = LogLevel.Error, Message = "An unhandled exception occurred")]
+    public static partial void LogUnhandledException(this ILogger logger, Exception ex);
 }

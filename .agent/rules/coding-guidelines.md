@@ -9,9 +9,11 @@ globs: *.cs
 This document outlines the mandatory coding standards and best practices for the Dilcore Platform. These rules ensure consistency, maintainability, and readability across the codebase.
 
 ## 1. Constants & Magic Values
+
 - **No Magic Values**: Do not use hardcoded strings or numbers inline.
 - **Location**: Place all magic values in appropriate `Constants` classes.
 - **Structure**: Constant classes must be `static`.
+
   ```csharp
   public static class UserConstants
   {
@@ -21,7 +23,9 @@ This document outlines the mandatory coding standards and best practices for the
   ```
 
 ## 2. Control Structures
+
 - **Braces Required**: `if` and `else` statements MUST always use braces `{ }`, even for single-line blocks.
+
   ```csharp
   // correct
   if (isValid)
@@ -34,8 +38,10 @@ This document outlines the mandatory coding standards and best practices for the
   ```
 
 ## 3. Asynchronous Methods
+
 - **Naming**: Methods returning `Task` or `Task<T>` MUST end with the suffix `Async`.
 - **Cancellation**: Accept a `CancellationToken` parameter if any nested async calls support it.
+
   ```csharp
   public async Task<User> GetUserAsync(Guid id, CancellationToken cancellationToken = default)
   {
@@ -90,8 +96,47 @@ Members in a class must be ordered strictly as follows:
 - **Method Scope**: A method should perform **strictly one action**.
 - **Refactoring**: If a method is complex or combines multiple distinct logic flows, split it into smaller, focused private methods. The caller method should orchestrate these smaller methods.
 
-## 9. Codebase Specific Standards
+## 9. Codebase‑specific Standards
+
 - **Use Records**: Prefer `record` types for Domain Entities and DTOs where appropriate (immutability).
 - **Feature Folders**: Organize UI logic in feature-specific folders (e.g., `Features/Users/Register`).
 - **MediatR**: Use Command/Query pattern (MediatR) for business logic.
 - **Validation**: Use FluentValidation for all model validation.
+
+## 10. Nesting & Complexity
+
+- **Avoid Nesting**: Keep the nesting level as shallow as possible. Deeply nested blocks reduce readability.
+- **Guard Clauses**: Invert `if` conditions and use early returns (guard clauses) to handle edge cases or validation at the beginning of methods.
+- **Separate Methods**: If a block of code within a loop or an `if` statement is complex, extract it into a dedicated private method.
+- **Condition Inversion**: Favor inverting conditions to avoid extra `else` blocks and reduce indentation.
+
+  ```csharp
+  // correct
+  public void Process(User? user)
+  {
+      if (user is null)
+      {
+          return;
+      }
+
+      foreach (var item in user.Items)
+      {
+          ProcessItem(item);
+      }
+  }
+
+  // incorrect
+  public void Process(User? user)
+  {
+      if (user != null)
+      {
+          foreach (var item in user.Items)
+          {
+              if (item.IsValid)
+              {
+                  // nested logic here
+              }
+          }
+      }
+  }
+  ```

@@ -21,7 +21,12 @@ public class FluentValidationAdapter<T>
     /// </summary>
     public async Task<IEnumerable<string>> ValidateValue(object model, string propertyName)
     {
-        var result = await _validator.ValidateAsync(ValidationContext<T>.CreateWithOptions((T)model, x => x.IncludeProperties(propertyName)));
+        if (model is not T typedModel)
+        {
+            return Array.Empty<string>();
+        }
+
+        var result = await _validator.ValidateAsync(ValidationContext<T>.CreateWithOptions(typedModel, x => x.IncludeProperties(propertyName)));
         
         if (result.IsValid)
         {

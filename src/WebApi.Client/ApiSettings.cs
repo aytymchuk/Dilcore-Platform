@@ -12,7 +12,7 @@ public class ApiSettings
 
     /// <summary>
     /// Gets or sets the HTTP request timeout.
-    /// Default is 30 seconds.
+    /// Default is 90 seconds.
     /// </summary>
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(90);
 

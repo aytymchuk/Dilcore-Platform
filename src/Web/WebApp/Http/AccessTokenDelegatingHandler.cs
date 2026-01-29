@@ -25,7 +25,7 @@ internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
         {
             var accessToken = httpContext.User.FindFirst(AuthConstants.AccessTokenClaim)?.Value;
 
-            if (!string.IsNullOrEmpty(accessToken))
+            if (!string.IsNullOrEmpty(accessToken) && request.Headers.Authorization == null)
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             }

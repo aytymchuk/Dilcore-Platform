@@ -73,8 +73,9 @@ public partial class UserStateProvider : ComponentBase
                 IsUserNotFound = true;
                 CurrentUser = null;
 
-                // Navigate to registration page
+                // Navigate to registration page and return to suppress the error from snackbar behavior
                 NavigationManager.NavigateTo(RouteConstants.Users.Register, forceLoad: false);
+                return;
             }
             // Other errors are handled by SnackbarResultBehavior
         }

@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Dilcore.Results.Abstractions;
 
 namespace Dilcore.WebApi.Client.Errors;
@@ -17,10 +18,10 @@ public class ApiError : AppError
     public string? TraceId { get; }
 
     /// <summary>Gets the timestamp when the error occurred.</summary>
-    public DateTime? Timestamp { get; }
+    public DateTimeOffset? Timestamp { get; }
 
     /// <summary>Gets additional extension data.</summary>
-    public Dictionary<string, object>? Extensions { get; }
+    public IReadOnlyDictionary<string, object>? Extensions { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ApiError"/> class.
@@ -40,15 +41,17 @@ public class ApiError : AppError
         int statusCode,
         string? instance = null,
         string? traceId = null,
-        DateTime? timestamp = null,
-        Dictionary<string, object>? extensions = null)
+        DateTimeOffset? timestamp = null,
+        IDictionary<string, object>? extensions = null)
         : base(message, code, type)
     {
         StatusCode = statusCode;
         Instance = instance;
         TraceId = traceId;
         Timestamp = timestamp;
-        Extensions = extensions;
+        Extensions = extensions != null
+            ? new ReadOnlyDictionary<string, object>(new Dictionary<string, object>(extensions))
+            : null;
     }
 
     /// <summary>
@@ -61,8 +64,8 @@ public class ApiError : AppError
         string? instance = null,
         string? errorCode = null,
         string? traceId = null,
-        DateTime? timestamp = null,
-        Dictionary<string, object>? extensions = null)
+        DateTimeOffset? timestamp = null,
+        IDictionary<string, object>? extensions = null)
     {
         var (message, code, errorType) = MapStatusCode(statusCode, title, detail, errorCode);
 

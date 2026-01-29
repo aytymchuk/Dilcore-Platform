@@ -24,6 +24,7 @@ Avoid generic RGB colors. Use a curated palette that feels "Enterprise SaaS".
 -   **Dark Mode**: Essential for "AI" vibes. Use rich dark greys (`#121212` or `#1E1E2E`) rather than pure black.
 
 ### Typography
+
 -   Use a modern sans-serif font (e.g., **Inter**, **Roboto**, or **Public Sans**).
 -   Use distinct font weights to establish hierarchy (Bold headers, regular body, light captions).
 -   **Text Hierarchy**:
@@ -40,6 +41,7 @@ Avoid generic RGB colors. Use a curated palette that feels "Enterprise SaaS".
 We follow a strict **4px baseline grid**. All margins and paddings must be multiples of 4.
 
 ### 1. Spacing Tokens (MudBlazor Helpers)
+
 | Token | Pixels | Usage |
 | :--- | :--- | :--- |
 | `1` | 4px | Tight separation (e.g., icon from text) |
@@ -50,6 +52,7 @@ We follow a strict **4px baseline grid**. All margins and paddings must be multi
 | `12` | 48px | Page section separation |
 
 ### 2. Layout Rules
+
 -   **Card Padding**: ALWAYS use `Class="pa-6"` (24px) for standard content cards. Never use default padding if it feels tight.
 -   **Section Separation**: Use `Class="my-8"` or `Class="py-8"` to separate major logical blocks.
 -   **Grid Gaps**:
@@ -71,8 +74,9 @@ We follow a strict **4px baseline grid**. All margins and paddings must be multi
 -   **Centering**: For centered layouts, ensure the parent container (like `MudLayout` or `MudMainContent`) does not have default padding (`pt-0`) unless an AppBar is present, to ensure direct mathematical centering.
 
 ### 2. Mobile-First Forms
+
 -   **Stacking**: "One Field Per Row". Avoid splitting simple fields into multi-column grids (e.g., First Name / Last Name side-by-side) on mobile. Use full width for better readability and input ease.
--   **Size Strategy**: 
+-   **Size Strategy**:
     -   Use `Size.Medium` for standard actions. Reserve `Size.Large` for very specific marketing/landing page heroes only.
     -   Use `Margin="Margin.Dense"` on `MudTextField` to keep forms compact and professional.
 

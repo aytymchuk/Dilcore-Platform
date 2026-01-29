@@ -1,6 +1,8 @@
 @using MudBlazor
 @inherits ErrorBoundary
 @inject ISnackbar Snackbar
+@inject ILogger<GlobalErrorBoundary> Logger
+@using Dilcore.WebApp.Extensions
 
 @if (CurrentException is null)
 {
@@ -21,7 +23,8 @@ else
 @code {
     protected override Task OnErrorAsync(Exception exception)
     {
-        Snackbar.Add($"Error: {exception.Message}", Severity.Error);
+        Logger.LogUnhandledException(exception);
+        Snackbar.Add("An unexpected error occurred", Severity.Error);
         return Task.CompletedTask;
     }
 }
