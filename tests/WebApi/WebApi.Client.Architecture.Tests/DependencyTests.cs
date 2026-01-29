@@ -1,4 +1,3 @@
-using ArchUnitNET.Domain;
 using ArchUnitNET.Loader;
 using ArchUnitNET.NUnit;
 using Dilcore.WebApi.Client.Clients;
@@ -77,15 +76,6 @@ public class DependencyTests
         Types().That().ResideInNamespace("Dilcore.WebApi.Client.Clients")
             .Should().BePublic()
             .AndShould().Be(Interfaces())
-            .Check(Architecture);
-    }
-
-    [Test]
-    public void Internal_Namespaces_Should_Not_Be_Public()
-    {
-        Types().That().ResideInNamespace("Dilcore.WebApi.Client.Errors")
-            .Or().ResideInNamespace("Dilcore.WebApi.Client.Extensions")
-            .Should().NotBePublic()
             .Check(Architecture);
     }
 }

@@ -1,0 +1,29 @@
+@inherits ErrorBoundary
+@inject ISnackbar Snackbar
+@inject ILogger<GlobalErrorBoundary> Logger
+@using Dilcore.WebApp.Extensions
+
+@if (CurrentException is null)
+{
+    @ChildContent
+}
+else
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-5">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" ShowCloseIcon="true" CloseIconClicked="Recover">
+            An unexpected error has occurred. Please try again.
+        </MudAlert>
+        <div class="d-flex justify-center mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Recover">Retry</MudButton>
+        </div>
+    </MudContainer>
+}
+
+@code {
+    protected override Task OnErrorAsync(Exception exception)
+    {
+        Logger.LogUnhandledException(exception);
+        Snackbar.Add("An unexpected error has occurred. Please try again.", Severity.Error);
+        return Task.CompletedTask;
+    }
+}

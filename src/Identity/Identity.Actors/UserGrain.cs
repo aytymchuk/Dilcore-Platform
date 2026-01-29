@@ -42,7 +42,7 @@ public sealed class UserGrain : Grain, IUserGrain
         if (_state.State.IsRegistered)
         {
             _logger.LogUserAlreadyRegistered(userId);
-            return UserCreationResult.Failure($"User '{userId}' is already registered.");
+            return UserCreationResult.Failure("User is already registered.");
         }
 
         _state.State.Id = Guid.NewGuid();

@@ -3,18 +3,18 @@ namespace Dilcore.WebApi.Client;
 /// <summary>
 /// Configuration options for the Platform API client.
 /// </summary>
-public class PlatformApiClientOptions
+public class ApiSettings
 {
     /// <summary>
     /// Gets or sets the base address of the Platform API.
     /// </summary>
-    public Uri BaseAddress { get; set; } = null!;
+    public Uri BaseUrl { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the HTTP request timeout.
-    /// Default is 30 seconds.
+    /// Default is 90 seconds.
     /// </summary>
-    public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
+    public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(90);
 
     /// <summary>
     /// Gets or sets the number of retry attempts for transient failures.

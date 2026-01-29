@@ -22,7 +22,9 @@ public class DependencyInjectionTests
                 {"AuthenticationSettings:Auth0:ClientSecret", "test-client-secret"},
                 {"AuthenticationSettings:Auth0:Audience", "test-audience"},
                 {"TelemetrySettings:ApplicationInsightsConnectionString", "InstrumentationKey=test-key;"},
-                {"ApplicationSettings:Name", "TestApp"}
+                {"ApplicationSettings:Name", "TestApp"},
+                {"ApiSettings:BaseUrl", "http://localhost"},
+                {"ApiSettings:Retries", "3"}
             })
             .Build();
             
