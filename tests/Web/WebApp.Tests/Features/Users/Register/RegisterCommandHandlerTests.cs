@@ -76,7 +76,7 @@ public class RegisterCommandHandlerTests
         var expectedError = "API Error";
 
         _identityClientMock.Setup(x => x.RegisterUserAsync(It.IsAny<RegisterUserDto>(), It.IsAny<CancellationToken>()))
-             .ThrowsAsync(new Exception(expectedError));
+            .ThrowsAsync(new Exception(expectedError));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
