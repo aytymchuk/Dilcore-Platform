@@ -23,7 +23,7 @@ else
     protected override Task OnErrorAsync(Exception exception)
     {
         Logger.LogUnhandledException(exception);
-        Snackbar.Add("An unexpected error occurred", Severity.Error);
+        Snackbar.Add("An unexpected error has occurred. Please try again.", Severity.Error);
         return Task.CompletedTask;
     }
 }

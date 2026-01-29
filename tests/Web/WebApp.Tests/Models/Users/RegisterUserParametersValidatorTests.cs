@@ -62,7 +62,10 @@ public class RegisterUserParametersValidatorTests
     [Test]
     public void Should_Have_Error_When_Email_Exceeds_Max_Length()
     {
-        var model = new RegisterUserParameters { Email = new string('a', 257) + "@example.com" };
+        // Create email exceeding max length: local part (64 chars max per RFC) + domain to exceed total
+        var localPart = new string('a', 64);
+        var domainPart = new string('b', RegisterUserParametersValidator.MaxEmailLength - 64) + ".com";
+        var model = new RegisterUserParameters { Email = $"{localPart}@{domainPart}" };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.Email);
     }
@@ -70,7 +73,7 @@ public class RegisterUserParametersValidatorTests
     [Test]
     public void Should_Have_Error_When_FirstName_Exceeds_Max_Length()
     {
-        var model = new RegisterUserParameters { FirstName = new string('a', 101) };
+        var model = new RegisterUserParameters { FirstName = new string('a', RegisterUserParametersValidator.MaxNameLength + 1) };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.FirstName);
     }
@@ -78,7 +81,7 @@ public class RegisterUserParametersValidatorTests
     [Test]
     public void Should_Have_Error_When_LastName_Exceeds_Max_Length()
     {
-        var model = new RegisterUserParameters { LastName = new string('a', 101) };
+        var model = new RegisterUserParameters { LastName = new string('a', RegisterUserParametersValidator.MaxNameLength + 1) };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.LastName);
     }

@@ -11,8 +11,8 @@ namespace Dilcore.WebApp.Tests.Features.Users.Register;
 [TestFixture]
 public class RegisterCommandHandlerTests
 {
-    private Mock<IIdentityClient> _identityClientMock;
-    private RegisterCommandHandler _handler;
+    private Mock<IIdentityClient> _identityClientMock = null!;
+    private RegisterCommandHandler _handler = null!;
 
     [SetUp]
     public void Setup()
@@ -49,6 +49,7 @@ public class RegisterCommandHandlerTests
         // Assert
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
+        result.Value.Id.ShouldBe(expectedUserDto.Id);
         result.Value.Email.ShouldBe(parameters.Email);
         result.Value.FirstName.ShouldBe(parameters.FirstName);
         result.Value.LastName.ShouldBe(parameters.LastName);
