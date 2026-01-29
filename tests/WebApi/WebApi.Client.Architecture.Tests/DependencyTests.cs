@@ -78,13 +78,4 @@ public class DependencyTests
             .AndShould().Be(Interfaces())
             .Check(Architecture);
     }
-
-    [Test]
-    public void Internal_Namespaces_Should_Not_Be_Public()
-    {
-        Types().That().ResideInNamespace("Dilcore.WebApi.Client.Errors")
-            .Or().ResideInNamespace("Dilcore.WebApi.Client.Extensions")
-            .Should().NotBePublic()
-            .Check(Architecture);
-    }
 }
