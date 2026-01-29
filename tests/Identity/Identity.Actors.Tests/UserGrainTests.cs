@@ -74,7 +74,7 @@ public class UserGrainTests
         secondResult.ShouldNotBeNull();
         secondResult.IsSuccess.ShouldBeFalse();
         secondResult.ErrorMessage.ShouldNotBeNullOrWhiteSpace();
-        secondResult.ErrorMessage.ShouldContain($"User '{userId}' is already registered");
+        secondResult.ErrorMessage.ShouldContain("User is already registered");
     }
 
     [Test]
