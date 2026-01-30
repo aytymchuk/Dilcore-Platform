@@ -49,7 +49,7 @@ jobs:
           bump-type: ${{ inputs.bump_type }}
 
       - name: 🛠️ Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
           source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
