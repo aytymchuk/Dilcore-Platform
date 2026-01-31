@@ -43,13 +43,13 @@ public class TenancyClientSafeExtensionsTests
         // Arrange
         var request = new CreateTenantDto
         {
-            DisplayName = "Test Tenant",
+            Name = "Test Tenant",
             Description = "Test Tenant Description",
         };
         var expectedTenant = new TenantDto
         {
-            Name = "test-tenant",
-            DisplayName = "Test Tenant",
+            Name = "Test Tenant",
+            SystemName = "test-tenant",
             Description = "Test Tenant Description",
             CreatedAt = DateTime.UtcNow
         };
@@ -62,8 +62,8 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Value.Name.ShouldBe("test-tenant");
-        result.Value.DisplayName.ShouldBe("Test Tenant");
+        result.Value.SystemName.ShouldBe("test-tenant");
+        result.Value.Name.ShouldBe("Test Tenant");
     }
 
     [Test]
@@ -72,7 +72,7 @@ public class TenancyClientSafeExtensionsTests
         // Arrange
         var request = new CreateTenantDto
         {
-            DisplayName = "Test Tenant",
+            Name = "Test Tenant",
             Description = "Test Tenant Description",
         };
         
@@ -112,7 +112,7 @@ public class TenancyClientSafeExtensionsTests
         // Arrange
         var request = new CreateTenantDto
         {
-            DisplayName = "",
+            Name = "",
             Description = ""
         };
         var problemDetails = new
@@ -127,7 +127,7 @@ public class TenancyClientSafeExtensionsTests
             timestamp = DateTime.UtcNow,
             errors = new Dictionary<string, string[]>
             {
-                ["DisplayName"] = new[] { "DisplayName is required." },
+                ["Name"] = new[] { "Name is required." },
                 ["Description"] = new[] { "Description is required." }
             }
         };
@@ -157,9 +157,9 @@ public class TenancyClientSafeExtensionsTests
         // Arrange
         var expectedTenant = new TenantDto
         {
-            Name = "Current Tenant",
-            DisplayName = "Current Tenant Display",
+            Name = "Current Tenant Display",
             Description = "Current tenant description",
+            SystemName = "current-tenant",
             CreatedAt = DateTime.UtcNow
         };
 
@@ -171,8 +171,8 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Value.Name.ShouldBe("Current Tenant");
-        result.Value.DisplayName.ShouldBe("Current Tenant Display");
+        result.Value.SystemName.ShouldBe("current-tenant");
+        result.Value.Name.ShouldBe("Current Tenant Display");
     }
 
     [Test]
@@ -278,7 +278,7 @@ public class TenancyClientSafeExtensionsTests
         // Arrange
         var request = new CreateTenantDto
         {
-            DisplayName = "Test Tenant",
+            Name = "Test Tenant",
             Description = "test-tenant"
         };
 

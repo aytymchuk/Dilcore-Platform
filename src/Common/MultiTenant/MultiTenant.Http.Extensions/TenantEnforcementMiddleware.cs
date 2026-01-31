@@ -24,8 +24,8 @@ public class TenantEnforcementMiddleware : IMiddleware
             return;
         }
 
-        // Resolve tenant (throws if missing)
-        _tenantContextResolver.Resolve();
+        // Try to resolve tenant - if it fails, let the endpoint handle it
+        _tenantContextResolver.TryResolve(out _);
 
         await next(context);
     }

@@ -14,11 +14,12 @@ namespace Dilcore.WebApi.IntegrationTests;
 public class UserEndpointTests : BaseIntegrationTest
 {
     private IDisposableClient<IIdentityClient> _identityClient = null!;
-    private const string TenantId = "test-tenant";
+    private string TenantId;
 
     [SetUp]
     public async Task SetUpClient()
     {
+        TenantId = $"test-tenant-{Guid.NewGuid():N}";
         await SeedTenantAsync(Factory, TenantId);
 
         // Reset the fake user to defaults before each test

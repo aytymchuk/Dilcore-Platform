@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Dilcore.MediatR.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
+using Dilcore.Tenancy.Core.Abstractions;
 using FluentResults;
 
 namespace Dilcore.Tenancy.Core.Features.Create;
@@ -11,25 +12,40 @@ namespace Dilcore.Tenancy.Core.Features.Create;
 /// </summary>
 public sealed partial class CreateTenantHandler : ICommandHandler<CreateTenantCommand, TenantDto>
 {
+    private readonly ITenantRepository _tenantRepository;
     private readonly IGrainFactory _grainFactory;
 
-    public CreateTenantHandler(IGrainFactory grainFactory)
+    public CreateTenantHandler(IGrainFactory grainFactory, ITenantRepository tenantRepository)
     {
         _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
+        _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     }
 
     public async Task<Result<TenantDto>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
-        // Generate kebab-case tenant name from display name
-        if (string.IsNullOrWhiteSpace(request.DisplayName))
+        // 1. Generate SystemName
+        if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Fail<TenantDto>(new ValidationError("DisplayName is required"));
+            return Result.Fail<TenantDto>(new ValidationError("Name is required"));
         }
 
-        var tenantName = ToKebabCase(request.DisplayName);
+        request.SystemName = ToKebabCase(request.Name);
 
-        var grain = _grainFactory.GetGrain<ITenantGrain>(tenantName);
-        var result = await grain.CreateAsync(request.DisplayName, request.Description);
+        // 2. Check Uniqueness
+        var existingTenantResult = await _tenantRepository.GetBySystemNameAsync(request.SystemName, cancellationToken);
+        if (existingTenantResult.IsFailed)
+        {
+             return Result.Fail(existingTenantResult.Errors);
+        }
+
+        if (existingTenantResult.Value is not null)
+        {
+            return Result.Fail(new ConflictError($"Tenant with system name '{request.SystemName}' already exists."));
+        }
+
+        // 3. Create Tenant Grain
+        var grain = _grainFactory.GetGrain<ITenantGrain>(request.SystemName);
+        var result = await grain.CreateAsync(request.Name, request.Description);
 
         if (!result.IsSuccess)
         {

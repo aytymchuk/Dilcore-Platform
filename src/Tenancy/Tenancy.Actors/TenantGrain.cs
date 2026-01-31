@@ -45,11 +45,13 @@ public sealed class TenantGrain : Grain, ITenantGrain
             return TenantCreationResult.Failure($"Tenant '{tenantName}' already exists.");
         }
 
-        _state.State.Name = tenantName;
-        _state.State.DisplayName = displayName;
+        _state.State.SystemName = tenantName;
+        _state.State.Name = displayName;
+        _state.State.StoragePrefix = tenantName;
         _state.State.Description = description;
         _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
+        _state.State.Id = Guid.NewGuid();
 
         await _state.WriteStateAsync();
 
@@ -70,8 +72,9 @@ public sealed class TenantGrain : Grain, ITenantGrain
     }
 
     private TenantDto ToDto() => new(
-        _state.State.Name,
-        _state.State.DisplayName,
+        _state.State.Id,
+        _state.State.Name, // Name (display name)
+        _state.State.SystemName,
         _state.State.Description,
         _state.State.CreatedAt);
 }

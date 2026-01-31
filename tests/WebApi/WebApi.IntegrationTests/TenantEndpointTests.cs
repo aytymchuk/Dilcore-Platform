@@ -53,14 +53,14 @@ public class TenantEndpointTests
     {
         // Arrange
         var uniqueName = $"My New Tenant {Guid.NewGuid():N}";
-        var request = new CreateTenantDto { DisplayName = uniqueName, Description = "A test tenant" };
+        var request = new CreateTenantDto { Name = uniqueName, Description = "A test tenant" };
 
         // Act
         var result = await _tenancyClient.Client.CreateTenantAsync(request);
 
         // Assert
         result.ShouldNotBeNull();
-        result.DisplayName.ShouldBe(uniqueName);
+        result.Name.ShouldBe(uniqueName);
         result.Description.ShouldBe("A test tenant");
         result.Name.ShouldNotBeNullOrEmpty();
     }
@@ -70,21 +70,21 @@ public class TenantEndpointTests
     {
         // Arrange
         var uniqueId = Guid.NewGuid().ToString("N");
-        var request = new CreateTenantDto { DisplayName = $"Test Tenant With Spaces {uniqueId}", Description = "Testing kebab-case" };
+        var request = new CreateTenantDto { Name = $"Test Tenant With Spaces {uniqueId}", Description = "Testing kebab-case" };
 
         // Act
         var result = await _tenancyClient.Client.CreateTenantAsync(request);
 
         // Assert
         result.ShouldNotBeNull();
-        result.Name.ShouldBe($"test-tenant-with-spaces-{uniqueId}");
+        result.SystemName.ShouldBe($"test-tenant-with-spaces-{uniqueId}");
     }
 
     [Test]
     public async Task CreateTenant_ShouldReturnConflict_WhenTenantAlreadyExists()
     {
         // Arrange - create the same tenant twice (using unique display name)
-        var request = new CreateTenantDto { DisplayName = $"Duplicate Tenant {Guid.NewGuid():N}", Description = "First creation" };
+        var request = new CreateTenantDto { Name = $"Duplicate Tenant {Guid.NewGuid():N}", Description = "First creation" };
 
         // First creation
         await _tenancyClient.Client.CreateTenantAsync(request);
@@ -99,11 +99,33 @@ public class TenantEndpointTests
     {
         // Arrange
         _factory.FakeUser.IsAuthenticated = false;
-        var request = new CreateTenantDto { DisplayName = "Unauthorized Tenant", Description = "Should fail" };
+        var request = new CreateTenantDto { Name = "Unauthorized Tenant", Description = "Should fail" };
 
         // Act & Assert
         var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
         exception.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task CreateTenant_ShouldReturnBadRequest_WhenNameIsEmpty()
+    {
+        // Arrange
+        var request = new CreateTenantDto { Name = string.Empty, Description = "Valid Description" };
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task CreateTenant_ShouldReturnBadRequest_WhenNameIsTooLong()
+    {
+        // Arrange
+        var request = new CreateTenantDto { Name = new string('a', 101), Description = "Valid Description" };
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     #endregion
@@ -115,20 +137,20 @@ public class TenantEndpointTests
     {
         // Arrange - first create the tenant
         var tenantName = $"existing-tenant-{Guid.NewGuid():N}";
-        var request = new CreateTenantDto { DisplayName = tenantName, Description = "Existing tenant" };
+        var request = new CreateTenantDto { Name = tenantName, Description = "Existing tenant" };
         var createdTenant = await _tenancyClient.Client.CreateTenantAsync(request);
         createdTenant.ShouldNotBeNull();
 
         // Create a new client scoped to the created tenant
-        using var tenantClientWrapper = _factory.CreateTypedClient<ITenancyClient>(createdTenant.Name);
+        using var tenantClientWrapper = _factory.CreateTypedClient<ITenancyClient>(createdTenant.SystemName);
 
         // Act
         var result = await tenantClientWrapper.Client.GetTenantAsync();
 
         // Assert
         result.ShouldNotBeNull();
+        result.SystemName.ShouldBe(createdTenant.SystemName);
         result.Name.ShouldBe(createdTenant.Name);
-        result.DisplayName.ShouldBe(tenantName);
     }
 
     [Test]

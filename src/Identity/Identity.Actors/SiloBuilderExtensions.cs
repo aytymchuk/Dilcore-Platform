@@ -18,12 +18,10 @@ public static class SiloBuilderExtensions
     /// <returns>The silo builder.</returns>
     public static ISiloBuilder AddUserGrainStorage(this ISiloBuilder siloBuilder)
     {
-        // Add AutoMapper profiles from this assembly
         siloBuilder.ConfigureServices(services =>
         {
             services.AddAutoMapper(opt => opt.AddMaps(typeof(UserStateMappingProfile).Assembly));
-
-            // Register the grain storage provider named "UserStore"
+            
             services.AddKeyedSingleton<IGrainStorage>("UserStore", (sp, key) =>
                 ActivatorUtilities.CreateInstance<UserGrainStorage>(sp));
         });

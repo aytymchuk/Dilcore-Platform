@@ -25,9 +25,9 @@ public static class MiddlewarePipelineExtensions
         app.UseHttpsRedirection();
         app.UseCorrelationId();
         app.UseMultiTenant();
-        app.UseMultiTenantEnforcement();
 
         app.UseAuthentication();
+        app.UseMultiTenantEnforcement();
         app.UseAuthorization();
 
         return app;

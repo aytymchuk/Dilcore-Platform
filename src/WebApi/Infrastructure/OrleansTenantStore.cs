@@ -26,9 +26,9 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
     public async Task<AppTenantInfo?> GetByIdentifierAsync(string identifier)
     {
         _logger.LogTenantStoreGetActorByIdentifier(identifier);
+        
         if (string.IsNullOrWhiteSpace(identifier))
         {
-            _logger.LogTenantStoreInvalidIdentifier();
             return null;
         }
 
@@ -44,7 +44,7 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
             }
 
             var tenantInfo = MapToAppTenantInfo(tenantDto);
-            _logger.LogTenantStoreResolved(identifier, tenantDto.DisplayName);
+            _logger.LogTenantStoreResolved(identifier, tenantInfo.Name);
             return tenantInfo;
         }
         catch (Exception ex)

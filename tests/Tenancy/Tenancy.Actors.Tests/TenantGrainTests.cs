@@ -41,9 +41,9 @@ public class TenantGrainTests
         // Assert
         result.ShouldNotBeNull();
         result.IsSuccess.ShouldBeTrue();
-        result.Tenant.ShouldNotBeNull();
-        result.Tenant.Name.ShouldBe(tenantName);
-        result.Tenant.DisplayName.ShouldBe(displayName);
+        result.Tenant.ShouldNotBeNull();    
+        result.Tenant.Name.ShouldBe(displayName);
+        result.Tenant.SystemName.ShouldBe(tenantName);
         result.Tenant.Description.ShouldBe(description);
         result.Tenant.CreatedAt.ShouldBeGreaterThan(DateTime.MinValue);
     }
@@ -101,8 +101,8 @@ public class TenantGrainTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Name.ShouldBe(tenantName);
-        result.DisplayName.ShouldBe(displayName);
+        result.SystemName.ShouldBe(tenantName);
+        result.Name.ShouldBe(displayName);
         result.Description.ShouldBe(description);
     }
 
@@ -124,6 +124,6 @@ public class TenantGrainTests
 
         // Assert - Data should persist
         result.ShouldNotBeNull();
-        result.DisplayName.ShouldBe(displayName);
+        result.Name.ShouldBe(displayName);
     }
 }
