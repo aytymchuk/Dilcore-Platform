@@ -25,4 +25,4 @@
 - Home page shows user name
 - /register redirects to home (already registered)
 
-## Status: [ ] Not Tested \ **BLOCKED**: Requires fresh Auth0 account
+## Status: [ ] Not Tested - **BLOCKED**: Requires fresh Auth0 account

@@ -34,7 +34,7 @@ dotnet run --project src/Web/WebApp/WebApp.csproj
 
 If user provides issue URL, extract: owner, repo, issue_number
 
-```
+```text
 Tool: mcp_github-mcp-server_issue_read
 - method: "get" / "get_comments"
 - owner, repo, issue_number
@@ -138,7 +138,7 @@ mkdir -p test-cases/Features/<FeatureName>/<PageName>
 5. Record results, mark pass/fail
 
 ### Commands
-```
+```text
 browser: navigate to https://localhost:5042/<route>
 browser: type "<value>" in <field-selector>
 browser: click <button-selector>

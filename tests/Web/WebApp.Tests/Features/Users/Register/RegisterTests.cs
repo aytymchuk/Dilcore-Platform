@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http;
 using Bunit;
 using Bunit.TestDoubles;
 using Dilcore.Identity.Contracts.Profile;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using MudBlazor;
 using MudBlazor.Services;
+using Refit;
 using Shouldly;
 using System.Security.Claims;
 
@@ -93,9 +96,9 @@ public class RegisterTests
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
 
-        // Assert - Initially loading is true, but quickly becomes false
-        // We verify the progress bar element exists in the markup
-        // cut.Markup.ShouldContain("mud-progress-linear");
+        // Assert - Loading state is transient; we only verify the component renders.
+        // Transient loading UI (mud-progress-linear) is not asserted to avoid flakiness.
+        cut.Markup.ShouldNotBeNullOrEmpty();
     }
 
     [Test]
@@ -159,13 +162,13 @@ public class RegisterTests
         // Assert
         var emailInput = cut.Find("input[type='email']");
         var emailValue = emailInput.GetAttribute("value");
-        (emailValue == null || emailValue == string.Empty).ShouldBeTrue();
+        emailValue.ShouldBeNullOrEmpty();
 
         var textInputs = cut.FindAll("input[type='text']");
         var firstNameValue = textInputs[0].GetAttribute("value");
         var lastNameValue = textInputs[1].GetAttribute("value");
-        (firstNameValue == null || firstNameValue == string.Empty).ShouldBeTrue();
-        (lastNameValue == null || lastNameValue == string.Empty).ShouldBeTrue();
+        firstNameValue.ShouldBeNullOrEmpty();
+        lastNameValue.ShouldBeNullOrEmpty();
     }
 
     [Test]
@@ -359,8 +362,14 @@ public class RegisterTests
 
     private void SetupIdentityClientNoUser()
     {
+        var notFoundException = ApiException.Create(
+            new HttpRequestMessage(),
+            HttpMethod.Get,
+            new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") },
+            new RefitSettings()).GetAwaiter().GetResult();
+
         _mockIdentityClient.Setup(c => c.GetCurrentUserAsync(It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception("User not found"));
+            .ThrowsAsync(notFoundException);
     }
 
     private void SetupIdentityClientWithExistingUser()
