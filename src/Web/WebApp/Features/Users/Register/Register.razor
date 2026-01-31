@@ -1,78 +1,62 @@
 @page "/register"
 @layout EmptyLayout
 @using Dilcore.WebApp.Components.Layout
+@using Dilcore.WebApp.Components.Common
+@inherits AsyncComponentBase
 
 <PageTitle>Complete Your Registration</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 100dvh; overflow-y: auto;">
-    <MudPaper Class="pa-6 backdrop-blur" Elevation="0" Outlined="true" Style="width: 100%; max-width: 440px; background: var(--mud-palette-surface-quarter-transparent); overflow: hidden; position: relative;">
-        @if (_isSubmitting || _isLoading)
-        {
-            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="rounded-0" Style="position: absolute; top: 0; left: 0; width: 100%; height: 4px;" />
-        }
-        <MudStack Spacing="4">
-            <!-- Header Section -->
-            <MudStack Spacing="1" AlignItems="AlignItems.Center" Class="mb-2">
-                <MudAvatar Color="Color.Primary" Variant="Variant.Filled" Size="Size.Medium" Class="mb-1">
-                    <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Size="Size.Small" />
-                </MudAvatar>
-                <MudText Typo="Typo.h5" Align="Align.Center" Class="fw-bold">
-                    Complete Profile
-                </MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
-                   Finalize your account setup to get started
-                </MudText>
-            </MudStack>
-
-            <!-- Form Section -->
-            <MudForm Model="@_model" @ref="@_form" Validation="@ValidateValue" @bind-IsValid="@_isFormValid" Disabled="@(_isLoading || _isSubmitting)">
-                <MudCardContent Class="px-0">
-                    <MudGrid Spacing="2">
-                        <MudItem xs="12">
-                            <MudTextField Label="Email Address"
-                                          @bind-Value="_model.Email"
-                                          For="@(() => _model.Email)"
-                                          Margin="Margin.Dense"
-                                          Required="true"
-                                          Class="mb-4" />
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudTextField Label="First Name"
-                                          @bind-Value="_model.FirstName"
-                                          For="@(() => _model.FirstName)"
-                                          Margin="Margin.Dense"
-                                          Required="true" />
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudTextField Label="Last Name"
-                                          @bind-Value="_model.LastName"
-                                          For="@(() => _model.LastName)"
-                                          Margin="Margin.Dense"
-                                          Required="true" />
-                        </MudItem>
-                    </MudGrid>
-                </MudCardContent>
-                <MudCardActions Class="px-0 pt-4">
-                    <MudButton ButtonType="ButtonType.Submit"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Large"
-                               FullWidth="true"
-                               Class="py-3 font-weight-bold"
-                               Disabled="@(!_isFormValid || _isSubmitting || _isLoading)"
-                               OnClick="OnSubmitAsync">
-                        @if (_isSubmitting)
-                        {
-                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                            <MudText Class="ms-2">PROCESSING</MudText>
-                        }
-                        else
-                        {
-                            <MudText>COMPLETE REGISTRATION</MudText>
-                        }
-                    </MudButton>
-                </MudCardActions>
-            </MudForm>
+<CenteredCard IsLoading="@IsLoading">
+    <MudStack Spacing="4">
+        <!-- Header Section -->
+        <MudStack Spacing="1" AlignItems="AlignItems.Center" Class="mb-2">
+            <MudAvatar Color="Color.Primary" Variant="Variant.Filled" Size="Size.Medium" Class="mb-1">
+                <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Size="Size.Small" />
+            </MudAvatar>
+            <MudText Typo="Typo.h5" Align="Align.Center" Class="fw-bold">
+                Complete Profile
+            </MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
+                Finalize your account setup to get started
+            </MudText>
         </MudStack>
-    </MudPaper>
-</MudContainer>
+
+        <!-- Form Section -->
+        <MudForm Model="@_model" @ref="@_form" Validation="@ValidateValue" @bind-IsValid="@_isFormValid" Disabled="@IsLoading">
+            <MudCardContent Class="px-0">
+                <MudGrid Spacing="2">
+                    <MudItem xs="12">
+                        <MudTextField Label="Email Address"
+                                      @bind-Value="_model.Email"
+                                      For="@(() => _model.Email)"
+                                      InputType="InputType.Email"
+                                      Margin="Margin.Dense"
+                                      Required="true"
+                                      Class="mb-4" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField Label="First Name"
+                                      @bind-Value="_model.FirstName"
+                                      For="@(() => _model.FirstName)"
+                                      Margin="Margin.Dense"
+                                      Required="true" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField Label="Last Name"
+                                      @bind-Value="_model.LastName"
+                                      For="@(() => _model.LastName)"
+                                      Margin="Margin.Dense"
+                                      Required="true" />
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+            <MudCardActions Class="px-0 pt-4">
+                <LoadingButton Disabled="@(!_isFormValid)"
+                               OnClick="OnSubmitAsync"
+                               IsLoading="@IsLoading"
+                               Text="COMPLETE REGISTRATION"
+                               Class="py-3 font-weight-bold" />
+            </MudCardActions>
+        </MudForm>
+    </MudStack>
+</CenteredCard>

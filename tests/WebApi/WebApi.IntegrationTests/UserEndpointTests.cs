@@ -84,6 +84,62 @@ public class UserEndpointTests : BaseIntegrationTest
         exception.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
+    [Test]
+    public async Task RegisterUser_ShouldReturnConflict_WhenEmailExistsWithDifferentCase()
+    {
+        // Arrange - register first user with lowercase email
+        Factory.FakeUser.UserId = $"user-1-{Guid.NewGuid():N}";
+        var firstRequest = new RegisterUserDto("test@example.com", "First", "User");
+        await _identityClient.Client.RegisterUserAsync(firstRequest);
+
+        // Change to different user ID to simulate different user attempting registration
+        Factory.FakeUser.UserId = $"user-2-{Guid.NewGuid():N}";
+        var secondRequest = new RegisterUserDto("TEST@EXAMPLE.COM", "Second", "User");
+
+        // Act & Assert - should return Conflict due to case-insensitive email lookup
+        var exception = await Should.ThrowAsync<ApiException>(() => _identityClient.Client.RegisterUserAsync(secondRequest));
+        exception.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+    }
+
+    [Test]
+    public async Task RegisterUser_ShouldReturnConflict_WhenEmailExistsWithMixedCase()
+    {
+        // Arrange - register first user with mixed case email
+        Factory.FakeUser.UserId = $"user-1-{Guid.NewGuid():N}";
+        var firstRequest = new RegisterUserDto("User@Example.COM", "First", "User");
+        await _identityClient.Client.RegisterUserAsync(firstRequest);
+
+        // Change to different user ID to simulate different user attempting registration
+        Factory.FakeUser.UserId = $"user-2-{Guid.NewGuid():N}";
+        var secondRequest = new RegisterUserDto("user@example.com", "Second", "User");
+
+        // Act & Assert - should return Conflict due to case-insensitive email lookup
+        var exception = await Should.ThrowAsync<ApiException>(() => _identityClient.Client.RegisterUserAsync(secondRequest));
+        exception.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+    }
+
+    [Test]
+    public async Task RegisterUser_ShouldSucceed_WithSpecialCharactersInNames()
+    {
+        // Arrange - test names with valid special characters
+        var request = new RegisterUserDto("special@example.com", "Jean-Pierre", "O'Connor");
+
+        // Act
+        var result = await _identityClient.Client.RegisterUserAsync(request);
+
+        // Assert - verify successful registration
+        result.ShouldNotBeNull();
+        result.Email.ShouldBe("special@example.com");
+        result.FirstName.ShouldBe("Jean-Pierre");
+        result.LastName.ShouldBe("O'Connor");
+        result.Id.ShouldNotBe(Guid.Empty);
+
+        // Verify retrieval returns exact same names
+        var retrievedUser = await _identityClient.Client.GetCurrentUserAsync();
+        retrievedUser.FirstName.ShouldBe("Jean-Pierre");
+        retrievedUser.LastName.ShouldBe("O'Connor");
+    }
+
     #endregion
 
     #region GET /users/me

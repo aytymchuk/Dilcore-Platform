@@ -47,7 +47,7 @@ public sealed class UserGrain : Grain, IUserGrain
 
         _state.State.Id = Guid.NewGuid();
         _state.State.IdentityId = userId;
-        _state.State.Email = email;
+        _state.State.Email = email.ToLowerInvariant();
         _state.State.FirstName = firstName;
         _state.State.LastName = lastName;
         _state.State.RegisteredAt = _timeProvider.GetUtcNow().DateTime;
