@@ -1,5 +1,8 @@
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Validation;
+using Dilcore.WebApi.Client.Clients;
+using Dilcore.WebApi.Client.Extensions;
+using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using Dilcore.WebApp.Components.Common;
@@ -21,6 +24,9 @@ public partial class Register : AsyncComponentBase
     private MudBlazor.ISnackbar Snackbar { get; set; } = null!;
 
     [Inject]
+    private IIdentityClient IdentityClient { get; set; } = null!;
+
+    [Inject]
     private Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
 
     private MudBlazor.MudForm _form = null!;
@@ -37,10 +43,30 @@ public partial class Register : AsyncComponentBase
     {
         await ExecuteBusyAsync(async () =>
         {
+            if (await CheckExistingUserAndRedirectAsync())
+            {
+                return;
+            }
+
             await PopulateModelFromClaimsAsync();
 
             _isFormValid = await _validationAdapter.ValidateAsync(_model);
         });
+    }
+
+    /// <summary>
+    /// If the current user already exists in the system, redirects to home and returns true; otherwise returns false.
+    /// </summary>
+    private async Task<bool> CheckExistingUserAndRedirectAsync()
+    {
+        var result = await IdentityClient.SafeGetCurrentUserAsync();
+        if (result.IsSuccess)
+        {
+            AppNavigator.ToHome(forceLoad: true);
+            return true;
+        }
+
+        return false;
     }
 
     private async Task PopulateModelFromClaimsAsync()

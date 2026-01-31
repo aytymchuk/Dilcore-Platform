@@ -22,9 +22,9 @@ public abstract class AsyncComponentBase : ComponentBase
     {
         try
         {
-            Interlocked.Increment(ref _busyCount);
+            var incrementResult = Interlocked.Increment(ref _busyCount);
             // Trigger UI update when ensuring busy state starts
-            if (_busyCount == 1)
+            if (incrementResult == 1)
             {
                 await InvokeAsync(StateHasChanged);
             }
@@ -33,9 +33,9 @@ public abstract class AsyncComponentBase : ComponentBase
         }
         finally
         {
-            Interlocked.Decrement(ref _busyCount);
+            var decrementResult = Interlocked.Decrement(ref _busyCount);
             // Trigger UI update when busy state ends
-            if (_busyCount == 0)
+            if (decrementResult == 0)
             {
                 await InvokeAsync(StateHasChanged);
             }

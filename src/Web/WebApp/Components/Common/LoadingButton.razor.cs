@@ -6,7 +6,7 @@ namespace Dilcore.WebApp.Components.Common;
 
 /// <summary>
 /// Code-behind for LoadingButton component.
-///Wrapper around MudButton to handle loading states.
+/// Wrapper around MudButton to handle loading states.
 /// </summary>
 public partial class LoadingButton
 {

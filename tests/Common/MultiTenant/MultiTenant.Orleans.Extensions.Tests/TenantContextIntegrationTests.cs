@@ -14,13 +14,13 @@ public class TenantContextIntegrationTests
     private ClusterFixture _fixture = null!;
     private TestCluster Cluster => _fixture.Cluster;
 
-    [SetUp]
+    [OneTimeSetUp]
     public void OneTimeSetUp()
     {
         _fixture = new ClusterFixture();
     }
 
-    [TearDown]
+    [OneTimeTearDown]
     public void OneTimeTearDown()
     {
         Cluster.StopAllSilos();

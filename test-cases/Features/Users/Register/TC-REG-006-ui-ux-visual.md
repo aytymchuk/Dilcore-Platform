@@ -1,7 +1,9 @@
 # Test Case: [TC-REG-006] UI/UX Visual Compliance
+
 - **Page**: /register | **Category**: ui-ux | **Priority**: P2
 
 ## Checklist
+
 | Criterion | Status |
 |-----------|--------|
 | Card centered, outlined | ✅ |
@@ -13,4 +15,6 @@
 | Button loading state | ✅ |
 | Glassmorphism effect | ⚠️ Not visible |
 
-## Status: [x] Passed (7/10)
+## Status
+
+[~] Partially Passed (7/10) — 1 visual criterion failed (glassmorphism not visible)
