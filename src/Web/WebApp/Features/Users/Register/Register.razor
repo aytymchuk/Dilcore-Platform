@@ -22,40 +22,42 @@
 
         <!-- Form Section -->
         <MudForm Model="@_model" @ref="@_form" Validation="@ValidateValue" @bind-IsValid="@_isFormValid" Disabled="@IsLoading">
-            <MudCardContent Class="px-0">
-                <MudGrid Spacing="2">
-                    <MudItem xs="12">
-                        <MudTextField Label="Email Address"
-                                      @bind-Value="_model.Email"
-                                      For="@(() => _model.Email)"
-                                      InputType="InputType.Email"
-                                      Margin="Margin.Dense"
-                                      Required="true"
-                                      Class="mb-4" />
-                    </MudItem>
-                    <MudItem xs="12">
-                        <MudTextField Label="First Name"
-                                      @bind-Value="_model.FirstName"
-                                      For="@(() => _model.FirstName)"
-                                      Margin="Margin.Dense"
-                                      Required="true" />
-                    </MudItem>
-                    <MudItem xs="12">
-                        <MudTextField Label="Last Name"
-                                      @bind-Value="_model.LastName"
-                                      For="@(() => _model.LastName)"
-                                      Margin="Margin.Dense"
-                                      Required="true" />
-                    </MudItem>
-                </MudGrid>
-            </MudCardContent>
-            <MudCardActions Class="px-0 pt-4">
-                <LoadingButton Disabled="@(!_isFormValid)"
-                               OnClick="OnSubmitAsync"
-                               IsLoading="@IsLoading"
-                               Text="COMPLETE REGISTRATION"
-                               Class="py-3 font-weight-bold" />
-            </MudCardActions>
+            <MudCard>
+                <MudCardContent Class="px-0"> 
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12">
+                            <MudTextField Label="Email Address"
+                                        @bind-Value="_model.Email"
+                                        For="@(() => _model.Email)"
+                                        InputType="InputType.Email"
+                                        Margin="Margin.Dense"
+                                        Required="true"
+                                        Class="mb-4" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField Label="First Name"
+                                        @bind-Value="_model.FirstName"
+                                        For="@(() => _model.FirstName)"
+                                        Margin="Margin.Dense"
+                                        Required="true" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField Label="Last Name"
+                                        @bind-Value="_model.LastName"
+                                        For="@(() => _model.LastName)"
+                                        Margin="Margin.Dense"
+                                        Required="true" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+                <MudCardActions Class="px-0 pt-4">
+                    <LoadingButton Disabled="@(!_isFormValid)"
+                                OnClick="OnSubmitAsync"
+                                IsLoading="@IsLoading"
+                                Text="COMPLETE REGISTRATION"
+                                Class="py-3 font-weight-bold" />
+                </MudCardActions>
+            </MudCard>
         </MudForm>
     </MudStack>
 </CenteredCard>

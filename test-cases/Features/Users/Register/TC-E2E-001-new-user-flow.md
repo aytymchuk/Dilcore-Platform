@@ -18,11 +18,11 @@
 - Button shows "PROCESSING" with spinner
 - API call: POST /api/identity/users/register
 - Snackbar: "Registration successful! Welcome to the platform."
-- Redirect to / (home page)
+- Redirect to / (homepage)
 - User profile persisted in database
 
 ## Verification
-- Home page shows user name
-- /register redirects to home (already registered)
+- Homepage shows user name
+- /register redirects to homepage (already registered)
 
 ## Status: [ ] Not Tested - **BLOCKED**: Requires fresh Auth0 account

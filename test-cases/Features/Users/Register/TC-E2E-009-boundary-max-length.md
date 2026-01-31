@@ -19,12 +19,21 @@
 
 ## Steps
 
+### BLOCK: First Name
 1. Generate 100-character string
 2. Enter in First Name
 3. Submit form
 4. Verify no error shown
 5. Repeat with 101 characters
 6. Verify validation error shown
+
+### BLOCK: Last Name
+7. Generate 100-character string
+8. Enter in Last Name
+9. Submit form
+10. Verify no error shown
+11. Repeat with 101 characters
+12. Verify validation error shown
 
 ## Expected Results
 

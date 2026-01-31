@@ -5,7 +5,7 @@
 ## Checklist
 
 | Criterion | Status |
-|-----------|--------|
+| ----------- | -------- |
 | Card centered, outlined | ✅ |
 | Modern typography | ✅ |
 | pa-6 padding | ✅ |
@@ -17,4 +17,4 @@
 
 ## Status
 
-[~] Partially Passed (7/10) — 1 visual criterion failed (glassmorphism not visible)
+[~] Partially Passed (7/8) — 1 visual criterion failed (glassmorphism not visible)

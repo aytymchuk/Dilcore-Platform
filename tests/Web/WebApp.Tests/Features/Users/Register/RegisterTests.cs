@@ -35,7 +35,7 @@ public class RegisterTests
     private Mock<ISnackbar> _mockSnackbar = null!;
 
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
         _ctx = new Bunit.TestContext();
         _ctx.JSInterop.Mode = JSRuntimeMode.Loose;
@@ -69,11 +69,11 @@ public class RegisterTests
     }
 
     [Test]
-    public void RendersWithCorrectUIElements()
+    public async Task RendersWithCorrectUIElements()
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -87,11 +87,11 @@ public class RegisterTests
     }
 
     [Test]
-    public void DisplaysLoadingProgressBar_WhenInitializing()
+    public async Task DisplaysLoadingProgressBar_WhenInitializing()
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -102,7 +102,7 @@ public class RegisterTests
     }
 
     [Test]
-    public void PopulatesModelFromStandardClaims_WhenAuthenticated()
+    public async Task PopulatesModelFromStandardClaims_WhenAuthenticated()
     {
         // Arrange
         _authContext.SetAuthorized("Test User");
@@ -111,7 +111,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -126,7 +126,7 @@ public class RegisterTests
     }
 
     [Test]
-    public void PopulatesModelFromAlternativeClaims_WhenAuthenticated()
+    public async Task PopulatesModelFromAlternativeClaims_WhenAuthenticated()
     {
         // Arrange
         _authContext.SetAuthorized("Test User");
@@ -135,7 +135,7 @@ public class RegisterTests
             new Claim("given_name", TestFirstName),
             new Claim("family_name", TestLastName)
         );
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -150,11 +150,11 @@ public class RegisterTests
     }
 
     [Test]
-    public void ModelRemainsEmpty_WhenNotAuthenticated()
+    public async Task ModelRemainsEmpty_WhenNotAuthenticated()
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -186,11 +186,11 @@ public class RegisterTests
     }
 
     [Test]
-    public void DoesNotRedirect_WhenUserDoesNotExist()
+    public async Task DoesNotRedirect_WhenUserDoesNotExist()
     {
         // Arrange
         _authContext.SetAuthorized("Test User");
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         // Act
         _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -200,11 +200,11 @@ public class RegisterTests
     }
 
     [Test]
-    public void SubmitButtonDisabled_WhenFormIsInvalid()
+    public async Task SubmitButtonDisabled_WhenFormIsInvalid()
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -224,7 +224,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -244,8 +244,7 @@ public class RegisterTests
         textInputs[0].Change(TestFirstName);
         textInputs[1].Change(TestLastName);
 
-        // Allow time for initial rendering and async validation
-        await Task.Delay(100);
+
 
         // Force validation to ensure button state updates in test environment
         var form = cut.FindComponent<MudBlazor.MudForm>().Instance;
@@ -277,7 +276,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -296,8 +295,7 @@ public class RegisterTests
         textInputs[1].Change(TestLastName);
 
         // Act
-        // Allow time for initial rendering and async validation
-        await Task.Delay(100);
+
         
         // Force validation to ensure button state updates in test environment
         var form = cut.FindComponent<MudBlazor.MudForm>().Instance;
@@ -323,7 +321,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        SetupIdentityClientNoUser();
+        await SetupIdentityClientNoUserAsync();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -343,8 +341,7 @@ public class RegisterTests
         textInputs[0].Change(TestFirstName);
         textInputs[1].Change(TestLastName);
 
-        // Allow time for initial rendering and async validation
-        await Task.Delay(100);
+
 
         // Force validation to ensure button state updates in test environment
         var form = cut.FindComponent<MudBlazor.MudForm>().Instance;
@@ -360,13 +357,13 @@ public class RegisterTests
         _mockSnackbar.Verify(s => s.Add(SuccessMessage, Severity.Success, It.IsAny<Action<SnackbarOptions>?>(), It.IsAny<string?>()), Times.Once);
     }
 
-    private void SetupIdentityClientNoUser()
+    private async Task SetupIdentityClientNoUserAsync()
     {
-        var notFoundException = ApiException.Create(
+        var notFoundException = await ApiException.Create(
             new HttpRequestMessage(),
             HttpMethod.Get,
             new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") },
-            new RefitSettings()).GetAwaiter().GetResult();
+            new RefitSettings());
 
         _mockIdentityClient.Setup(c => c.GetCurrentUserAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(notFoundException);
