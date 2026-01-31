@@ -1,7 +1,5 @@
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Validation;
-using Dilcore.WebApi.Client.Clients;
-using Dilcore.WebApi.Client.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using Dilcore.WebApp.Components.Common;
@@ -40,7 +38,6 @@ public partial class Register : AsyncComponentBase
         await ExecuteBusyAsync(async () =>
         {
             await PopulateModelFromClaimsAsync();
-            await CheckExistingUserAndRedirectAsync();
 
             _isFormValid = await _validationAdapter.ValidateAsync(_model);
         });
