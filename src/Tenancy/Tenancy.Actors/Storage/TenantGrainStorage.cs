@@ -1,5 +1,5 @@
 using AutoMapper;
-using Dilcore.Tenancy.Contracts.Tenants;
+using Dilcore.Tenancy.Core.Abstractions;
 using Dilcore.Tenancy.Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;

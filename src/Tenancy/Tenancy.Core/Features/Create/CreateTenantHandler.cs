@@ -3,6 +3,7 @@ using Dilcore.MediatR.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Contracts.Tenants;
+using Dilcore.Tenancy.Core.Abstractions;
 using FluentResults;
 
 namespace Dilcore.Tenancy.Core.Features.Create;

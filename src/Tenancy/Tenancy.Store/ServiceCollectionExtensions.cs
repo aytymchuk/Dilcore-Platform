@@ -1,5 +1,6 @@
 using Dilcore.Configuration.Extensions;
 using Dilcore.Tenancy.Contracts.Tenants;
+using Dilcore.Tenancy.Core.Abstractions;
 using Dilcore.Tenancy.Store.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
