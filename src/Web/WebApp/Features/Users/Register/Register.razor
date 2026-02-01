@@ -51,7 +51,7 @@
                     </MudGrid>
                 </MudCardContent>
                 <MudCardActions Class="px-0 pt-4">
-                    <LoadingButton Disabled="@(!_isFormValid)"
+                    <LoadingButton Disabled="@(!_isFormValid || IsLoading)"
                                 OnClick="OnSubmitAsync"
                                 IsLoading="@IsLoading"
                                 Text="COMPLETE REGISTRATION"
