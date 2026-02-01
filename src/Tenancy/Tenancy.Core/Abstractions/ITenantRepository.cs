@@ -1,7 +1,7 @@
 using Dilcore.Tenancy.Domain;
 using FluentResults;
 
-namespace Dilcore.Tenancy.Contracts.Tenants;
+namespace Dilcore.Tenancy.Core.Abstractions;
 
 public interface ITenantRepository
 {
