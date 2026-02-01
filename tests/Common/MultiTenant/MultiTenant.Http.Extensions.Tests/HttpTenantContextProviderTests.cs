@@ -31,7 +31,7 @@ public class HttpTenantContextProviderTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Name.ShouldBe("T1");
+        result.Name.ShouldBe("t1");
         result.StorageIdentifier.ShouldBe("stx1");
     }
 

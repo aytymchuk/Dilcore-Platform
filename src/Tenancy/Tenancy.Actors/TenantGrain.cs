@@ -35,7 +35,7 @@ public sealed class TenantGrain : Grain, ITenantGrain
         return base.OnDeactivateAsync(reason, cancellationToken);
     }
 
-    public async Task<TenantCreationResult> CreateAsync(string displayName, string? description)
+    public async Task<TenantCreationResult> CreateAsync(CreateTenantGrainCommand command)
     {
         var tenantName = this.GetPrimaryKeyString();
 
@@ -46,16 +46,16 @@ public sealed class TenantGrain : Grain, ITenantGrain
         }
 
         _state.State.SystemName = tenantName;
-        _state.State.Name = displayName;
+        _state.State.Name = command.DisplayName;
         _state.State.StoragePrefix = tenantName;
-        _state.State.Description = description;
+        _state.State.Description = command.Description;
         _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
         _state.State.Id = Guid.NewGuid();
 
         await _state.WriteStateAsync();
 
-        _logger.LogTenantCreated(tenantName, displayName);
+        _logger.LogTenantCreated(tenantName, command.DisplayName);
 
         return TenantCreationResult.Success(ToDto());
     }

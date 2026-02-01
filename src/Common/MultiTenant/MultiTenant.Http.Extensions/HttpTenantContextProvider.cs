@@ -20,6 +20,6 @@ public sealed class HttpTenantContextProvider(IHttpContextAccessor httpContextAc
         if (tenantInfo == null)
             return null;
 
-        return new TenantContext(tenantInfo.Name, tenantInfo.StorageIdentifier);
+        return new TenantContext(tenantInfo.Identifier, tenantInfo.StorageIdentifier);
     }
 }

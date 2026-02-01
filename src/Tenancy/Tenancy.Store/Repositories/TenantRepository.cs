@@ -1,5 +1,5 @@
 using Dilcore.DocumentDb.MongoDb.Repositories.Abstractions;
-using Dilcore.Tenancy.Core.Abstractions;
+using Dilcore.Tenancy.Contracts.Tenants;
 using Dilcore.Tenancy.Domain;
 using Dilcore.Tenancy.Store.Entities;
 using FluentResults;
@@ -34,7 +34,7 @@ public sealed class TenantRepository : ITenantRepository
                  return result.ToResult<Tenant>();
             }
             
-            return Result.Ok(tenant);
+            return Result.Ok(result.Value.ToDomain());
         }
         catch (Exception ex)
         {

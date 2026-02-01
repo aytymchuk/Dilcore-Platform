@@ -9,7 +9,7 @@ namespace Dilcore.Tenancy.Core.Features.Create;
 /// </summary>
 /// <param name="Name">The human-readable display name.</param>
 /// <param name="Description">Optional description of the tenant.</param>
-public record CreateTenantCommand(string Name, string? Description) : ICommand<TenantDto>
+public record CreateTenantCommand(string Name, string? Description) : ICommand<Dilcore.Tenancy.Actors.Abstractions.TenantDto>
 {
-    public string SystemName { get; set; } = string.Empty;
+    public string SystemName { get; init; } = string.Empty;
 }

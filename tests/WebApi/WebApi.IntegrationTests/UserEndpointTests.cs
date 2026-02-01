@@ -14,7 +14,7 @@ namespace Dilcore.WebApi.IntegrationTests;
 public class UserEndpointTests : BaseIntegrationTest
 {
     private IDisposableClient<IIdentityClient> _identityClient = null!;
-    private string TenantId;
+    private string TenantId = null!;
 
     [SetUp]
     public async Task SetUpClient()

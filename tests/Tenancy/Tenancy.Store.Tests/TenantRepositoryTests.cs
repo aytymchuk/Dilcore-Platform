@@ -46,7 +46,9 @@ public class TenantRepositoryTests
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe(tenant);
+        result.Value.Id.ShouldBe(tenant.Id);
+        result.Value.Name.ShouldBe(tenant.Name);
+        result.Value.SystemName.ShouldBe(tenant.SystemName);
         _genericRepositoryMock.Verify(x => x.StoreAsync(It.Is<TenantDocument>(d => d.Id == tenant.Id), It.IsAny<CancellationToken>()), Times.Once);
     }
 

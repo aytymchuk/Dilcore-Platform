@@ -3,6 +3,7 @@ namespace Dilcore.Tenancy.Actors.Abstractions;
 /// <summary>
 /// Data transfer object for tenant information.
 /// </summary>
+/// <param name="Id">The unique identifier (Guid) for the tenant.</param>
 /// <param name="Name">The human-readable display name.</param>
 /// <param name="SystemName">The unique system name (lower kebab-case identifier).</param>
 /// <param name="Description">Optional description of the tenant.</param>

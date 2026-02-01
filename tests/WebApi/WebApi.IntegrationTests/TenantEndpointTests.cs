@@ -190,7 +190,11 @@ public class TenantEndpointTests
         {
             var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
             var tenantGrain = grainFactory.GetGrain<ITenantGrain>(tenantId);
-            await tenantGrain.CreateAsync(tenantName, "Tenant for auth test");
+            await tenantGrain.CreateAsync(new CreateTenantGrainCommand
+            {
+                DisplayName = tenantName,
+                Description = "Tenant for auth test"
+            });
         }
 
         // 2. De-authenticate
