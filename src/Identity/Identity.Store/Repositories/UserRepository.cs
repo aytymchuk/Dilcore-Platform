@@ -3,6 +3,7 @@ using Dilcore.DocumentDb.MongoDb.Repositories.Abstractions;
 using Dilcore.Identity.Core.Abstractions;
 using Dilcore.Identity.Domain;
 using Dilcore.Identity.Store.Entities;
+using Dilcore.Results.Abstractions;
 using FluentResults;
 using MongoDB.Driver;
 

@@ -1,9 +1,6 @@
-using Dilcore.Identity.Contracts.Profile;
 using Dilcore.MediatR.Abstractions;
+using Dilcore.WebApp.Models.Users;
 
 namespace Dilcore.WebApp.Features.Users.CurrentUser;
 
-/// <summary>
-/// Query to get the current authenticated user's profile.
-/// </summary>
-public record GetCurrentUserQuery : IQuery<UserDto?>;
+public record GetCurrentUserQuery : IQuery<UserModel?>;

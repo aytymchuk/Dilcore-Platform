@@ -1,4 +1,4 @@
-using Dilcore.Identity.Contracts.Profile;
+using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Features.Users.CurrentUser;
 using MediatR;
@@ -33,7 +33,7 @@ public partial class UserStateProvider : ComponentBase
     /// <summary>
     /// Gets the current user, or null if not loaded or not found.
     /// </summary>
-    public UserDto? CurrentUser { get; private set; }
+    public UserModel? CurrentUser { get; private set; }
 
     /// <summary>
     /// Gets whether the user was not found (needs registration).

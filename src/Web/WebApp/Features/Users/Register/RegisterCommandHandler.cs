@@ -25,10 +25,6 @@ internal sealed class RegisterCommandHandler : ICommandHandler<RegisterCommand, 
         var dto = new RegisterUserDto(parameters.Email, parameters.FirstName, parameters.LastName);
         var result = await _identityClient.SafeRegisterUserAsync(dto, cancellationToken);
 
-        return result.Map(user => new UserModel(
-            user.Id,
-            user.Email,
-            user.FirstName,
-            user.LastName));
+        return result.Map(UserModel.FromDto);
     }
 }

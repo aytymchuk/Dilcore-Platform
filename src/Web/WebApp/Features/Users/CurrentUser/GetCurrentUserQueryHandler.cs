@@ -1,6 +1,5 @@
-using System.Net;
-using Dilcore.Identity.Contracts.Profile;
 using Dilcore.MediatR.Abstractions;
+using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.Client.Errors;
 using Dilcore.WebApi.Client.Extensions;
@@ -11,32 +10,25 @@ namespace Dilcore.WebApp.Features.Users.CurrentUser;
 /// <summary>
 /// Handler for getting the current user via the Platform API.
 /// </summary>
-internal sealed class GetCurrentUserQueryHandler : IQueryHandler<GetCurrentUserQuery, UserDto?>
+internal sealed class GetCurrentUserQueryHandler(IIdentityClient identityClient)
+    : IQueryHandler<GetCurrentUserQuery, UserModel?>
 {
-    private readonly IIdentityClient _identityClient;
+    private readonly IIdentityClient _identityClient = identityClient ?? throw new ArgumentNullException(nameof(identityClient));
 
-    public GetCurrentUserQueryHandler(IIdentityClient identityClient)
-    {
-        _identityClient = identityClient ?? throw new ArgumentNullException(nameof(identityClient));
-    }
-
-    public async Task<Result<UserDto?>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserModel?>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
         var result = await _identityClient.SafeGetCurrentUserAsync(cancellationToken);
 
         if (result.IsSuccess)
         {
-            return Result.Ok<UserDto?>(result.Value);
+            return result.Map(dto => (UserModel?)UserModel.FromDto(dto));
         }
 
         // Check if the error is a 404 (user not found)
         var apiError = result.Errors.OfType<ApiError>().FirstOrDefault();
-        if (apiError?.StatusCode == (int)HttpStatusCode.NotFound)
-        {
-            return Result.Fail<UserDto?>(new UserNotFoundError());
-        }
-
-        // Re-wrap other errors
-        return Result.Fail<UserDto?>(result.Errors);
+        
+        return apiError?.NotFound is true 
+            ? Result.Ok<UserModel?>(null) 
+            : result.ToResult();
     }
 }

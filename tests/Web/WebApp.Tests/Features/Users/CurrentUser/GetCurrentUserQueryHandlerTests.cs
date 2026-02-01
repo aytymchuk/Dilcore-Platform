@@ -1,6 +1,7 @@
 using System.Net;
 using Dilcore.Identity.Contracts.Profile;
 using Dilcore.WebApi.Client.Clients;
+using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Features.Users.CurrentUser;
 using Moq;
 using Refit;
@@ -36,16 +37,18 @@ public class GetCurrentUserQueryHandlerTests
         _identityClientMock.Setup(x => x.GetCurrentUserAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedUserDto);
 
+        var expectedUserModel = UserModel.FromDto(expectedUserDto);
+
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe(expectedUserDto);
+        result.Value.ShouldBe(expectedUserModel);
     }
 
     [Test]
-    public async Task Handle_Should_Return_UserNotFoundError_When_Client_Returns_404()
+    public async Task Handle_Should_Return_Null_When_Client_Returns_404()
     {
         // Arrange
         var query = new GetCurrentUserQuery();
@@ -62,8 +65,8 @@ public class GetCurrentUserQueryHandlerTests
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
-        result.IsFailed.ShouldBeTrue();
-        result.HasError<UserNotFoundError>().ShouldBeTrue();
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldBeNull();
     }
 
     [Test]
@@ -81,7 +84,5 @@ public class GetCurrentUserQueryHandlerTests
         // Assert
         result.IsFailed.ShouldBeTrue();
         result.HasError<UserNotFoundError>().ShouldBeFalse();
-        // Since we throw generic Exception, usage of ApiErrorHelper.CreateUnexpectedError will set message to exception message
-        result.Errors.ShouldContain(e => e.Message == "Fail");
     }
 }

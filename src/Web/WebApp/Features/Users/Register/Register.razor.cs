@@ -1,3 +1,5 @@
+using Dilcore.WebApp.Components.Common;
+using Dilcore.WebApp.Features.Users.CurrentUser;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Validation;
 using MediatR;
@@ -52,8 +54,8 @@ public partial class Register : AsyncComponentBase
     /// </summary>
     private async Task<bool> CheckExistingUserAndRedirectAsync()
     {
-        var result = await IdentityClient.SafeGetCurrentUserAsync();
-        if (result.IsSuccess)
+        var result = await Sender.Send(new GetCurrentUserQuery());
+        if (result.IsSuccess && result.ValueOrDefault is not null)
         {
             AppNavigator.ToHome(forceLoad: true);
             return true;
