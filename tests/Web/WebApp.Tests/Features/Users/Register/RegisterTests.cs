@@ -66,7 +66,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -84,7 +84,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -104,7 +104,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -128,7 +128,7 @@ public class RegisterTests
             new Claim("given_name", TestFirstName),
             new Claim("family_name", TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -147,7 +147,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -183,7 +183,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetAuthorized("Test User");
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -197,7 +197,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -217,7 +217,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -269,7 +269,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -314,7 +314,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -350,12 +350,10 @@ public class RegisterTests
         _mockSnackbar.Verify(s => s.Add(SuccessMessage, Severity.Success, It.IsAny<Action<SnackbarOptions>?>(), It.IsAny<string?>()), Times.Once);
     }
 
-    private Task SetupIdentityClientNoUserAsync()
+    private void SetupIdentityClientNoUser()
     {
         _mockSender.Setup(s => s.Send(It.IsAny<GetCurrentUserQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok<UserModel?>(null));
-        
-        return Task.CompletedTask;
     }
 
     private void SetupIdentityClientWithExistingUser()

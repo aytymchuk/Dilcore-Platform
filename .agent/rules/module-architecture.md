@@ -64,6 +64,7 @@ This document outlines the architectural rules and dependency constraints for th
   * `Module.Core` - for module abstractions
 
 ### Module.Actors
+
 * **Role**: Grain-based part (Orleans Actors).
 * **Responsibilities**:
   * Contains actors (grains) that are entity-specific.
@@ -73,6 +74,7 @@ This document outlines the architectural rules and dependency constraints for th
 * **Allowed Dependencies**:
   * `Module.Actors.Abstractions`
   * `Module.Core`
+  * `Module.Domain`
 
 ### Module.Actors.Abstractions
 

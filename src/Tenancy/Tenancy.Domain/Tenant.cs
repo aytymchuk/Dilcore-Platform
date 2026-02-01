@@ -6,13 +6,12 @@ namespace Dilcore.Tenancy.Domain;
 
 public sealed partial record Tenant : BaseDomain
 {
+
     /// <summary>
     /// Prefix of the DB/Collection/Container name specified for this particular tenant.
     /// Cannot be changed after tenant creation.
     /// </summary>
     public required string StoragePrefix { get; init; }
-
-    private static readonly Regex KebabCaseRegex = new("^[a-z0-9]+(?:-[a-z0-9]+)*$", RegexOptions.Compiled);
 
     /// <summary>
     /// Unique system name (lower-kebab-case).
@@ -22,7 +21,8 @@ public sealed partial record Tenant : BaseDomain
         get => _systemName;
         init
         {
-            if (!KebabCaseRegex.IsMatch(value))
+            var parts = KebabCasePartRegex().Matches(value).Select(m => m.Value).ToList();
+            if (parts.Count == 0 || string.Join("-", parts) != value)
             {
                 throw new ArgumentException("System name must be in lower-kebab-case format.", nameof(value));
             }
@@ -43,6 +43,9 @@ public sealed partial record Tenant : BaseDomain
     /// </summary>
     public string? Description { get; init; }
 
+    [GeneratedRegex("[a-z0-9]+")]
+    private static partial Regex KebabCasePartRegex();
+
     /// <summary>
     /// Converts a display name to lower kebab-case.
     /// Example: "My New Tenant" -> "my-new-tenant"
@@ -54,12 +57,9 @@ public sealed partial record Tenant : BaseDomain
             return string.Empty;
         }
 
-        // Replace non-alphanumeric with spaces, then handle casing
-        var normalized = NormalizationRegex().Replace(input.Trim(), " ");
-        var parts = normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return string.Join("-", parts).ToLowerInvariant();
-    }
+        var parts = KebabCasePartRegex().Matches(input.ToLowerInvariant())
+            .Select(m => m.Value);
 
-    [GeneratedRegex(@"[^a-zA-Z0-9\s]")]
-    private static partial Regex NormalizationRegex();
+        return string.Join("-", parts);
+    }
 }
