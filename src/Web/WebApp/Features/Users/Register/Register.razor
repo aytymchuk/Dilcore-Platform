@@ -22,7 +22,7 @@
 
         <!-- Form Section -->
         <MudForm Model="@_model" @ref="@_form" Validation="@ValidateValue" @bind-IsValid="@_isFormValid" Disabled="@IsLoading">
-            <MudCard>
+            <MudCard Elevation="0" Outlined="false" Style="background: transparent;">
                 <MudCardContent Class="px-0"> 
                     <MudGrid Spacing="2">
                         <MudItem xs="12">
