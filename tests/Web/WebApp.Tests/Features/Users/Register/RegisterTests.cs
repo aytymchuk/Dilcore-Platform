@@ -360,13 +360,13 @@ public class RegisterTests
 
     private void SetupIdentityClientWithExistingUser()
     {
-        var userDto = new UserModel(
+        var userModel = new UserModel(
             Guid.NewGuid(),
             TestEmail,
             TestFirstName,
             TestLastName);
 
         _mockSender.Setup(s => s.Send(It.IsAny<GetCurrentUserQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok<UserModel?>(userDto));
+            .ReturnsAsync(Result.Ok<UserModel?>(userModel));
     }
 }

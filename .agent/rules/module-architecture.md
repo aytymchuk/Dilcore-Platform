@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+trigger: glob
 ---
 
 # Module Architecture & Dependency Guidelines
@@ -22,12 +22,11 @@ This document outlines the architectural rules and dependency constraints for th
 * **Rules**:
   * May be consumed by `Module.WebApi`, which is the primary consumer for external translation.
   * `Core` (e.g., `<Domain>.Core`) owns infrastructure and domain abstractions such as repository interfaces, which **must not** be placed in `Contracts`.
-  * `Core`-owned interfaces (repository/store abstractions) are allowed to reference or map to `Contracts`, but implementations must live in `Store`/`Infrastructure` layers and **not** in `WebApi`.
   * `Core` defines behavior and interfaces, while `Contracts` is focused on data transfer.
 
 ### Module.WebApi
 
-* **Role**: Entrypoint to the module.
+* **Role**: Entry point to the module.
 * **Responsibilities**:
   * Describes API endpoints.
   * Handles service registrations.
@@ -62,9 +61,9 @@ This document outlines the architectural rules and dependency constraints for th
   * Data objects.
 * **Allowed Dependencies**:
   * `Module.Domain`
+  * `Module.Core` - for module abstractions
 
 ### Module.Actors
-
 * **Role**: Grain-based part (Orleans Actors).
 * **Responsibilities**:
   * Contains actors (grains) that are entity-specific.
@@ -73,8 +72,7 @@ This document outlines the architectural rules and dependency constraints for th
   * Communicates with other actors via `Module.Actors.Abstractions`.
 * **Allowed Dependencies**:
   * `Module.Actors.Abstractions`
-  * `Module.Domain`
-  * `Module.Store`
+  * `Module.Core`
 
 ### Module.Actors.Abstractions
 
@@ -93,5 +91,14 @@ This document outlines the architectural rules and dependency constraints for th
 
 ### Module.Infrastructure
 
-* **Role**: Infrastructure-specific implementations.
+* **Role**: Infrastructure specific implementations.
+* **Responsibilities**:
+  * Provide infrastructure-specific implementations.
+  * Adapt/implement abstractions from `Module.Core`.
+  * Manage external integrations and persistence.
+* **Allowed Dependencies**:
+  * `Module.Core` (primary)
+  * `Module.Shared`
+  * External infrastructure libraries, drivers, and services.
+  * **Forbidden**: Must not depend on higher-level business modules.
 * **Note**: Usually implements abstractions defined in `Module.Core`.
