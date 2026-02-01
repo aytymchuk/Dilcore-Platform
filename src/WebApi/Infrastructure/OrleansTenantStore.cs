@@ -119,11 +119,8 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
         return new AppTenantInfo(
             Id: dto.Name,           // Use tenant name as ID
             Identifier: dto.Name,   // Use tenant name as Identifier (what strategies match against)
-            Name: dto.Name   // Use display name as the friendly Name
-        )
-        {
-            // StorageIdentifier could be derived from tenant name for data isolation
-            StorageIdentifier = dto.Name
-        };
+            Name: dto.Name,   // Use display name as the friendly Name
+            StorageIdentifier: dto.StorageIdentifier // Storage identified of the tenant
+        );
     }
 }

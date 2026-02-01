@@ -3,7 +3,6 @@ using Dilcore.Tenancy.Core;
 using Dilcore.Tenancy.Store;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Tenancy.WebApi;
 

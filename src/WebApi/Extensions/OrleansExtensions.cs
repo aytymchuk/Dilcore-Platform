@@ -1,6 +1,5 @@
 using Azure.Data.Tables;
 using Dilcore.MultiTenant.Orleans.Extensions;
-using Dilcore.Tenancy.Actors;
 using Dilcore.WebApi.Settings;
 
 namespace Dilcore.WebApi.Extensions;

@@ -13,4 +13,5 @@ public sealed record TenantDto(
     string Name,
     string SystemName,
     string? Description,
+    string StorageIdentifier,
     DateTime CreatedAt);

@@ -31,20 +31,17 @@ public sealed partial class CreateTenantHandler : ICommandHandler<CreateTenantCo
 
         request.SystemName = ToKebabCase(request.Name);
 
+        var grain = _grainFactory.GetGrain<ITenantGrain>(request.SystemName);
+        
+        var tenant = await grain.GetAsync();
+        
         // 2. Check Uniqueness
-        var existingTenantResult = await _tenantRepository.GetBySystemNameAsync(request.SystemName, cancellationToken);
-        if (existingTenantResult.IsFailed)
-        {
-             return Result.Fail(existingTenantResult.Errors);
-        }
-
-        if (existingTenantResult.Value is not null)
+        if (tenant is not null)
         {
             return Result.Fail(new ConflictError($"Tenant with system name '{request.SystemName}' already exists."));
         }
 
         // 3. Create Tenant Grain
-        var grain = _grainFactory.GetGrain<ITenantGrain>(request.SystemName);
         var result = await grain.CreateAsync(request.Name, request.Description);
 
         if (!result.IsSuccess)
