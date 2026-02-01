@@ -9,10 +9,12 @@ namespace Dilcore.Tenancy.Actors.Abstractions;
 /// <param name="Description">Optional description of the tenant.</param>
 /// <param name="CreatedAt">When the tenant was created.</param>
 [GenerateSerializer]
+[Alias("Dilcore.Tenancy.Actors.Abstractions.TenantDto")]
 public sealed record TenantDto(
     Guid Id,
     string Name,
     string SystemName,
     string? Description,
     string StorageIdentifier,
+    bool IsCreated,
     DateTime CreatedAt);

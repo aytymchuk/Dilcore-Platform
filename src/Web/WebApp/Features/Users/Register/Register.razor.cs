@@ -1,6 +1,6 @@
+using Dilcore.WebApp.Features.Users.CurrentUser;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Validation;
-using Dilcore.WebApp.Features.Users.CurrentUser;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 

@@ -37,7 +37,7 @@ public class GetTenantHandlerTests
 
         _tenantContextMock.Setup(x => x.Name).Returns(tenantName);
 
-        var expectedDto = new TenantDto(Guid.NewGuid(), displayName, tenantName, description, storagePrefix, createdAt);
+        var expectedDto = new TenantDto(Guid.NewGuid(), displayName, tenantName, description, storagePrefix, true, createdAt);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.GetAsync()).ReturnsAsync(expectedDto);
 

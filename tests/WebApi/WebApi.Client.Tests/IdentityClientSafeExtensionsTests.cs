@@ -1,3 +1,5 @@
+using System.Net;
+using System.Text.Json;
 using Dilcore.Identity.Contracts.Profile;
 using Dilcore.Identity.Contracts.Register;
 using Dilcore.Results.Abstractions;
@@ -6,8 +8,6 @@ using Dilcore.WebApi.Client.Errors;
 using Dilcore.WebApi.Client.Extensions;
 using RichardSzalay.MockHttp;
 using Shouldly;
-using System.Net;
-using System.Text.Json;
 
 namespace Dilcore.WebApi.Client.Tests;
 

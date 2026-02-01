@@ -16,12 +16,12 @@ public static class WebApplicationBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddTenancyModule(this WebApplicationBuilder builder)
     {
-        // Add Tenancy Store services
-        builder.Services.AddTenancyStore(builder.Configuration);
-
         // Add Tenancy Core services (MediatR handlers and behaviors)
         builder.Services.AddTenancyApplication();
 
+        // Add Tenancy Store services
+        builder.Services.AddTenancyStore(builder.Configuration);
+        
         // Register validators from Contracts assembly for API validation
         builder.Services.AddValidatorsFromAssembly(typeof(CreateTenantDtoValidator).Assembly);
 

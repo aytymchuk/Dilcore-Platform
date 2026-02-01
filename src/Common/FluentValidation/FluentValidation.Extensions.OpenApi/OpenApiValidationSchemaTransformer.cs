@@ -1,7 +1,7 @@
 using System.Reflection;
-using Humanizer;
 using FluentValidation;
 using FluentValidation.Validators;
+using Humanizer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;

@@ -1,6 +1,6 @@
 using Dilcore.Extensions.OpenApi.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Extensions.OpenApi;
 

@@ -1,7 +1,5 @@
 using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.Results.Extensions.Api;
-using CreateTenantDto = Dilcore.Tenancy.Contracts.Tenants.Create.CreateTenantDto;
-using ContractTenantDto = Dilcore.Tenancy.Contracts.Tenants.TenantDto;
 using Dilcore.Tenancy.Core.Features.Create;
 using Dilcore.Tenancy.Core.Features.Get;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
@@ -9,6 +7,8 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using ContractTenantDto = Dilcore.Tenancy.Contracts.Tenants.TenantDto;
+using CreateTenantDto = Dilcore.Tenancy.Contracts.Tenants.Create.CreateTenantDto;
 
 namespace Dilcore.Tenancy.WebApi;
 

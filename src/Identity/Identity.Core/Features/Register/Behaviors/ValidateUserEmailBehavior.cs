@@ -1,9 +1,9 @@
 using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Identity.Core.Abstractions;
+using Dilcore.Results.Abstractions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Dilcore.Results.Abstractions;
 
 namespace Dilcore.Identity.Core.Features.Register.Behaviors;
 

@@ -1,11 +1,8 @@
-using Dilcore.Tenancy.Actors.Abstractions;
-using Dilcore.Tenancy.Contracts.Tenants;
-using Dilcore.Tenancy.Core.Features.Create;
 using Dilcore.Results.Abstractions;
-using Dilcore.Tenancy.Core.Abstractions;
+using Dilcore.Tenancy.Actors.Abstractions;
+using Dilcore.Tenancy.Core.Features.Create;
 using Moq;
 using Shouldly;
-
 using ActorDto = Dilcore.Tenancy.Actors.Abstractions.TenantDto;
 
 namespace Dilcore.Tenancy.Core.Tests;
@@ -17,15 +14,13 @@ namespace Dilcore.Tenancy.Core.Tests;
 public class CreateTenantHandlerTests
 {
     private Mock<IGrainFactory> _grainFactoryMock = null!;
-    private Mock<ITenantRepository> _tenantRepositoryMock = null!;
     private CreateTenantHandler _sut = null!;
 
     [SetUp]
     public void SetUp()
     {
         _grainFactoryMock = new Mock<IGrainFactory>();
-        _tenantRepositoryMock = new Mock<ITenantRepository>();
-        _sut = new CreateTenantHandler(_grainFactoryMock.Object, _tenantRepositoryMock.Object);
+        _sut = new CreateTenantHandler(_grainFactoryMock.Object);
     }
 
     [Test]
@@ -37,7 +32,7 @@ public class CreateTenantHandlerTests
         const string description = "A test tenant";
         const string storagePrefix = "my-test-tenant";
 
-        var expectedDto = new ActorDto(Guid.NewGuid(), displayName, expectedKebabName, description,  storagePrefix, DateTime.UtcNow);
+        var expectedDto = new ActorDto(Guid.NewGuid(), displayName, expectedKebabName, description,  storagePrefix, true, DateTime.UtcNow);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.Is<CreateTenantGrainCommand>(c => c.DisplayName == displayName && c.Description == description)))
             .ReturnsAsync(TenantCreationResult.Success(expectedDto));
@@ -64,7 +59,7 @@ public class CreateTenantHandlerTests
         const string description = "Test";
         const string storagePrefix = "uppercase-with-spaces";
 
-        var expectedDto = new ActorDto(Guid.NewGuid(), displayName, expectedKebabName, description, storagePrefix, DateTime.UtcNow);
+        var expectedDto = new ActorDto(Guid.NewGuid(), displayName, expectedKebabName, description, storagePrefix, true, DateTime.UtcNow);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.Is<CreateTenantGrainCommand>(c => c.DisplayName == displayName)))
             .ReturnsAsync(TenantCreationResult.Success(expectedDto));
@@ -90,7 +85,7 @@ public class CreateTenantHandlerTests
         const string storagePrefix = "return-test";
         var createdAt = DateTime.UtcNow;
 
-        var expectedDto = new ActorDto(Guid.NewGuid(), displayName, "return-test", description, storagePrefix, createdAt);
+        var expectedDto = new ActorDto(Guid.NewGuid(), displayName, "return-test", description, storagePrefix, true, createdAt);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.IsAny<CreateTenantGrainCommand>()))
             .ReturnsAsync(TenantCreationResult.Success(expectedDto));
@@ -118,7 +113,6 @@ public class CreateTenantHandlerTests
         const string description = "Description";
 
         // Grain returns an existing tenant
-        var existingDto = new ActorDto(Guid.NewGuid(), displayName, expectedKebabName, description,  "existing-prefix", DateTime.UtcNow);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.IsAny<CreateTenantGrainCommand>()))
             .ReturnsAsync(TenantCreationResult.Failure($"Tenant '{expectedKebabName}' already exists."));

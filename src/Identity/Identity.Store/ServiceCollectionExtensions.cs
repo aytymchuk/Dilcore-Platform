@@ -1,6 +1,6 @@
+using Dilcore.Configuration.Extensions;
 using Dilcore.Identity.Core.Abstractions;
 using Dilcore.Identity.Store.Repositories;
-using Dilcore.Configuration.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

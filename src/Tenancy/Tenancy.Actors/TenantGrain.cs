@@ -77,5 +77,6 @@ public sealed class TenantGrain : Grain, ITenantGrain
         _state.State.SystemName,
         _state.State.Description,
         _state.State.StoragePrefix,
+        _state.State.IsCreated,
         _state.State.CreatedAt);
 }

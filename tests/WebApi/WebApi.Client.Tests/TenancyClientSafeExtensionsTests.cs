@@ -1,13 +1,13 @@
+using System.Net;
+using System.Text.Json;
 using Dilcore.Results.Abstractions;
+using Dilcore.Tenancy.Contracts.Tenants;
+using Dilcore.Tenancy.Contracts.Tenants.Create;
 using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApi.Client.Errors;
 using Dilcore.WebApi.Client.Extensions;
 using RichardSzalay.MockHttp;
 using Shouldly;
-using System.Net;
-using System.Text.Json;
-using Dilcore.Tenancy.Contracts.Tenants;
-using Dilcore.Tenancy.Contracts.Tenants.Create;
 
 namespace Dilcore.WebApi.Client.Tests;
 
