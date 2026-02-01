@@ -38,7 +38,9 @@ public class UserRepository : IUserRepository
 
     public async Task<Result<User?>> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        var filter = Builders<UserDocument>.Filter.Eq(u => u.Email, email);
+        // Normalize email to lowercase for case-insensitive comparison
+        var normalizedEmail = email.ToLowerInvariant();
+        var filter = Builders<UserDocument>.Filter.Eq(u => u.Email, normalizedEmail);
         var document = await _collection.GetAsync(filter, cancellationToken);
 
         if (document.IsFailed)
@@ -51,15 +53,22 @@ public class UserRepository : IUserRepository
 
     public async Task<Result<User>> StoreAsync(User user, CancellationToken cancellationToken = default)
     {
-        var document = _mapper.Map<UserDocument>(user);
-        var result = await _collection.StoreAsync(document, cancellationToken);
-
-        if (result.IsFailed)
+        try
         {
-            return result.ToResult<User>();
-        }
+            var document = _mapper.Map<UserDocument>(user);
+            var result = await _collection.StoreAsync(document, cancellationToken);
 
-        return Result.Ok(_mapper.Map<User>(result.Value));
+            if (result.IsFailed)
+            {
+                return result.ToResult<User>();
+            }
+
+            return Result.Ok(_mapper.Map<User>(result.Value));
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000)
+        {
+            return Result.Fail(new ConflictError("A user with this email already exists."));
+        }
     }
 
     public async Task<Result<bool>> DeleteByIdentityIdAsync(string identityId, long eTag, CancellationToken cancellationToken = default)
