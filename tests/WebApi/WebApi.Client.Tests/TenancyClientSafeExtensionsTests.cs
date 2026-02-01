@@ -279,7 +279,7 @@ public class TenancyClientSafeExtensionsTests
         var request = new CreateTenantDto
         {
             Name = "Test Tenant",
-            Description = "test-tenant"
+            Description = "Test tenant for unit tests"
         };
 
         _mockHttp.When(HttpMethod.Post, "https://api.example.com/tenants")

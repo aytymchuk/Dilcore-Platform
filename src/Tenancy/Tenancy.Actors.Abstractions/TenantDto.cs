@@ -7,6 +7,8 @@ namespace Dilcore.Tenancy.Actors.Abstractions;
 /// <param name="Name">The human-readable display name.</param>
 /// <param name="SystemName">The unique system name (lower kebab-case identifier).</param>
 /// <param name="Description">Optional description of the tenant.</param>
+/// <param name="StorageIdentifier">The identifier used for tenant-specific storage or container/key.</param>
+/// <param name="IsCreated">Whether the tenant has been created.</param>
 /// <param name="CreatedAt">When the tenant was created.</param>
 [GenerateSerializer]
 [Alias("Dilcore.Tenancy.Actors.Abstractions.TenantDto")]

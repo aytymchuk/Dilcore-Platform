@@ -9,7 +9,6 @@
     <ProjectReference Include="..\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\Tenancy.Contracts\Tenancy.Contracts.csproj" />
     <ProjectReference Include="..\Tenancy.Core\Tenancy.Core.csproj" />
-    <ProjectReference Include="..\Tenancy.Domain\Tenancy.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" />

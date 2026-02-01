@@ -45,12 +45,8 @@ public class RegisterTests
 
         _mockSender = new Mock<ISender>();
         _mockNavigator = new Mock<IAppNavigator>();
-        _mockSender = new Mock<ISender>();
-        _mockNavigator = new Mock<IAppNavigator>();
         _mockSnackbar = new Mock<ISnackbar>();
 
-        _ctx.Services.AddSingleton(_mockSender.Object);
-        _ctx.Services.AddSingleton(_mockNavigator.Object);
         _ctx.Services.AddSingleton(_mockSender.Object);
         _ctx.Services.AddSingleton(_mockNavigator.Object);
         _ctx.Services.AddSingleton(_mockSnackbar.Object);
@@ -357,7 +353,7 @@ public class RegisterTests
     private Task SetupIdentityClientNoUserAsync()
     {
         _mockSender.Setup(s => s.Send(It.IsAny<GetCurrentUserQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Fail<UserModel?>("Not found"));
+            .ReturnsAsync(Result.Ok<UserModel?>(null));
         
         return Task.CompletedTask;
     }

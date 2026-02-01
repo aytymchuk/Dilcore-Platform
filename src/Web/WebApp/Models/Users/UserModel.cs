@@ -14,7 +14,7 @@ public sealed record UserModel(
     /// <summary>
     /// Full display name of the user.
     /// </summary>
-    public string FullName =>($"{FirstName} {LastName}");
+    public string FullName => $"{FirstName} {LastName}";
 
     /// <summary>
     /// Creates a new <see cref="UserModel"/> from a <see cref="UserDto"/>.

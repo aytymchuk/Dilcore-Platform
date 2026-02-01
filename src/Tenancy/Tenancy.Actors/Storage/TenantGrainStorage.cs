@@ -25,6 +25,11 @@ public sealed class TenantGrainStorage : IGrainStorage
 
     public async Task ReadStateAsync<T>(string stateName, GrainId grainId, IGrainState<T> grainState)
     {
+        if (grainState.State is not TenantState && typeof(T) != typeof(TenantState))
+        {
+            throw new InvalidOperationException($"Expected TenantState but got {typeof(T).Name}");
+        }
+
         // Tenant storage keys are just the tenant system name (string key of the grain)
         var systemName = grainId.Key.ToString()!;
         _logger.LogReadingTenantState(systemName);
