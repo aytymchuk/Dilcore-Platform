@@ -3,7 +3,7 @@ using Dilcore.Tenancy.Actors.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans.Storage;
 
-namespace Orleans.Hosting;
+namespace Dilcore.Tenancy.Actors;
 
 public static class SiloBuilderExtensions
 {

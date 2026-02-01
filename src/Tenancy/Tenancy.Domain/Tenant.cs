@@ -21,6 +21,11 @@ public sealed partial record Tenant : BaseDomain
         get => _systemName;
         init
         {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("System name must be in lower-kebab-case format.", nameof(value));
+            }
+
             var parts = KebabCasePartRegex().Matches(value).Select(m => m.Value).ToList();
             if (parts.Count == 0 || string.Join("-", parts) != value)
             {

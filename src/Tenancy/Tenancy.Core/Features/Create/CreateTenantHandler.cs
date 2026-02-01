@@ -23,6 +23,10 @@ public sealed class CreateTenantHandler(IGrainFactory grainFactory)
         }
 
         var systemName = Tenant.ToKebabCase(request.Name);
+        if (string.IsNullOrWhiteSpace(systemName))
+        {
+            return Result.Fail<TenantDto>(new ValidationError("Tenant name is invalid after normalization"));
+        }
 
         var grain = _grainFactory.GetGrain<ITenantGrain>(systemName);
 

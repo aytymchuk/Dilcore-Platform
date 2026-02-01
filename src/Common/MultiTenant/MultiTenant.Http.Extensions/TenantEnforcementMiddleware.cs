@@ -1,4 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace Dilcore.MultiTenant.Http.Extensions;

@@ -28,14 +28,15 @@ public class TenantTests
     [TestCase("-start-with-hyphen")]
     [TestCase("end-with-hyphen-")]
     [TestCase("double--hyphen")]
+    [TestCase(null)]
     [TestCase("")]
     [TestCase(" ")]
-    public void SystemName_InvalidInput_ShouldThrowArgumentException(string invalidName)
+    public void SystemName_InvalidInput_ShouldThrowArgumentException(string? invalidName)
     {
         // Act & Assert
         Should.Throw<ArgumentException>(() => new Tenant
         {
-            SystemName = invalidName,
+            SystemName = invalidName!,
             Name = "Test",
             StoragePrefix = "test"
         })

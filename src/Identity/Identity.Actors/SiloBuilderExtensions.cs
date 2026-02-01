@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Orleans.Storage;
 
 // Use the Orleans.Hosting namespace as this is where SiloBuilder is commonly extended
-namespace Orleans.Hosting;
+namespace Dilcore.Identity.Actors;
 
 /// <summary>
 /// Extension methods for configuring UserGrainStorage.
