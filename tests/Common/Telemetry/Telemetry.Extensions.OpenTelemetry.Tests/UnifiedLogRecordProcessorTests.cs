@@ -19,7 +19,7 @@ public class UnifiedLogRecordProcessorTests
     public void UnifiedLogRecordProcessor_ShouldEnrichLogs_WhenContextIsPresent()
     {
         // Arrange
-        var tenantContext = new TenantContext("test-tenant", "test-shard");
+        var tenantContext = new TenantContext(Guid.NewGuid(), "test-tenant", "test-shard");
         var userContext = new UserContext("test-user", "test@test.com", "Test User");
 
         var unifiedProcessor = CreateLogProcessor(tenantContext, userContext);

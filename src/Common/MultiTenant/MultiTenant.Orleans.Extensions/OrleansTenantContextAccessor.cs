@@ -8,6 +8,7 @@ namespace Dilcore.MultiTenant.Orleans.Extensions;
 /// </summary>
 public static class OrleansTenantContextAccessor
 {
+    private const string TenantIdKey = "TenantContext.Id";
     private const string TenantNameKey = "TenantContext.Name";
     private const string TenantStorageIdentifierKey = "TenantContext.StorageIdentifier";
 
@@ -19,11 +20,21 @@ public static class OrleansTenantContextAccessor
     {
         if (tenantContext is null)
         {
+            RequestContext.Remove(TenantIdKey);
             RequestContext.Remove(TenantNameKey);
             RequestContext.Remove(TenantStorageIdentifierKey);
             return;
         }
 
+        if (!tenantContext.Id.Equals(Guid.Empty))
+        {
+            RequestContext.Set(TenantIdKey, tenantContext.Id);
+        }
+        else
+        {
+            RequestContext.Remove(TenantIdKey);
+        }
+        
         if (tenantContext.Name is not null)
         {
             RequestContext.Set(TenantNameKey, tenantContext.Name);
@@ -49,14 +60,15 @@ public static class OrleansTenantContextAccessor
     /// <returns>The tenant context if available, otherwise null.</returns>
     public static ITenantContext? GetTenantContext()
     {
-        var name = RequestContext.Get(TenantNameKey) as string;
-        var storageIdentifier = RequestContext.Get(TenantStorageIdentifierKey) as string;
-
-        if (name is null && storageIdentifier is null)
+        var idObj = RequestContext.Get(TenantIdKey);
+        if (idObj is null || !Guid.TryParse(idObj.ToString(), out var id))
         {
             return null;
         }
 
-        return new TenantContext(name, storageIdentifier);
+        var name = RequestContext.Get(TenantNameKey) as string;
+        var storageIdentifier = RequestContext.Get(TenantStorageIdentifierKey) as string;
+
+        return new TenantContext(id, name, storageIdentifier);
     }
 }

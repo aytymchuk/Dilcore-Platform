@@ -42,17 +42,20 @@ public class TenantContextIntegrationTests
         var grainId = Guid.NewGuid().ToString();
         var grain = Cluster.GrainFactory.GetGrain<ITenantTestGrain>(grainId);
 
+        var tenantId = Guid.NewGuid();
         // Set tenant context in RequestContext (simulating outgoing filter behavior)
         OrleansTenantContextAccessor.SetTenantContext(
-            new TenantContext("test-tenant", "storage-123"));
+            new TenantContext(tenantId, "test-tenant", "storage-123"));
 
         // Act
         var tenantName = await grain.GetCurrentTenantNameAsync();
         var storageId = await grain.GetCurrentTenantStorageIdentifierAsync();
+        var resolvedTenantId = await grain.GetCurrentTenantIdAsync();
 
         // Assert
         tenantName.ShouldBe("test-tenant");
         storageId.ShouldBe("storage-123");
+        resolvedTenantId.ShouldBe(tenantId);
     }
 
     [Test]
@@ -64,9 +67,11 @@ public class TenantContextIntegrationTests
 
         // Act
         var tenantName = await grain.GetCurrentTenantNameAsync();
+        var tenantId = await grain.GetCurrentTenantIdAsync();
 
         // Assert
         tenantName.ShouldBeNull();
+        tenantId.ShouldBe(Guid.Empty);
     }
 
     [Test]
@@ -77,9 +82,10 @@ public class TenantContextIntegrationTests
         var grainId2 = Guid.NewGuid().ToString();
         var grain1 = Cluster.GrainFactory.GetGrain<ITenantTestGrain>(grainId1);
 
+        var tenantId = Guid.NewGuid();
         // Set tenant context in RequestContext
         OrleansTenantContextAccessor.SetTenantContext(
-            new TenantContext("propagated-tenant", "prop-storage-456"));
+            new TenantContext(Guid.NewGuid(), "propagated-tenant", "prop-storage-456"));
 
         // Act - grain1 calls grain2 and gets its tenant name
         var tenantNameFromGrain2 = await grain1.CallAnotherGrainAndGetTenantNameAsync(grainId2);
@@ -97,14 +103,14 @@ public class TenantContextIntegrationTests
 
         // Act & Assert - First call with tenant A
         OrleansTenantContextAccessor.SetTenantContext(
-            new TenantContext("tenant-a", "storage-a"));
+            new TenantContext(Guid.NewGuid(), "tenant-a", "storage-a"));
         var tenantNameA = await grain.GetCurrentTenantNameAsync();
         tenantNameA.ShouldBe("tenant-a");
 
         // Clear and set different tenant context
         RequestContext.Clear();
         OrleansTenantContextAccessor.SetTenantContext(
-            new TenantContext("tenant-b", "storage-b"));
+            new TenantContext(Guid.NewGuid(), "tenant-b", "storage-b"));
         var tenantNameB = await grain.GetCurrentTenantNameAsync();
         tenantNameB.ShouldBe("tenant-b");
 
@@ -121,7 +127,7 @@ public class TenantContextIntegrationTests
 
         // Set tenant context with only name
         OrleansTenantContextAccessor.SetTenantContext(
-            new TenantContext("name-only-tenant", null));
+            new TenantContext(Guid.NewGuid(), "name-only-tenant", null));
 
         // Act
         var tenantName = await grain.GetCurrentTenantNameAsync();
@@ -141,7 +147,7 @@ public class TenantContextIntegrationTests
 
         // Set tenant context with only storage identifier
         OrleansTenantContextAccessor.SetTenantContext(
-            new TenantContext(null, "storage-only-789"));
+            new TenantContext(Guid.NewGuid(), null, "storage-only-789"));
 
         // Act
         var tenantName = await grain.GetCurrentTenantNameAsync();

@@ -9,7 +9,7 @@ public interface IUserContext
     /// <summary>
     /// The unique identifier for the user (from JWT 'sub' or 'uid' claim).
     /// </summary>
-    string? Id { get; }
+    string Id { get; }
 
     /// <summary>
     /// The user's email address.

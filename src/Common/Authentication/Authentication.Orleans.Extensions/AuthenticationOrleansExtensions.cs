@@ -24,7 +24,11 @@ public static class AuthenticationOrleansExtensions
             services.AddUserContextProvider<OrleansUserContextProvider>();
 
             // Register IUserContext to resolve from the accessor from within Grains
-            services.AddScoped<IUserContext>(sp => sp.GetRequiredService<IUserContextResolver>().Resolve());
+            services.AddScoped<IUserContext>(sp =>
+            {
+                var resolver = sp.GetRequiredService<IUserContextResolver>();
+                return resolver.TryResolve(out var userContext) ? userContext! : UserContext.Empty;
+            });
         });
 
         // Register incoming grain call filter to extract user context

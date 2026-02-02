@@ -1,4 +1,5 @@
 using System.Net;
+using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Contracts.Tenants.Create;
 using Dilcore.WebApi.Client.Clients;
@@ -25,13 +26,21 @@ public class TenantEndpointTests
     }
 
     [SetUp]
-    public void SetUpClient()
+    public async Task SetUpClient()
     {
         // Reset the fake user to defaults before each test
         _factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
         _factory.FakeUser.TenantId = $"test-tenant-{Guid.NewGuid():N}";
         _factory.FakeUser.IsAuthenticated = true;
         _tenancyClient = _factory.CreateTypedClient<ITenancyClient>();
+
+        // Register the user to ensure happy paths pass
+        using var scope = _factory.Services.CreateScope();
+        
+        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        var userGrain = grainFactory.GetGrain<IUserGrain>(_factory.FakeUser.UserId);
+        var uniqueEmail = $"{_factory.FakeUser.UserId}@example.com";
+        await userGrain.RegisterAsync(uniqueEmail, "Test", "User");
     }
 
     [TearDown]
@@ -126,6 +135,21 @@ public class TenantEndpointTests
         // Act & Assert
         var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
         exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task CreateTenant_ShouldReturnBadRequest_WhenUserNotRegistered()
+    {
+        // Arrange
+        // Use a new user ID that hasn't been registered in SetUp
+        _factory.FakeUser.UserId = $"unregistered-user-{Guid.NewGuid():N}";
+        var request = new CreateTenantDto { Name = "Unregistered User Tenant", Description = "Should fail" };
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        // We can't easily check the error message with Refit ApiException without parsing the content, 
+        // but the status code confirms the behavior was intercepted.
     }
 
     #endregion

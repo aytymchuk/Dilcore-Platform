@@ -138,4 +138,51 @@ public class UserGrainTests
         result.ShouldNotBeNull();
         result.Email.ShouldBe(email);
     }
+
+    [Test]
+    public async Task AddTenantAsync_ShouldAddTenant_WhenUserRegistered()
+    {
+        // Arrange
+        var userId = Guid.NewGuid().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+        const string email = "tenant-test@example.com";
+        const string firstName = "Tenant";
+        const string lastName = "User";
+        const string tenantId = "test-tenant-1";
+        var roles = new[] { "Owner" };
+
+        await grain.RegisterAsync(email, firstName, lastName);
+
+        // Act
+        await grain.AddTenantAsync(tenantId, roles);
+        var tenants = await grain.GetTenantsAsync();
+
+        // Assert
+        tenants.ShouldNotBeNull();
+        tenants.ShouldNotBeEmpty();
+        var tenantAccess = tenants.FirstOrDefault(t => t.TenantId == tenantId);
+        tenantAccess.ShouldNotBeNull();
+        tenantAccess.Roles.ShouldContain("Owner");
+    }
+
+    [Test]
+    public async Task AddTenantAsync_ShouldUpdateRoles_WhenTenantAlreadyExists()
+    {
+        // Arrange
+        var userId = Guid.NewGuid().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+        const string tenantId = "test-tenant-2";
+        
+        await grain.RegisterAsync("update-roles@example.com", "Update", "Roles");
+        await grain.AddTenantAsync(tenantId, new[] { "Viewer" });
+
+        // Act
+        await grain.AddTenantAsync(tenantId, new[] { "Editor" });
+        var tenants = await grain.GetTenantsAsync();
+
+        // Assert
+        var tenantAccess = tenants.First(t => t.TenantId == tenantId);
+        tenantAccess.Roles.ShouldContain("Viewer");
+        tenantAccess.Roles.ShouldContain("Editor");
+    }
 }

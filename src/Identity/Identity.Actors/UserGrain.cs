@@ -71,6 +71,63 @@ public sealed class UserGrain : Grain, IUserGrain
         return Task.FromResult<UserResponse?>(ToResponse());
     }
 
+    public async Task AddTenantAsync(string tenantId, IEnumerable<string> roles)
+    {
+        if (!_state.State.IsRegistered)
+        {
+            _logger.LogUserNotRegistered(this.GetPrimaryKeyString()); 
+            return;
+        }
+
+        var existingAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
+
+        if (existingAccess is null)
+        {
+            _state.State.Tenants.Add(new TenantAccess
+            {
+                TenantId = tenantId,
+                Roles = roles.ToHashSet()
+            });
+        }
+        else
+        {
+             existingAccess.Roles.UnionWith(roles);
+        }
+
+        await _state.WriteStateAsync();
+    }
+
+    public Task<IReadOnlyList<TenantAccess>> GetTenantsAsync()
+    {
+        if (!_state.State.IsRegistered)
+        {
+            return Task.FromResult<IReadOnlyList<TenantAccess>>([]);
+        }
+        
+        // Return a copy to avoid external modification of state
+        // TenantAccess is a record, shallow copy is enough if we don't modify the list inside it from outside.
+        // Serialization handles copying on wire.
+        return Task.FromResult<IReadOnlyList<TenantAccess>>(_state.State.Tenants);
+    }
+
+    public Task<bool> IsRegisteredAsync()
+    {
+        return Task.FromResult(_state.State.IsRegistered);
+    }
+
+    public Task<IReadOnlyList<string>> GetTenantRolesAsync(string tenantId)
+    {
+        if (!_state.State.IsRegistered)
+        {
+            return Task.FromResult<IReadOnlyList<string>>([]);
+        }
+
+        var tenantAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
+        var roles = tenantAccess?.Roles.ToList() ?? [];
+        
+        return Task.FromResult<IReadOnlyList<string>>(roles);
+    }
+
     private UserResponse ToResponse() => new(
         _state.State.Id,
         _state.State.Email,

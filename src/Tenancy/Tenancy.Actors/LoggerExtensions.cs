@@ -24,6 +24,12 @@ public static partial class LoggerExtensions
     [LoggerMessage(LogLevel.Debug, "Tenant not found: {TenantName}")]
     public static partial void LogTenantNotFound(this ILogger logger, string tenantName);
 
+    [LoggerMessage(LogLevel.Information, "Tenant {TenantName} added to user {UserId}")]
+    public static partial void LogTenantAddedToUser(this ILogger logger, string tenantName, string userId);
+
+    [LoggerMessage(LogLevel.Warning, "Tenant {TenantName} created without associated user context.")]
+    public static partial void LogTenantCreatedWithoutUser(this ILogger logger, string tenantName);
+
     // Tenant Storage
     [LoggerMessage(LogLevel.Debug, "Reading state for tenant: {SystemName}")]
     public static partial void LogReadingTenantState(this ILogger logger, string systemName);

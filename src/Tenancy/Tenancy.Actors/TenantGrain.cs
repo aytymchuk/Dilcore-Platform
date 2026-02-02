@@ -1,3 +1,5 @@
+using Dilcore.Authentication.Abstractions;
+using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
 
@@ -10,15 +12,21 @@ namespace Dilcore.Tenancy.Actors;
 public sealed class TenantGrain : Grain, ITenantGrain
 {
     private readonly IPersistentState<TenantState> _state;
+    private readonly IGrainFactory _grainFactory;
+    private readonly IUserContext _userContext;
     private readonly ILogger<TenantGrain> _logger;
     private readonly TimeProvider _timeProvider;
 
     public TenantGrain(
         [PersistentState("tenant", "TenantStore")] IPersistentState<TenantState> state,
+        IGrainFactory grainFactory,
+        IUserContext userContext,
         ILogger<TenantGrain> logger,
         TimeProvider timeProvider)
     {
         _state = state;
+        _grainFactory = grainFactory;
+        _userContext = userContext;
         _logger = logger;
         _timeProvider = timeProvider;
     }
@@ -54,6 +62,17 @@ public sealed class TenantGrain : Grain, ITenantGrain
         _state.State.Id = Guid.NewGuid();
 
         await _state.WriteStateAsync();
+
+        if (!string.IsNullOrWhiteSpace(_userContext.Id))
+        {
+             var userGrain = _grainFactory.GetGrain<IUserGrain>(_userContext.Id);
+             await userGrain.AddTenantAsync(tenantName, new List<string> { "Owner" });
+             _logger.LogTenantAddedToUser(tenantName, _userContext.Id);
+        }
+        else
+        {
+            _logger.LogTenantCreatedWithoutUser(tenantName);
+        }
 
         _logger.LogTenantCreated(tenantName, command.DisplayName);
 

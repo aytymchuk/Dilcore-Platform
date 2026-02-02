@@ -2,7 +2,6 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="FluentResults" />
-    <PackageReference Include="Microsoft.Orleans.Sdk" />
     <PackageReference Include="Microsoft.Orleans.Server" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>

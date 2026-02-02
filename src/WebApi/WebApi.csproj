@@ -32,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
     <ProjectReference Include="..\Common\Authentication\Authentication.Http.Extensions\Authentication.Http.Extensions.csproj" />
+    <ProjectReference Include="..\Common\Authentication\Authentication.Orleans.Extensions\Authentication.Orleans.Extensions.csproj" />
     <ProjectReference Include="..\Common\Authentication\Authentication.Auth0\Authentication.Auth0.csproj" />
     <ProjectReference Include="..\Common\CorrelationId\CorrelationId.Abstractions\CorrelationId.Abstractions.csproj" />
     <ProjectReference Include="..\Common\CorrelationId\CorrelationId.Http.Extensions\CorrelationId.Http.Extensions.csproj" />

@@ -10,6 +10,7 @@ public record User : BaseDomain
     public required string FirstName { get; init; }
     public required string LastName { get; init; }
     public string FullName => $"{FirstName} {LastName}";
+    public List<TenantAccess> Tenants { get; init; } = [];
 
     public static User Create(string identityId, string email, string firstName, string lastName, TimeProvider timeProvider)
     {

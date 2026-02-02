@@ -15,9 +15,12 @@ public class TenantGrainTests
     private TestCluster Cluster => _fixture.Cluster;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public async Task OneTimeSetUpAsync()
     {
         _fixture = new ClusterFixture();
+        
+        var userGrain = _fixture.Cluster.GrainFactory.GetGrain<Dilcore.Identity.Actors.Abstractions.IUserGrain>("test-user-id");
+        await userGrain.RegisterAsync("test@example.com", "Test", "User");
     }
 
     [OneTimeTearDown]

@@ -29,7 +29,7 @@ public class CustomTenantProviderTests
     public void CustomProvider_ReturnsContext()
     {
         // Arrange
-        var customContext = new TenantContext("Custom", "custom-storage");
+        var customContext = new TenantContext(Guid.NewGuid(), "Custom", "custom-storage");
         var provider = new StaticTenantProvider(customContext, priority: 150);
 
         var resolver = new TenantContextResolver(new[] { provider }, NullLogger<TenantContextResolver>.Instance);
@@ -47,10 +47,10 @@ public class CustomTenantProviderTests
     public void CustomProvider_HigherPriority_BeatsHttp()
     {
         // Arrange
-        var httpContext = new TenantContext("Http", "http-storage");
+        var httpContext = new TenantContext(Guid.NewGuid(), "Http", "http-storage");
         var httpProvider = new StaticTenantProvider(httpContext, priority: 100);
 
-        var customContext = new TenantContext("Custom", "custom-storage");
+        var customContext = new TenantContext(Guid.NewGuid(), "Custom", "custom-storage");
         var customProvider = new StaticTenantProvider(customContext, priority: 200);
 
         var resolver = new TenantContextResolver(
@@ -71,7 +71,7 @@ public class CustomTenantProviderTests
         // Arrange
         var customProvider = new StaticTenantProvider(null, priority: 200); // Returns null
 
-        var httpContext = new TenantContext("Http", "http-storage");
+        var httpContext = new TenantContext(Guid.NewGuid(), "Http", "http-storage");
         var httpProvider = new StaticTenantProvider(httpContext, priority: 100);
 
         var resolver = new TenantContextResolver(
