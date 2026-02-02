@@ -1,9 +1,6 @@
-using System.Net;
-using System.Net.Http;
 using Bunit;
 using Bunit.TestDoubles;
-using Dilcore.Identity.Contracts.Profile;
-using Dilcore.WebApi.Client.Clients;
+using Dilcore.WebApp.Features.Users.CurrentUser;
 using Dilcore.WebApp.Features.Users.Register;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Services;
@@ -14,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using MudBlazor;
 using MudBlazor.Services;
-using Refit;
 using Shouldly;
 using System.Security.Claims;
 
@@ -31,11 +27,10 @@ public class RegisterTests
     private TestAuthorizationContext _authContext = null!;
     private Mock<ISender> _mockSender = null!;
     private Mock<IAppNavigator> _mockNavigator = null!;
-    private Mock<IIdentityClient> _mockIdentityClient = null!;
     private Mock<ISnackbar> _mockSnackbar = null!;
 
     [SetUp]
-    public async Task Setup()
+    public void Setup()
     {
         _ctx = new Bunit.TestContext();
         _ctx.JSInterop.Mode = JSRuntimeMode.Loose;
@@ -50,12 +45,10 @@ public class RegisterTests
 
         _mockSender = new Mock<ISender>();
         _mockNavigator = new Mock<IAppNavigator>();
-        _mockIdentityClient = new Mock<IIdentityClient>();
         _mockSnackbar = new Mock<ISnackbar>();
 
         _ctx.Services.AddSingleton(_mockSender.Object);
         _ctx.Services.AddSingleton(_mockNavigator.Object);
-        _ctx.Services.AddSingleton(_mockIdentityClient.Object);
         _ctx.Services.AddSingleton(_mockSnackbar.Object);
 
         _ctx.RenderComponent<MudPopoverProvider>();
@@ -73,7 +66,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -91,7 +84,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -111,7 +104,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -135,7 +128,7 @@ public class RegisterTests
             new Claim("given_name", TestFirstName),
             new Claim("family_name", TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -154,7 +147,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -190,7 +183,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetAuthorized("Test User");
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -204,7 +197,7 @@ public class RegisterTests
     {
         // Arrange
         _authContext.SetNotAuthorized();
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         // Act
         var cut = _ctx.RenderComponent<Dilcore.WebApp.Features.Users.Register.Register>();
@@ -224,7 +217,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -276,7 +269,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -321,7 +314,7 @@ public class RegisterTests
             new Claim(ClaimTypes.GivenName, TestFirstName),
             new Claim(ClaimTypes.Surname, TestLastName)
         );
-        await SetupIdentityClientNoUserAsync();
+        SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
             Guid.NewGuid(),
@@ -357,28 +350,21 @@ public class RegisterTests
         _mockSnackbar.Verify(s => s.Add(SuccessMessage, Severity.Success, It.IsAny<Action<SnackbarOptions>?>(), It.IsAny<string?>()), Times.Once);
     }
 
-    private async Task SetupIdentityClientNoUserAsync()
+    private void SetupIdentityClientNoUser()
     {
-        var notFoundException = await ApiException.Create(
-            new HttpRequestMessage(),
-            HttpMethod.Get,
-            new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") },
-            new RefitSettings());
-
-        _mockIdentityClient.Setup(c => c.GetCurrentUserAsync(It.IsAny<CancellationToken>()))
-            .ThrowsAsync(notFoundException);
+        _mockSender.Setup(s => s.Send(It.IsAny<GetCurrentUserQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok<UserModel?>(null));
     }
 
     private void SetupIdentityClientWithExistingUser()
     {
-        var userDto = new UserDto(
+        var userModel = new UserModel(
             Guid.NewGuid(),
             TestEmail,
             TestFirstName,
-            TestLastName,
-            DateTime.UtcNow);
+            TestLastName);
 
-        _mockIdentityClient.Setup(c => c.GetCurrentUserAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(userDto);
+        _mockSender.Setup(s => s.Send(It.IsAny<GetCurrentUserQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok<UserModel?>(userModel));
     }
 }

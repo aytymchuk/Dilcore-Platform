@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Dilcore.Extensions.OpenApi;
+using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
-using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.WebApi.Extensions;
 using Dilcore.WebApi.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Hosting;

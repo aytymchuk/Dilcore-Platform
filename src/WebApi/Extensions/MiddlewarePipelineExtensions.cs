@@ -1,10 +1,10 @@
 using Dilcore.Configuration.Extensions;
-using Dilcore.Extensions.OpenApi.Abstractions;
-using Dilcore.WebApi.Settings;
-using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.CorrelationId.Http.Extensions;
 using Dilcore.Extensions.OpenApi;
+using Dilcore.Extensions.OpenApi.Abstractions;
 using Dilcore.Extensions.Scalar;
+using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.WebApi.Settings;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 namespace Dilcore.WebApi.Extensions;
@@ -25,9 +25,9 @@ public static class MiddlewarePipelineExtensions
         app.UseHttpsRedirection();
         app.UseCorrelationId();
         app.UseMultiTenant();
-        app.UseMultiTenantEnforcement();
 
         app.UseAuthentication();
+        app.UseMultiTenantEnforcement();
         app.UseAuthorization();
 
         return app;

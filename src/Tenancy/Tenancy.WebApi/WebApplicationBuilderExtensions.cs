@@ -1,4 +1,7 @@
+using Dilcore.Tenancy.Contracts.Tenants.Create;
 using Dilcore.Tenancy.Core;
+using Dilcore.Tenancy.Store;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 
 namespace Dilcore.Tenancy.WebApi;
@@ -15,6 +18,12 @@ public static class WebApplicationBuilderExtensions
     {
         // Add Tenancy Core services (MediatR handlers and behaviors)
         builder.Services.AddTenancyApplication();
+
+        // Add Tenancy Store services
+        builder.Services.AddTenancyStore(builder.Configuration);
+        
+        // Register validators from Contracts assembly for API validation
+        builder.Services.AddValidatorsFromAssembly(typeof(CreateTenantDtoValidator).Assembly);
 
         return builder;
     }

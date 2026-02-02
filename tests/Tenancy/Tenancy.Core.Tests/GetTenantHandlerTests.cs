@@ -32,11 +32,12 @@ public class GetTenantHandlerTests
         const string tenantName = "test-tenant";
         const string displayName = "Test Tenant";
         const string description = "A test tenant";
+        const string storagePrefix = "uppercase-with-spaces";
         var createdAt = DateTime.UtcNow;
 
         _tenantContextMock.Setup(x => x.Name).Returns(tenantName);
 
-        var expectedDto = new TenantDto(tenantName, displayName, description, createdAt);
+        var expectedDto = new TenantDto(Guid.NewGuid(), displayName, tenantName, description, storagePrefix, true, createdAt);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.GetAsync()).ReturnsAsync(expectedDto);
 
@@ -49,8 +50,8 @@ public class GetTenantHandlerTests
 
         // Assert
         var tenant = result.ShouldBeSuccessWithValue();
-        tenant.Name.ShouldBe(tenantName);
-        tenant.DisplayName.ShouldBe(displayName);
+        tenant.Name.ShouldBe(displayName);
+        tenant.SystemName.ShouldBe(tenantName);
     }
 
     [Test]

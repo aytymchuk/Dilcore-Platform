@@ -36,14 +36,18 @@ public class TenantGrainTests
         const string description = "A test tenant for unit testing";
 
         // Act
-        var result = await grain.CreateAsync(displayName, description);
+        var result = await grain.CreateAsync(new CreateTenantGrainCommand
+        {
+            DisplayName = displayName,
+            Description = description
+        });
 
         // Assert
         result.ShouldNotBeNull();
         result.IsSuccess.ShouldBeTrue();
-        result.Tenant.ShouldNotBeNull();
-        result.Tenant.Name.ShouldBe(tenantName);
-        result.Tenant.DisplayName.ShouldBe(displayName);
+        result.Tenant.ShouldNotBeNull();    
+        result.Tenant.Name.ShouldBe(displayName);
+        result.Tenant.SystemName.ShouldBe(tenantName);
         result.Tenant.Description.ShouldBe(description);
         result.Tenant.CreatedAt.ShouldBeGreaterThan(DateTime.MinValue);
     }
@@ -58,10 +62,18 @@ public class TenantGrainTests
         const string description = "Original description";
 
         // First creation
-        var firstResult = await grain.CreateAsync(displayName, description);
+        var firstResult = await grain.CreateAsync(new CreateTenantGrainCommand
+        {
+            DisplayName = displayName,
+            Description = description
+        });
 
         // Act - Try to create again with different data
-        var secondResult = await grain.CreateAsync("Different Name", "Different description");
+        var secondResult = await grain.CreateAsync(new CreateTenantGrainCommand
+        {
+            DisplayName = "Different Name",
+            Description = "Different description"
+        });
 
         // Assert - Should fail and return an error indicating tenant already exists
         secondResult.ShouldNotBeNull();
@@ -94,15 +106,19 @@ public class TenantGrainTests
         const string description = "Tenant for get test";
 
         // Create first
-        await grain.CreateAsync(displayName, description);
+        await grain.CreateAsync(new CreateTenantGrainCommand
+        {
+            DisplayName = displayName,
+            Description = description
+        });
 
         // Act
         var result = await grain.GetAsync();
 
         // Assert
         result.ShouldNotBeNull();
-        result.Name.ShouldBe(tenantName);
-        result.DisplayName.ShouldBe(displayName);
+        result.SystemName.ShouldBe(tenantName);
+        result.Name.ShouldBe(displayName);
         result.Description.ShouldBe(description);
     }
 
@@ -116,7 +132,11 @@ public class TenantGrainTests
         const string description = "Tenant for persistence test";
 
         // Create
-        await grain.CreateAsync(displayName, description);
+        await grain.CreateAsync(new CreateTenantGrainCommand
+        {
+            DisplayName = displayName,
+            Description = description
+        });
 
         // Act - Fetch tenant using a new grain reference to verify persistence
         var newGrainRef = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
@@ -124,6 +144,6 @@ public class TenantGrainTests
 
         // Assert - Data should persist
         result.ShouldNotBeNull();
-        result.DisplayName.ShouldBe(displayName);
+        result.Name.ShouldBe(displayName);
     }
 }

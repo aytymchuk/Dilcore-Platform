@@ -8,17 +8,23 @@ namespace Dilcore.Tenancy.Actors;
 public sealed class TenantState
 {
     [Id(0)]
-    public string Name { get; set; } = string.Empty;
+    public Guid Id { get; set; }
 
     [Id(1)]
-    public string DisplayName { get; set; } = string.Empty;
+    public string SystemName { get; set; } = string.Empty;
 
     [Id(2)]
-    public string? Description { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     [Id(3)]
-    public DateTime CreatedAt { get; set; }
+    public string? Description { get; set; } = string.Empty;
 
     [Id(4)]
+    public DateTime CreatedAt { get; set; }
+
+    [Id(5)]
     public bool IsCreated { get; set; }
+
+    [Id(6)]
+    public string StoragePrefix { get; set; } = string.Empty;
 }

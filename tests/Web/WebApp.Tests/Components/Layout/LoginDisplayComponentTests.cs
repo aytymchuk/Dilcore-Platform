@@ -2,13 +2,12 @@ using Bunit;
 using Bunit.TestDoubles;
 using Dilcore.WebApp.Components.Layout;
 using Dilcore.WebApp.Constants;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using MudBlazor;
 using MudBlazor.Services;
 using Shouldly;
-
-using Microsoft.AspNetCore.Hosting;
-using Moq;
 
 namespace Dilcore.WebApp.Tests.Components.Layout;
 

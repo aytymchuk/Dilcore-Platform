@@ -13,7 +13,7 @@ public class HttpTenantContextProviderTests
     public void GetTenantContext_WhenTenantExists_ReturnsContext()
     {
         // Arrange
-        var tenantInfo = new AppTenantInfo("t1", "t1", "T1") { StorageIdentifier = "db-01" };
+        var tenantInfo = new AppTenantInfo("t1", "t1", "T1", "stx1");
 
         var mtContextMock = new Mock<IMultiTenantContext<AppTenantInfo>>();
         mtContextMock.Setup(x => x.TenantInfo).Returns(tenantInfo);
@@ -31,8 +31,8 @@ public class HttpTenantContextProviderTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Name.ShouldBe("T1");
-        result.StorageIdentifier.ShouldBe("db-01");
+        result.Name.ShouldBe("t1");
+        result.StorageIdentifier.ShouldBe("stx1");
     }
 
     [Test]

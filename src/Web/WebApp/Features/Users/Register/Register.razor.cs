@@ -1,11 +1,9 @@
+using Dilcore.WebApp.Components.Common;
+using Dilcore.WebApp.Features.Users.CurrentUser;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Validation;
-using Dilcore.WebApi.Client.Clients;
-using Dilcore.WebApi.Client.Extensions;
-using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using Dilcore.WebApp.Components.Common;
 
 namespace Dilcore.WebApp.Features.Users.Register;
 
@@ -22,9 +20,6 @@ public partial class Register : AsyncComponentBase
 
     [Inject]
     private MudBlazor.ISnackbar Snackbar { get; set; } = null!;
-
-    [Inject]
-    private IIdentityClient IdentityClient { get; set; } = null!;
 
     [Inject]
     private Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
@@ -59,8 +54,8 @@ public partial class Register : AsyncComponentBase
     /// </summary>
     private async Task<bool> CheckExistingUserAndRedirectAsync()
     {
-        var result = await IdentityClient.SafeGetCurrentUserAsync();
-        if (result.IsSuccess)
+        var result = await Sender.Send(new GetCurrentUserQuery());
+        if (result.IsSuccess && result.ValueOrDefault is not null)
         {
             AppNavigator.ToHome(forceLoad: true);
             return true;

@@ -27,7 +27,7 @@ internal static class ServiceCollectionExtensions
 
         var appSettings = configuration.GetRequiredSettings<ApplicationSettings>();
         var authSettings = configuration.GetRequiredSettings<AuthenticationSettings>();
-        var buildVersion = configuration[Dilcore.Configuration.AspNetCore.Constants.BuildVersionKey] ?? Dilcore.Configuration.AspNetCore.Constants.DefaultBuildVersion;
+        var buildVersion = configuration[Configuration.AspNetCore.Constants.BuildVersionKey] ?? Configuration.AspNetCore.Constants.DefaultBuildVersion;
 
         services.AddOpenApiDocumentation(options =>
         {
@@ -51,7 +51,7 @@ internal static class ServiceCollectionExtensions
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddCorsPolicy();
 
-        services.AddFluentValidation(typeof(Dilcore.WebApi.Program).Assembly);
+        services.AddFluentValidation(typeof(Program).Assembly);
         services.AddSingleton(TimeProvider.System);
 
         return services;

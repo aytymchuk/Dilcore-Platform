@@ -4,12 +4,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\FluentValidation\FluentValidation.Extensions.MinimalApi\FluentValidation.Extensions.MinimalApi.csproj" />
     <ProjectReference Include="..\Tenancy.Core\Tenancy.Core.csproj" />
     <ProjectReference Include="..\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\Tenancy.Contracts\Tenancy.Contracts.csproj" />
+    <ProjectReference Include="..\Tenancy.Store\Tenancy.Store.csproj" />
     <ProjectReference Include="..\..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
   </ItemGroup>
 </Project>

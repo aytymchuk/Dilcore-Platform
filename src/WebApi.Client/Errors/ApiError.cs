@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Net;
 using Dilcore.Results.Abstractions;
 
 namespace Dilcore.WebApi.Client.Errors;
@@ -23,6 +24,11 @@ public class ApiError : AppError
     /// <summary>Gets additional extension data.</summary>
     public IReadOnlyDictionary<string, object>? Extensions { get; }
 
+    /// <summary>
+    /// Returns true when StatusCode is 404 - NotFound
+    /// </summary>
+    public bool NotFound => StatusCode == (int)HttpStatusCode.NotFound;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="ApiError"/> class.
     /// </summary>

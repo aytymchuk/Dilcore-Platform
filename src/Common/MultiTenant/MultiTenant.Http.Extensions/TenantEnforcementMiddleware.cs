@@ -1,4 +1,5 @@
 using Dilcore.MultiTenant.Abstractions;
+using Dilcore.MultiTenant.Http.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace Dilcore.MultiTenant.Http.Extensions;
@@ -24,7 +25,7 @@ public class TenantEnforcementMiddleware : IMiddleware
             return;
         }
 
-        // Resolve tenant (throws if missing)
+        // It will thrown TenantNotResolvedException and GlobalExceptionHandler return appropriate status code
         _tenantContextResolver.Resolve();
 
         await next(context);

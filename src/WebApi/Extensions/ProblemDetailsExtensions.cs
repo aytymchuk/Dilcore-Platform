@@ -1,7 +1,6 @@
 using System.Diagnostics;
-using Dilcore.Results.Abstractions;
-
 using Dilcore.Extensions.OpenApi.Abstractions;
+using Dilcore.Results.Abstractions;
 
 namespace Dilcore.WebApi.Extensions;
 

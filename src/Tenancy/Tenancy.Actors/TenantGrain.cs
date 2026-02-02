@@ -35,7 +35,7 @@ public sealed class TenantGrain : Grain, ITenantGrain
         return base.OnDeactivateAsync(reason, cancellationToken);
     }
 
-    public async Task<TenantCreationResult> CreateAsync(string displayName, string? description)
+    public async Task<TenantCreationResult> CreateAsync(CreateTenantGrainCommand command)
     {
         var tenantName = this.GetPrimaryKeyString();
 
@@ -45,15 +45,17 @@ public sealed class TenantGrain : Grain, ITenantGrain
             return TenantCreationResult.Failure($"Tenant '{tenantName}' already exists.");
         }
 
-        _state.State.Name = tenantName;
-        _state.State.DisplayName = displayName;
-        _state.State.Description = description;
+        _state.State.SystemName = tenantName;
+        _state.State.Name = command.DisplayName;
+        _state.State.StoragePrefix = tenantName;
+        _state.State.Description = command.Description;
         _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
+        _state.State.Id = Guid.NewGuid();
 
         await _state.WriteStateAsync();
 
-        _logger.LogTenantCreated(tenantName, displayName);
+        _logger.LogTenantCreated(tenantName, command.DisplayName);
 
         return TenantCreationResult.Success(ToDto());
     }
@@ -70,8 +72,11 @@ public sealed class TenantGrain : Grain, ITenantGrain
     }
 
     private TenantDto ToDto() => new(
-        _state.State.Name,
-        _state.State.DisplayName,
+        _state.State.Id,
+        _state.State.Name, // Name (display name)
+        _state.State.SystemName,
         _state.State.Description,
+        _state.State.StoragePrefix,
+        _state.State.IsCreated,
         _state.State.CreatedAt);
 }
