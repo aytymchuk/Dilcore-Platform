@@ -1,5 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Dilcore.DocumentDb.MongoDb" />
+    <PackageReference Include="Dilcore.DocumentDb.MongoDb.Repositories" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Configuration\Configuration.Extensions\Configuration.Extensions.csproj" />
     <ProjectReference Include="..\Tenancy.Core\Tenancy.Core.csproj" />
   </ItemGroup>
 </Project>

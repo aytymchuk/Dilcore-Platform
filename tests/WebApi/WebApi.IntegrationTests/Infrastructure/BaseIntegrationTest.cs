@@ -29,7 +29,11 @@ public abstract class BaseIntegrationTest
         var existing = await tenantGrain.GetAsync();
         if (existing is null)
         {
-            await tenantGrain.CreateAsync($"Test Tenant {tenantId}", "Seeded for Integration Tests");
+            await tenantGrain.CreateAsync(new CreateTenantGrainCommand
+            {
+                DisplayName = $"Test Tenant {tenantId}",
+                Description = "Seeded for Integration Tests"
+            });
         }
     }
 }

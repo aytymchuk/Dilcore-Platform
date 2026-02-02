@@ -1,7 +1,5 @@
 using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.Results.Extensions.Api;
-using CreateTenantDto = Dilcore.Tenancy.Contracts.Tenants.Create.CreateTenantDto;
-using ContractTenantDto = Dilcore.Tenancy.Contracts.Tenants.TenantDto;
 using Dilcore.Tenancy.Core.Features.Create;
 using Dilcore.Tenancy.Core.Features.Get;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
@@ -9,6 +7,8 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using ContractTenantDto = Dilcore.Tenancy.Contracts.Tenants.TenantDto;
+using CreateTenantDto = Dilcore.Tenancy.Contracts.Tenants.Create.CreateTenantDto;
 
 namespace Dilcore.Tenancy.WebApi;
 
@@ -32,14 +32,14 @@ public static class EndpointExtensions
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var command = new CreateTenantCommand(request.DisplayName, request.Description);
+            var command = new CreateTenantCommand(request.Name, request.Description);
             var result = await mediator.Send(command, cancellationToken);
             if (result.IsSuccess)
             {
                 var response = new ContractTenantDto
                 {
                     Name = result.Value.Name,
-                    DisplayName = result.Value.DisplayName,
+                    SystemName = result.Value.SystemName,
                     Description = result.Value.Description,
                     CreatedAt = result.Value.CreatedAt
                 };
@@ -64,7 +64,7 @@ public static class EndpointExtensions
             return result.Map(v => new ContractTenantDto
             {
                 Name = v.Name,
-                DisplayName = v.DisplayName,
+                SystemName = v.SystemName,
                 Description = v.Description,
                 CreatedAt = v.CreatedAt
             }).ToMinimalApiResult();

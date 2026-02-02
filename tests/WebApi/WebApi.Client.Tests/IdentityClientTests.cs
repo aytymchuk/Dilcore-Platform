@@ -1,10 +1,10 @@
+using System.Net;
+using System.Text.Json;
 using Dilcore.Identity.Contracts.Profile;
 using Dilcore.Identity.Contracts.Register;
 using Dilcore.WebApi.Client.Clients;
 using RichardSzalay.MockHttp;
 using Shouldly;
-using System.Net;
-using System.Text.Json;
 
 namespace Dilcore.WebApi.Client.Tests;
 

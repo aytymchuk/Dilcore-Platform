@@ -1,0 +1,27 @@
+<MudButton Variant="@Variant"
+           Color="@Color"
+           Size="@Size"
+           FullWidth="@FullWidth"
+           Class="@Class"
+           Disabled="@(Disabled || IsLoading)"
+           OnClick="@OnClick">
+    @if (IsLoading)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+        @if (!string.IsNullOrEmpty(LoadingText))
+        {
+            <MudText Class="ms-2">@LoadingText</MudText>
+        }
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(Text))
+        {
+            <MudText>@Text</MudText>
+        }
+        else
+        {
+            @ChildContent
+        }
+    }
+</MudButton>

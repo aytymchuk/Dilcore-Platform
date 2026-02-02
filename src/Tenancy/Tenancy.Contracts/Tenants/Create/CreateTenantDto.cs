@@ -8,7 +8,7 @@ public class CreateTenantDto
     /// <summary>
     /// Gets or sets the human-readable display name.
     /// </summary>
-    public string DisplayName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the optional description of the tenant.

@@ -26,9 +26,9 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
     public async Task<AppTenantInfo?> GetByIdentifierAsync(string identifier)
     {
         _logger.LogTenantStoreGetActorByIdentifier(identifier);
+        
         if (string.IsNullOrWhiteSpace(identifier))
         {
-            _logger.LogTenantStoreInvalidIdentifier();
             return null;
         }
 
@@ -44,7 +44,7 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
             }
 
             var tenantInfo = MapToAppTenantInfo(tenantDto);
-            _logger.LogTenantStoreResolved(identifier, tenantDto.DisplayName);
+            _logger.LogTenantStoreResolved(identifier, tenantInfo.Name);
             return tenantInfo;
         }
         catch (Exception ex)
@@ -117,13 +117,10 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
     private static AppTenantInfo MapToAppTenantInfo(TenantDto dto)
     {
         return new AppTenantInfo(
-            Id: dto.Name,           // Use tenant name as ID
-            Identifier: dto.Name,   // Use tenant name as Identifier (what strategies match against)
-            Name: dto.Name   // Use display name as the friendly Name
-        )
-        {
-            // StorageIdentifier could be derived from tenant name for data isolation
-            StorageIdentifier = dto.Name
-        };
+            Id: dto.SystemName,
+            Identifier: dto.SystemName,
+            Name: dto.Name,
+            StorageIdentifier: dto.StorageIdentifier
+        );
     }
 }

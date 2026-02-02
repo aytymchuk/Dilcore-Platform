@@ -6,14 +6,14 @@ namespace Dilcore.Tenancy.Contracts.Tenants;
 public class TenantDto
 {
     /// <summary>
-    /// Gets or sets the system name (lower kebab-case, unique identifier).
+    /// Gets or sets the human-readable display name.
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the human-readable display name.
+    /// Gets or sets the unique system name (lower kebab-case identifier).
     /// </summary>
-    public string DisplayName { get; set; } = string.Empty;
+    public string SystemName { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the optional description of the tenant.

@@ -10,10 +10,9 @@ public interface ITenantGrain : IGrainWithStringKey
     /// Creates a new tenant with the provided information.
     /// The grain key becomes the system name (lower kebab-case).
     /// </summary>
-    /// <param name="displayName">The human-readable display name.</param>
-    /// <param name="description">Optional description of the tenant.</param>
+    /// <param name="command">The creation command containing display name and description.</param>
     /// <returns>The created tenant details or a failure result.</returns>
-    Task<TenantCreationResult> CreateAsync(string displayName, string? description);
+    Task<TenantCreationResult> CreateAsync(CreateTenantGrainCommand command);
 
     /// <summary>
     /// Gets the tenant details.
