@@ -49,7 +49,7 @@ public sealed class CreateTenantHandler(IGrainFactory grainFactory)
 
         if (!result.IsSuccess)
         {
-            return Result.Fail(new ConflictError(result?.ErrorMessage ?? "Failed to create tenant"));
+            return Result.Fail<TenantDto>(new ConflictError(result?.ErrorMessage ?? "Failed to create tenant"));
         }
 
         if (result.Tenant is null || !result.Tenant.IsCreated)

@@ -25,8 +25,8 @@ public class TenantEnforcementMiddleware : IMiddleware
             return;
         }
 
-        // Try to resolve tenant - if it fails, let the endpoint handle it
-        _tenantContextResolver.TryResolve(out _);
+        // It will thrown TenantNotResolvedException and GlobalExceptionHandler return appropriate status code
+        _tenantContextResolver.Resolve();
 
         await next(context);
     }

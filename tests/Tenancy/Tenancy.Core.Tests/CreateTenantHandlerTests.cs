@@ -112,10 +112,10 @@ public class CreateTenantHandlerTests
         const string expectedKebabName = "existing-tenant";
         const string description = "Description";
 
-        // Grain returns an existing tenant
+        // Grain returns an existing tenant via GetAsync
+        var existingTenant = new ActorDto(Guid.NewGuid(), displayName, expectedKebabName, description, expectedKebabName, true, DateTime.UtcNow);
         var tenantGrainMock = new Mock<ITenantGrain>();
-        tenantGrainMock.Setup(x => x.CreateAsync(It.IsAny<CreateTenantGrainCommand>()))
-            .ReturnsAsync(TenantCreationResult.Failure($"Tenant '{expectedKebabName}' already exists."));
+        tenantGrainMock.Setup(x => x.GetAsync()).ReturnsAsync(existingTenant);
 
         _grainFactoryMock.Setup(x => x.GetGrain<ITenantGrain>(expectedKebabName, null)).Returns(tenantGrainMock.Object);
 
@@ -127,7 +127,8 @@ public class CreateTenantHandlerTests
         // Assert
         result.IsSuccess.ShouldBeFalse();
         result.Errors.ShouldContain(e => e is ConflictError);
-        tenantGrainMock.Verify(x => x.CreateAsync(It.IsAny<CreateTenantGrainCommand>()), Times.Once);
+        tenantGrainMock.Verify(x => x.GetAsync(), Times.Once);
+        tenantGrainMock.Verify(x => x.CreateAsync(It.IsAny<CreateTenantGrainCommand>()), Times.Never);
     }
 
     [Test]
@@ -143,5 +144,6 @@ public class CreateTenantHandlerTests
         // Assert
         result.IsSuccess.ShouldBeFalse();
         result.Errors.ShouldContain(e => e is ValidationError && e.Message == "Tenant name is invalid after normalization");
+        _grainFactoryMock.Verify(x => x.GetGrain<ITenantGrain>(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 }
