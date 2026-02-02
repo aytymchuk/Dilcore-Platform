@@ -87,7 +87,7 @@ public class UserStateMappingProfileTests
         // Arrange
         var userState = new UserState
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             ETag = 999L,
             IdentityId = "auth0|state1",
             Email = "state@example.com",

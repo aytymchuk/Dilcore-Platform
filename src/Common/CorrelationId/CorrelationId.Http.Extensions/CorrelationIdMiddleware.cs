@@ -30,7 +30,7 @@ public class CorrelationIdMiddleware : IMiddleware
         else
         {
             // Generate new correlation ID if not provided
-            correlationId = Guid.NewGuid().ToString();
+            correlationId = Guid.CreateVersion7().ToString();
             _logger.LogCorrelationIdGenerated(correlationId);
         }
 

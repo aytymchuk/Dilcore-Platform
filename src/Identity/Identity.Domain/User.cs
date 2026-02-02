@@ -16,7 +16,7 @@ public record User : BaseDomain
     {
         return new User
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             IdentityId = identityId,
             Email = email,
             FirstName = firstName,

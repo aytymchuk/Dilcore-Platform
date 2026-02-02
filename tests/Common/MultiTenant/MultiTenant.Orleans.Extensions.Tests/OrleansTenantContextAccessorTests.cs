@@ -20,7 +20,7 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_ShouldStoreContextInRequestContext()
     {
         // Arrange
-        var tenantContext = new TenantContext(Guid.NewGuid(), "test-tenant", "storage-id-123");
+        var tenantContext = new TenantContext(Guid.CreateVersion7(), "test-tenant", "storage-id-123");
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(tenantContext);
@@ -39,7 +39,7 @@ public class OrleansTenantContextAccessorTests
     public void GetTenantContext_ShouldRetrieveContextFromRequestContext()
     {
         // Arrange
-        RequestContext.Set("TenantContext.Id", Guid.NewGuid().ToString());
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
@@ -67,7 +67,7 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_WithNull_ShouldRemoveContextFromRequestContext()
     {
         // Arrange
-        RequestContext.Set("TenantContext.Id", Guid.NewGuid().ToString());
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
@@ -83,7 +83,7 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_WithNullName_ShouldRemoveNameFromRequestContext()
     {
         // Arrange
-        var tenantContext = new TenantContext(Guid.NewGuid(), null, "storage-id-123");
+        var tenantContext = new TenantContext(Guid.CreateVersion7(), null, "storage-id-123");
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(tenantContext);
@@ -100,7 +100,7 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_WithNullStorageIdentifier_ShouldRemoveStorageIdentifierFromRequestContext()
     {
         // Arrange
-        var tenantContext = new TenantContext(Guid.NewGuid(), "test-tenant", null);
+        var tenantContext = new TenantContext(Guid.CreateVersion7(), "test-tenant", null);
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(tenantContext);
@@ -117,7 +117,7 @@ public class OrleansTenantContextAccessorTests
     public void GetTenantContext_ShouldReturnContextWithOnlyName_WhenOnlyNameSet()
     {
         // Arrange
-        RequestContext.Set("TenantContext.Id", Guid.NewGuid().ToString());
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
 
         // Act
@@ -133,7 +133,7 @@ public class OrleansTenantContextAccessorTests
     public void GetTenantContext_ShouldReturnContextWithOnlyStorageIdentifier_WhenOnlyStorageIdentifierSet()
     {
         // Arrange
-        RequestContext.Set("TenantContext.Id", Guid.NewGuid().ToString());
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
         // Act
@@ -149,7 +149,7 @@ public class OrleansTenantContextAccessorTests
     public void SetThenGetTenantContext_ShouldRoundTrip()
     {
         // Arrange
-        var original = new TenantContext(Guid.NewGuid(), "my-tenant", "my-storage-123");
+        var original = new TenantContext(Guid.CreateVersion7(), "my-tenant", "my-storage-123");
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(original);

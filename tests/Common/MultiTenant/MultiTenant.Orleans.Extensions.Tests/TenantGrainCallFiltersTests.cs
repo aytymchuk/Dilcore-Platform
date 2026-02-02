@@ -45,7 +45,7 @@ public class TenantGrainCallFiltersTests
 
             // Set tenant context
             OrleansTenantContextAccessor.SetTenantContext(
-                new TenantContext(Guid.NewGuid(), "test-tenant", "storage-123"));
+                new TenantContext(Guid.CreateVersion7(), "test-tenant", "storage-123"));
 
             var invokeCalled = false;
             context.Setup(c => c.Invoke()).Returns(() =>
@@ -112,7 +112,7 @@ public class TenantGrainCallFiltersTests
             context.SetupGet(c => c.Grain).Returns(grainMock.Object);
             context.SetupGet(c => c.InterfaceMethod).Returns(typeof(ITestGrain).GetMethods().First());
 
-            ITenantContext resolvedContext = new TenantContext(Guid.NewGuid(), "test-tenant", "storage-123");
+            ITenantContext resolvedContext = new TenantContext(Guid.CreateVersion7(), "test-tenant", "storage-123");
             resolver.Setup(r => r.TryResolve(out It.Ref<ITenantContext?>.IsAny))
                 .Callback(new TryResolveDelegate((out ITenantContext? tc) => tc = resolvedContext))
                 .Returns(true);

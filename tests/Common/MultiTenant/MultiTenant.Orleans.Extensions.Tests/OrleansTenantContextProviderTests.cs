@@ -41,7 +41,7 @@ public class OrleansTenantContextProviderTests
     public void GetTenantContext_ShouldReturnContext_WhenContextExistsInRequestContext()
     {
         // Arrange
-        RequestContext.Set("TenantContext.Id", Guid.NewGuid().ToString());
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
@@ -59,7 +59,7 @@ public class OrleansTenantContextProviderTests
     public void GetTenantContext_ShouldReturnContext_WhenOnlyNameExists()
     {
         // Arrange
-        RequestContext.Set("TenantContext.Id", Guid.NewGuid().ToString());
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
 
         // Act
@@ -76,7 +76,7 @@ public class OrleansTenantContextProviderTests
     public void GetTenantContext_ShouldReturnContext_WhenOnlyStorageIdentifierExists()
     {
         // Arrange
-        RequestContext.Set("TenantContext.Id", Guid.NewGuid().ToString());
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
         // Act

@@ -87,7 +87,7 @@ public class UserMappingProfileTests
         // Arrange
         var document = new UserDocument
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             ETag = 12345L,
             IdentityId = "auth0|123456",
             Email = "test@example.com",

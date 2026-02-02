@@ -29,7 +29,7 @@ public class UserGrainTests
     public async Task RegisterAsync_ShouldCreateUser_WhenNotRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "test@example.com";
         const string firstName = "Test";
@@ -57,7 +57,7 @@ public class UserGrainTests
     public async Task RegisterAsync_ShouldReturnFailure_WhenAlreadyRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "existing@example.com";
         const string firstName = "Existing";
@@ -81,7 +81,7 @@ public class UserGrainTests
     public async Task GetProfileAsync_ShouldReturnNull_WhenUserNotRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
 
         // Act
@@ -95,7 +95,7 @@ public class UserGrainTests
     public async Task GetProfileAsync_ShouldReturnUser_WhenRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "profile@example.com";
         const string firstName = "Profile";
@@ -120,7 +120,7 @@ public class UserGrainTests
     public async Task UserState_ShouldBeAccessible_FromMultipleReferences()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "persist@example.com";
         const string firstName = "Persist";
@@ -143,7 +143,7 @@ public class UserGrainTests
     public async Task AddTenantAsync_ShouldAddTenant_WhenUserRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "tenant-test@example.com";
         const string firstName = "Tenant";
@@ -169,7 +169,7 @@ public class UserGrainTests
     public async Task AddTenantAsync_ShouldUpdateRoles_WhenTenantAlreadyExists()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string tenantId = "test-tenant-2";
         

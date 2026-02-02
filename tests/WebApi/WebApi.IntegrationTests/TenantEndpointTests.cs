@@ -29,8 +29,8 @@ public class TenantEndpointTests
     public async Task SetUpClient()
     {
         // Reset the fake user to defaults before each test
-        _factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
-        _factory.FakeUser.TenantId = $"test-tenant-{Guid.NewGuid():N}";
+        _factory.FakeUser.UserId = $"test-user-{Guid.CreateVersion7():N}";
+        _factory.FakeUser.TenantId = $"test-tenant-{Guid.CreateVersion7():N}";
         _factory.FakeUser.IsAuthenticated = true;
         _tenancyClient = _factory.CreateTypedClient<ITenancyClient>();
 
@@ -61,7 +61,7 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        var uniqueName = $"My New Tenant {Guid.NewGuid():N}";
+        var uniqueName = $"My New Tenant {Guid.CreateVersion7():N}";
         var request = new CreateTenantDto { Name = uniqueName, Description = "A test tenant" };
 
         // Act
@@ -78,7 +78,7 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnKebabCaseName()
     {
         // Arrange
-        var uniqueId = Guid.NewGuid().ToString("N");
+        var uniqueId = Guid.CreateVersion7().ToString("N");
         var request = new CreateTenantDto { Name = $"Test Tenant With Spaces {uniqueId}", Description = "Testing kebab-case" };
 
         // Act
@@ -93,7 +93,7 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnConflict_WhenTenantAlreadyExists()
     {
         // Arrange - create the same tenant twice (using unique display name)
-        var request = new CreateTenantDto { Name = $"Duplicate Tenant {Guid.NewGuid():N}", Description = "First creation" };
+        var request = new CreateTenantDto { Name = $"Duplicate Tenant {Guid.CreateVersion7():N}", Description = "First creation" };
 
         // First creation
         await _tenancyClient.Client.CreateTenantAsync(request);
@@ -142,7 +142,7 @@ public class TenantEndpointTests
     {
         // Arrange
         // Use a new user ID that hasn't been registered in SetUp
-        _factory.FakeUser.UserId = $"unregistered-user-{Guid.NewGuid():N}";
+        _factory.FakeUser.UserId = $"unregistered-user-{Guid.CreateVersion7():N}";
         var request = new CreateTenantDto { Name = "Unregistered User Tenant", Description = "Should fail" };
 
         // Act & Assert
@@ -160,7 +160,7 @@ public class TenantEndpointTests
     public async Task GetTenant_ShouldReturnOk_WhenTenantExists()
     {
         // Arrange - first create the tenant
-        var tenantName = $"existing-tenant-{Guid.NewGuid():N}";
+        var tenantName = $"existing-tenant-{Guid.CreateVersion7():N}";
         var request = new CreateTenantDto { Name = tenantName, Description = "Existing tenant" };
         var createdTenant = await _tenancyClient.Client.CreateTenantAsync(request);
         createdTenant.ShouldNotBeNull();
@@ -205,7 +205,7 @@ public class TenantEndpointTests
     {
         // Arrange
         // 1. Create a tenant while authenticated
-        var uniqueSuffix = Guid.NewGuid().ToString("N");
+        var uniqueSuffix = Guid.CreateVersion7().ToString("N");
         var tenantName = $"auth-test-tenant-{uniqueSuffix}";
         var tenantId = $"auth-test-tenant-{uniqueSuffix}"; // Kebab case
 

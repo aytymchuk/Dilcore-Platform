@@ -28,12 +28,6 @@ public sealed class VerifyUserRegisteredBehavior : IPipelineBehavior<CreateTenan
         RequestHandlerDelegate<Result<TenantDto>> next,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_userContext.Id))
-        {
-            _logger.LogUserIdMissingForTenantCreation();
-            return Result.Fail<TenantDto>("User ID is missing.");
-        }
-
         var userGrain = _grainFactory.GetGrain<IUserGrain>(_userContext.Id);
         var isRegistered = await userGrain.IsRegisteredAsync();
 

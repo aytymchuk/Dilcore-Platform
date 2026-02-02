@@ -59,7 +59,7 @@ public sealed class TenantGrain : Grain, ITenantGrain
         _state.State.Description = command.Description;
         _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
-        _state.State.Id = Guid.NewGuid();
+        _state.State.Id = Guid.CreateVersion7();
 
         await _state.WriteStateAsync();
 

@@ -45,7 +45,7 @@ public sealed class UserGrain : Grain, IUserGrain
             return UserCreationResult.Failure("User is already registered.");
         }
 
-        _state.State.Id = Guid.NewGuid();
+        _state.State.Id = Guid.CreateVersion7();
         _state.State.IdentityId = userId;
         _state.State.Email = email.ToLowerInvariant();
         _state.State.FirstName = firstName;

@@ -13,7 +13,7 @@ public class TenantContextResolverTests
     public void Resolve_WithSuccessfulProvider_ReturnsContext()
     {
         // Arrange
-        var expectedContext = new TenantContext(Guid.NewGuid(), "T1", "storage-01");
+        var expectedContext = new TenantContext(Guid.CreateVersion7(), "T1", "storage-01");
 
         var providerMock = new Mock<ITenantContextProvider>();
         providerMock.Setup(x => x.Priority).Returns(100);
@@ -32,7 +32,7 @@ public class TenantContextResolverTests
     public void Resolve_CalledMultipleTimes_ResolvesOnlyOnce()
     {
         // Arrange
-        var context = new TenantContext(Guid.NewGuid(), "T1", "storage-01");
+        var context = new TenantContext(Guid.CreateVersion7(), "T1", "storage-01");
 
         var providerMock = new Mock<ITenantContextProvider>();
         providerMock.Setup(x => x.Priority).Returns(100);
@@ -53,12 +53,12 @@ public class TenantContextResolverTests
     public void Resolve_MultipleProviders_UsesHighestPriority()
     {
         // Arrange
-        var lowContext = new TenantContext(Guid.NewGuid(), "Low", "low-storage");
+        var lowContext = new TenantContext(Guid.CreateVersion7(), "Low", "low-storage");
         var lowProviderMock = new Mock<ITenantContextProvider>();
         lowProviderMock.Setup(x => x.Priority).Returns(50);
         lowProviderMock.Setup(x => x.GetTenantContext()).Returns(lowContext);
 
-        var highContext = new TenantContext(Guid.NewGuid(), "High", "high-storage");
+        var highContext = new TenantContext(Guid.CreateVersion7(), "High", "high-storage");
         var highProviderMock = new Mock<ITenantContextProvider>();
         highProviderMock.Setup(x => x.Priority).Returns(200);
         highProviderMock.Setup(x => x.GetTenantContext()).Returns(highContext);
@@ -80,7 +80,7 @@ public class TenantContextResolverTests
     public void Resolve_HighPriorityReturnsNull_FallsBackToLowerPriority()
     {
         // Arrange
-        var lowContext = new TenantContext(Guid.NewGuid(), "Low", "low-storage");
+        var lowContext = new TenantContext(Guid.CreateVersion7(), "Low", "low-storage");
         var lowProviderMock = new Mock<ITenantContextProvider>();
         lowProviderMock.Setup(x => x.Priority).Returns(50);
         lowProviderMock.Setup(x => x.GetTenantContext()).Returns(lowContext);

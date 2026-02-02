@@ -13,7 +13,7 @@ public class HttpTenantContextProviderTests
     public void GetTenantContext_WhenTenantExists_ReturnsContext()
     {
         // Arrange
-        var tenantId = Guid.NewGuid().ToString();
+        var tenantId = Guid.CreateVersion7().ToString();
         var tenantInfo = new AppTenantInfo(tenantId, "t1", "T1", "stx1");
 
         var mtContextMock = new Mock<IMultiTenantContext<AppTenantInfo>>();
