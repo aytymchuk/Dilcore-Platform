@@ -23,4 +23,35 @@ public interface IUserGrain : IGrainWithStringKey
     /// <returns>The user profile, or null if not registered.</returns>
     [Alias(nameof(GetProfileAsync))]
     Task<UserResponse?> GetProfileAsync();
+
+    /// <summary>
+    /// Adds a tenant to the user's access list.
+    /// </summary>
+    /// <param name="tenantId">The ID (system name) of the tenant.</param>
+    /// <param name="roles">The roles the user has in this tenant.</param>
+    /// <returns>A task representing the operation.</returns>
+    [Alias(nameof(AddTenantAsync))]
+    Task AddTenantAsync(string tenantId, IEnumerable<string> roles);
+
+    /// <summary>
+    /// Gets the list of tenants the user has access to.
+    /// </summary>
+    /// <returns>A list of tenant access records.</returns>
+    [Alias(nameof(GetTenantsAsync))]
+    Task<IReadOnlyList<TenantAccess>> GetTenantsAsync();
+
+    /// <summary>
+    /// Checks if the user is registered.
+    /// </summary>
+    /// <returns>True if the user is registered, false otherwise.</returns>
+    [Alias(nameof(IsRegisteredAsync))]
+    Task<bool> IsRegisteredAsync();
+
+    /// <summary>
+    /// Gets the roles the user has in a specific tenant.
+    /// </summary>
+    /// <param name="tenantId">The ID (system name) of the tenant.</param>
+    /// <returns>A list of roles, or empty list if no access or not registered.</returns>
+    [Alias(nameof(GetTenantRolesAsync))]
+    Task<IReadOnlyList<string>> GetTenantRolesAsync(string tenantId);
 }

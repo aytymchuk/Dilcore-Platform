@@ -36,7 +36,7 @@ public class IdentityClientTests
         // Arrange
         var registerDto = new RegisterUserDto("test@example.com", "Test", "User");
         var expectedUser = new UserDto(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "test@example.com",
             "Test",
             "User",
@@ -73,7 +73,7 @@ public class IdentityClientTests
     {
         // Arrange
         var expectedUser = new UserDto(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "current@example.com",
             "Current",
             "User",

@@ -45,7 +45,7 @@ public sealed class UserGrain : Grain, IUserGrain
             return UserCreationResult.Failure("User is already registered.");
         }
 
-        _state.State.Id = Guid.NewGuid();
+        _state.State.Id = Guid.CreateVersion7();
         _state.State.IdentityId = userId;
         _state.State.Email = email.ToLowerInvariant();
         _state.State.FirstName = firstName;
@@ -69,6 +69,63 @@ public sealed class UserGrain : Grain, IUserGrain
         }
 
         return Task.FromResult<UserResponse?>(ToResponse());
+    }
+
+    public async Task AddTenantAsync(string tenantId, IEnumerable<string>? roles)
+    {
+        if (string.IsNullOrWhiteSpace(tenantId))
+        {
+            throw new ArgumentException("Tenant ID cannot be null or whitespace.", nameof(tenantId));
+        }
+
+        if (!_state.State.IsRegistered)
+        {
+            _logger.LogUserNotRegistered(this.GetPrimaryKeyString());
+            return;
+        }
+
+        var validatedRoles = roles?.ToHashSet() ?? [];
+        var existingAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
+
+        if (existingAccess is null)
+        {
+            existingAccess = new TenantAccess { TenantId = tenantId, Roles = validatedRoles };
+            _state.State.Tenants.Add(existingAccess);
+        }
+        else
+        {
+            existingAccess.Roles.UnionWith(validatedRoles);
+        }
+
+        await _state.WriteStateAsync();
+    }
+
+    public Task<IReadOnlyList<TenantAccess>> GetTenantsAsync()
+    {
+        if (!_state.State.IsRegistered)
+        {
+            return Task.FromResult<IReadOnlyList<TenantAccess>>([]);
+        }
+        
+        return Task.FromResult<IReadOnlyList<TenantAccess>>(_state.State.Tenants.ToList());
+    }
+
+    public Task<bool> IsRegisteredAsync()
+    {
+        return Task.FromResult(_state.State.IsRegistered);
+    }
+
+    public Task<IReadOnlyList<string>> GetTenantRolesAsync(string tenantId)
+    {
+        if (!_state.State.IsRegistered)
+        {
+            return Task.FromResult<IReadOnlyList<string>>([]);
+        }
+
+        var tenantAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
+        var roles = tenantAccess?.Roles.ToList() ?? [];
+        
+        return Task.FromResult<IReadOnlyList<string>>(roles);
     }
 
     private UserResponse ToResponse() => new(

@@ -42,7 +42,7 @@ public class RegisterUserHandlerTests
 
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
-        var expectedDto = new UserResponse(Guid.NewGuid(), email, firstName, lastName, DateTime.UtcNow);
+        var expectedDto = new UserResponse(Guid.CreateVersion7(), email, firstName, lastName, DateTime.UtcNow);
         var creationResult = UserCreationResult.Success(expectedDto);
         var userGrainMock = new Mock<IUserGrain>();
         userGrainMock.Setup(x => x.RegisterAsync(email, firstName, lastName)).ReturnsAsync(creationResult);
@@ -74,7 +74,7 @@ public class RegisterUserHandlerTests
 
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
-        var expectedDto = new UserResponse(Guid.NewGuid(), email, firstName, lastName, registeredAt);
+        var expectedDto = new UserResponse(Guid.CreateVersion7(), email, firstName, lastName, registeredAt);
         var creationResult = UserCreationResult.Success(expectedDto);
         var userGrainMock = new Mock<IUserGrain>();
         userGrainMock.Setup(x => x.RegisterAsync(email, firstName, lastName)).ReturnsAsync(creationResult);

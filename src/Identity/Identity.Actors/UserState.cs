@@ -1,3 +1,5 @@
+using Dilcore.Identity.Actors.Abstractions;
+
 namespace Dilcore.Identity.Actors;
 
 /// <summary>
@@ -33,4 +35,7 @@ public sealed class UserState
 
     [Id(8)]
     public DateTime? UpdatedAt { get; set; }
+
+    [Id(9)]
+    public List<TenantAccess> Tenants { get; set; } = [];
 }

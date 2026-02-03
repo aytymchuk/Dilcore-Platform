@@ -31,7 +31,7 @@ public class TenantRepositoryTests
         // Arrange
         var tenant = new Tenant
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             Name = "Test Tenant",
             SystemName = "test-tenant",
             StoragePrefix = "prefix"
@@ -76,7 +76,7 @@ public class TenantRepositoryTests
         var systemName = "found-tenant";
         var tenantDoc = new TenantDocument
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             SystemName = systemName,
             Name = "Found Tenant",
             StoragePrefix = "prefix",

@@ -91,7 +91,7 @@ public class UserGrainStorageTests
         // Arrange
         var userState = new UserState
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             IdentityId = IdentityId,
             Email = "test@example.com"
         };
@@ -121,7 +121,7 @@ public class UserGrainStorageTests
     public async Task ClearStateAsync_ShouldDeleteUser_WhenCalled()
     {
         // Arrange
-        var userState = new UserState { Id = Guid.NewGuid(), IdentityId = IdentityId };
+        var userState = new UserState { Id = Guid.CreateVersion7(), IdentityId = IdentityId };
         _grainStateMock.SetupGet(x => x.State).Returns(userState);
         _grainStateMock.SetupGet(x => x.ETag).Returns("123");
 

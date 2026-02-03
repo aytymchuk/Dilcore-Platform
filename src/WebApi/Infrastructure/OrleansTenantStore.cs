@@ -44,7 +44,7 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
             }
 
             var tenantInfo = MapToAppTenantInfo(tenantDto);
-            _logger.LogTenantStoreResolved(identifier, tenantInfo.Name);
+            _logger.LogTenantStoreResolved(identifier, tenantInfo.Name ?? identifier);
             return tenantInfo;
         }
         catch (Exception ex)
@@ -117,9 +117,9 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
     private static AppTenantInfo MapToAppTenantInfo(TenantDto dto)
     {
         return new AppTenantInfo(
-            Id: dto.SystemName,
+            Id: dto.Id.ToString(),
             Identifier: dto.SystemName,
-            Name: dto.Name,
+            Name: dto.SystemName,
             StorageIdentifier: dto.StorageIdentifier
         );
     }

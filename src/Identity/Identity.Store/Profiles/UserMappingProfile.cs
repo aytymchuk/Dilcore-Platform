@@ -17,5 +17,9 @@ public class UserMappingProfile : Profile
 
         // Map from UserDocument (storage) to User (domain)
         CreateMap<UserDocument, User>();
+
+        // Map between TenantAccess types
+        CreateMap<Dilcore.Identity.Domain.TenantAccess, Dilcore.Identity.Store.Entities.TenantAccess>();
+        CreateMap<Dilcore.Identity.Store.Entities.TenantAccess, Dilcore.Identity.Domain.TenantAccess>();
     }
 }

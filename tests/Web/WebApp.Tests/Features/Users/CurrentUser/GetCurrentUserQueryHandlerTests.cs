@@ -28,7 +28,7 @@ public class GetCurrentUserQueryHandlerTests
         // Arrange
         var query = new GetCurrentUserQuery();
         var expectedUserDto = new UserDto(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             "test@example.com",
             "John",
             "Doe",

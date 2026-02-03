@@ -16,6 +16,11 @@ public interface ITenantTestGrain : IGrainWithStringKey
     Task<string?> GetCurrentTenantStorageIdentifierAsync();
 
     /// <summary>
+    /// Gets the current tenant identifier from the injected ITenantContext.
+    /// </summary>
+    Task<Guid> GetCurrentTenantIdAsync();
+
+    /// <summary>
     /// Calls another grain and returns the tenant name it sees.
     /// Used to test tenant context propagation across grain calls.
     /// </summary>

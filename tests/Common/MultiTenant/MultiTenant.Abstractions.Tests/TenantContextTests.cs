@@ -9,9 +9,11 @@ public class TenantContextTests
     public void TenantContext_IsImmutable()
     {
         // Arrange & Act
-        var context = new TenantContext("Tenant1", "storage-01");
+        var id = Guid.CreateVersion7();
+        var context = new TenantContext(id, "Tenant1", "storage-01");
 
         // Assert
+        context.Id.ShouldBe(id);
         context.Name.ShouldBe("Tenant1");
         context.StorageIdentifier.ShouldBe("storage-01");
 
@@ -25,6 +27,7 @@ public class TenantContextTests
         var context = TenantContext.Empty;
 
         // Assert
+        context.Id.ShouldBe(Guid.Empty);
         context.Name.ShouldBeNull();
         context.StorageIdentifier.ShouldBeNull();
     }
@@ -33,9 +36,11 @@ public class TenantContextTests
     public void TenantContext_Equality_WorksByValue()
     {
         // Arrange
-        var context1 = new TenantContext("T1", "storage");
-        var context2 = new TenantContext("T1", "storage");
-        var context3 = new TenantContext("T2", "storage");
+        var id1 = Guid.CreateVersion7();
+        var id2 = Guid.CreateVersion7();
+        var context1 = new TenantContext(id1, "T1", "storage");
+        var context2 = new TenantContext(id1, "T1", "storage");
+        var context3 = new TenantContext(id2, "T1", "storage");
 
         // Assert - Records have value equality
         context1.ShouldBe(context2);

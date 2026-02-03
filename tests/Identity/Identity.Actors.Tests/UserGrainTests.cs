@@ -29,7 +29,7 @@ public class UserGrainTests
     public async Task RegisterAsync_ShouldCreateUser_WhenNotRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "test@example.com";
         const string firstName = "Test";
@@ -57,7 +57,7 @@ public class UserGrainTests
     public async Task RegisterAsync_ShouldReturnFailure_WhenAlreadyRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "existing@example.com";
         const string firstName = "Existing";
@@ -81,7 +81,7 @@ public class UserGrainTests
     public async Task GetProfileAsync_ShouldReturnNull_WhenUserNotRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
 
         // Act
@@ -95,7 +95,7 @@ public class UserGrainTests
     public async Task GetProfileAsync_ShouldReturnUser_WhenRegistered()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "profile@example.com";
         const string firstName = "Profile";
@@ -120,7 +120,7 @@ public class UserGrainTests
     public async Task UserState_ShouldBeAccessible_FromMultipleReferences()
     {
         // Arrange
-        var userId = Guid.NewGuid().ToString();
+        var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string email = "persist@example.com";
         const string firstName = "Persist";
@@ -137,5 +137,126 @@ public class UserGrainTests
         // Assert - Data should persist
         result.ShouldNotBeNull();
         result.Email.ShouldBe(email);
+    }
+
+    [Test]
+    public async Task AddTenantAsync_ShouldAddTenant_WhenUserRegistered()
+    {
+        // Arrange
+        var userId = Guid.CreateVersion7().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+        const string email = "tenant-test@example.com";
+        const string firstName = "Tenant";
+        const string lastName = "User";
+        const string tenantId = "test-tenant-1";
+        var roles = new[] { "Owner" };
+
+        await grain.RegisterAsync(email, firstName, lastName);
+
+        // Act
+        await grain.AddTenantAsync(tenantId, roles);
+        var tenants = await grain.GetTenantsAsync();
+
+        // Assert
+        tenants.ShouldNotBeNull();
+        tenants.ShouldNotBeEmpty();
+        var tenantAccess = tenants.FirstOrDefault(t => t.TenantId == tenantId);
+        tenantAccess.ShouldNotBeNull();
+        tenantAccess.Roles.ShouldContain("Owner");
+    }
+
+    [Test]
+    public async Task AddTenantAsync_ShouldUpdateRoles_WhenTenantAlreadyExists()
+    {
+        // Arrange
+        var userId = Guid.CreateVersion7().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+        const string tenantId = "test-tenant-2";
+        
+        await grain.RegisterAsync("update-roles@example.com", "Update", "Roles");
+        await grain.AddTenantAsync(tenantId, new[] { "Viewer" });
+
+        // Act
+        await grain.AddTenantAsync(tenantId, new[] { "Editor" });
+        var tenants = await grain.GetTenantsAsync();
+
+        // Assert
+        var tenantAccess = tenants.First(t => t.TenantId == tenantId);
+        tenantAccess.Roles.ShouldContain("Viewer");
+        tenantAccess.Roles.ShouldContain("Editor");
+    }
+
+    [Test]
+    public async Task AddTenantAsync_ShouldDoNothing_WhenUserNotRegistered()
+    {
+        // Arrange
+        var userId = Guid.CreateVersion7().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+        const string tenantId = "unregistered-test-tenant";
+
+        // Act
+        await grain.AddTenantAsync(tenantId, new[] { "Owner" });
+        var tenants = await grain.GetTenantsAsync();
+
+        // Assert
+        tenants.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task GetTenantRolesAsync_ShouldReturnRoles_WhenTenantExists()
+    {
+        // Arrange
+        var userId = Guid.CreateVersion7().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+        const string tenantId = "roles-test-tenant";
+        var roles = new[] { "Admin", "User" };
+
+        await grain.RegisterAsync("roles@example.com", "Roles", "User");
+        await grain.AddTenantAsync(tenantId, roles);
+
+        // Act
+        var result = await grain.GetTenantRolesAsync(tenantId);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Count.ShouldBe(2);
+        result.ShouldContain("Admin");
+        result.ShouldContain("User");
+    }
+
+    [Test]
+    public async Task GetTenantRolesAsync_ShouldReturnEmpty_WhenTenantDoesNotExist()
+    {
+        // Arrange
+        var userId = Guid.CreateVersion7().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+
+        await grain.RegisterAsync("no-tenant@example.com", "No", "Tenant");
+
+        // Act
+        var result = await grain.GetTenantRolesAsync("non-existent");
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task IsRegisteredAsync_ShouldReturnCorrectStatus_BeforeAndAfterRegistration()
+    {
+        // Arrange
+        var userId = Guid.CreateVersion7().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+
+        // Act & Assert - Before
+        var isRegisteredBefore = await grain.IsRegisteredAsync();
+        isRegisteredBefore.ShouldBeFalse();
+
+        // Act - Register
+        await grain.RegisterAsync("status@example.com", "Status", "User");
+
+        // Act & Assert - After
+        var isRegisteredAfter = await grain.IsRegisteredAsync();
+        isRegisteredAfter.ShouldBeTrue();
     }
 }

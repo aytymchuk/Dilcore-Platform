@@ -24,6 +24,9 @@ internal static partial class LoggerExtensions
     [LoggerMessage(LogLevel.Debug, "User not found: {UserId}")]
     public static partial void LogUserNotFound(this ILogger logger, string userId);
 
+    [LoggerMessage(LogLevel.Warning, "User not registered, cannot add tenant. UserId: {UserId}")]
+    public static partial void LogUserNotRegistered(this ILogger logger, string userId);
+
     // Storage Operations
     [LoggerMessage(LogLevel.Debug, "Reading user state for UserId: {UserId}")]
     public static partial void LogReadingUserState(this ILogger logger, string userId);

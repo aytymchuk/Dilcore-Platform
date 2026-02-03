@@ -4,5 +4,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Actors\Tenancy.Actors.csproj" />
+    <ProjectReference Include="..\..\..\src\Identity\Identity.Actors\Identity.Actors.csproj" />
   </ItemGroup>
 </Project>

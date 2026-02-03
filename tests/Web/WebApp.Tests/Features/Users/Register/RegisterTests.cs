@@ -220,7 +220,7 @@ public class RegisterTests
         SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             TestEmail,
             TestFirstName,
             TestLastName));
@@ -272,7 +272,7 @@ public class RegisterTests
         SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             TestEmail,
             TestFirstName,
             TestLastName));
@@ -317,7 +317,7 @@ public class RegisterTests
         SetupIdentityClientNoUser();
 
         var successResult = Result.Ok(new UserModel(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             TestEmail,
             TestFirstName,
             TestLastName));
@@ -359,7 +359,7 @@ public class RegisterTests
     private void SetupIdentityClientWithExistingUser()
     {
         var userModel = new UserModel(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             TestEmail,
             TestFirstName,
             TestLastName);

@@ -20,15 +20,17 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_ShouldStoreContextInRequestContext()
     {
         // Arrange
-        var tenantContext = new TenantContext("test-tenant", "storage-id-123");
+        var tenantContext = new TenantContext(Guid.CreateVersion7(), "test-tenant", "storage-id-123");
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(tenantContext);
 
         // Assert
+        var id = RequestContext.Get("TenantContext.Id");
         var name = RequestContext.Get("TenantContext.Name");
         var storageId = RequestContext.Get("TenantContext.StorageIdentifier");
 
+        id.ShouldBe(tenantContext.Id);
         name.ShouldBe("test-tenant");
         storageId.ShouldBe("storage-id-123");
     }
@@ -37,6 +39,7 @@ public class OrleansTenantContextAccessorTests
     public void GetTenantContext_ShouldRetrieveContextFromRequestContext()
     {
         // Arrange
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
@@ -45,6 +48,7 @@ public class OrleansTenantContextAccessorTests
 
         // Assert
         result.ShouldNotBeNull();
+        result.Id.ShouldNotBe(Guid.Empty);
         result.Name.ShouldBe("test-tenant");
         result.StorageIdentifier.ShouldBe("storage-id-123");
     }
@@ -63,6 +67,7 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_WithNull_ShouldRemoveContextFromRequestContext()
     {
         // Arrange
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
@@ -78,7 +83,7 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_WithNullName_ShouldRemoveNameFromRequestContext()
     {
         // Arrange
-        var tenantContext = new TenantContext(null, "storage-id-123");
+        var tenantContext = new TenantContext(Guid.CreateVersion7(), null, "storage-id-123");
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(tenantContext);
@@ -95,7 +100,7 @@ public class OrleansTenantContextAccessorTests
     public void SetTenantContext_WithNullStorageIdentifier_ShouldRemoveStorageIdentifierFromRequestContext()
     {
         // Arrange
-        var tenantContext = new TenantContext("test-tenant", null);
+        var tenantContext = new TenantContext(Guid.CreateVersion7(), "test-tenant", null);
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(tenantContext);
@@ -112,6 +117,7 @@ public class OrleansTenantContextAccessorTests
     public void GetTenantContext_ShouldReturnContextWithOnlyName_WhenOnlyNameSet()
     {
         // Arrange
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.Name", "test-tenant");
 
         // Act
@@ -127,6 +133,7 @@ public class OrleansTenantContextAccessorTests
     public void GetTenantContext_ShouldReturnContextWithOnlyStorageIdentifier_WhenOnlyStorageIdentifierSet()
     {
         // Arrange
+        RequestContext.Set("TenantContext.Id", Guid.CreateVersion7().ToString());
         RequestContext.Set("TenantContext.StorageIdentifier", "storage-id-123");
 
         // Act
@@ -142,7 +149,7 @@ public class OrleansTenantContextAccessorTests
     public void SetThenGetTenantContext_ShouldRoundTrip()
     {
         // Arrange
-        var original = new TenantContext("my-tenant", "my-storage-123");
+        var original = new TenantContext(Guid.CreateVersion7(), "my-tenant", "my-storage-123");
 
         // Act
         OrleansTenantContextAccessor.SetTenantContext(original);
@@ -150,6 +157,7 @@ public class OrleansTenantContextAccessorTests
 
         // Assert
         retrieved.ShouldNotBeNull();
+        retrieved.Id.ShouldBe(original.Id);
         retrieved.Name.ShouldBe(original.Name);
         retrieved.StorageIdentifier.ShouldBe(original.StorageIdentifier);
     }

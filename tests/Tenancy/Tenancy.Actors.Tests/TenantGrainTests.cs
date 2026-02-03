@@ -15,9 +15,12 @@ public class TenantGrainTests
     private TestCluster Cluster => _fixture.Cluster;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public async Task OneTimeSetUpAsync()
     {
         _fixture = new ClusterFixture();
+        
+        var userGrain = _fixture.Cluster.GrainFactory.GetGrain<Dilcore.Identity.Actors.Abstractions.IUserGrain>("test-user-id");
+        await userGrain.RegisterAsync("test@example.com", "Test", "User");
     }
 
     [OneTimeTearDown]
@@ -30,7 +33,7 @@ public class TenantGrainTests
     public async Task CreateAsync_ShouldCreateTenant_WhenNotExists()
     {
         // Arrange
-        var tenantName = $"test-tenant-{Guid.NewGuid():N}";
+        var tenantName = $"test-tenant-{Guid.CreateVersion7():N}";
         var grain = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
         const string displayName = "Test Tenant";
         const string description = "A test tenant for unit testing";
@@ -56,7 +59,7 @@ public class TenantGrainTests
     public async Task CreateAsync_ShouldReturnExisting_WhenAlreadyCreated()
     {
         // Arrange
-        var tenantName = $"existing-tenant-{Guid.NewGuid():N}";
+        var tenantName = $"existing-tenant-{Guid.CreateVersion7():N}";
         var grain = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
         const string displayName = "Existing Tenant";
         const string description = "Original description";
@@ -86,7 +89,7 @@ public class TenantGrainTests
     public async Task GetAsync_ShouldReturnNull_WhenTenantNotExists()
     {
         // Arrange
-        var tenantName = $"nonexistent-{Guid.NewGuid():N}";
+        var tenantName = $"nonexistent-{Guid.CreateVersion7():N}";
         var grain = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
 
         // Act
@@ -100,7 +103,7 @@ public class TenantGrainTests
     public async Task GetAsync_ShouldReturnTenant_WhenExists()
     {
         // Arrange
-        var tenantName = $"get-tenant-{Guid.NewGuid():N}";
+        var tenantName = $"get-tenant-{Guid.CreateVersion7():N}";
         var grain = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
         const string displayName = "Get Tenant";
         const string description = "Tenant for get test";
@@ -126,7 +129,7 @@ public class TenantGrainTests
     public async Task TenantState_ShouldPersist_AcrossGrainCalls()
     {
         // Arrange
-        var tenantName = $"persist-tenant-{Guid.NewGuid():N}";
+        var tenantName = $"persist-tenant-{Guid.CreateVersion7():N}";
         var grain = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
         const string displayName = "Persist Tenant";
         const string description = "Tenant for persistence test";

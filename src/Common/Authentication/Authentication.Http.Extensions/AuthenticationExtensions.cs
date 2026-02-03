@@ -40,6 +40,7 @@ public static class AuthenticationExtensions
         services.AddHttpContextAccessor();
         services.AddSingleton<IUserContextProvider, HttpUserContextProvider>();
         services.AddSingleton<IUserContextResolver, UserContextResolver>();
+        services.AddScoped<IUserContext>(sp => sp.GetRequiredService<IUserContextResolver>().Resolve());
 
         services.AddTelemetryAttributeProvider<UserAttributeProvider>();
 

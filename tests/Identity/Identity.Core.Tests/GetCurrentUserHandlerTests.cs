@@ -43,7 +43,7 @@ public class GetCurrentUserHandlerTests
 
         _userContextMock.Setup(x => x.Id).Returns(userId);
 
-        var expectedDto = new UserResponse(Guid.NewGuid(), email, firstName, lastName, registeredAt);
+        var expectedDto = new UserResponse(Guid.CreateVersion7(), email, firstName, lastName, registeredAt);
         var userGrainMock = new Mock<IUserGrain>();
         userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync(expectedDto);
 

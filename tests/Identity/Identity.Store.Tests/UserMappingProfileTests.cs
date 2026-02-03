@@ -5,6 +5,8 @@ using Dilcore.Identity.Store.Profiles;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Shouldly;
+using DomainTenantAccess = Dilcore.Identity.Domain.TenantAccess;
+using StoreTenantAccess = Dilcore.Identity.Store.Entities.TenantAccess;
 
 namespace Dilcore.Identity.Store.Tests;
 
@@ -52,7 +54,13 @@ public class UserMappingProfileTests
             email: "test@example.com",
             firstName: "John",
             lastName: "Doe",
-            timeProvider: TimeProvider.System);
+            timeProvider: TimeProvider.System) with
+        {
+            Tenants = new List<DomainTenantAccess>
+            {
+                new() { TenantId = "tenant1", Roles = ["admin", "user"] }
+            }
+        };
 
         // Act
         var document = _mapper.Map<UserDocument>(user);
@@ -66,6 +74,11 @@ public class UserMappingProfileTests
         document.LastName.ShouldBe(user.LastName);
         document.CreatedAt.ShouldBe(user.CreatedAt);
         document.UpdatedAt.ShouldBe(user.UpdatedAt);
+        
+        document.Tenants.ShouldNotBeNull();
+        document.Tenants.Count.ShouldBe(1);
+        document.Tenants[0].TenantId.ShouldBe("tenant1");
+        document.Tenants[0].Roles.ShouldBe(["admin", "user"], ignoreOrder: true);
     }
 
     [Test]
@@ -74,7 +87,7 @@ public class UserMappingProfileTests
         // Arrange
         var document = new UserDocument
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             ETag = 12345L,
             IdentityId = "auth0|123456",
             Email = "test@example.com",
@@ -82,7 +95,11 @@ public class UserMappingProfileTests
             LastName = "Smith",
             CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0, DateTimeKind.Utc),
             UpdatedAt = new DateTime(2024, 1, 16, 14, 45, 0, DateTimeKind.Utc),
-            IsDeleted = false
+            IsDeleted = false,
+            Tenants = new List<StoreTenantAccess>
+            {
+                new() { TenantId = "tenant2", Roles = ["viewer"] }
+            }
         };
 
         // Act
@@ -97,6 +114,11 @@ public class UserMappingProfileTests
         user.LastName.ShouldBe(document.LastName);
         user.CreatedAt.ShouldBe(document.CreatedAt);
         user.UpdatedAt.ShouldBe(document.UpdatedAt);
+        
+        user.Tenants.ShouldNotBeNull();
+        user.Tenants.Count.ShouldBe(1);
+        user.Tenants[0].TenantId.ShouldBe("tenant2");
+        user.Tenants[0].Roles.ShouldBe(["viewer"]);
     }
 
     [Test]

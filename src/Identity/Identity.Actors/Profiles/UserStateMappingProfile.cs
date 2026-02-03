@@ -18,5 +18,9 @@ public class UserStateMappingProfile : Profile
         // Map from UserState to User domain entity (for writing to repository)
         CreateMap<UserState, User>()
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.RegisteredAt));
+
+        // Map between TenantAccess types
+        CreateMap<Dilcore.Identity.Domain.TenantAccess, Dilcore.Identity.Actors.Abstractions.TenantAccess>();
+        CreateMap<Dilcore.Identity.Actors.Abstractions.TenantAccess, Dilcore.Identity.Domain.TenantAccess>();
     }
 }

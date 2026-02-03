@@ -10,5 +10,7 @@
     <ProjectReference Include="..\..\Common\MediatR\MediatR.Extensions\MediatR.Extensions.csproj" />
     <ProjectReference Include="..\..\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
     <ProjectReference Include="..\..\Common\FluentResults\Results.Abstractions\Results.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
   </ItemGroup>
 </Project>

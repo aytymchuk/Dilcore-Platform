@@ -1,4 +1,5 @@
 using System.Net;
+using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Contracts.Tenants.Create;
 using Dilcore.WebApi.Client.Clients;
@@ -25,13 +26,21 @@ public class TenantEndpointTests
     }
 
     [SetUp]
-    public void SetUpClient()
+    public async Task SetUpClient()
     {
         // Reset the fake user to defaults before each test
-        _factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
-        _factory.FakeUser.TenantId = $"test-tenant-{Guid.NewGuid():N}";
+        _factory.FakeUser.UserId = $"test-user-{Guid.CreateVersion7():N}";
+        _factory.FakeUser.TenantId = $"test-tenant-{Guid.CreateVersion7():N}";
         _factory.FakeUser.IsAuthenticated = true;
         _tenancyClient = _factory.CreateTypedClient<ITenancyClient>();
+
+        // Register the user to ensure happy paths pass
+        using var scope = _factory.Services.CreateScope();
+        
+        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        var userGrain = grainFactory.GetGrain<IUserGrain>(_factory.FakeUser.UserId);
+        var uniqueEmail = $"{_factory.FakeUser.UserId}@example.com";
+        await userGrain.RegisterAsync(uniqueEmail, "Test", "User");
     }
 
     [TearDown]
@@ -52,7 +61,7 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        var uniqueName = $"My New Tenant {Guid.NewGuid():N}";
+        var uniqueName = $"My New Tenant {Guid.CreateVersion7():N}";
         var request = new CreateTenantDto { Name = uniqueName, Description = "A test tenant" };
 
         // Act
@@ -69,7 +78,7 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnKebabCaseName()
     {
         // Arrange
-        var uniqueId = Guid.NewGuid().ToString("N");
+        var uniqueId = Guid.CreateVersion7().ToString("N");
         var request = new CreateTenantDto { Name = $"Test Tenant With Spaces {uniqueId}", Description = "Testing kebab-case" };
 
         // Act
@@ -84,7 +93,7 @@ public class TenantEndpointTests
     public async Task CreateTenant_ShouldReturnConflict_WhenTenantAlreadyExists()
     {
         // Arrange - create the same tenant twice (using unique display name)
-        var request = new CreateTenantDto { Name = $"Duplicate Tenant {Guid.NewGuid():N}", Description = "First creation" };
+        var request = new CreateTenantDto { Name = $"Duplicate Tenant {Guid.CreateVersion7():N}", Description = "First creation" };
 
         // First creation
         await _tenancyClient.Client.CreateTenantAsync(request);
@@ -128,6 +137,21 @@ public class TenantEndpointTests
         exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
+    [Test]
+    public async Task CreateTenant_ShouldReturnBadRequest_WhenUserNotRegistered()
+    {
+        // Arrange
+        // Use a new user ID that hasn't been registered in SetUp
+        _factory.FakeUser.UserId = $"unregistered-user-{Guid.CreateVersion7():N}";
+        var request = new CreateTenantDto { Name = "Unregistered User Tenant", Description = "Should fail" };
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.CreateTenantAsync(request));
+        exception.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        // We can't easily check the error message with Refit ApiException without parsing the content, 
+        // but the status code confirms the behavior was intercepted.
+    }
+
     #endregion
 
     #region GET /tenants
@@ -136,7 +160,7 @@ public class TenantEndpointTests
     public async Task GetTenant_ShouldReturnOk_WhenTenantExists()
     {
         // Arrange - first create the tenant
-        var tenantName = $"existing-tenant-{Guid.NewGuid():N}";
+        var tenantName = $"existing-tenant-{Guid.CreateVersion7():N}";
         var request = new CreateTenantDto { Name = tenantName, Description = "Existing tenant" };
         var createdTenant = await _tenancyClient.Client.CreateTenantAsync(request);
         createdTenant.ShouldNotBeNull();
@@ -181,7 +205,7 @@ public class TenantEndpointTests
     {
         // Arrange
         // 1. Create a tenant while authenticated
-        var uniqueSuffix = Guid.NewGuid().ToString("N");
+        var uniqueSuffix = Guid.CreateVersion7().ToString("N");
         var tenantName = $"auth-test-tenant-{uniqueSuffix}";
         var tenantId = $"auth-test-tenant-{uniqueSuffix}"; // Kebab case
 

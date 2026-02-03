@@ -32,4 +32,9 @@ public class UserDocument : IDocumentEntity
     /// The user's last name.
     /// </summary>
     public required string LastName { get; set; }
+
+    /// <summary>
+    /// The tenants the user has access to.
+    /// </summary>
+    public List<TenantAccess> Tenants { get; set; } = [];
 }

@@ -34,7 +34,7 @@ public class RegisterCommandHandlerTests
         var command = new RegisterCommand(parameters);
 
         var expectedUserDto = new UserDto(
-            Guid.NewGuid(),
+            Guid.CreateVersion7(),
             parameters.Email,
             parameters.FirstName,
             parameters.LastName,

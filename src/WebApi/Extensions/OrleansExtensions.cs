@@ -1,5 +1,6 @@
 using Azure.Data.Tables;
 using Dilcore.Identity.Actors;
+using Dilcore.Authentication.Orleans.Extensions;
 using Dilcore.MultiTenant.Orleans.Extensions;
 using Dilcore.Tenancy.Actors;
 using Dilcore.WebApi.Settings;
@@ -57,6 +58,9 @@ internal static class OrleansExtensions
 
             // Multi-tenancy support for Orleans
             siloBuilder.AddOrleansTenantContext();
+
+            // User context support for Orleans
+            siloBuilder.AddOrleansUserContext();
         });
     }
 }

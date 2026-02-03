@@ -19,11 +19,11 @@ public class UserEndpointTests : BaseIntegrationTest
     [SetUp]
     public async Task SetUpClient()
     {
-        TenantId = $"test-tenant-{Guid.NewGuid():N}";
+        TenantId = $"test-tenant-{Guid.CreateVersion7():N}";
         await SeedTenantAsync(Factory, TenantId);
 
         // Reset the fake user to defaults before each test
-        Factory.FakeUser.UserId = $"test-user-{Guid.NewGuid():N}";
+        Factory.FakeUser.UserId = $"test-user-{Guid.CreateVersion7():N}";
         Factory.FakeUser.Email = "test@example.com";
         Factory.FakeUser.FirstName = "Test";
         Factory.FakeUser.LastName = "User";
@@ -89,12 +89,12 @@ public class UserEndpointTests : BaseIntegrationTest
     public async Task RegisterUser_ShouldReturnConflict_WhenEmailExistsWithDifferentCase()
     {
         // Arrange - register first user with lowercase email
-        Factory.FakeUser.UserId = $"user-1-{Guid.NewGuid():N}";
+        Factory.FakeUser.UserId = $"user-1-{Guid.CreateVersion7():N}";
         var firstRequest = new RegisterUserDto("test@example.com", "First", "User");
         await _identityClient.Client.RegisterUserAsync(firstRequest);
 
         // Change to different user ID to simulate different user attempting registration
-        Factory.FakeUser.UserId = $"user-2-{Guid.NewGuid():N}";
+        Factory.FakeUser.UserId = $"user-2-{Guid.CreateVersion7():N}";
         var secondRequest = new RegisterUserDto("TEST@EXAMPLE.COM", "Second", "User");
 
         // Act & Assert - should return Conflict due to case-insensitive email lookup
@@ -106,12 +106,12 @@ public class UserEndpointTests : BaseIntegrationTest
     public async Task RegisterUser_ShouldReturnConflict_WhenEmailExistsWithMixedCase()
     {
         // Arrange - register first user with mixed case email
-        Factory.FakeUser.UserId = $"user-1-{Guid.NewGuid():N}";
+        Factory.FakeUser.UserId = $"user-1-{Guid.CreateVersion7():N}";
         var firstRequest = new RegisterUserDto("User@Example.COM", "First", "User");
         await _identityClient.Client.RegisterUserAsync(firstRequest);
 
         // Change to different user ID to simulate different user attempting registration
-        Factory.FakeUser.UserId = $"user-2-{Guid.NewGuid():N}";
+        Factory.FakeUser.UserId = $"user-2-{Guid.CreateVersion7():N}";
         var secondRequest = new RegisterUserDto("user@example.com", "Second", "User");
 
         // Act & Assert - should return Conflict due to case-insensitive email lookup
@@ -166,7 +166,7 @@ public class UserEndpointTests : BaseIntegrationTest
     public async Task GetCurrentUser_ShouldReturnNotFound_WhenUserDoesNotExist()
     {
         // Arrange - use a new user ID that hasn't been registered
-        Factory.FakeUser.UserId = $"nonexistent-{Guid.NewGuid():N}";
+        Factory.FakeUser.UserId = $"nonexistent-{Guid.CreateVersion7():N}";
 
         // Act & Assert
         var exception = await Should.ThrowAsync<ApiException>(() => _identityClient.Client.GetCurrentUserAsync());

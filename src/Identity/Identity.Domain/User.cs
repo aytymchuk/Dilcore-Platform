@@ -10,12 +10,13 @@ public record User : BaseDomain
     public required string FirstName { get; init; }
     public required string LastName { get; init; }
     public string FullName => $"{FirstName} {LastName}";
+    public List<TenantAccess> Tenants { get; init; } = [];
 
     public static User Create(string identityId, string email, string firstName, string lastName, TimeProvider timeProvider)
     {
         return new User
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             IdentityId = identityId,
             Email = email,
             FirstName = firstName,

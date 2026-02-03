@@ -35,6 +35,16 @@ public class TenantTestGrain : Grain, ITenantTestGrain
         return Task.FromResult<string?>(null);
     }
 
+    public Task<Guid> GetCurrentTenantIdAsync()
+    {
+        if (_tenantContextResolver.TryResolve(out var tenantContext))
+        {
+            return Task.FromResult(tenantContext?.Id ?? Guid.Empty);
+        }
+
+        return Task.FromResult(Guid.Empty);
+    }
+
     public async Task<string?> CallAnotherGrainAndGetTenantNameAsync(string otherGrainId)
     {
         var otherGrain = GrainFactory.GetGrain<ITenantTestGrain>(otherGrainId);
