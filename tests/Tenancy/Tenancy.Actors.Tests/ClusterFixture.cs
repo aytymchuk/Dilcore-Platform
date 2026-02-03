@@ -16,6 +16,7 @@ public class ClusterFixture : CommonClusterFixture<ClusterFixture.TenantStoreCon
         {
             siloBuilder.AddMemoryGrainStorage("TenantStore");
             siloBuilder.AddMemoryGrainStorage("UserStore");
+            siloBuilder.UseInMemoryReminderService();
             siloBuilder.ConfigureServices(services =>
             {
                 services.AddSingleton(TimeProvider.System);
