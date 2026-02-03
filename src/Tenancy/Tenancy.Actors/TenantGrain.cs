@@ -1,7 +1,11 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
+using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
+using Orleans;
+using Orleans.Runtime;
+using Orleans.Timers;
 
 namespace Dilcore.Tenancy.Actors;
 
@@ -9,8 +13,9 @@ namespace Dilcore.Tenancy.Actors;
 /// Orleans grain representing a tenant entity.
 /// Grain key is the tenant name (lower kebab-case).
 /// </summary>
-public sealed class TenantGrain : Grain, ITenantGrain
+public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
 {
+    private const string AssignRoleReminder = "assign-role-to-owner";
     private readonly IPersistentState<TenantState> _state;
     private readonly IGrainFactory _grainFactory;
     private readonly IUserContext _userContext;
@@ -60,14 +65,14 @@ public sealed class TenantGrain : Grain, ITenantGrain
         _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
         _state.State.Id = Guid.CreateVersion7();
+        _state.State.CreatorUserId = _userContext.Id;
 
         await _state.WriteStateAsync();
 
-        if (!string.IsNullOrWhiteSpace(_userContext.Id))
+        // Update user context with new tenant access
+        if (!string.IsNullOrEmpty(_state.State.CreatorUserId))
         {
-             var userGrain = _grainFactory.GetGrain<IUserGrain>(_userContext.Id);
-             await userGrain.AddTenantAsync(tenantName, new List<string> { "Owner" });
-             _logger.LogTenantAddedToUser(tenantName, _userContext.Id);
+            await TryAssignOwnerRoleAsync(tenantName, _state.State.CreatorUserId);
         }
         else
         {
@@ -88,6 +93,46 @@ public sealed class TenantGrain : Grain, ITenantGrain
         }
 
         return Task.FromResult<TenantDto?>(ToDto());
+    }
+
+    public async Task ReceiveReminder(string reminderName, TickStatus status)
+    {
+        if (reminderName == AssignRoleReminder)
+        {
+            _logger.LogTenantReminderReceived(this.GetPrimaryKeyString(), _state.State.CreatorUserId);
+            await TryAssignOwnerRoleAsync(this.GetPrimaryKeyString(), _state.State.CreatorUserId);
+        }
+    }
+
+    private async Task TryAssignOwnerRoleAsync(string tenantName, string userId)
+    {
+        try
+        {
+            var userGrain = _grainFactory.GetGrain<IUserGrain>(userId);
+            await userGrain.AddTenantAsync(tenantName, [TenantConstants.OwnerRole]);
+            
+            _logger.LogTenantAddedToUser(tenantName, userId);
+
+            // If we are running inside a reminder, we should unregister it
+            var reminder = await this.GetReminder(AssignRoleReminder);
+            if (reminder != null)
+            {
+                await this.UnregisterReminder(reminder);
+                _logger.LogTenantReminderUnregistered(tenantName, userId);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Register reminder if not already registered
+            var existingReminder = await this.GetReminder(AssignRoleReminder);
+            if (existingReminder == null)
+            {
+                await this.RegisterOrUpdateReminder(AssignRoleReminder, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(5));
+                _logger.LogTenantReminderRegistered(tenantName, userId);
+            }
+
+            _logger.LogTenantReminderError(ex, tenantName, userId);
+        }
     }
 
     private TenantDto ToDto() => new(

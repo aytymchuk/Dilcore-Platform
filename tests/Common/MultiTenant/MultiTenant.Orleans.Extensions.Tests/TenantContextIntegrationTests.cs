@@ -85,7 +85,7 @@ public class TenantContextIntegrationTests
         var tenantId = Guid.CreateVersion7();
         // Set tenant context in RequestContext
         OrleansTenantContextAccessor.SetTenantContext(
-            new TenantContext(Guid.CreateVersion7(), "propagated-tenant", "prop-storage-456"));
+            new TenantContext(tenantId, "propagated-tenant", "prop-storage-456"));
 
         // Act - grain1 calls grain2 and gets its tenant name
         var tenantNameFromGrain2 = await grain1.CallAnotherGrainAndGetTenantNameAsync(grainId2);

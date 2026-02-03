@@ -44,7 +44,7 @@ public sealed class OrleansTenantStore : IMultiTenantStore<AppTenantInfo>
             }
 
             var tenantInfo = MapToAppTenantInfo(tenantDto);
-            _logger.LogTenantStoreResolved(identifier, tenantInfo.Name);
+            _logger.LogTenantStoreResolved(identifier, tenantInfo.Name ?? identifier);
             return tenantInfo;
         }
         catch (Exception ex)

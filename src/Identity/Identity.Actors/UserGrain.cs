@@ -71,27 +71,30 @@ public sealed class UserGrain : Grain, IUserGrain
         return Task.FromResult<UserResponse?>(ToResponse());
     }
 
-    public async Task AddTenantAsync(string tenantId, IEnumerable<string> roles)
+    public async Task AddTenantAsync(string tenantId, IEnumerable<string>? roles)
     {
+        if (string.IsNullOrWhiteSpace(tenantId))
+        {
+            throw new ArgumentException("Tenant ID cannot be null or whitespace.", nameof(tenantId));
+        }
+
         if (!_state.State.IsRegistered)
         {
-            _logger.LogUserNotRegistered(this.GetPrimaryKeyString()); 
+            _logger.LogUserNotRegistered(this.GetPrimaryKeyString());
             return;
         }
 
+        var validatedRoles = roles?.ToHashSet() ?? [];
         var existingAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
 
         if (existingAccess is null)
         {
-            _state.State.Tenants.Add(new TenantAccess
-            {
-                TenantId = tenantId,
-                Roles = roles.ToHashSet()
-            });
+            existingAccess = new TenantAccess { TenantId = tenantId, Roles = validatedRoles };
+            _state.State.Tenants.Add(existingAccess);
         }
         else
         {
-             existingAccess.Roles.UnionWith(roles);
+            existingAccess.Roles.UnionWith(validatedRoles);
         }
 
         await _state.WriteStateAsync();
@@ -104,10 +107,7 @@ public sealed class UserGrain : Grain, IUserGrain
             return Task.FromResult<IReadOnlyList<TenantAccess>>([]);
         }
         
-        // Return a copy to avoid external modification of state
-        // TenantAccess is a record, shallow copy is enough if we don't modify the list inside it from outside.
-        // Serialization handles copying on wire.
-        return Task.FromResult<IReadOnlyList<TenantAccess>>(_state.State.Tenants);
+        return Task.FromResult<IReadOnlyList<TenantAccess>>(_state.State.Tenants.ToList());
     }
 
     public Task<bool> IsRegisteredAsync()

@@ -27,4 +27,7 @@ public sealed class TenantState
 
     [Id(6)]
     public string StoragePrefix { get; set; } = string.Empty;
+
+    [Id(7)]
+    public string CreatorUserId { get; set; } = string.Empty;
 }
