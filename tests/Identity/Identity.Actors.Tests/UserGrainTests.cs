@@ -140,66 +140,64 @@ public class UserGrainTests
     }
 
     [Test]
-    public async Task AddTenantAsync_ShouldAddTenant_WhenUserRegistered()
+    public async Task AssignTenantOwnerAsync_ShouldAddOwnerRole_EvenWhenNotRegistered()
     {
         // Arrange
         var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
-        const string email = "tenant-test@example.com";
-        const string firstName = "Tenant";
-        const string lastName = "User";
-        const string tenantId = "test-tenant-1";
-        var roles = new[] { "Owner" };
+        const string tenantId = "owner-test-tenant";
 
-        await grain.RegisterAsync(email, firstName, lastName);
-
-        // Act
-        await grain.AddTenantAsync(tenantId, roles);
+        // Act - Call without registration
+        await grain.AssignTenantOwnerAsync(tenantId);
         var tenants = await grain.GetTenantsAsync();
+        var roles = await grain.GetTenantRolesAsync(tenantId);
 
         // Assert
-        tenants.ShouldNotBeNull();
         tenants.ShouldNotBeEmpty();
-        var tenantAccess = tenants.FirstOrDefault(t => t.TenantId == tenantId);
-        tenantAccess.ShouldNotBeNull();
-        tenantAccess.Roles.ShouldContain("Owner");
+        tenants.Any(t => t.TenantId == tenantId).ShouldBeTrue();
+        roles.ShouldContain("Owner");
     }
 
     [Test]
-    public async Task AddTenantAsync_ShouldUpdateRoles_WhenTenantAlreadyExists()
+    public async Task AssignTenantOwnerAsync_ShouldBeIdempotent()
     {
         // Arrange
         var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
-        const string tenantId = "test-tenant-2";
+        const string tenantId = "idempotent-test-tenant";
+
+        // Act
+        await grain.AssignTenantOwnerAsync(tenantId);
+        await grain.AssignTenantOwnerAsync(tenantId);
         
-        await grain.RegisterAsync("update-roles@example.com", "Update", "Roles");
-        await grain.AddTenantAsync(tenantId, new[] { "Viewer" });
-
-        // Act
-        await grain.AddTenantAsync(tenantId, new[] { "Editor" });
         var tenants = await grain.GetTenantsAsync();
+        var roles = await grain.GetTenantRolesAsync(tenantId);
 
         // Assert
-        var tenantAccess = tenants.First(t => t.TenantId == tenantId);
-        tenantAccess.Roles.ShouldContain("Viewer");
-        tenantAccess.Roles.ShouldContain("Editor");
+        tenants.Count.ShouldBe(1);
+        roles.Count.ShouldBe(1);
+        roles.ShouldContain("Owner");
     }
 
     [Test]
-    public async Task AddTenantAsync_ShouldDoNothing_WhenUserNotRegistered()
+    public async Task AssignTenantOwnerAsync_ShouldSupportMultipleTenants()
     {
         // Arrange
         var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
-        const string tenantId = "unregistered-test-tenant";
+        const string tenant1 = "tenant-1";
+        const string tenant2 = "tenant-2";
 
         // Act
-        await grain.AddTenantAsync(tenantId, new[] { "Owner" });
+        await grain.AssignTenantOwnerAsync(tenant1);
+        await grain.AssignTenantOwnerAsync(tenant2);
+        
         var tenants = await grain.GetTenantsAsync();
 
         // Assert
-        tenants.ShouldBeEmpty();
+        tenants.Count.ShouldBe(2);
+        tenants.Any(t => t.TenantId == tenant1).ShouldBeTrue();
+        tenants.Any(t => t.TenantId == tenant2).ShouldBeTrue();
     }
 
     [Test]
@@ -209,19 +207,15 @@ public class UserGrainTests
         var userId = Guid.CreateVersion7().ToString();
         var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
         const string tenantId = "roles-test-tenant";
-        var roles = new[] { "Admin", "User" };
 
-        await grain.RegisterAsync("roles@example.com", "Roles", "User");
-        await grain.AddTenantAsync(tenantId, roles);
+        await grain.AssignTenantOwnerAsync(tenantId);
 
         // Act
         var result = await grain.GetTenantRolesAsync(tenantId);
 
         // Assert
         result.ShouldNotBeNull();
-        result.Count.ShouldBe(2);
-        result.ShouldContain("Admin");
-        result.ShouldContain("User");
+        result.ShouldContain("Owner");
     }
 
     [Test]

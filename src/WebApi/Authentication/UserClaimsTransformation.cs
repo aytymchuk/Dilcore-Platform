@@ -62,7 +62,7 @@ public class UserClaimsTransformation(
             var tenantIds = tenantAccessList.Select(t => t.TenantId).ToHashSet();
 
             var newPrincipal = new ClaimsPrincipal(clonedIdentity);
-
+ 
             // Add user profile claims if available
             if (userProfile != null)
             {
@@ -71,7 +71,7 @@ public class UserClaimsTransformation(
                     // Add standard email claim
                     clonedIdentity.AddClaim(new Claim(ClaimTypes.Email, userProfile.Email));
                 }
-
+ 
                 if (!string.IsNullOrEmpty(userProfile.FirstName) || !string.IsNullOrEmpty(userProfile.LastName))
                 {
                     var name = $"{userProfile.FirstName} {userProfile.LastName}".Trim();
@@ -82,24 +82,23 @@ public class UserClaimsTransformation(
                     }
                 }
             }
-
-            // Add tenants claim (could be JSON array or multiple claims, user requested "list of user tenants")
-            // We'll add as multiple claims for easier policy filtering if needed, or single JSON claim. 
-            // The requirement says "set list of user tenants". 
-            // Often frameworks prefer multiple claims of same type for array.
+ 
+            // Add tenants claim
             foreach (var tenantId in tenantIds)
             {
                 clonedIdentity.AddClaim(new Claim(UserConstants.TenantsClaimType, tenantId));
             }
-
+ 
             // If we have a current tenant context, add roles for THAT tenant
-            if (tenantContextResolver.TryResolve(out var tenantContext) && tenantContext != null && tenantContext.Id != Guid.Empty && !string.IsNullOrEmpty(tenantContext.Name))
+            if (tenantContextResolver.TryResolve(out var tenantContext) && 
+                tenantContext != null && 
+                tenantContext.Id != Guid.Empty && 
+                !string.IsNullOrEmpty(tenantContext.Name))
             {
                 // Find access record for current tenant
-                // TenantContext.StorageIdentifier is often the system name/ID used in grains
                 var currentTenantAccess = tenantAccessList
                     .FirstOrDefault(t => t.TenantId.Equals(tenantContext.Name, StringComparison.OrdinalIgnoreCase));
-
+ 
                 if (currentTenantAccess != null)
                 {
                     foreach (var role in currentTenantAccess.Roles)

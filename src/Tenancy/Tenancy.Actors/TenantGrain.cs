@@ -1,6 +1,5 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
-using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
 
@@ -114,7 +113,7 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
         try
         {
             var userGrain = _grainFactory.GetGrain<IUserGrain>(userId);
-            await userGrain.AddTenantAsync(tenantName, [TenantConstants.OwnerRole]);
+            await userGrain.AssignTenantOwnerAsync(tenantName);
             
             _logger.LogTenantAddedToUser(tenantName, userId);
 

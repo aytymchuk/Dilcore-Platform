@@ -61,6 +61,9 @@ internal static class OrleansExtensions
 
             // User context support for Orleans
             siloBuilder.AddOrleansUserContext();
+
+            siloBuilder.AddReminders();
+            siloBuilder.UseInMemoryReminderService();
         });
     }
 }

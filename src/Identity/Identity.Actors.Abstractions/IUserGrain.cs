@@ -24,14 +24,6 @@ public interface IUserGrain : IGrainWithStringKey
     [Alias(nameof(GetProfileAsync))]
     Task<UserResponse?> GetProfileAsync();
 
-    /// <summary>
-    /// Adds a tenant to the user's access list.
-    /// </summary>
-    /// <param name="tenantId">The ID (system name) of the tenant.</param>
-    /// <param name="roles">The roles the user has in this tenant.</param>
-    /// <returns>A task representing the operation.</returns>
-    [Alias(nameof(AddTenantAsync))]
-    Task AddTenantAsync(string tenantId, IEnumerable<string> roles);
 
     /// <summary>
     /// Gets the list of tenants the user has access to.
@@ -39,6 +31,15 @@ public interface IUserGrain : IGrainWithStringKey
     /// <returns>A list of tenant access records.</returns>
     [Alias(nameof(GetTenantsAsync))]
     Task<IReadOnlyList<TenantAccess>> GetTenantsAsync();
+
+    /// <summary>
+    /// Assigns the Owner role for a specific tenant to the user.
+    /// This method bypasses the registration check.
+    /// </summary>
+    /// <param name="tenantId">The ID (system name) of the tenant.</param>
+    /// <returns>A task representing the operation.</returns>
+    [Alias(nameof(AssignTenantOwnerAsync))]
+    Task AssignTenantOwnerAsync(string tenantId);
 
     /// <summary>
     /// Checks if the user is registered.
