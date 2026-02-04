@@ -15,6 +15,7 @@ using Dilcore.Telemetry.Extensions.OpenTelemetry;
 using Dilcore.Tenancy.WebApi;
 using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;
+using Dilcore.WebApi.Middleware;
 using Dilcore.WebApi.Settings;
 
 namespace Dilcore.WebApi.Extensions;
