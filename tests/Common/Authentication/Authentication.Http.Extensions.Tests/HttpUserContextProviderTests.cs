@@ -233,4 +233,31 @@ public class HttpUserContextProviderTests
         result.ShouldNotBeNull();
         result.FullName.ShouldBe("Standard Name"); // Updated expectation
     }
+
+    [Test]
+    public void GetUserContext_CollectsRolesFromBothSources()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext();
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "user-123"),
+            new Claim(ClaimTypes.Role, "Admin"),
+            new Claim(ClaimTypes.Role, "User"),
+            new Claim(UserConstants.RolesClaimType, "Manager"),
+            new Claim(UserConstants.RolesClaimType, "User") // Duplicate
+        };
+        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "Test"));
+        _httpContextAccessorMock.Setup(x => x.HttpContext).Returns(httpContext);
+
+        // Act
+        var result = _provider.GetUserContext();
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Roles.Count().ShouldBe(3);
+        result.Roles.ShouldContain("Admin");
+        result.Roles.ShouldContain("User");
+        result.Roles.ShouldContain("Manager");
+    }
 }

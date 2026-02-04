@@ -45,7 +45,9 @@ public class UserClaimsTransformation(
         try
         {
             // Clone the principal to avoid modifying the original one which might be cached
-            var clonedIdentity = principal.Clone().Identity as ClaimsIdentity;
+            var clonedPrincipal = principal.Clone();
+            var clonedIdentity = clonedPrincipal.Identity as ClaimsIdentity;
+
             if (clonedIdentity == null)
             {
                 return principal;
@@ -61,58 +63,18 @@ public class UserClaimsTransformation(
             var tenantAccessList = await userGrain.GetTenantsAsync();
             var tenantIds = tenantAccessList.Select(t => t.TenantId).ToHashSet();
 
-            var newPrincipal = new ClaimsPrincipal(clonedIdentity);
- 
             // Add user profile claims if available
-            if (userProfile != null)
-            {
-                if (!string.IsNullOrEmpty(userProfile.Email))
-                {
-                    // Add standard email claim
-                    clonedIdentity.AddClaim(new Claim(ClaimTypes.Email, userProfile.Email));
-                }
- 
-                if (!string.IsNullOrEmpty(userProfile.FirstName) || !string.IsNullOrEmpty(userProfile.LastName))
-                {
-                    var name = $"{userProfile.FirstName} {userProfile.LastName}".Trim();
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        // Add standard name claim
-                        clonedIdentity.AddClaim(new Claim(ClaimTypes.Name, name));
-                    }
-                }
-            }
- 
+            AddProfileClaims(clonedIdentity, userProfile);
+
             // Add tenants claim
-            foreach (var tenantId in tenantIds)
-            {
-                clonedIdentity.AddClaim(new Claim(UserConstants.TenantsClaimType, tenantId));
-            }
- 
+            AddTenantClaims(clonedIdentity, tenantIds);
+
             // If we have a current tenant context, add roles for THAT tenant
-            if (tenantContextResolver.TryResolve(out var tenantContext) && 
-                tenantContext != null && 
-                tenantContext.Id != Guid.Empty && 
-                !string.IsNullOrEmpty(tenantContext.Name))
-            {
-                // Find access record for current tenant
-                var currentTenantAccess = tenantAccessList
-                    .FirstOrDefault(t => t.TenantId.Equals(tenantContext.Name, StringComparison.OrdinalIgnoreCase));
- 
-                if (currentTenantAccess != null)
-                {
-                    foreach (var role in currentTenantAccess.Roles)
-                    {
-                        clonedIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
-                    }
-                    
-                    logger.LogRolesAdded(userId, tenantContext.Name, currentTenantAccess.Roles.Count);
-                }
-            }
+            AddTenantRoleClaims(clonedIdentity, userId, tenantAccessList, tenantContextResolver);
             
             logger.LogTenantsAdded(userId, tenantIds.Count);
 
-            return newPrincipal;
+            return clonedPrincipal;
         }
         catch (Exception ex)
         {
@@ -120,6 +82,68 @@ public class UserClaimsTransformation(
             // Return original principal on error to allow request to proceed (potentially unauthorized)
             // rather than crushing the request pipeline
             return principal;
+        }
+    }
+
+    private static void AddProfileClaims(ClaimsIdentity identity, UserResponse? userProfile)
+    {
+        if (userProfile == null)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(userProfile.Email) && !identity.HasClaim(c => c.Type == ClaimTypes.Email))
+        {
+            // Add standard email claim
+            identity.AddClaim(new Claim(ClaimTypes.Email, userProfile.Email));
+        }
+
+        if (!string.IsNullOrEmpty(userProfile.FirstName) || !string.IsNullOrEmpty(userProfile.LastName))
+        {
+            var name = $"{userProfile.FirstName} {userProfile.LastName}".Trim();
+            if (!string.IsNullOrEmpty(name) && !identity.HasClaim(c => c.Type == ClaimTypes.Name))
+            {
+                // Add standard name claim
+                identity.AddClaim(new Claim(ClaimTypes.Name, name));
+            }
+        }
+    }
+
+    private static void AddTenantClaims(ClaimsIdentity identity, IEnumerable<string> tenantIds)
+    {
+        foreach (var tenantId in tenantIds)
+        {
+            if (!identity.HasClaim(c => c.Type == UserConstants.TenantsClaimType && c.Value == tenantId))
+            {
+                identity.AddClaim(new Claim(UserConstants.TenantsClaimType, tenantId));
+            }
+        }
+    }
+
+    private void AddTenantRoleClaims(
+        ClaimsIdentity identity,
+        string userId,
+        IReadOnlyList<TenantAccess> tenantAccessList,
+        ITenantContextResolver tenantContextResolver)
+    {
+        if (tenantContextResolver.TryResolve(out var tenantContext) &&
+            tenantContext != null &&
+            tenantContext.Id != Guid.Empty &&
+            !string.IsNullOrEmpty(tenantContext.Name))
+        {
+            // Find access record for current tenant
+            var currentTenantAccess = tenantAccessList
+                .FirstOrDefault(t => t.TenantId.Equals(tenantContext.Name, StringComparison.OrdinalIgnoreCase));
+
+            if (currentTenantAccess != null)
+            {
+                foreach (var role in currentTenantAccess.Roles)
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.Role, role));
+                }
+
+                logger.LogRolesAdded(userId, tenantContext.Name ?? "unknown", currentTenantAccess.Roles.Count);
+            }
         }
     }
 }

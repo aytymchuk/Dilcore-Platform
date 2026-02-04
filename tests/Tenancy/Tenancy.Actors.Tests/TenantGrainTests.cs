@@ -52,6 +52,9 @@ public class TenantGrainTests
         result.Tenant.Name.ShouldBe(displayName);
         result.Tenant.SystemName.ShouldBe(tenantName);
         result.Tenant.Description.ShouldBe(description);
+        result.Tenant.StorageIdentifier.ShouldNotBeNullOrEmpty();
+        result.Tenant.StorageIdentifier.ShouldStartWith("test");
+        result.Tenant.StorageIdentifier.ShouldContain("-");
         result.Tenant.CreatedAt.ShouldBeGreaterThan(DateTime.MinValue);
         result.Tenant.CreatedById.ShouldBe("test-user-id");
     }

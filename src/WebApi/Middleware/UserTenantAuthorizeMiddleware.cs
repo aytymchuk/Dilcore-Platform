@@ -49,7 +49,7 @@ public sealed class UserTenantAuthorizeMiddleware(RequestDelegate next, ILogger<
         // Also support single claim with JSON or comma-separated list if implementation changes
         // But for now UserClaimsTransformation adds multiple claims.
 
-        if (userTenants.Contains(tenantContext.Name, StringComparer.OrdinalIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(tenantContext?.Name) && userTenants.Contains(tenantContext.Name, StringComparer.OrdinalIgnoreCase))
         {
             await next(context);
             return;
@@ -59,6 +59,6 @@ public sealed class UserTenantAuthorizeMiddleware(RequestDelegate next, ILogger<
         var availableTenants = string.Join(", ", userTenants);
         logger.LogTenantAccessForbidden(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown", tenantContext.Name ?? "unknown-tenant");
         
-        throw new ForbiddenException($"Access to tenant '{tenantContext.Name}' is forbidden. User tenants: [{availableTenants}]");
+        throw new ForbiddenException("Access to tenant is forbidden.");
     }
 }

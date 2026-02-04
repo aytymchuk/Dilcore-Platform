@@ -31,6 +31,8 @@ public class UserClaimsTransformationTests
 
         _userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync((UserResponse?)null);
 
+        _loggerMock.Setup(x => x.IsEnabled(LogLevel.Error)).Returns(true);
+
         _sut = new UserClaimsTransformation(_startClusterClientMock.Object, _tenantContextResolverMock.Object, _loggerMock.Object);
     }
 
@@ -68,6 +70,43 @@ public class UserClaimsTransformationTests
     }
 
     [Test]
+    public async Task TransformAsync_ShouldSkip_WhenAlreadyTransformed()
+    {
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "test-user")], "TestAuth");
+        identity.AddClaim(new Claim("urn:dilcore:claims-transformed", "true"));
+        var principal = new ClaimsPrincipal(identity);
+
+        var result = await _sut.TransformAsync(principal);
+
+        result.ShouldBe(principal);
+        _startClusterClientMock.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task TransformAsync_ShouldReturnOriginalPrincipal_WhenExceptionOccurs()
+    {
+        var userId = "test-user";
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, userId)], "TestAuth"));
+
+        _startClusterClientMock.Setup(x => x.GetGrain<IUserGrain>(userId, null))
+            .Throws(new Exception("Cluster error"));
+
+        var result = await _sut.TransformAsync(principal);
+
+        result.ShouldBe(principal);
+        // Verify LogTransformationError was called (extension method uses LogError internally)
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Error transforming claims for user")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Test]
     public async Task TransformAsync_ShouldAddRoleClaims_WhenTenantContextIsActive()
     {
         var userId = "test-user";
@@ -95,23 +134,5 @@ public class UserClaimsTransformationTests
         var result = await _sut.TransformAsync(principal);
 
         result.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == role).ShouldBeTrue();
-    }
-    [Test]
-    public async Task TransformAsync_ShouldAddEmailAndNameClaims_WhenProfileExists()
-    {
-        var userId = "test-user";
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim(ClaimTypes.NameIdentifier, userId)], "TestAuth"));
-
-        var userResponse = new UserResponse(Guid.NewGuid(), "test@user.com", "John", "Doe", DateTime.UtcNow);
-        var tenantAccess = new List<TenantAccess>();
-
-        _userGrainMock.Setup(x => x.GetTenantsAsync()).ReturnsAsync(tenantAccess);
-        _userGrainMock.Setup(x => x.GetProfileAsync()).ReturnsAsync(userResponse);
-
-        var result = await _sut.TransformAsync(principal);
-
-        result.HasClaim(c => c.Type == ClaimTypes.Email && c.Value == "test@user.com").ShouldBeTrue();
-        result.HasClaim(c => c.Type == ClaimTypes.Name && c.Value == "John Doe").ShouldBeTrue();
     }
 }

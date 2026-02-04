@@ -1,3 +1,4 @@
+using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Orleans.TestingHost;
 using Shouldly;
@@ -155,7 +156,7 @@ public class UserGrainTests
         // Assert
         tenants.ShouldNotBeEmpty();
         tenants.Any(t => t.TenantId == tenantId).ShouldBeTrue();
-        roles.ShouldContain("Owner");
+        roles.ShouldContain(Roles.Owner);
     }
 
     [Test]
@@ -176,7 +177,7 @@ public class UserGrainTests
         // Assert
         tenants.Count.ShouldBe(1);
         roles.Count.ShouldBe(1);
-        roles.ShouldContain("Owner");
+        roles.ShouldContain(Roles.Owner);
     }
 
     [Test]
@@ -201,6 +202,18 @@ public class UserGrainTests
     }
 
     [Test]
+    public async Task AssignTenantOwnerAsync_ShouldThrowArgumentException_WhenTenantIdIsInvalid()
+    {
+        // Arrange
+        var userId = Guid.CreateVersion7().ToString();
+        var grain = Cluster.GrainFactory.GetGrain<IUserGrain>(userId);
+
+        // Act & Assert
+        await Should.ThrowAsync<ArgumentException>(() => grain.AssignTenantOwnerAsync(""));
+        await Should.ThrowAsync<ArgumentException>(() => grain.AssignTenantOwnerAsync("   "));
+    }
+
+    [Test]
     public async Task GetTenantRolesAsync_ShouldReturnRoles_WhenTenantExists()
     {
         // Arrange
@@ -215,7 +228,7 @@ public class UserGrainTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.ShouldContain("Owner");
+        result.ShouldContain(Roles.Owner);
     }
 
     [Test]

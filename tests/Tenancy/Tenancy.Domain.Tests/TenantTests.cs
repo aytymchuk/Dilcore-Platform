@@ -16,7 +16,8 @@ public class TenantTests
         {
             SystemName = validName,
             Name = "Test",
-            StoragePrefix = "test"
+            StoragePrefix = "test",
+            CreatedById = "test-user"
         });
     }
 
@@ -37,7 +38,8 @@ public class TenantTests
         {
             SystemName = invalidName!,
             Name = "Test",
-            StoragePrefix = "test"
+            StoragePrefix = "test",
+            CreatedById = "test-user"
         })
         .Message.ShouldContain("System name must be in lower-kebab-case format.");
     }

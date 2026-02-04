@@ -11,12 +11,12 @@ public sealed class TenantDocument : IDocumentEntity
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public string StoragePrefix { get; set; }
-    public string SystemName { get; set; }
-    public string Name { get; set; }
+    public required string StoragePrefix { get; set; }
+    public required string SystemName { get; set; }
+    public required string Name { get; set; }
     public string? Description { get; set; }
     
-    public string CreatedById { get; set; }
+    public required string CreatedById { get; set; }
 
     public static TenantDocument FromDomain(Tenant tenant) => new()
     {
@@ -39,7 +39,9 @@ public sealed class TenantDocument : IDocumentEntity
         SystemName = SystemName,
         Name = Name,
         Description = Description,
-        CreatedById = CreatedById,
+        CreatedById = string.IsNullOrWhiteSpace(CreatedById) 
+            ? throw new InvalidOperationException("Tenant must have a creator.") 
+            : CreatedById,
         CreatedAt = CreatedAt,
         UpdatedAt = UpdatedAt,
         ETag = ETag

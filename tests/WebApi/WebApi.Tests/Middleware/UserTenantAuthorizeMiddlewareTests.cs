@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Dilcore.Authentication.Abstractions;
 using Dilcore.Authentication.Abstractions.Exceptions;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApi.Middleware;
@@ -94,8 +95,8 @@ public class UserTenantAuthorizeMiddlewareTests
         var tenantId = "tenant1";
         var context = new DefaultHttpContext();
         SetEndpoint(context);
-        var user = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim("tenants", "other-tenant")], "TestAuth"));
+        var identity = new ClaimsIdentity(new[] { new Claim(UserConstants.TenantsClaimType, "other-tenant") }, "TestAuth");
+        var user = new ClaimsPrincipal(identity);
         context.User = user;
 
         var tenantContextMock = new Mock<ITenantContext>();
@@ -108,7 +109,8 @@ public class UserTenantAuthorizeMiddlewareTests
         resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
 
         // Act & Assert
-        await Should.ThrowAsync<ForbiddenException>(() => _sut.InvokeAsync(context, resolverMock.Object));
+        var ex = await Should.ThrowAsync<ForbiddenException>(() => _sut.InvokeAsync(context, resolverMock.Object));
+        ex.Message.ShouldBe("Access to tenant is forbidden.");
 
         _nextMock.Verify(x => x(context), Times.Never);
     }

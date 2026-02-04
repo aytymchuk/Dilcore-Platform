@@ -41,4 +41,34 @@ public class OrleansUserContextAccessorTests
 
         result.ShouldBeNull();
     }
+    [Test]
+    public void GetUserContext_ShouldReturnNull_WhenNoContextSet()
+    {
+        // Act
+        var result = OrleansUserContextAccessor.GetUserContext();
+
+        // Assert
+        result.ShouldBeNull();
+    }
+
+    [Test]
+    public void SetUserContext_ShouldOverwriteExistingContext()
+    {
+        // Arrange
+        var context1 = new UserContext("user1", "user1@test.com", "User One", [], []);
+        var context2 = new UserContext("user2", "user2@test.com", "User Two", [], []);
+
+        // Act
+        OrleansUserContextAccessor.SetUserContext(context1);
+        var firstResult = OrleansUserContextAccessor.GetUserContext();
+        OrleansUserContextAccessor.SetUserContext(context2);
+        var secondResult = OrleansUserContextAccessor.GetUserContext();
+
+        // Assert
+        firstResult.ShouldNotBeNull();
+        firstResult.Id.ShouldBe("user1");
+        
+        secondResult.ShouldNotBeNull();
+        secondResult.Id.ShouldBe("user2");
+    }
 }

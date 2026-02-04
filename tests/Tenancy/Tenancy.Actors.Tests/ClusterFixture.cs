@@ -29,7 +29,7 @@ public class ClusterFixture : CommonClusterFixture<ClusterFixture.TenantStoreCon
                 IUserContext? outContext = userContext;
                 mockResolver.Setup(r => r.TryResolve(out outContext)).Returns(true);
                 mockResolver.Setup(r => r.Resolve()).Returns(userContext);
-                services.AddSingleton(mockResolver.Object);
+                services.AddSingleton<IUserContextResolver>(mockResolver.Object);
             });
         }
     }

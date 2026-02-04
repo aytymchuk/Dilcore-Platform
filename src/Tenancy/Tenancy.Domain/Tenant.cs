@@ -51,7 +51,7 @@ public sealed partial record Tenant : BaseDomain
     /// <summary>
     /// The user ID that created the tenant.
     /// </summary>
-    public string CreatedById { get; init; } = string.Empty;
+    public required string CreatedById { get; init; }
 
     [GeneratedRegex("[a-z0-9]+")]
     private static partial Regex KebabCasePartRegex();

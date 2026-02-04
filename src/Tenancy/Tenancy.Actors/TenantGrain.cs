@@ -2,6 +2,7 @@ using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace Dilcore.Tenancy.Actors;
 
@@ -56,18 +57,19 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
 
         _state.State.SystemName = tenantName;
         _state.State.Name = command.DisplayName;
-        _state.State.StoragePrefix = tenantName;
         _state.State.Description = command.Description;
-        _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
         _state.State.Id = Guid.CreateVersion7();
+        _state.State.CreatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+        _state.State.StoragePrefix = GenerateStoragePrefix(command.DisplayName, _state.State.Id);
 
-        if (_userContext.TryResolve(out var userContext))
+        if (_userContext.TryResolve(out var userContext) && userContext != null)
         {
-            _state.State.CreatedById = userContext!.Id;
+            _state.State.CreatedById = userContext.Id;
         }
         else
         {
+            _state.State.CreatedById = UserConstants.SystemUserId;
             _logger.LogTenantCreatedWithoutUser(tenantName);
         }
 
@@ -148,4 +150,13 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
         _state.State.IsCreated,
         _state.State.CreatedAt,
         _state.State.CreatedById);
+
+    private string GenerateStoragePrefix(string displayName, Guid id)
+    {
+        var cleansed = Regex.Replace(displayName, @"[^a-zA-Z0-9]", "").ToLowerInvariant();
+        var prefix = cleansed.Length >= 4 ? cleansed[..4] : cleansed;
+        var idString = id.ToString();
+        var suffix = idString[^4..];
+        return $"{prefix}-{suffix}";
+    }
 }

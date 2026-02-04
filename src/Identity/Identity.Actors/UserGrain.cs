@@ -1,3 +1,4 @@
+using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
 
@@ -81,8 +82,7 @@ public sealed class UserGrain : Grain, IUserGrain
 
         // We explicitly skip IsRegistered check here to allow owners to be assigned during registration flow
         
-        var ownerRole = "Owner";
-        var roles = new HashSet<string> { ownerRole };
+        var roles = new HashSet<string> { Roles.Owner };
         var existingAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
 
         if (existingAccess is null)
@@ -92,7 +92,7 @@ public sealed class UserGrain : Grain, IUserGrain
         }
         else
         {
-            existingAccess.Roles.Add(ownerRole);
+            existingAccess.Roles.Add(Roles.Owner);
         }
 
         await _state.WriteStateAsync();

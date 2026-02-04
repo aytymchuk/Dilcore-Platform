@@ -33,7 +33,10 @@ public sealed class HttpUserContextProvider(IHttpContextAccessor httpContextAcce
 
 
         var tenants = user.FindAll(UserConstants.TenantsClaimType).Select(c => c.Value);
-        var roles = user.FindAll(ClaimTypes.Role).Select(c => c.Value);
+        var roles = user.FindAll(ClaimTypes.Role)
+            .Concat(user.FindAll(UserConstants.RolesClaimType))
+            .Select(c => c.Value)
+            .Distinct();
 
         return new UserContext(userId, email, fullName, tenants, roles);
     }

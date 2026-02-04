@@ -23,18 +23,22 @@ internal static class OrleansExtensions
                 // Azure Storage clustering with Managed Identity
                 siloBuilder.UseAzureStorageClustering(options =>
                 {
-                    var serviceUri = new Uri(
-                        $"https://{grainsSettings.StorageAccountName}.table.core.windows.net/");
+                    options.TableServiceClient = CreateTableServiceClient(grainsSettings.StorageAccountName);
+                });
 
-                    options.TableServiceClient = new TableServiceClient(
-                        serviceUri,
-                        new Azure.Identity.DefaultAzureCredential());
+                // Azure Table Reminders
+                siloBuilder.UseAzureTableReminderService(options =>
+                {
+                    options.TableServiceClient = CreateTableServiceClient(grainsSettings.StorageAccountName);
                 });
             }
             else
             {
                 // Use localhost clustering when Azure clustering is disabled or misconfigured
                 siloBuilder.UseLocalhostClustering();
+
+                // Use in-memory reminders for local development
+                siloBuilder.UseInMemoryReminderService();
             }
 
             siloBuilder.Configure<Orleans.Configuration.ClusterOptions>(options =>
@@ -63,7 +67,12 @@ internal static class OrleansExtensions
             siloBuilder.AddOrleansUserContext();
 
             siloBuilder.AddReminders();
-            siloBuilder.UseInMemoryReminderService();
         });
+    }
+
+    private static TableServiceClient CreateTableServiceClient(string storageAccountName)
+    {
+        var serviceUri = new Uri($"https://{storageAccountName}.table.core.windows.net/");
+        return new TableServiceClient(serviceUri, new Azure.Identity.DefaultAzureCredential());
     }
 }
