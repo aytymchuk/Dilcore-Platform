@@ -82,12 +82,12 @@ public class Auth0ClaimsTransformationTests
         result.ShouldNotBeNull();
         result.ShouldNotBe(principal); // Should be a clone
 
-        var emailClaim = result.FindFirst(UserConstants.EmailClaimType);
+        var emailClaim = result.FindFirst(ClaimTypes.Email);
         emailClaim.ShouldNotBeNull();
         emailClaim.Value.ShouldBe("test@example.com");
         emailClaim.Issuer.ShouldBe("https://localhost");
 
-        var nameClaim = result.FindFirst(UserConstants.NameClaimType);
+        var nameClaim = result.FindFirst(ClaimTypes.Name);
         nameClaim.ShouldNotBeNull();
         nameClaim.Value.ShouldBe("Test User");
         nameClaim.Issuer.ShouldBe("https://localhost");

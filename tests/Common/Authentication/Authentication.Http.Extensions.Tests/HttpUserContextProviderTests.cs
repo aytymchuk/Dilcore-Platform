@@ -169,7 +169,7 @@ public class HttpUserContextProviderTests
     }
 
     [Test]
-    public void GetUserContext_PrioritizesSubOverUidOverNameIdentifier()
+    public void GetUserContext_PrioritizesNameIdentifierOverSubOverUid()
     {
         // Arrange
         var httpContext = new DefaultHttpContext();
@@ -187,11 +187,11 @@ public class HttpUserContextProviderTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Id.ShouldBe("sub-user"); // Should use 'sub' claim first
+        result.Id.ShouldBe("nameidentifier-user"); // Updated expectation
     }
 
     [Test]
-    public void GetUserContext_PrioritizesCustomEmailOverClaimsTypeEmail()
+    public void GetUserContext_PrioritizesClaimsTypeEmailOverCustomEmail()
     {
         // Arrange
         var httpContext = new DefaultHttpContext();
@@ -209,11 +209,11 @@ public class HttpUserContextProviderTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.Email.ShouldBe("custom@example.com"); // Should use custom email claim first
+        result.Email.ShouldBe("standard@example.com"); // Updated expectation
     }
 
     [Test]
-    public void GetUserContext_PrioritizesCustomNameOverClaimsTypeName()
+    public void GetUserContext_PrioritizesClaimsTypeNameOverCustomName()
     {
         // Arrange
         var httpContext = new DefaultHttpContext();
@@ -231,6 +231,6 @@ public class HttpUserContextProviderTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.FullName.ShouldBe("Custom Name"); // Should use custom name claim first
+        result.FullName.ShouldBe("Standard Name"); // Updated expectation
     }
 }

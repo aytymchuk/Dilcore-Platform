@@ -51,4 +51,18 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(LogLevel.Error, "OrleansTenantStore: Error resolving tenant '{Identifier}'")]
     public static partial void LogTenantStoreResolutionError(this ILogger logger, Exception ex, string identifier);
+
+    // UserClaimsTransformation
+    [LoggerMessage(LogLevel.Debug, "Added {Count} tenant claims for user {UserId}")]
+    public static partial void LogTenantsAdded(this ILogger logger, string userId, int count);
+
+    [LoggerMessage(LogLevel.Debug, "Added {Count} role claims for user {UserId} in tenant {TenantId}")]
+    public static partial void LogRolesAdded(this ILogger logger, string userId, string tenantId, int count);
+
+    [LoggerMessage(LogLevel.Error, "Error transforming claims for user {UserId}")]
+    public static partial void LogTransformationError(this ILogger logger, Exception ex, string userId);
+
+    // UserTenantAuthorizeMiddleware
+    [LoggerMessage(LogLevel.Warning, "Access to tenant {TenantIdentifier} forbidden for user {UserId}")]
+    public static partial void LogTenantAccessForbidden(this ILogger logger, string userId, string tenantIdentifier);
 }

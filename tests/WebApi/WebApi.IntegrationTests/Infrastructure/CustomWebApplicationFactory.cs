@@ -47,6 +47,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             RemoveOpenTelemetryServices(services);
             RemoveAuthenticationServices(services);
 
+            // Re-register UserClaimsTransformation as specifically requested for scenarios needing full claims resolution via Grains
+            services.AddScoped<IClaimsTransformation, Dilcore.WebApi.Authentication.UserClaimsTransformation>();
+
             // Register test authentication
             services.AddAuthentication(options =>
             {
@@ -118,9 +121,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             ((d.ServiceType.FullName?.Contains("Authentication", StringComparison.OrdinalIgnoreCase) == true) ||
              (d.ServiceType.FullName?.Contains("JwtBearer", StringComparison.OrdinalIgnoreCase) == true) ||
              (d.ServiceType.FullName?.Contains("Auth0", StringComparison.OrdinalIgnoreCase) == true)) &&
-            // Keep Authentication.Abstractions services (like IUserContextResolver, IUserContextProvider)
-            (d.ServiceType.Namespace?.Contains("Authentication.Abstractions") != true) &&
-            (d.ImplementationType?.Namespace?.Contains("Authentication.Abstractions") != true)
+            // Keep Dilcore.Authentication services (infrastructure like context resolvers/providers)
+            (d.ServiceType.Namespace?.Contains("Dilcore.Authentication") != true) &&
+            (d.ImplementationType?.Namespace?.Contains("Dilcore.Authentication") != true)
         ).ToList();
 
         foreach (var descriptor in authServices)

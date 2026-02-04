@@ -1,7 +1,6 @@
 using Dilcore.Authentication.Abstractions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Orleans;
 
 namespace Dilcore.Authentication.Orleans.Extensions.Tests;
 
@@ -39,7 +38,7 @@ public class UserIncomingGrainCallFilterTests
         // Arrange
         var userId = "user-123";
         var email = "test@example.com";
-        var userContext = new UserContext(userId, email, "Test User");
+        var userContext = new UserContext(userId, email, "Test User", [], []);
         OrleansUserContextAccessor.SetUserContext(userContext);
 
         // Act

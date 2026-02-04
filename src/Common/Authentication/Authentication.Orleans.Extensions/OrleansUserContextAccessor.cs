@@ -11,6 +11,8 @@ public static class OrleansUserContextAccessor
     private const string UserIdKey = "UserContext.Id";
     private const string UserEmailKey = "UserContext.Email";
     private const string UserFullNameKey = "UserContext.FullName";
+    private const string UserTenantsKey = "UserContext.Tenants";
+    private const string UserRolesKey = "UserContext.Roles";
 
     /// <summary>
     /// Sets the user context in Orleans RequestContext.
@@ -52,6 +54,24 @@ public static class OrleansUserContextAccessor
         {
             RequestContext.Remove(UserFullNameKey);
         }
+
+        if (userContext.Tenants.Any())
+        {
+            RequestContext.Set(UserTenantsKey, userContext.Tenants.ToArray());
+        }
+        else
+        {
+            RequestContext.Remove(UserTenantsKey);
+        }
+
+        if (userContext.Roles.Any())
+        {
+            RequestContext.Set(UserRolesKey, userContext.Roles.ToArray());
+        }
+        else
+        {
+            RequestContext.Remove(UserRolesKey);
+        }
     }
 
     /// <summary>
@@ -63,12 +83,14 @@ public static class OrleansUserContextAccessor
         var id = RequestContext.Get(UserIdKey) as string;
         var email = RequestContext.Get(UserEmailKey) as string;
         var fullName = RequestContext.Get(UserFullNameKey) as string;
+        var tenants = RequestContext.Get(UserTenantsKey) as string[] ?? [];
+        var roles = RequestContext.Get(UserRolesKey) as string[] ?? [];
 
-        if (id is null && email is null && fullName is null)
+        if (id is null && email is null && fullName is null && tenants.Length == 0 && roles.Length == 0)
         {
             return null;
         }
 
-        return new UserContext(id, email, fullName);
+        return new UserContext(id ?? string.Empty, email, fullName, tenants, roles);
     }
 }

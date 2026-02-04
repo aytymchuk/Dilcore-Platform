@@ -28,6 +28,7 @@ public static class MiddlewarePipelineExtensions
 
         app.UseAuthentication();
         app.UseMultiTenantEnforcement();
+        app.UseMiddleware<UserTenantAuthorizeMiddleware>();
         app.UseAuthorization();
 
         return app;

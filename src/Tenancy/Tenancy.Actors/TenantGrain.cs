@@ -3,9 +3,6 @@ using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
-using Orleans;
-using Orleans.Runtime;
-using Orleans.Timers;
 
 namespace Dilcore.Tenancy.Actors;
 
@@ -18,14 +15,14 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
     private const string AssignRoleReminder = "assign-role-to-owner";
     private readonly IPersistentState<TenantState> _state;
     private readonly IGrainFactory _grainFactory;
-    private readonly IUserContext _userContext;
+    private readonly IUserContextResolver _userContext;
     private readonly ILogger<TenantGrain> _logger;
     private readonly TimeProvider _timeProvider;
 
     public TenantGrain(
         [PersistentState("tenant", "TenantStore")] IPersistentState<TenantState> state,
         IGrainFactory grainFactory,
-        IUserContext userContext,
+        IUserContextResolver userContext,
         ILogger<TenantGrain> logger,
         TimeProvider timeProvider)
     {
@@ -65,14 +62,22 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
         _state.State.CreatedAt = _timeProvider.GetUtcNow().DateTime;
         _state.State.IsCreated = true;
         _state.State.Id = Guid.CreateVersion7();
-        _state.State.CreatorUserId = _userContext.Id;
+
+        if (_userContext.TryResolve(out var userContext))
+        {
+            _state.State.CreatedById = userContext!.Id;
+        }
+        else
+        {
+            _logger.LogTenantCreatedWithoutUser(tenantName);
+        }
 
         await _state.WriteStateAsync();
 
         // Update user context with new tenant access
-        if (!string.IsNullOrEmpty(_state.State.CreatorUserId))
+        if (!string.IsNullOrEmpty(_state.State.CreatedById))
         {
-            await TryAssignOwnerRoleAsync(tenantName, _state.State.CreatorUserId);
+            await TryAssignOwnerRoleAsync(tenantName, _state.State.CreatedById);
         }
         else
         {
@@ -99,8 +104,8 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
     {
         if (reminderName == AssignRoleReminder)
         {
-            _logger.LogTenantReminderReceived(this.GetPrimaryKeyString(), _state.State.CreatorUserId);
-            await TryAssignOwnerRoleAsync(this.GetPrimaryKeyString(), _state.State.CreatorUserId);
+            _logger.LogTenantReminderReceived(this.GetPrimaryKeyString(), _state.State.CreatedById);
+            await TryAssignOwnerRoleAsync(this.GetPrimaryKeyString(), _state.State.CreatedById);
         }
     }
 
@@ -142,5 +147,6 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
         _state.State.Description,
         _state.State.StoragePrefix,
         _state.State.IsCreated,
-        _state.State.CreatedAt);
+        _state.State.CreatedAt,
+        _state.State.CreatedById);
 }

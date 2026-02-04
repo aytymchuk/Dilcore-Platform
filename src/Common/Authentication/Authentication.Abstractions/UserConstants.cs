@@ -24,4 +24,14 @@ public static class UserConstants
     /// Claim type for user's full name.
     /// </summary>
     public const string NameClaimType = "name";
+
+    /// <summary>
+    /// Claim type for user's tenants.
+    /// </summary>
+    public const string TenantsClaimType = "tenants";
+
+    /// <summary>
+    /// Claim type for user's roles.
+    /// </summary>
+    public const string RolesClaimType = "roles";
 }

@@ -83,6 +83,8 @@ public sealed partial class GlobalExceptionHandler(
                 (HttpStatusCode.BadRequest, ProblemDetailsConstants.TenantNotResolved, "Tenant Not Resolved"),
             UserNotResolvedException _ =>
                 (HttpStatusCode.Unauthorized, ProblemDetailsConstants.UserNotResolved, "User Not Resolved"),
+            ForbiddenException _ =>
+                (HttpStatusCode.Forbidden, ProblemDetailsConstants.Forbidden, "Forbidden"),
             _ =>
                 (HttpStatusCode.InternalServerError, ProblemDetailsConstants.UnexpectedError, "An unexpected error occurred")
         };

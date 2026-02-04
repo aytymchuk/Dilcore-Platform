@@ -1,5 +1,5 @@
-using Dilcore.Authentication.Auth0;
 using Dilcore.Authentication.Http.Extensions;
+using Microsoft.AspNetCore.Authentication;
 using Dilcore.Configuration.Extensions;
 using Dilcore.CorrelationId.Extensions.OpenApi;
 using Dilcore.CorrelationId.Http.Extensions;
@@ -66,7 +66,8 @@ internal static class ServiceCollectionExtensions
     public static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuth0Authentication(configuration);
-        services.AddAuth0ClaimsTransformation(configuration);
+        services.AddScoped<IClaimsTransformation, Authentication.UserClaimsTransformation>();
+        services.AddScoped<UserTenantAuthorizeMiddleware>();
         return services;
     }
 

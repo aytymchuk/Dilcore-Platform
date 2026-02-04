@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Dilcore.Authentication.Abstractions;
 
 namespace Dilcore.WebApi.IntegrationTests.Infrastructure;
 
@@ -30,7 +31,7 @@ public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSch
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, _fakeUser.UserId),
-            new Claim("tenant.id", _fakeUser.TenantId)
+            new Claim(UserConstants.TenantsClaimType, _fakeUser.TenantId)
         };
 
         // Only add claims with non-null values

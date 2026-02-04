@@ -20,4 +20,14 @@ public interface IUserContext
     /// The user's full name.
     /// </summary>
     string? FullName { get; }
+
+    /// <summary>
+    /// The list of tenant IDs the user belongs to.
+    /// </summary>
+    IEnumerable<string> Tenants { get; }
+
+    /// <summary>
+    /// The list of roles for the CURRENT tenant context.
+    /// </summary>
+    IEnumerable<string> Roles { get; }
 }
