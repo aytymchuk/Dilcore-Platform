@@ -14,7 +14,7 @@ public sealed class HttpTenantContextProvider(IHttpContextAccessor httpContextAc
     public ITenantContext? GetTenantContext()
     {
         var context = httpContextAccessor.HttpContext?.GetMultiTenantContext<AppTenantInfo>();
-        
+
         var tenantInfo = context?.TenantInfo;
 
         return tenantInfo == null

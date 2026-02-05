@@ -70,7 +70,7 @@ public class OrleansUserContextAccessorTests
         firstResult.Id.ShouldBe("user1");
         firstResult.Tenants.ShouldBe(["t1"]);
         firstResult.Roles.ShouldBe(["r1"]);
-        
+
         secondResult.ShouldNotBeNull();
         secondResult.Id.ShouldBe("user2");
         secondResult.Tenants.ShouldBe(["t2"]);

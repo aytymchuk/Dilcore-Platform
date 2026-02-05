@@ -21,7 +21,7 @@ public class UserStateMappingProfileTests
     public void SetUp()
     {
         var loggerFactory = new LoggerFactory([NullLoggerProvider.Instance]);
-        
+
         var configuration = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<UserStateMappingProfile>();
@@ -34,7 +34,7 @@ public class UserStateMappingProfileTests
     public void Configuration_ShouldBeValid()
     {
         var loggerFactory = new LoggerFactory([NullLoggerProvider.Instance]);
-        
+
         var configuration = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<UserStateMappingProfile>();
@@ -73,7 +73,7 @@ public class UserStateMappingProfileTests
         userState.RegisteredAt.ShouldBe(user.CreatedAt);
         userState.UpdatedAt.ShouldBe(user.UpdatedAt);
         userState.IsRegistered.ShouldBeTrue();
-        
+
         userState.Tenants.ShouldNotBeNull();
         userState.Tenants.Count.ShouldBe(1);
         userState.Tenants[0].TenantId.ShouldBe("tenant-actor");
@@ -113,7 +113,7 @@ public class UserStateMappingProfileTests
         user.LastName.ShouldBe(userState.LastName);
         user.CreatedAt.ShouldBe(userState.RegisteredAt);
         user.UpdatedAt.ShouldBe(userState.UpdatedAt!.Value);
-        
+
         user.Tenants.ShouldNotBeNull();
         user.Tenants.Count.ShouldBe(1);
         user.Tenants[0].TenantId.ShouldBe("tenant-state");

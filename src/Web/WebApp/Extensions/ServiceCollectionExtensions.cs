@@ -126,9 +126,9 @@ public static class ServiceCollectionExtensions
                 OnMissingAccessToken = OnMissingToken,
                 OnMissingRefreshToken = OnMissingToken
             };
-            
+
             return;
-            
+
             async Task OnMissingToken(HttpContext context)
             {
                 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

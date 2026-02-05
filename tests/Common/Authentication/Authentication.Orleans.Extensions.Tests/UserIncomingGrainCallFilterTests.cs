@@ -17,7 +17,7 @@ public class UserIncomingGrainCallFilterTests
         _contextMock = new Mock<IIncomingGrainCallContext>();
         _loggerMock = new Mock<ILogger<UserIncomingGrainCallFilter>>();
         _filter = new UserIncomingGrainCallFilter(_loggerMock.Object);
-        
+
         // Ensure context mocks return some values
         _contextMock.Setup(c => c.Grain).Returns(new Mock<IGrain>().Object);
         _contextMock.Setup(c => c.InterfaceMethod).Returns(typeof(IGrain).GetMethods().FirstOrDefault());
@@ -46,7 +46,7 @@ public class UserIncomingGrainCallFilterTests
 
         // Assert
         _contextMock.Verify(c => c.Invoke(), Times.Once);
-        
+
         // Verify logger was called with extracted context info
         // Since LoggerMessage source generator is used, we verify generic log call
         _loggerMock.Verify(
@@ -72,13 +72,13 @@ public class UserIncomingGrainCallFilterTests
         _contextMock.Verify(c => c.Invoke(), Times.Once);
 
         // Verify logger was called with "not found" message
-         _loggerMock.Verify(
-            x => x.Log(
-                LogLevel.Debug,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No user context found")),
-                null,
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
+        _loggerMock.Verify(
+           x => x.Log(
+               LogLevel.Debug,
+               It.IsAny<EventId>(),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No user context found")),
+               null,
+               It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+           Times.Once);
     }
 }

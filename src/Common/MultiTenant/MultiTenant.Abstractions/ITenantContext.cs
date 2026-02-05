@@ -10,7 +10,7 @@ public interface ITenantContext
     /// Unique identifier of the tenant
     /// </summary>
     public Guid Id { get; }
-    
+
     /// <summary>
     /// The name of the current tenant, or null if no tenant is resolved.
     /// </summary>

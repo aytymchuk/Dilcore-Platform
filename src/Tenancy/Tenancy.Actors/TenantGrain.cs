@@ -116,7 +116,7 @@ public sealed partial class TenantGrain : Grain, ITenantGrain, IRemindable
         {
             var userGrain = _grainFactory.GetGrain<IUserGrain>(userId);
             await userGrain.AssignTenantOwnerAsync(tenantName);
-            
+
             _logger.LogTenantAddedToUser(tenantName, userId);
 
             // If we are running inside a reminder, we should unregister it

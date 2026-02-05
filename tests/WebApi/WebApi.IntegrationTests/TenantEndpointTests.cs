@@ -36,7 +36,7 @@ public class TenantEndpointTests
 
         // Register the user to ensure happy paths pass
         using var scope = _factory.Services.CreateScope();
-        
+
         var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
         var userGrain = grainFactory.GetGrain<IUserGrain>(_factory.FakeUser.UserId);
         var uniqueEmail = $"{_factory.FakeUser.UserId}@example.com";

@@ -75,7 +75,7 @@ public class TenancyClientSafeExtensionsTests
             Name = "Test Tenant",
             Description = "Test Tenant Description",
         };
-        
+
         var problemDetails = new
         {
             type = "https://api.dilcore.com/errors/conflict",
@@ -140,7 +140,7 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(422);
         error.Code.ShouldBe("VALIDATION_ERROR");
@@ -199,7 +199,7 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(404);
         error.Code.ShouldBe("TENANT_NOT_FOUND");
@@ -231,7 +231,7 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(401);
         error.Code.ShouldBe("UNAUTHORIZED");
@@ -261,7 +261,7 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(503);
         error.Code.ShouldBe("TIMEOUT");
@@ -290,7 +290,7 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(503);
         error.Code.ShouldBe("NETWORK_ERROR");
@@ -309,7 +309,7 @@ public class TenancyClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(408);
         error.Code.ShouldBe("TIMEOUT");

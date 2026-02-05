@@ -81,7 +81,7 @@ public sealed class UserGrain : Grain, IUserGrain
         }
 
         // We explicitly skip IsRegistered check here to allow owners to be assigned during registration flow
-        
+
         var roles = new HashSet<string> { Roles.Owner };
         var existingAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
 
@@ -96,7 +96,7 @@ public sealed class UserGrain : Grain, IUserGrain
         }
 
         await _state.WriteStateAsync();
-        
+
         _logger.LogUserTenantOwnerAssigned(this.GetPrimaryKeyString(), tenantId);
     }
 
@@ -114,7 +114,7 @@ public sealed class UserGrain : Grain, IUserGrain
     {
         var tenantAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
         var roles = tenantAccess?.Roles.ToList() ?? [];
-        
+
         return Task.FromResult<IReadOnlyList<string>>(roles);
     }
 

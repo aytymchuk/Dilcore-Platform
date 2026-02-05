@@ -170,7 +170,7 @@ public class UserGrainTests
         // Act
         await grain.AssignTenantOwnerAsync(tenantId);
         await grain.AssignTenantOwnerAsync(tenantId);
-        
+
         var tenants = await grain.GetTenantsAsync();
         var roles = await grain.GetTenantRolesAsync(tenantId);
 
@@ -192,7 +192,7 @@ public class UserGrainTests
         // Act
         await grain.AssignTenantOwnerAsync(tenant1);
         await grain.AssignTenantOwnerAsync(tenant2);
-        
+
         var tenants = await grain.GetTenantsAsync();
 
         // Assert

@@ -125,7 +125,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(422);
         error.Code.ShouldBe("VALIDATION_ERROR");
@@ -136,7 +136,7 @@ public class IdentityClientSafeExtensionsTests
         // Verify validation errors extraction
         error.Extensions.ShouldNotBeNull();
         error.Extensions.ContainsKey("errors").ShouldBeTrue();
-        
+
         var errorsElement = (JsonElement)error.Extensions["errors"];
         var emailErrors = errorsElement.GetProperty("Email");
         emailErrors[0].GetString().ShouldBe("Email must be a valid email address.");
@@ -166,7 +166,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(401);
         error.Code.ShouldBe("UNAUTHORIZED");
@@ -198,7 +198,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(500);
         error.Code.ShouldBe("UNEXPECTED_ERROR");
@@ -220,7 +220,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(400);
         error.Code.ShouldBe("INVALID_REQUEST"); // Default code for 400
@@ -279,7 +279,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(404);
         error.Code.ShouldBe("USER_NOT_FOUND");
@@ -311,7 +311,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(403);
         error.Code.ShouldBe("FORBIDDEN");
@@ -336,7 +336,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(503);
         error.Code.ShouldBe("NETWORK_ERROR");
@@ -355,7 +355,7 @@ public class IdentityClientSafeExtensionsTests
 
         // Assert
         result.IsFailed.ShouldBeTrue();
-        
+
         var error = result.Errors.First().ShouldBeOfType<ApiError>();
         error.StatusCode.ShouldBe(408);
         error.Code.ShouldBe("TIMEOUT");

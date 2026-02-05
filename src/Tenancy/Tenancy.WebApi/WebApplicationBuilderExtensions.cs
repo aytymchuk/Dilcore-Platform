@@ -21,7 +21,7 @@ public static class WebApplicationBuilderExtensions
 
         // Add Tenancy Store services
         builder.Services.AddTenancyStore(builder.Configuration);
-        
+
         // Register validators from Contracts assembly for API validation
         builder.Services.AddValidatorsFromAssembly(typeof(CreateTenantDtoValidator).Assembly);
 

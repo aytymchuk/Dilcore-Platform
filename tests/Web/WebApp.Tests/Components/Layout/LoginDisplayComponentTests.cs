@@ -23,13 +23,13 @@ public class LoginDisplayComponentTests
         _ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
         _ctx.Services.AddMudServices();
-        
+
         var mockEnv = new Mock<IWebHostEnvironment>();
         mockEnv.Setup(e => e.EnvironmentName).Returns("Development");
         _ctx.Services.AddSingleton(mockEnv.Object);
 
         _authContext = _ctx.AddTestAuthorization();
-        
+
         _ctx.RenderComponent<MudPopoverProvider>();
     }
 

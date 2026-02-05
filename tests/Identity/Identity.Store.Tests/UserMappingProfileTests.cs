@@ -22,7 +22,7 @@ public class UserMappingProfileTests
     public void SetUp()
     {
         var loggerFactory = new LoggerFactory([NullLoggerProvider.Instance]);
-        
+
         var configuration = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<UserMappingProfile>();
@@ -35,7 +35,7 @@ public class UserMappingProfileTests
     public void Configuration_ShouldBeValid()
     {
         var loggerFactory = new LoggerFactory([NullLoggerProvider.Instance]);
-        
+
         // Assert that the AutoMapper configuration is valid
         var configuration = new MapperConfiguration(cfg =>
         {
@@ -74,7 +74,7 @@ public class UserMappingProfileTests
         document.LastName.ShouldBe(user.LastName);
         document.CreatedAt.ShouldBe(user.CreatedAt);
         document.UpdatedAt.ShouldBe(user.UpdatedAt);
-        
+
         document.Tenants.ShouldNotBeNull();
         document.Tenants.Count.ShouldBe(1);
         document.Tenants[0].TenantId.ShouldBe("tenant1");
@@ -114,7 +114,7 @@ public class UserMappingProfileTests
         user.LastName.ShouldBe(document.LastName);
         user.CreatedAt.ShouldBe(document.CreatedAt);
         user.UpdatedAt.ShouldBe(document.UpdatedAt);
-        
+
         user.Tenants.ShouldNotBeNull();
         user.Tenants.Count.ShouldBe(1);
         user.Tenants[0].TenantId.ShouldBe("tenant2");

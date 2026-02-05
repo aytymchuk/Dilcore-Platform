@@ -55,9 +55,9 @@ public class UserClaimsTransformation(
 
             // Mark that we have processed this principal
             clonedIdentity.AddClaim(new Claim(TransformationMarkerClaim, "true"));
-            
+
             var userGrain = clusterClient.GetGrain<IUserGrain>(userId);
-            
+
             // Get user profile and tenants
             var userProfile = await userGrain.GetProfileAsync();
             var tenantAccessList = await userGrain.GetTenantsAsync();
@@ -71,7 +71,7 @@ public class UserClaimsTransformation(
 
             // If we have a current tenant context, add roles for THAT tenant
             AddTenantRoleClaims(clonedIdentity, userId, tenantAccessList, tenantContextResolver);
-            
+
             logger.LogTenantsAdded(userId, tenantIds.Count);
 
             return clonedPrincipal;

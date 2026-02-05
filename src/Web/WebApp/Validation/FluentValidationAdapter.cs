@@ -27,12 +27,12 @@ public class FluentValidationAdapter<T>
         }
 
         var result = await _validator.ValidateAsync(ValidationContext<T>.CreateWithOptions(typedModel, x => x.IncludeProperties(propertyName)));
-        
+
         if (result.IsValid)
         {
             return [];
         }
-        
+
         return result.Errors.Select(e => e.ErrorMessage);
     }
 

@@ -27,7 +27,7 @@ public class DependencyInjectionTests
                 {"ApiSettings:Retries", "3"}
             })
             .Build();
-            
+
         var mockEnvironment = new Mock<IWebHostEnvironment>();
         mockEnvironment.Setup(e => e.EnvironmentName).Returns("Development");
         mockEnvironment.Setup(e => e.ApplicationName).Returns("TestApp");

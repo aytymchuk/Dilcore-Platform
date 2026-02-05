@@ -74,7 +74,7 @@ public class GetCurrentUserQueryHandlerTests
     {
         // Arrange
         var query = new GetCurrentUserQuery();
-        
+
         _identityClientMock.Setup(x => x.GetCurrentUserAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Fail"));
 

@@ -14,7 +14,7 @@ public partial class LoadingButton
     [Parameter] public string? LoadingText { get; set; } = "PROCESSING";
     [Parameter] public string? Text { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    
+
     // MudButton passthrough parameters
     [Parameter] public Variant Variant { get; set; } = Variant.Filled;
     [Parameter] public Color Color { get; set; } = Color.Primary;
