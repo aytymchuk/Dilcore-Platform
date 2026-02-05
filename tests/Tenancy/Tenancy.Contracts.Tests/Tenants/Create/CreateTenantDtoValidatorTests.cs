@@ -24,6 +24,15 @@ public class CreateTenantDtoValidatorTests
     }
 
     [Test]
+    public void Should_Have_Error_When_Name_Is_Less_Than_2_Characters()
+    {
+        var model = new CreateTenantDto { Name = "a" };
+        var result = _validator.TestValidate(model);
+        result.ShouldHaveValidationErrorFor(x => x.Name)
+              .WithErrorMessage("Name must be at least 2 characters");
+    }
+
+    [Test]
     public void Should_Have_Error_When_Name_Exceeds_100_Characters()
     {
         var model = new CreateTenantDto { Name = new string('a', 101) };
@@ -71,5 +80,14 @@ public class CreateTenantDtoValidatorTests
         var model = new CreateTenantDto { Name = "Valid Name", Description = "Valid Description" };
         var result = _validator.TestValidate(model);
         result.ShouldNotHaveValidationErrorFor(x => x.Description);
+    }
+
+    [Test]
+    public void Should_Have_Error_When_Name_Does_Not_Contain_Alphanumeric_Characters()
+    {
+        var model = new CreateTenantDto { Name = "!!!" };
+        var result = _validator.TestValidate(model);
+        result.ShouldHaveValidationErrorFor(x => x.Name)
+              .WithErrorMessage("Name must contain at least one alphanumeric character");
     }
 }

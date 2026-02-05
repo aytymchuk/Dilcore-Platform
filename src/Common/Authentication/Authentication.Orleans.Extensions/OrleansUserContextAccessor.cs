@@ -25,6 +25,8 @@ public static class OrleansUserContextAccessor
             RequestContext.Remove(UserIdKey);
             RequestContext.Remove(UserEmailKey);
             RequestContext.Remove(UserFullNameKey);
+            RequestContext.Remove(UserTenantsKey);
+            RequestContext.Remove(UserRolesKey);
             return;
         }
 

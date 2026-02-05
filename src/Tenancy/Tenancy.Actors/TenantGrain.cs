@@ -154,6 +154,12 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
     private string GenerateStoragePrefix(string displayName, Guid id)
     {
         var cleansed = Regex.Replace(displayName, @"[^a-zA-Z0-9]", "").ToLowerInvariant();
+
+        if (string.IsNullOrWhiteSpace(cleansed))
+        {
+            throw new ArgumentException("Tenant display name must contain at least one alphanumeric character.", nameof(displayName));
+        }
+
         var prefix = cleansed.Length >= 4 ? cleansed[..4] : cleansed;
         var idString = id.ToString();
         var suffix = idString[^4..];

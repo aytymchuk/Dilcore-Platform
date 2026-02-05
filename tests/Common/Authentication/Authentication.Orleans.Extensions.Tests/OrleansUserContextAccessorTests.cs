@@ -37,10 +37,15 @@ public class OrleansUserContextAccessorTests
 
         OrleansUserContextAccessor.SetUserContext(null);
 
+        OrleansUserContextAccessor.SetUserContext(null);
+
         var result = OrleansUserContextAccessor.GetUserContext();
 
         result.ShouldBeNull();
+        
+        
     }
+
     [Test]
     public void GetUserContext_ShouldReturnNull_WhenNoContextSet()
     {
