@@ -10,6 +10,7 @@ namespace Dilcore.Tenancy.Actors.Abstractions;
 /// <param name="StorageIdentifier">The identifier used for tenant-specific storage or container/key.</param>
 /// <param name="IsCreated">Whether the tenant has been created.</param>
 /// <param name="CreatedAt">When the tenant was created.</param>
+/// <param name="CreatedById">The user id of the person who created the tenant.</param>
 [GenerateSerializer]
 [Alias("Dilcore.Tenancy.Actors.Abstractions.TenantDto")]
 public sealed record TenantDto(
@@ -19,4 +20,5 @@ public sealed record TenantDto(
     string? Description,
     string StorageIdentifier,
     bool IsCreated,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    string? CreatedById);

@@ -18,19 +18,26 @@ public sealed class HttpUserContextProvider(IHttpContextAccessor httpContextAcce
         if (user?.Identity?.IsAuthenticated != true)
             return null;
 
-        var userId = user.FindFirst(UserConstants.SubjectClaimType)?.Value
-                     ?? user.FindFirst(UserConstants.UserIdClaimType)?.Value
-                     ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                     ?? user.FindFirst(UserConstants.SubjectClaimType)?.Value
+                     ?? user.FindFirst(UserConstants.UserIdClaimType)?.Value;
 
-        var email = user.FindFirst(UserConstants.EmailClaimType)?.Value
-                    ?? user.FindFirst(ClaimTypes.Email)?.Value;
+        var email = user.FindFirst(ClaimTypes.Email)?.Value
+                    ?? user.FindFirst(UserConstants.EmailClaimType)?.Value;
 
-        var fullName = user.FindFirst(UserConstants.NameClaimType)?.Value
-                       ?? user.FindFirst(ClaimTypes.Name)?.Value;
+        var fullName = user.FindFirst(ClaimTypes.Name)?.Value
+                       ?? user.FindFirst(UserConstants.NameClaimType)?.Value;
 
         if (userId == null)
             return null;
 
-        return new UserContext(userId, email, fullName);
+
+        var tenants = user.FindAll(UserConstants.TenantsClaimType).Select(c => c.Value);
+        var roles = user.FindAll(ClaimTypes.Role)
+            .Concat(user.FindAll(UserConstants.RolesClaimType))
+            .Select(c => c.Value)
+            .Distinct();
+
+        return new UserContext(userId, email, fullName, tenants, roles);
     }
 }

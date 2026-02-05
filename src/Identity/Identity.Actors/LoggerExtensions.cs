@@ -27,6 +27,9 @@ internal static partial class LoggerExtensions
     [LoggerMessage(LogLevel.Warning, "User not registered, cannot add tenant. UserId: {UserId}")]
     public static partial void LogUserNotRegistered(this ILogger logger, string userId);
 
+    [LoggerMessage(LogLevel.Information, "Assigned Owner role for tenant {TenantId} to user {UserId}")]
+    public static partial void LogUserTenantOwnerAssigned(this ILogger logger, string userId, string tenantId);
+
     // Storage Operations
     [LoggerMessage(LogLevel.Debug, "Reading user state for UserId: {UserId}")]
     public static partial void LogReadingUserState(this ILogger logger, string userId);

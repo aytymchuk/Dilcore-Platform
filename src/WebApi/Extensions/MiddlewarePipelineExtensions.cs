@@ -4,6 +4,7 @@ using Dilcore.Extensions.OpenApi;
 using Dilcore.Extensions.OpenApi.Abstractions;
 using Dilcore.Extensions.Scalar;
 using Dilcore.MultiTenant.Http.Extensions;
+using Dilcore.WebApi.Middleware;
 using Dilcore.WebApi.Settings;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
@@ -28,6 +29,7 @@ public static class MiddlewarePipelineExtensions
 
         app.UseAuthentication();
         app.UseMultiTenantEnforcement();
+        app.UseMiddleware<UserTenantAuthorizeMiddleware>();
         app.UseAuthorization();
 
         return app;

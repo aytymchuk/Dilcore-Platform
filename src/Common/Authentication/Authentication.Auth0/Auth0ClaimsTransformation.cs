@@ -142,13 +142,13 @@ public sealed class Auth0ClaimsTransformation : IClaimsTransformation
 
         if (!hasEmail && !string.IsNullOrEmpty(profile.Email))
         {
-            identity.AddClaim(new Claim(UserConstants.EmailClaimType, profile.Email, ClaimValueTypes.String, issuer));
+            identity.AddClaim(new Claim(ClaimTypes.Email, profile.Email, ClaimValueTypes.String, issuer));
             claimsAdded.Add("email");
         }
 
         if (!hasName && !string.IsNullOrEmpty(profile.Name))
         {
-            identity.AddClaim(new Claim(UserConstants.NameClaimType, profile.Name, ClaimValueTypes.String, issuer));
+            identity.AddClaim(new Claim(ClaimTypes.Name, profile.Name, ClaimValueTypes.String, issuer));
             claimsAdded.Add("name");
         }
 

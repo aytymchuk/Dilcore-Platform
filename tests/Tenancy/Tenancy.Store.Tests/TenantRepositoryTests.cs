@@ -34,7 +34,8 @@ public class TenantRepositoryTests
             Id = Guid.CreateVersion7(),
             Name = "Test Tenant",
             SystemName = "test-tenant",
-            StoragePrefix = "prefix"
+            StoragePrefix = "prefix",
+            CreatedById = "test-user"
         };
         
         var tenantDoc = TenantDocument.FromDomain(tenant);
@@ -56,7 +57,7 @@ public class TenantRepositoryTests
     public async Task StoreAsync_ShouldFail_WhenRepositoryFails()
     {
         // Arrange
-        var tenant = new Tenant { Name = "Fail", SystemName = "fail", StoragePrefix = "fail" };
+        var tenant = new Tenant { Name = "Fail", SystemName = "fail", StoragePrefix = "fail", CreatedById = "test-user" };
         var expectedError = new Error("DB Error");
 
         _genericRepositoryMock!.Setup(x => x.StoreAsync(It.IsAny<TenantDocument>(), It.IsAny<CancellationToken>()))
@@ -80,6 +81,7 @@ public class TenantRepositoryTests
             SystemName = systemName,
             Name = "Found Tenant",
             StoragePrefix = "prefix",
+            CreatedById = "test-user",
             IsDeleted = false
         };
 

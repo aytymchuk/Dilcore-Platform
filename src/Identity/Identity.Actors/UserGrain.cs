@@ -1,3 +1,4 @@
+using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
 
@@ -71,42 +72,36 @@ public sealed class UserGrain : Grain, IUserGrain
         return Task.FromResult<UserResponse?>(ToResponse());
     }
 
-    public async Task AddTenantAsync(string tenantId, IEnumerable<string>? roles)
+
+    public async Task AssignTenantOwnerAsync(string tenantId)
     {
         if (string.IsNullOrWhiteSpace(tenantId))
         {
             throw new ArgumentException("Tenant ID cannot be null or whitespace.", nameof(tenantId));
         }
 
-        if (!_state.State.IsRegistered)
-        {
-            _logger.LogUserNotRegistered(this.GetPrimaryKeyString());
-            return;
-        }
-
-        var validatedRoles = roles?.ToHashSet() ?? [];
+        // We explicitly skip IsRegistered check here to allow owners to be assigned during registration flow
+        
+        var roles = new HashSet<string> { Roles.Owner };
         var existingAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
 
         if (existingAccess is null)
         {
-            existingAccess = new TenantAccess { TenantId = tenantId, Roles = validatedRoles };
+            existingAccess = new TenantAccess { TenantId = tenantId, Roles = roles };
             _state.State.Tenants.Add(existingAccess);
         }
         else
         {
-            existingAccess.Roles.UnionWith(validatedRoles);
+            existingAccess.Roles.Add(Roles.Owner);
         }
 
         await _state.WriteStateAsync();
+        
+        _logger.LogUserTenantOwnerAssigned(this.GetPrimaryKeyString(), tenantId);
     }
 
     public Task<IReadOnlyList<TenantAccess>> GetTenantsAsync()
     {
-        if (!_state.State.IsRegistered)
-        {
-            return Task.FromResult<IReadOnlyList<TenantAccess>>([]);
-        }
-        
         return Task.FromResult<IReadOnlyList<TenantAccess>>(_state.State.Tenants.ToList());
     }
 
@@ -117,11 +112,6 @@ public sealed class UserGrain : Grain, IUserGrain
 
     public Task<IReadOnlyList<string>> GetTenantRolesAsync(string tenantId)
     {
-        if (!_state.State.IsRegistered)
-        {
-            return Task.FromResult<IReadOnlyList<string>>([]);
-        }
-
         var tenantAccess = _state.State.Tenants.Find(t => t.TenantId == tenantId);
         var roles = tenantAccess?.Roles.ToList() ?? [];
         

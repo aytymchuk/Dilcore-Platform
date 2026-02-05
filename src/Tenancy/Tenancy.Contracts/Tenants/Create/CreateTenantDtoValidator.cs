@@ -12,8 +12,12 @@ public class CreateTenantDtoValidator : AbstractValidator<CreateTenantDto>
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Name is required")
+            .MinimumLength(2)
+            .WithMessage("Name must be at least 2 characters")
             .MaximumLength(100)
-            .WithMessage("Name must not exceed 100 characters");
+            .WithMessage("Name must not exceed 100 characters")
+            .Matches(@"[a-zA-Z0-9]")
+            .WithMessage("Name must contain at least one alphanumeric character");
 
         RuleFor(x => x.Description)
             .MaximumLength(500)

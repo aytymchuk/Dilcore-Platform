@@ -72,6 +72,8 @@ BenchmarkDotNet.Artifacts/
 test*.txt
 test*.log
 test*.json
+single_failure.txt
+build_output.txt
 TestResults/
 
 # Debug output
