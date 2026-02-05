@@ -32,18 +32,14 @@ public class OrleansUserContextAccessorTests
     [Test]
     public void SetUserContext_ShouldClearContext_WhenNullPassed()
     {
-        var userContext = new UserContext("id", "email", "name", [], []);
+        var userContext = new UserContext("id", "email", "name", ["tenant1"], ["role1"]);
         OrleansUserContextAccessor.SetUserContext(userContext);
-
-        OrleansUserContextAccessor.SetUserContext(null);
 
         OrleansUserContextAccessor.SetUserContext(null);
 
         var result = OrleansUserContextAccessor.GetUserContext();
 
         result.ShouldBeNull();
-        
-        
     }
 
     [Test]
@@ -60,8 +56,8 @@ public class OrleansUserContextAccessorTests
     public void SetUserContext_ShouldOverwriteExistingContext()
     {
         // Arrange
-        var context1 = new UserContext("user1", "user1@test.com", "User One", [], []);
-        var context2 = new UserContext("user2", "user2@test.com", "User Two", [], []);
+        var context1 = new UserContext("user1", "user1@test.com", "User One", ["t1"], ["r1"]);
+        var context2 = new UserContext("user2", "user2@test.com", "User Two", ["t2"], ["r2"]);
 
         // Act
         OrleansUserContextAccessor.SetUserContext(context1);
@@ -72,8 +68,12 @@ public class OrleansUserContextAccessorTests
         // Assert
         firstResult.ShouldNotBeNull();
         firstResult.Id.ShouldBe("user1");
+        firstResult.Tenants.ShouldBe(["t1"]);
+        firstResult.Roles.ShouldBe(["r1"]);
         
         secondResult.ShouldNotBeNull();
         secondResult.Id.ShouldBe("user2");
+        secondResult.Tenants.ShouldBe(["t2"]);
+        secondResult.Roles.ShouldBe(["r2"]);
     }
 }

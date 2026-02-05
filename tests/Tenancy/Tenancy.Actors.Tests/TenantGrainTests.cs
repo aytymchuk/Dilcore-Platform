@@ -154,4 +154,23 @@ public class TenantGrainTests
         result.ShouldNotBeNull();
         result.Name.ShouldBe(displayName);
     }
+
+    [Test]
+    public async Task CreateAsync_ShouldThrow_WhenDisplayNameIsNonAlphanumeric()
+    {
+        // Arrange
+        var tenantName = $"invalid-name-tenant-{Guid.CreateVersion7():N}";
+        var grain = Cluster.GrainFactory.GetGrain<ITenantGrain>(tenantName);
+        const string displayName = "!!!";
+        const string description = "Tenant with non-alphanumeric name";
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ArgumentException>(() => grain.CreateAsync(new CreateTenantGrainCommand
+        {
+            DisplayName = displayName,
+            Description = description
+        }));
+
+        exception.Message.ShouldContain("must contain at least one alphanumeric character");
+    }
 }

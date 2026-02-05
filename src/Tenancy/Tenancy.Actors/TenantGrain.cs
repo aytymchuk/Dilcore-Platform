@@ -10,7 +10,7 @@ namespace Dilcore.Tenancy.Actors;
 /// Orleans grain representing a tenant entity.
 /// Grain key is the tenant name (lower kebab-case).
 /// </summary>
-public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
+public sealed partial class TenantGrain : Grain, ITenantGrain, IRemindable
 {
     private const string AssignRoleReminder = "assign-role-to-owner";
     private readonly IPersistentState<TenantState> _state;
@@ -153,7 +153,7 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
 
     private string GenerateStoragePrefix(string displayName, Guid id)
     {
-        var cleansed = Regex.Replace(displayName, @"[^a-zA-Z0-9]", "").ToLowerInvariant();
+        var cleansed = NonAlphanumericRegex().Replace(displayName, "").ToLowerInvariant();
 
         if (string.IsNullOrWhiteSpace(cleansed))
         {
@@ -165,4 +165,7 @@ public sealed class TenantGrain : Grain, ITenantGrain, IRemindable
         var suffix = idString[^4..];
         return $"{prefix}-{suffix}";
     }
+
+    [GeneratedRegex("[^a-zA-Z0-9]")]
+    private static partial Regex NonAlphanumericRegex();
 }
