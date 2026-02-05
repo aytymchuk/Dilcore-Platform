@@ -245,7 +245,7 @@ public class RegisterTests
 
         // Wait for the primary action button to be enabled (ignoring the hidden submit button)
         cut.WaitForState(() => !cut.Find("button.mud-button-filled-primary").HasAttribute("disabled"));
-        
+
         var button = cut.Find("button.mud-button-filled-primary");
         await button.ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
 
@@ -289,14 +289,14 @@ public class RegisterTests
 
         // Act
 
-        
+
         // Force validation to ensure button state updates in test environment
         var form = cut.FindComponent<MudBlazor.MudForm>().Instance;
         await cut.InvokeAsync(() => form.Validate());
-        
+
         // Wait for the primary action button to be enabled (ignoring the hidden submit button)
         cut.WaitForState(() => !cut.Find("button.mud-button-filled-primary").HasAttribute("disabled"));
-        
+
         var button = cut.Find("button.mud-button-filled-primary");
         await button.ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
 
@@ -342,7 +342,7 @@ public class RegisterTests
 
         // Wait for the primary action button to be enabled (ignoring the hidden submit button)
         cut.WaitForState(() => !cut.Find("button.mud-button-filled-primary").HasAttribute("disabled"));
-        
+
         var button = cut.Find("button.mud-button-filled-primary");
         await button.ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
 

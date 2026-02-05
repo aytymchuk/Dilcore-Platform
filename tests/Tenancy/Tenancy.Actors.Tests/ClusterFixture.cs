@@ -21,7 +21,7 @@ public class ClusterFixture : CommonClusterFixture<ClusterFixture.TenantStoreCon
             siloBuilder.ConfigureServices(services =>
             {
                 services.AddSingleton(TimeProvider.System);
-                
+
                 var userContext = new UserContext("test-user-id", "test@example.com", "Test User", [], []);
                 services.AddSingleton<IUserContext>(userContext);
 

@@ -26,9 +26,9 @@ internal sealed class GetCurrentUserQueryHandler(IIdentityClient identityClient)
 
         // Check if the error is a 404 (user not found)
         var apiError = result.Errors.OfType<ApiError>().FirstOrDefault();
-        
-        return apiError?.NotFound is true 
-            ? Result.Ok<UserModel?>(null) 
+
+        return apiError?.NotFound is true
+            ? Result.Ok<UserModel?>(null)
             : result.ToResult();
     }
 }

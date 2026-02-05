@@ -34,7 +34,7 @@ public static class OrleansTenantContextAccessor
         {
             RequestContext.Remove(TenantIdKey);
         }
-        
+
         if (tenantContext.Name is not null)
         {
             RequestContext.Set(TenantNameKey, tenantContext.Name);

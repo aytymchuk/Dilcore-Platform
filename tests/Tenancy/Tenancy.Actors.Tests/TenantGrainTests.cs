@@ -18,7 +18,7 @@ public class TenantGrainTests
     public async Task OneTimeSetUpAsync()
     {
         _fixture = new ClusterFixture();
-        
+
         var userGrain = _fixture.Cluster.GrainFactory.GetGrain<Dilcore.Identity.Actors.Abstractions.IUserGrain>("test-user-id");
         await userGrain.RegisterAsync("test@example.com", "Test", "User");
     }
@@ -48,7 +48,7 @@ public class TenantGrainTests
         // Assert
         result.ShouldNotBeNull();
         result.IsSuccess.ShouldBeTrue();
-        result.Tenant.ShouldNotBeNull();    
+        result.Tenant.ShouldNotBeNull();
         result.Tenant.Name.ShouldBe(displayName);
         result.Tenant.SystemName.ShouldBe(tenantName);
         result.Tenant.Description.ShouldBe(description);

@@ -32,7 +32,7 @@ public class CreateTenantHandlerTests
         const string description = "A test tenant";
         const string storagePrefix = "my-test-tenant";
 
-        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, expectedKebabName, description,  storagePrefix, true, DateTime.UtcNow, null);
+        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, expectedKebabName, description, storagePrefix, true, DateTime.UtcNow, null);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.Is<CreateTenantGrainCommand>(c => c.DisplayName == displayName && c.Description == description)))
             .ReturnsAsync(TenantCreationResult.Success(expectedDto));

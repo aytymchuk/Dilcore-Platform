@@ -16,7 +16,7 @@ public static class SiloBuilderExtensions
             services.AddKeyedSingleton<IGrainStorage>("TenantStore", (sp, key) =>
                 ActivatorUtilities.CreateInstance<TenantGrainStorage>(sp));
         });
-        
+
         return builder;
     }
 }

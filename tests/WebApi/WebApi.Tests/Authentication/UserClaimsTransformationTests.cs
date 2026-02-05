@@ -51,7 +51,7 @@ public class UserClaimsTransformationTests
         var userId = "test-user";
         var tenantId1 = "tenant1";
         var tenantId2 = "tenant2";
-        
+
         var principal = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, userId)], "TestAuth"));
 
@@ -122,12 +122,12 @@ public class UserClaimsTransformationTests
         };
 
         _userGrainMock.Setup(x => x.GetTenantsAsync()).ReturnsAsync(tenantAccess);
-        
+
         // Mock the resolved tenant context
         var tenantContextMock = new Mock<ITenantContext>();
         tenantContextMock.Setup(x => x.Id).Returns(Guid.NewGuid());
         tenantContextMock.Setup(x => x.Name).Returns(tenantId);
-        
+
         ITenantContext? outTenantContext = tenantContextMock.Object;
         _tenantContextResolverMock.Setup(x => x.TryResolve(out outTenantContext)).Returns(true);
 

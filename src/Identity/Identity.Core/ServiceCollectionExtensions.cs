@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddIdentityApplication(this IServiceCollection services)
     {
         // Register MediatR handlers from this assembly with behaviors (Logging, Tracing) and validators
-        services.AddMediatRInfrastructure(typeof(ServiceCollectionExtensions).Assembly, cfg => 
+        services.AddMediatRInfrastructure(typeof(ServiceCollectionExtensions).Assembly, cfg =>
         {
             // Register email validation behavior for RegisterUserCommand
             cfg.AddBehavior<ValidateUserEmailBehavior>();

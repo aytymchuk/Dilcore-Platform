@@ -28,7 +28,7 @@ public class ApiError : AppError
     /// Returns true when StatusCode is 404 - NotFound
     /// </summary>
     public bool NotFound => StatusCode == (int)HttpStatusCode.NotFound;
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ApiError"/> class.
     /// </summary>

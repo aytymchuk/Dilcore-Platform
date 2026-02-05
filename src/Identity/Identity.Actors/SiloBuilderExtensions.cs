@@ -20,7 +20,7 @@ public static class SiloBuilderExtensions
         siloBuilder.ConfigureServices(services =>
         {
             services.AddAutoMapper(opt => opt.AddMaps(typeof(UserStateMappingProfile).Assembly));
-            
+
             services.AddKeyedSingleton<IGrainStorage>("UserStore", (sp, key) =>
                 ActivatorUtilities.CreateInstance<UserGrainStorage>(sp));
         });

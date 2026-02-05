@@ -52,10 +52,10 @@ public class CreateTenantDtoValidatorTests
     [Test]
     public void Should_Have_Error_When_Description_Exceeds_500_Characters()
     {
-        var model = new CreateTenantDto 
-        { 
-            Name = "Valid Name", 
-            Description = new string('a', 501) 
+        var model = new CreateTenantDto
+        {
+            Name = "Valid Name",
+            Description = new string('a', 501)
         };
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.Description)

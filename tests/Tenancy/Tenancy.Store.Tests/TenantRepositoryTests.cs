@@ -37,10 +37,10 @@ public class TenantRepositoryTests
             StoragePrefix = "prefix",
             CreatedById = "test-user"
         };
-        
+
         var tenantDoc = TenantDocument.FromDomain(tenant);
         _genericRepositoryMock!.Setup(x => x.StoreAsync(It.IsAny<TenantDocument>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(tenantDoc)); 
+            .ReturnsAsync(Result.Ok(tenantDoc));
 
         // Act
         var result = await _sut!.StoreAsync(tenant);

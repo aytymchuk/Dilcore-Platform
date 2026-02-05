@@ -36,7 +36,7 @@ public class UserTenantAuthorizeMiddlewareTests
     {
         var context = new DefaultHttpContext();
         SetEndpoint(context);
-        
+
         var resolverMock = new Mock<ITenantContextResolver>();
         ITenantContext? nullContext = null;
         resolverMock.Setup(x => x.TryResolve(out nullContext)).Returns(false);
@@ -52,14 +52,14 @@ public class UserTenantAuthorizeMiddlewareTests
         var context = new DefaultHttpContext();
         SetEndpoint(context);
         var resolverMock = new Mock<ITenantContextResolver>();
-        
+
         // Mock success but with valid context to pass first check
         var tenantContextMock = new Mock<ITenantContext>();
         tenantContextMock.Setup(x => x.Id).Returns(Guid.NewGuid());
         tenantContextMock.Setup(x => x.StorageIdentifier).Returns("tenant1");
         ITenantContext? outContext = tenantContextMock.Object;
         resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
-        
+
         await _sut.InvokeAsync(context, resolverMock.Object);
 
         _nextMock.Verify(x => x(context), Times.Once);
