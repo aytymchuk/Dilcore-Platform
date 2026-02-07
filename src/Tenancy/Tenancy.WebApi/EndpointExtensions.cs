@@ -62,13 +62,7 @@ public static class EndpointExtensions
         {
             var query = new GetTenantsListQuery();
             var result = await mediator.Send(query, cancellationToken);
-            return result.Map(tenants => tenants.Select(t => new ContractTenantDto
-            {
-                Name = t.Name,
-                SystemName = t.SystemName,
-                Description = t.Description,
-                CreatedAt = t.CreatedAt
-            }).ToList()).ToMinimalApiResult();
+            return result.Map(tenants => tenants.Select(MapToContractDto)).ToMinimalApiResult();
         })
         .WithName("GetTenantsList")
         .Produces<List<ContractTenantDto>>()
@@ -82,17 +76,24 @@ public static class EndpointExtensions
         {
             var query = new GetTenantQuery();
             var result = await mediator.Send(query, cancellationToken);
-            return result.Map(v => new ContractTenantDto
-            {
-                Name = v.Name,
-                SystemName = v.SystemName,
-                Description = v.Description,
-                CreatedAt = v.CreatedAt
-            }).ToMinimalApiResult();
+            return result.Map(MapToContractDto).ToMinimalApiResult();
         })
         .WithName("GetCurrentTenant")
         .Produces<ContractTenantDto>()
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status401Unauthorized);
+    }
+
+    private static ContractTenantDto MapToContractDto(Actors.Abstractions.TenantDto tenant)
+    {
+        return new ContractTenantDto
+        {
+            Id = tenant.Id,
+            Name = tenant.Name,
+            SystemName = tenant.SystemName,
+            StoragePrefix = tenant.StorageIdentifier,
+            Description = tenant.Description,
+            CreatedAt = tenant.CreatedAt
+        };
     }
 }
