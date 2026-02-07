@@ -19,10 +19,18 @@ public interface ITenancyClient
     Task<TenantDto> CreateTenantAsync([Body] CreateTenantDto request, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets the list of tenants the authenticated user has access to.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>List of tenants the user has access to.</returns>
+    [Get("/tenants")]
+    Task<IReadOnlyList<TenantDto>> GetTenantsListAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets the current tenant based on the x-tenant header.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The current tenant details.</returns>
-    [Get("/tenants")]
+    [Get("/tenants/current")]
     Task<TenantDto> GetTenantAsync(CancellationToken cancellationToken = default);
 }

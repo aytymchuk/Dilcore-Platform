@@ -25,49 +25,55 @@ public sealed class TenantRepository : ITenantRepository
     {
         var document = TenantDocument.FromDomain(tenant);
 
-        try
-        {
-            var result = await _repository.StoreAsync(document, cancellationToken);
+        var result = await _repository.StoreAsync(document, cancellationToken);
 
-            if (result.IsFailed)
-            {
-                return result.ToResult<Tenant>();
-            }
-
-            return Result.Ok(result.Value.ToDomain());
-        }
-        catch (Exception ex)
+        if (result.IsFailed)
         {
-            _logger.LogStoreTenantFailed(ex, tenant.Id);
-            return Result.Fail<Tenant>(new Error("Failed to store tenant").CausedBy(ex));
+            return result.ToResult<Tenant>();
         }
+
+        return Result.Ok(result.Value.ToDomain());
     }
 
     public async Task<Result<Tenant?>> GetBySystemNameAsync(string systemName, CancellationToken cancellationToken = default)
     {
-        try
+        var filter = Builders<TenantDocument>.Filter.Eq(x => x.SystemName, systemName);
+        var result = await _repository.GetAsync(filter, cancellationToken);
+
+        if (result.IsFailed)
         {
-            var filter = Builders<TenantDocument>.Filter.Eq(x => x.SystemName, systemName);
-            var result = await _repository.GetAsync(filter, cancellationToken);
-
-            if (result.IsFailed)
-            {
-                return result.ToResult<Tenant?>();
-            }
-
-            var document = result.Value;
-
-            if (document is null)
-            {
-                return Result.Ok<Tenant?>(null);
-            }
-
-            return Result.Ok<Tenant?>(document.ToDomain());
+            return result.ToResult<Tenant?>();
         }
-        catch (Exception ex)
+
+        var document = result.Value;
+    
+        if (document is null)
         {
-            _logger.LogGetTenantBySystemNameFailed(ex, systemName);
-            return Result.Fail<Tenant?>(new Error("Failed to get tenant by system name").CausedBy(ex));
+            return Result.Ok<Tenant?>(null);
         }
+
+        return Result.Ok<Tenant?>(document.ToDomain());
+    }
+
+    public async Task<Result<IReadOnlyList<Tenant>>> GetBySystemNamesAsync(IEnumerable<string> systemNames, CancellationToken cancellationToken = default)
+    {
+        var systemNamesList = systemNames.ToList();
+
+        if (systemNamesList.Count == 0)
+        {
+            return Result.Ok<IReadOnlyList<Tenant>>([]);
+        }
+
+        var filter = Builders<TenantDocument>.Filter.In(x => x.SystemName, systemNamesList);
+        var result = await _repository.GetListAsync(filter, cancellationToken);
+
+        if (result.IsFailed)
+        {
+            return result.ToResult<IReadOnlyList<Tenant>>();
+        }
+
+        var documents = result.Value ?? [];
+
+        return Result.Ok<IReadOnlyList<Tenant>>(documents.Select(d => d.ToDomain()).ToList());
     }
 }

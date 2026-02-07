@@ -2,6 +2,7 @@ using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.Results.Extensions.Api;
 using Dilcore.Tenancy.Core.Features.Create;
 using Dilcore.Tenancy.Core.Features.Get;
+using Dilcore.Tenancy.Core.Features.GetList;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -54,12 +55,32 @@ public static class EndpointExtensions
         .ProducesProblem(StatusCodes.Status401Unauthorized)
         .ExcludeFromMultiTenantResolution();
 
-        // GET /tenants - Get current tenant (uses x-tenant header)
+        // GET /tenants - Get list of user's tenants (user-scoped, no x-tenant header)
         group.MapGet("/", async (
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var query = new GetTenantQuery(); // Restored missing command/query variable
+            var query = new GetTenantsListQuery();
+            var result = await mediator.Send(query, cancellationToken);
+            return result.Map(tenants => tenants.Select(t => new ContractTenantDto
+            {
+                Name = t.Name,
+                SystemName = t.SystemName,
+                Description = t.Description,
+                CreatedAt = t.CreatedAt
+            }).ToList()).ToMinimalApiResult();
+        })
+        .WithName("GetTenantsList")
+        .Produces<List<ContractTenantDto>>()
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ExcludeFromMultiTenantResolution();
+
+        // GET /tenants/current - Get current tenant (uses x-tenant header)
+        group.MapGet("/current", async (
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var query = new GetTenantQuery();
             var result = await mediator.Send(query, cancellationToken);
             return result.Map(v => new ContractTenantDto
             {
@@ -69,7 +90,7 @@ public static class EndpointExtensions
                 CreatedAt = v.CreatedAt
             }).ToMinimalApiResult();
         })
-        .WithName("GetTenant")
+        .WithName("GetCurrentTenant")
         .Produces<ContractTenantDto>()
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status401Unauthorized);
