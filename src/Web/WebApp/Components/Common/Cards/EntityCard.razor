@@ -8,27 +8,22 @@
             <div class="card-overlay" style="@PatternOverlayStyle"></div>
         }
         <div class="status-chip-wrapper">
-             @if (Status == "Active")
+             @if (!string.IsNullOrEmpty(Label))
              {
-                 <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(34, 197, 94, 0.1);">Active</MudChip>
-             }
-             else if (Status == "Maintenance")
-             {
-                 <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(234, 179, 8, 0.1);">Maintenance</MudChip>
-             }
-             else if (Status == "Archived")
-             {
-                 <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(107, 114, 128, 0.1); color: #9ca3af;">Archived</MudChip>
+                 <MudChip T="string" Size="Size.Small" Color="@LabelColor" Variant="Variant.Text" Class="mud-chip-surface" Style="@GetLabelStyle()">@Label</MudChip>
              }
         </div>
     </div>
     <MudCardContent Class="d-flex flex-column pa-4" Style="height: calc(100% - 96px);">
         <div class="mb-3">
-            <MudText Typo="Typo.subtitle1" Class="mb-0" Style="font-weight: 700;">@Title</MudText>
-            <div class="d-flex align-center gap-2">
-                <MudIcon Icon="@SubtitleIcon" Size="Size.Small" Color="Color.Secondary" Style="font-size: 14px;" />
-                <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">@Subtitle</MudText>
-            </div>
+            <MudText Typo="Typo.subtitle1" Class="@(string.IsNullOrEmpty(Subtitle) ? "mb-0" : "mb-1")" Style="font-weight: 700;">@Title</MudText>
+            @if (!string.IsNullOrEmpty(Subtitle))
+            {
+                <div class="d-flex align-center gap-2">
+                    <MudIcon Icon="@SubtitleIcon" Size="Size.Small" Color="Color.Secondary" Style="font-size: 14px;" />
+                    <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">@Subtitle</MudText>
+                </div>
+            }
         </div>
         <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4 line-clamp-2" Style="font-size: 0.875rem;">@Description</MudText>
         
@@ -113,7 +108,12 @@
     [Parameter] public string Subtitle { get; set; } = "";
     [Parameter] public string SubtitleIcon { get; set; } = Icons.Material.Outlined.Dns;
     [Parameter] public string Description { get; set; } = "";
-    [Parameter] public string Status { get; set; } = "Active"; // Active, Maintenance, Archived
+    
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public Color LabelColor { get; set; } = Color.Default;
+    [Parameter] public string? LabelBackgroundColor { get; set; }
+    [Parameter] public string? LabelTextColor { get; set; }
+
     [Parameter] public string GradientStart { get; set; } = "#1e3a8a";
     [Parameter] public string GradientEnd { get; set; } = "#0f172a";
     [Parameter] public string PatternOverlayStyle { get; set; } = "";
@@ -140,5 +140,19 @@
             // Surface/Default
             return "text-transform: none; background-color: var(--mud-palette-lines-default); color: white;";
         }
+    }
+
+    private string GetLabelStyle()
+    {
+        var style = "";
+        if (!string.IsNullOrEmpty(LabelBackgroundColor))
+        {
+            style += $"background-color: {LabelBackgroundColor};";
+        }
+        if (!string.IsNullOrEmpty(LabelTextColor))
+        {
+            style += $"color: {LabelTextColor};";
+        }
+        return style;
     }
 }

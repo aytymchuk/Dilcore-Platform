@@ -12,7 +12,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Key" OnClick="@(() => _showToken = !_showToken)" Color="Color.Inherit" data-testid="access-token-button" />
                 </MudTooltip>
             }
-            <MudLink Href="@RouteConstants.Identity.Logout" Color="Color.Inherit">Sign Out</MudLink>
+            <MudLink Href="@RouteConstants.Identity.Logout">Sign Out</MudLink>
         </MudStack>
         
         @if (_showToken)
@@ -26,7 +26,7 @@
         }
     </Authorized>
     <NotAuthorized>
-        <MudLink Href="@RouteConstants.Identity.Login" Color="Color.Inherit">Sign In</MudLink>
+        <MudLink Href="@RouteConstants.Identity.Login">Sign In</MudLink>
     </NotAuthorized>
 </AuthorizeView>
 

@@ -8,26 +8,37 @@ public static class FutureSlateTheme
     {
         PaletteLight = new PaletteLight()
         {
-            Primary = "#334155", // Dark Slate
-            Secondary = "#14B8A6", // Vibrant Teal (Accent)
-            Background = "#F1F5F9", // Porcelain (Canvas)
-            AppbarBackground = "#334155",
+            Primary = "#2563EB", // Primary Cobalt
+            Secondary = "#0891B2", // Secondary Cyan
+            Background = "#F8FAFF", // Soft Cobalt Tint
+            AppbarBackground = "#FFFFFF",
+            AppbarText = "#1e293b",
             DrawerBackground = "#FFFFFF",
-            Surface = "#FFFFFF",
-            TextPrimary = "#334155",
-            ActionDefault = "#14B8A6",
+            Surface = "#FFFFFF", // Surface Bright
+            TextPrimary = "#1e293b", // Slate 800
+            TextSecondary = "#64748b", // Slate 500
+            ActionDefault = "#2563EB",
+            Success = "#16A34A", // Validation
+            Warning = "#D97706", // Cautionary
+            Error = "#DC2626", // Destructive
+            Info = "#2563EB"
         },
         PaletteDark = new PaletteDark()
         {
-            Primary = "#1337ec",
-            Secondary = "#14B8A6",
-            Background = "#0b0f19",
-            AppbarBackground = "#111422",
-            DrawerBackground = "#0b0f19",
-            Surface = "#151a2d",
-            TextPrimary = "#ffffff",
-            TextSecondary = "#929bc9",
-            ActionDefault = "#1337ec",
+            Primary = "#2563eb", // Primary Cobalt
+            Secondary = "#22d3ee", // Secondary Cyan
+            Background = "#0f172a", // Deep Navy/Cobalt
+            AppbarBackground = "#0f172a", 
+            AppbarText = "#ffffff",
+            DrawerBackground = "#0f172a",
+            Surface = "#1e293b", // Surface Container
+            TextPrimary = "#ffffff", // On Primary / High Contrast
+            TextSecondary = "#94a3b8", // Slate 400
+            ActionDefault = "#2563eb",
+            Success = "#10b981", // Validation
+            Warning = "#f59e0b", // Cautionary
+            Error = "#ef5350", // Destructive
+            Info = "#2563eb"
         }
     };
 }

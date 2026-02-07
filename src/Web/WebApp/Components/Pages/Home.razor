@@ -7,18 +7,19 @@
     
     <div class="mb-10">
         <MudText Typo="Typo.h3" Class="mb-2" Style="font-weight: 900; letter-spacing: -0.025em;">Select Organization</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary" Style="font-size: 1.125rem; line-height: 1.75rem; max-width: 42rem;">Access and manage your deployed tenant environments. Select an instance to view detailed metrics.</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Surface" Style="font-size: 1.125rem; line-height: 1.75rem; max-width: 42rem;">Access and manage your deployed tenant environments. Select an instance to view detailed metrics.</MudText>
     </div>
 
     <MudGrid Spacing="6">
-        
         @* Card 1: Acme Corp *@
         <MudItem xs="12" sm="6" md="4" lg="3">
             <EntityCard 
                 Title="Acme Corp" 
                 Subtitle="sys-prod-001" 
                 Description="Main production environment for Acme retail operations across North America."
-                Status="Active"
+                Label="Active"
+                LabelColor="Color.Success"
+                LabelBackgroundColor="rgba(34, 197, 94, 0.1)"
                 GradientStart="#1e3a8a"
                 GradientEnd="#0f172a"
                 PatternOverlayStyle="opacity: 0.3; background-image: radial-gradient(#4f46e5 1px, transparent 1px); background-size: 16px 16px;"
@@ -32,7 +33,9 @@
                 Title="Global Logistics" 
                 Subtitle="sys-log-04" 
                 Description="Supply chain management instance handling real-time inventory tracking."
-                Status="Active"
+                Label="Active"
+                LabelColor="Color.Success"
+                LabelBackgroundColor="rgba(34, 197, 94, 0.1)"
                 GradientStart="#312e81"
                 GradientEnd="#581c87"
                 ButtonColor="Color.Surface">
@@ -48,7 +51,9 @@
                 Title="Beta Testing" 
                 Subtitle="sys-dev-02" 
                 Description="Sandbox environment for QA team feature testing and load balancing experiments."
-                Status="Maintenance"
+                Label="Maintenance"
+                LabelColor="Color.Warning"
+                LabelBackgroundColor="rgba(234, 179, 8, 0.1)"
                 GradientStart="#1e293b"
                 GradientEnd="#0f172a"
                 ButtonColor="Color.Surface">
@@ -66,7 +71,9 @@
                 Title="EMEA Regional" 
                 Subtitle="sys-eu-12" 
                 Description="Isolated instance for European market data compliance and GDPR handling."
-                Status="Active"
+                Label="Active"
+                LabelColor="Color.Success"
+                LabelBackgroundColor="rgba(34, 197, 94, 0.1)"
                 GradientStart="#164e63"
                 GradientEnd="#1e3a8a"
                 ButtonColor="Color.Surface">
@@ -80,9 +87,11 @@
         <MudItem xs="12" sm="6" md="4" lg="3">
             <EntityCard 
                 Title="Legacy Archive" 
-                Subtitle="sys-old-99" 
                 Description="Read-only access to historical data from fiscal year 2020-2023."
-                Status="Archived"
+                Label="Archived"
+                LabelColor="Color.Default"
+                LabelBackgroundColor="rgba(107, 114, 128, 0.1)"
+                LabelTextColor="#9ca3af"
                 GradientStart="#1f2937"
                 GradientEnd="#18181b"
                 ButtonColor="Color.Surface"
