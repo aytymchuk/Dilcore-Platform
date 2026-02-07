@@ -6,7 +6,6 @@ namespace Dilcore.Tenancy.Domain;
 
 public sealed partial record Tenant : BaseDomain
 {
-
     /// <summary>
     /// Prefix of the DB/Collection/Container name specified for this particular tenant.
     /// Cannot be changed after tenant creation.
@@ -18,7 +17,7 @@ public sealed partial record Tenant : BaseDomain
     /// </summary>
     public required string SystemName
     {
-        get => _systemName;
+        get;
         init
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -32,11 +31,9 @@ public sealed partial record Tenant : BaseDomain
                 throw new ArgumentException("System name must be in lower-kebab-case format.", nameof(value));
             }
 
-            _systemName = value;
+            field = value;
         }
-    }
-
-    private readonly string _systemName = string.Empty;
+    } = string.Empty;
 
     /// <summary>
     /// Display name of the tenant.
@@ -52,9 +49,6 @@ public sealed partial record Tenant : BaseDomain
     /// The user ID that created the tenant.
     /// </summary>
     public required string CreatedById { get; init; }
-
-    [GeneratedRegex("[a-z0-9]+")]
-    private static partial Regex KebabCasePartRegex();
 
     /// <summary>
     /// Converts a display name to lower kebab-case.
@@ -72,4 +66,7 @@ public sealed partial record Tenant : BaseDomain
 
         return string.Join("-", parts);
     }
+    
+    [GeneratedRegex("[a-z0-9]+")]
+    private static partial Regex KebabCasePartRegex();
 }

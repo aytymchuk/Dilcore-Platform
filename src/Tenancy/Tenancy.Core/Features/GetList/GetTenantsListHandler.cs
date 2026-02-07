@@ -1,13 +1,13 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.MediatR.Abstractions;
-using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Core.Abstractions;
+using Dilcore.Tenancy.Domain;
 using FluentResults;
 
 namespace Dilcore.Tenancy.Core.Features.GetList;
 
-public class GetTenantsListHandler : IQueryHandler<GetTenantsListQuery, IReadOnlyList<TenantDto>>
+public class GetTenantsListHandler : IQueryHandler<GetTenantsListQuery, IReadOnlyList<Tenant>>
 {
     private readonly IGrainFactory _grainFactory;
     private readonly IUserContext _userContext;
@@ -23,7 +23,7 @@ public class GetTenantsListHandler : IQueryHandler<GetTenantsListQuery, IReadOnl
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<Result<IReadOnlyList<TenantDto>>> Handle(GetTenantsListQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<Tenant>>> Handle(GetTenantsListQuery request, CancellationToken cancellationToken)
     {
         var userId = _userContext.Id;
         var userGrain = _grainFactory.GetGrain<IUserGrain>(userId);
@@ -32,28 +32,16 @@ public class GetTenantsListHandler : IQueryHandler<GetTenantsListQuery, IReadOnl
 
         if (tenantSystemNames.Count == 0)
         {
-            return Result.Ok<IReadOnlyList<TenantDto>>(Array.Empty<TenantDto>());
+            return Result.Ok<IReadOnlyList<Tenant>>(Array.Empty<Tenant>());
         }
 
         var tenantsResult = await _tenantRepository.GetBySystemNamesAsync(tenantSystemNames, cancellationToken);
 
         if (tenantsResult.IsFailed)
         {
-            return tenantsResult.ToResult<IReadOnlyList<TenantDto>>();
+            return tenantsResult.ToResult<IReadOnlyList<Tenant>>();
         }
 
-        var tenantDtos = tenantsResult.Value
-            .Select(t => new TenantDto(
-                t.Id,
-                t.Name,
-                t.SystemName,
-                t.Description,
-                t.StoragePrefix,
-                true,
-                t.CreatedAt,
-                t.CreatedById))
-            .ToList();
-
-        return Result.Ok<IReadOnlyList<TenantDto>>(tenantDtos);
+        return Result.Ok<IReadOnlyList<Tenant>>(tenantsResult.Value);
     }
 }

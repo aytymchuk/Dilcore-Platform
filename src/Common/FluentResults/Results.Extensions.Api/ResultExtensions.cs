@@ -16,6 +16,16 @@ public static class ResultExtensions
         return result.ToProblemDetails();
     }
 
+    public static IResult ToMinimalApiResult<T>(this Result<T> result, Func<T, IResult> onSuccess)
+    {
+        if (result.IsSuccess)
+        {
+            return onSuccess(result.Value);
+        }
+
+        return result.ToProblemDetails();
+    }
+
     public static IResult ToMinimalApiResult(this Result result)
     {
         if (result.IsSuccess)

@@ -2,6 +2,7 @@
   <ItemGroup>
     <PackageReference Include="MediatR" />
     <PackageReference Include="FluentResults" />
+    <PackageReference Include="AutoMapper" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tenancy.Domain\Tenancy.Domain.csproj" />

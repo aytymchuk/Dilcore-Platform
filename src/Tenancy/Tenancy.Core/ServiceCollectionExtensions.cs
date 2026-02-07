@@ -20,6 +20,12 @@ public static class ServiceCollectionExtensions
             cfg.AddCreateTenantCommandBehaviors();
         });
 
+        // Register AutoMapper with mapping profiles
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AddMaps(typeof(ServiceCollectionExtensions).Assembly);
+        });
+
         return services;
     }
 

@@ -34,19 +34,11 @@ public static class EndpointExtensions
             CancellationToken cancellationToken) =>
         {
             var command = new CreateTenantCommand(request.Name, request.Description);
+            
             var result = await mediator.Send(command, cancellationToken);
-            if (result.IsSuccess)
-            {
-                var response = new ContractTenantDto
-                {
-                    Name = result.Value.Name,
-                    SystemName = result.Value.SystemName,
-                    Description = result.Value.Description,
-                    CreatedAt = result.Value.CreatedAt
-                };
-                return Microsoft.AspNetCore.Http.Results.Created($"/tenants", response);
-            }
-            return result.ToMinimalApiResult();
+            return result
+                .Map(MapToContractDto)
+                .ToMinimalApiResult(tenant => Microsoft.AspNetCore.Http.Results.Created("/tenants", tenant));
         })
         .WithName("CreateTenant")
         .Produces<ContractTenantDto>()
@@ -84,14 +76,14 @@ public static class EndpointExtensions
         .ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 
-    private static ContractTenantDto MapToContractDto(Actors.Abstractions.TenantDto tenant)
+    private static ContractTenantDto MapToContractDto(Domain.Tenant tenant)
     {
         return new ContractTenantDto
         {
             Id = tenant.Id,
             Name = tenant.Name,
             SystemName = tenant.SystemName,
-            StoragePrefix = tenant.StorageIdentifier,
+            StoragePrefix = tenant.StoragePrefix,
             Description = tenant.Description,
             CreatedAt = tenant.CreatedAt
         };

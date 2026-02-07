@@ -222,8 +222,7 @@ public class GetTenantsListHandlerTests
         dto.Name.ShouldBe(tenantName);
         dto.SystemName.ShouldBe(tenantSystemName);
         dto.Description.ShouldBe(description);
-        dto.StorageIdentifier.ShouldBe(storagePrefix);
-        dto.IsCreated.ShouldBeTrue();
+        dto.StoragePrefix.ShouldBe(storagePrefix);
         dto.CreatedAt.ShouldBe(createdAt);
         dto.CreatedById.ShouldBe(createdById);
     }

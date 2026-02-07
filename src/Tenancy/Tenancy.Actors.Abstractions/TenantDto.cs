@@ -21,4 +21,4 @@ public sealed record TenantDto(
     string StorageIdentifier,
     bool IsCreated,
     DateTime CreatedAt,
-    string? CreatedById);
+    string CreatedById);

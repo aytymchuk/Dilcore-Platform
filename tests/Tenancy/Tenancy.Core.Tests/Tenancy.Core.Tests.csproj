@@ -1,5 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Core\Tenancy.Core.csproj" />
     <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Domain\Tenancy.Domain.csproj" />
     <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Actors.Abstractions\Tenancy.Actors.Abstractions.csproj" />

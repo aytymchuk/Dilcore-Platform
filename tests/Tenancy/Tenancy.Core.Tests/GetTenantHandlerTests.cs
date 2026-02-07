@@ -1,7 +1,10 @@
+using AutoMapper;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
+using Dilcore.Tenancy.Core;
 using Dilcore.Tenancy.Core.Features.Get;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
 
@@ -15,6 +18,7 @@ public class GetTenantHandlerTests
 {
     private Mock<IGrainFactory> _grainFactoryMock = null!;
     private Mock<ITenantContext> _tenantContextMock = null!;
+    private IMapper _mapper = null!;
     private GetTenantHandler _sut = null!;
 
     [SetUp]
@@ -22,7 +26,13 @@ public class GetTenantHandlerTests
     {
         _grainFactoryMock = new Mock<IGrainFactory>();
         _tenantContextMock = new Mock<ITenantContext>();
-        _sut = new GetTenantHandler(_tenantContextMock.Object, _grainFactoryMock.Object);
+
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        
+        var config = new MapperConfiguration(cfg => cfg.AddMaps(typeof(TenantMappingProfile).Assembly), loggerFactory);
+        _mapper = config.CreateMapper();
+
+        _sut = new GetTenantHandler(_tenantContextMock.Object, _grainFactoryMock.Object, _mapper);
     }
 
     [Test]

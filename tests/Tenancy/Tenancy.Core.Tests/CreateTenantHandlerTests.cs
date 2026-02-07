@@ -1,6 +1,11 @@
+using AutoMapper;
+using Dilcore.Authentication.Abstractions;
+using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
+using Dilcore.Tenancy.Core;
 using Dilcore.Tenancy.Core.Features.Create;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
 using ActorDto = Dilcore.Tenancy.Actors.Abstractions.TenantDto;
@@ -14,13 +19,19 @@ namespace Dilcore.Tenancy.Core.Tests;
 public class CreateTenantHandlerTests
 {
     private Mock<IGrainFactory> _grainFactoryMock = null!;
+    private IMapper _mapper = null!;
     private CreateTenantHandler _sut = null!;
 
     [SetUp]
     public void SetUp()
     {
         _grainFactoryMock = new Mock<IGrainFactory>();
-        _sut = new CreateTenantHandler(_grainFactoryMock.Object);
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        
+        var config = new MapperConfiguration(cfg => cfg.AddMaps(typeof(TenantMappingProfile).Assembly), loggerFactory);
+        _mapper = config.CreateMapper();
+
+        _sut = new CreateTenantHandler(_grainFactoryMock.Object, _mapper);
     }
 
     [Test]
