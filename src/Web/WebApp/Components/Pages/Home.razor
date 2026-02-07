@@ -1,17 +1,252 @@
 @page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Tenant Portal</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Welcome to Dilcore Platform</MudText>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-8 px-8">
+    
+    <div class="mb-10">
+        <MudText Typo="Typo.h3" Class="mb-2" Style="font-weight: 900; letter-spacing: -0.025em;">Select Organization</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Style="font-size: 1.125rem; line-height: 1.75rem; max-width: 42rem;">Access and manage your deployed tenant environments. Select an instance to view detailed metrics.</MudText>
+    </div>
 
-<MudText Class="mb-8">This is a Blazor Server application with Interactive Server rendering, styled with MudBlazor.
-</MudText>
+    <MudGrid Spacing="6">
+        
+        @* Card 1: Acme Corp *@
+        <MudItem xs="12" sm="6" lg="4" xl="3">
+            <MudCard Class="tenant-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
+                <div class="card-header" style="background-image: linear-gradient(to bottom right, #1e3a8a, #0f172a);">
+                    <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
+                     <div class="card-overlay" style="opacity: 0.3; background-image: radial-gradient(#4f46e5 1px, transparent 1px); background-size: 16px 16px;"></div>
+                    <div class="status-chip-wrapper">
+                         <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(34, 197, 94, 0.1);">Active</MudChip>
+                    </div>
+                </div>
+                <MudCardContent Class="d-flex flex-column pa-5" Style="height: calc(100% - 128px);">
+                    <div class="mb-4">
+                        <MudText Typo="Typo.h6" Class="mb-1" Style="font-weight: 700;">Acme Corp</MudText>
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Outlined.Dns" Size="Size.Small" Color="Color.Secondary" Style="font-size: 16px;" />
+                            <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">sys-prod-001</MudText>
+                        </div>
+                    </div>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6 line-clamp-2">Main production environment for Acme retail operations across North America.</MudText>
+                    
+                    <div class="mt-auto d-flex align-center justify-space-between pt-4" style="border-top: 1px solid var(--mud-palette-lines-default);">
+                         <div class="d-flex">
+                            @* Avatars placeholders *@
+                        </div>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" EndIcon="@Icons.Material.Filled.ArrowForward" Class="rounded-lg shadow-none" Style="text-transform: none; background-color: rgba(19, 55, 236, 0.1); color: var(--mud-palette-primary);">
+                            Select
+                        </MudButton>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-<MudAlert Severity="Severity.Info">Key features:</MudAlert>
+        @* Card 2: Global Logistics *@
+        <MudItem xs="12" sm="6" lg="4" xl="3">
+             <MudCard Class="tenant-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
+                <div class="card-header" style="background-image: linear-gradient(to bottom right, #312e81, #581c87);">
+                    <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
+                    <div class="status-chip-wrapper">
+                         <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(34, 197, 94, 0.1);">Active</MudChip>
+                    </div>
+                </div>
+                <MudCardContent Class="d-flex flex-column pa-5" Style="height: calc(100% - 128px);">
+                    <div class="mb-4">
+                        <MudText Typo="Typo.h6" Class="mb-1" Style="font-weight: 700;">Global Logistics</MudText>
+                        <div class="d-flex align-center gap-2">
+                             <MudIcon Icon="@Icons.Material.Outlined.Dns" Size="Size.Small" Color="Color.Secondary" Style="font-size: 16px;" />
+                            <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">sys-log-04</MudText>
+                        </div>
+                    </div>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6 line-clamp-2">Supply chain management instance handling real-time inventory tracking.</MudText>
+                    
+                    <div class="mt-auto d-flex align-center justify-space-between pt-4" style="border-top: 1px solid var(--mud-palette-lines-default);">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Last accessed 2h ago</MudText>
+                         <MudButton Variant="Variant.Filled" Color="Color.Surface" Size="Size.Small" EndIcon="@Icons.Material.Filled.ArrowForward" Class="rounded-lg shadow-none" Style="text-transform: none; background-color: var(--mud-palette-lines-default); color: white;">
+                            Select
+                        </MudButton>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-<MudList T="string">
-    <MudListItem Icon="@Icons.Material.Filled.Check">Server-side rendering with real-time interactivity</MudListItem>
-    <MudListItem Icon="@Icons.Material.Filled.Check">SignalR connection for UI updates</MudListItem>
-    <MudListItem Icon="@Icons.Material.Filled.Check">.NET 10 with latest framework features</MudListItem>
-    <MudListItem Icon="@Icons.Material.Filled.Check">MudBlazor Component Library</MudListItem>
-</MudList>
+        @* Card 3: Beta Testing *@
+        <MudItem xs="12" sm="6" lg="4" xl="3">
+            <MudCard Class="tenant-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
+                <div class="card-header" style="background-image: linear-gradient(to bottom right, #1e293b, #0f172a);">
+                    <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
+                    <div class="status-chip-wrapper">
+                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(234, 179, 8, 0.1);">Maintenance</MudChip>
+                    </div>
+                </div>
+                <MudCardContent Class="d-flex flex-column pa-5" Style="height: calc(100% - 128px);">
+                    <div class="mb-4">
+                        <MudText Typo="Typo.h6" Class="mb-1" Style="font-weight: 700;">Beta Testing</MudText>
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Outlined.Dns" Size="Size.Small" Color="Color.Secondary" Style="font-size: 16px;" />
+                            <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">sys-dev-02</MudText>
+                        </div>
+                    </div>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6 line-clamp-2">Sandbox environment for QA team feature testing and load balancing experiments.</MudText>
+                    
+                     <div class="mt-auto d-flex align-center justify-space-between pt-4" style="border-top: 1px solid var(--mud-palette-lines-default);">
+                         <div>
+                            <MudAvatar Size="Size.Small" Color="Color.Primary" Class="text-xs font-bold" Style="height:24px; width:24px; font-size:10px;">QA</MudAvatar>
+                         </div>
+                        <MudButton Variant="Variant.Filled" Color="Color.Surface" Size="Size.Small" EndIcon="@Icons.Material.Filled.ArrowForward" Class="rounded-lg shadow-none" Style="text-transform: none; background-color: var(--mud-palette-lines-default); color: white;">
+                            Select
+                        </MudButton>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        @* Card 4: EMEA Regional *@
+        <MudItem xs="12" sm="6" lg="4" xl="3">
+             <MudCard Class="tenant-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
+                <div class="card-header" style="background-image: linear-gradient(to bottom right, #164e63, #1e3a8a);">
+                    <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
+                    <div class="status-chip-wrapper">
+                         <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(34, 197, 94, 0.1);">Active</MudChip>
+                    </div>
+                </div>
+                <MudCardContent Class="d-flex flex-column pa-5" Style="height: calc(100% - 128px);">
+                    <div class="mb-4">
+                        <MudText Typo="Typo.h6" Class="mb-1" Style="font-weight: 700;">EMEA Regional</MudText>
+                        <div class="d-flex align-center gap-2">
+                             <MudIcon Icon="@Icons.Material.Outlined.Dns" Size="Size.Small" Color="Color.Secondary" Style="font-size: 16px;" />
+                            <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">sys-eu-12</MudText>
+                        </div>
+                    </div>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6 line-clamp-2">Isolated instance for European market data compliance and GDPR handling.</MudText>
+                    
+                    <div class="mt-auto d-flex align-center justify-space-between pt-4" style="border-top: 1px solid var(--mud-palette-lines-default);">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">London, UK</MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Surface" Size="Size.Small" EndIcon="@Icons.Material.Filled.ArrowForward" Class="rounded-lg shadow-none" Style="text-transform: none; background-color: var(--mud-palette-lines-default); color: white;">
+                            Select
+                        </MudButton>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        @* Card 5: Legacy Archive *@
+        <MudItem xs="12" sm="6" lg="4" xl="3">
+             <MudCard Class="tenant-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
+                <div class="card-header" style="background-image: linear-gradient(to bottom right, #1f2937, #18181b);">
+                    <div class="card-overlay" style="background-color: rgba(0,0,0,0.4);"></div>
+                    <div class="status-chip-wrapper">
+                         <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(107, 114, 128, 0.1); color: #9ca3af;">Archived</MudChip>
+                    </div>
+                </div>
+                <MudCardContent Class="d-flex flex-column pa-5" Style="height: calc(100% - 128px);">
+                    <div class="mb-4">
+                        <MudText Typo="Typo.h6" Class="mb-1" Style="font-weight: 700;">Legacy Archive</MudText>
+                        <div class="d-flex align-center gap-2">
+                            <MudIcon Icon="@Icons.Material.Outlined.Dns" Size="Size.Small" Color="Color.Secondary" Style="font-size: 16px;" />
+                            <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">sys-old-99</MudText>
+                        </div>
+                    </div>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6 line-clamp-2">Read-only access to historical data from fiscal year 2020-2023.</MudText>
+                    
+                    <div class="mt-auto d-flex align-center justify-space-between pt-4" style="border-top: 1px solid var(--mud-palette-lines-default);">
+                         <MudText Typo="Typo.caption" Color="Color.Secondary">Read-only</MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Surface" Size="Size.Small" EndIcon="@Icons.Material.Filled.Visibility" Class="rounded-lg shadow-none" Style="text-transform: none; background-color: var(--mud-palette-lines-default); color: white;">
+                            View
+                        </MudButton>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        @* Card 6: Deploy New Tenant *@
+        <MudItem xs="12" sm="6" lg="4" xl="3">
+            <div class="flex-column align-center justify-center rounded-xl border-dashed hover-mud-border-primary transition-all cursor-pointer relative" style="display: flex; height: 100%; min-height: 300px; border-width: 2px; border-color: var(--mud-palette-lines-default); padding: 24px;">
+                 <div class="card-overlay hover-bg-surface-container" style="transition: background-color 0.2s; background-color: transparent;"></div>
+                 <div class="z-10 flex-column align-center justify-center w-100 h-100" style="display: flex; width: 100%; height: 100%; position: relative; z-index: 10;">
+                    <div class="d-flex align-center justify-center rounded-circle mb-4 transition-all" style="height: 4rem; width: 4rem; background-color: var(--mud-palette-lines-default); color: var(--mud-palette-text-secondary);">
+                        <MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Large" />
+                    </div>
+                    <MudText Typo="Typo.h6" Class="font-bold" Color="Color.Inherit" Style="font-weight: 700;">Deploy New Tenant</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="mt-2">Create a new organization environment</MudText>
+                 </div>
+            </div>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+<style>
+    /* Custom Card Styles */
+    .tenant-card {
+        height: 100%;
+        border-radius: 0.75rem; /* rounded-xl */
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s;
+        border-style: solid;
+        border-width: 1px;
+    }
+    .tenant-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+    }
+
+    /* Card Header with Image/Gradient */
+    .card-header {
+        position: relative;
+        height: 8rem; /* h-32 */
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .card-overlay {
+        position: absolute;
+        inset: 0;
+    }
+
+    .status-chip-wrapper {
+        position: absolute;
+        right: 0.75rem; /* right-3 */
+        top: 0.75rem; /* top-3 */
+    }
+
+    .shadow-none {
+        box-shadow: none !important;
+    }
+
+    /* Typography Utilities */
+    .font-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Border Utilities */
+    .mud-border-lines-default {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .hover-mud-border-primary:hover {
+        border-color: var(--mud-palette-primary) !important;
+    }
+    
+    .hover-bg-surface-container:hover {
+         background-color: rgba(25, 30, 51, 0.5) !important;
+    }
+
+    /* Utility */
+    .rounded-xl { border-radius: 0.75rem !important; }
+    .rounded-lg { border-radius: 0.5rem !important; }
+    .rounded-circle { border-radius: 50% !important; }
+    .w-100 { width: 100% !important; }
+    .h-100 { height: 100% !important; }
+    .relative { position: relative !important; }
+</style>

@@ -16,6 +16,18 @@ public static class FutureSlateTheme
             Surface = "#FFFFFF",
             TextPrimary = "#334155",
             ActionDefault = "#14B8A6",
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#1337ec",
+            Secondary = "#14B8A6",
+            Background = "#0b0f19",
+            AppbarBackground = "#111422",
+            DrawerBackground = "#0b0f19",
+            Surface = "#151a2d",
+            TextPrimary = "#ffffff",
+            TextSecondary = "#929bc9",
+            ActionDefault = "#1337ec",
         }
     };
 }

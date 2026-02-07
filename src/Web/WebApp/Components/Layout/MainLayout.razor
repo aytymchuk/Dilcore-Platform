@@ -2,7 +2,7 @@
 @using Dilcore.WebApp.Features.Users
 @inherits LayoutComponentBase
 
-<MudThemeProvider Theme="FutureSlateTheme.Default" />
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="FutureSlateTheme.Default" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -14,6 +14,9 @@
                 OnClick="@((e) => DrawerToggle())" />
             <MudText Typo="Typo.h5" Class="ml-3">Dilcore Platform</MudText>
             <MudSpacer />
+            <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.Brightness7 : Icons.Material.Filled.Brightness4)" 
+                           Color="Color.Inherit" 
+                           OnClick="@((e) => _isDarkMode = !_isDarkMode)" />
             <LoginDisplay />
 
         </MudAppBar>
@@ -30,6 +33,21 @@
 
 @code {
     bool _drawerOpen = true;
+    bool _isDarkMode;
+    MudThemeProvider _mudThemeProvider = null!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _mudThemeProvider.WatchSystemDarkModeAsync(async (bool newValue) =>
+            {
+                _isDarkMode = newValue;
+                await InvokeAsync(StateHasChanged);
+            });
+            StateHasChanged();
+        }
+    }
 
     void DrawerToggle()
     {
