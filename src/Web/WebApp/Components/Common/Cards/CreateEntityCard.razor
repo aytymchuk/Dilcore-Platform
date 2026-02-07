@@ -1,0 +1,44 @@
+@using MudBlazor
+
+<div class="flex-column align-center justify-center rounded-xl border-dashed hover-mud-border-primary transition-all cursor-pointer relative" style="display: flex; height: 100%; min-height: 200px; border-width: 2px; border-color: var(--mud-palette-lines-default); padding: 16px;">
+     <div class="card-overlay hover-bg-surface-container" style="transition: background-color 0.2s; background-color: transparent;"></div>
+     <div class="z-10 flex-column align-center justify-center w-100 h-100" style="display: flex; width: 100%; height: 100%; position: relative; z-index: 10;">
+        <div class="d-flex align-center justify-center rounded-circle mb-3 transition-all" style="height: 3rem; width: 3rem; background-color: var(--mud-palette-lines-default); color: var(--mud-palette-text-secondary);">
+            <MudIcon Icon="@Icons.Material.Filled.Add" Size="Size.Medium" />
+        </div>
+        <MudText Typo="Typo.subtitle1" Class="font-bold" Color="Color.Inherit" Style="font-weight: 700;">Deploy New Tenant</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="mt-1" Style="font-size: 0.875rem;">Create a new organization environment</MudText>
+     </div>
+</div>
+
+<style>
+    /* Dashed Border Card Styles */
+    .card-overlay {
+        position: absolute;
+        inset: 0;
+    }
+    
+    .hover-mud-border-primary:hover {
+        border-color: var(--mud-palette-primary) !important;
+    }
+    
+    .hover-bg-surface-container:hover {
+         background-color: rgba(25, 30, 51, 0.5) !important;
+    }
+
+    .mud-border-lines-default {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Utility */
+    .border-dashed { border-style: dashed !important; }
+    .rounded-xl { border-radius: 0.75rem !important; }
+    .rounded-circle { border-radius: 50% !important; }
+    .w-100 { width: 100% !important; }
+    .h-100 { height: 100% !important; }
+    .relative { position: relative !important; }
+</style>
+
+@code {
+    // No parameters needed for now as this is a specific action card
+}

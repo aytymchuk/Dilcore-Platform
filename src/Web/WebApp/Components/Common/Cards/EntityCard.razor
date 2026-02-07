@@ -1,0 +1,144 @@
+@using MudBlazor
+
+<MudCard Class="entity-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
+    <div class="card-header" style="@GetHeaderStyle()">
+        <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
+        @if (!string.IsNullOrEmpty(PatternOverlayStyle))
+        {
+            <div class="card-overlay" style="@PatternOverlayStyle"></div>
+        }
+        <div class="status-chip-wrapper">
+             @if (Status == "Active")
+             {
+                 <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(34, 197, 94, 0.1);">Active</MudChip>
+             }
+             else if (Status == "Maintenance")
+             {
+                 <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(234, 179, 8, 0.1);">Maintenance</MudChip>
+             }
+             else if (Status == "Archived")
+             {
+                 <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text" Class="mud-chip-surface" Style="background-color: rgba(107, 114, 128, 0.1); color: #9ca3af;">Archived</MudChip>
+             }
+        </div>
+    </div>
+    <MudCardContent Class="d-flex flex-column pa-4" Style="height: calc(100% - 96px);">
+        <div class="mb-3">
+            <MudText Typo="Typo.subtitle1" Class="mb-0" Style="font-weight: 700;">@Title</MudText>
+            <div class="d-flex align-center gap-2">
+                <MudIcon Icon="@SubtitleIcon" Size="Size.Small" Color="Color.Secondary" Style="font-size: 14px;" />
+                <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">@Subtitle</MudText>
+            </div>
+        </div>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4 line-clamp-2" Style="font-size: 0.875rem;">@Description</MudText>
+        
+        <div class="mt-auto d-flex align-center justify-space-between pt-3" style="border-top: 1px solid var(--mud-palette-lines-default);">
+             <div class="d-flex">
+                @FooterContent
+            </div>
+            <MudButton Variant="Variant.Filled" Color="@ButtonColor" Size="Size.Small" EndIcon="@ButtonIcon" Class="rounded-lg shadow-none" Style="@GetButtonStyle()">
+                @ButtonText
+            </MudButton>
+        </div>
+    </MudCardContent>
+</MudCard>
+
+<style>
+    /* Custom Card Styles */
+    .entity-card {
+        height: 100%;
+        border-radius: 0.75rem; /* rounded-xl */
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s;
+        border-style: solid;
+        border-width: 1px;
+    }
+    .entity-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+    }
+
+    /* Card Header with Image/Gradient */
+    .card-header {
+        position: relative;
+        height: 6rem; /* h-24 */
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .card-overlay {
+        position: absolute;
+        inset: 0;
+    }
+
+    .status-chip-wrapper {
+        position: absolute;
+        right: 0.5rem; /* right-2 */
+        top: 0.5rem; /* top-2 */
+    }
+
+    .shadow-none {
+        box-shadow: none !important;
+    }
+
+    /* Typography Utilities */
+    .font-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Border Utilities */
+    .mud-border-lines-default {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    /* Utility */
+    .rounded-xl { border-radius: 0.75rem !important; }
+    .rounded-lg { border-radius: 0.5rem !important; }
+    .rounded-circle { border-radius: 50% !important; }
+    .w-100 { width: 100% !important; }
+    .h-100 { height: 100% !important; }
+    .relative { position: relative !important; }
+</style>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public string SubtitleIcon { get; set; } = Icons.Material.Outlined.Dns;
+    [Parameter] public string Description { get; set; } = "";
+    [Parameter] public string Status { get; set; } = "Active"; // Active, Maintenance, Archived
+    [Parameter] public string GradientStart { get; set; } = "#1e3a8a";
+    [Parameter] public string GradientEnd { get; set; } = "#0f172a";
+    [Parameter] public string PatternOverlayStyle { get; set; } = "";
+    
+    [Parameter] public string ButtonText { get; set; } = "Select";
+    [Parameter] public string ButtonIcon { get; set; } = Icons.Material.Filled.ArrowForward;
+    [Parameter] public Color ButtonColor { get; set; } = Color.Primary;
+    
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+
+    private string GetHeaderStyle()
+    {
+        return $"background-image: linear-gradient(to bottom right, {GradientStart}, {GradientEnd});";
+    }
+
+    private string GetButtonStyle()
+    {
+        if (ButtonColor == Color.Primary)
+        {
+            return "text-transform: none; background-color: rgba(19, 55, 236, 0.1); color: var(--mud-palette-primary);";
+        }
+        else 
+        {
+            // Surface/Default
+            return "text-transform: none; background-color: var(--mud-palette-lines-default); color: white;";
+        }
+    }
+}
