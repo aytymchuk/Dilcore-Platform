@@ -1,6 +1,8 @@
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApi.Client.Clients;
 using FluentResults;
+using MediatR;
+
 using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.WebApp.Features.Tenants.List;
@@ -24,11 +26,9 @@ public class GetTenantListQueryHandler : IQueryHandler<GetTenantListQuery, List<
 
     public async Task<Result<List<Tenant>>> Handle(GetTenantListQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var tenants = await _tenancyClient.GetTenantsListAsync(cancellationToken);
+        var tenants = await _tenancyClient.GetTenantsListAsync(cancellationToken);
 
-            var tenantModels = tenants.Select(t => new Tenant
+        var tenantModels = tenants.Select(t => new Tenant
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -38,11 +38,6 @@ public class GetTenantListQueryHandler : IQueryHandler<GetTenantListQuery, List<
                 CreatedAt = t.CreatedAt
             }).ToList();
 
-            return Result.Ok(tenantModels);
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail(new Error("Failed to retrieve tenants").CausedBy(ex));
-        }
+        return Result.Ok(tenantModels);
     }
 }
