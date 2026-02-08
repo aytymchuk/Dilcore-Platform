@@ -1,8 +1,8 @@
 @using MudBlazor
 
-<MudDialog Class="rounded-[28px] overflow-hidden" Style="background-color: var(--mud-palette-surface); box-shadow: var(--mud-elevation-25); border: 1px solid var(--mud-palette-lines-default);">
+<MudDialog Gutters="false" Class="rounded-28 overflow-hidden" Style="background-color: var(--mud-palette-surface); box-shadow: var(--mud-elevation-25); border: 1px solid var(--mud-palette-lines-default);">
     <DialogContent>
-        <MudStack Spacing="0" Class="w-full max-w-lg p-6 transition-all animate-[fadeIn_0.3s_ease-out]">
+        <MudStack Spacing="0" Class="pa-6 w-full max-w-lg transition-all animate-[fadeIn_0.3s_ease-out]">
             <!-- Header -->
             <MudStack Spacing="1" Class="mb-6">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
@@ -10,7 +10,7 @@
                     <MudText Typo="Typo.caption" Class="font-medium uppercase tracking-wider" Style="color: var(--mud-palette-text-secondary);">@Label</MudText>
                 </MudStack>
                 <MudText Typo="Typo.h5" Class="font-normal" Color="Color.Inherit">@Title</MudText>
-                <MudText Typo="Typo.body2" Style="color: var(--mud-palette-text-secondary);">@Subtitle</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Style="color: var(--mud-palette-text-secondary);">@Subtitle</MudText>
             </MudStack>
 
             <!-- Content -->
@@ -20,50 +20,15 @@
 
             <!-- Actions -->
             <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-8">
-                <MudButton OnClick="Cancel" Variant="Variant.Text" Class="rounded-full px-4 py-2.5 text-sm font-medium transition-colors hover:bg-primary/10" Color="Color.Primary">Cancel</MudButton>
-                <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Class="rounded-full px-6 py-2.5 text-sm font-medium text-white transition-all shadow-md hover:shadow-lg" Color="Color.Primary" Disabled="@IsProcessing">
-                    @if (IsProcessing)
-                    {
-                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
-                        <MudText Class="ms-2">Processing</MudText>
-                    }
-                    else
-                    {
-                        @SubmitButtonText
-                    }
-                </MudButton>
+                <EntitySecondaryButton 
+                    ButtonText="Cancel"
+                    OnClick="Cancel" />
+                <EntityPrimaryButton 
+                    OnClick="SubmitAsync" 
+                    ButtonText="@SubmitButtonText"
+                    ButtonColor="Color.Primary"
+                    IsProcessing="@IsProcessing" />
             </MudStack>
         </MudStack>
     </DialogContent>
 </MudDialog>
-
-<style>
-    .rounded-\[28px\] { border-radius: 28px !important; }
-</style>
-
-@code {
-    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
-
-    [Parameter] public string Title { get; set; } = "Create Entity";
-    [Parameter] public string Subtitle { get; set; } = "Please fill in the details below.";
-    [Parameter] public string Label { get; set; } = "New Entity";
-    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Add;
-    [Parameter] public string SubmitButtonText { get; set; } = "Create";
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public EventCallback OnSubmit { get; set; }
-    [Parameter] public bool IsProcessing { get; set; }
-
-    private void Cancel() => MudDialog.Cancel();
-    
-    private async Task SubmitAsync()
-    {
-        if (OnSubmit.HasDelegate)
-        {
-            await OnSubmit.InvokeAsync();
-        }
-        else
-        {
-            MudDialog.Close(DialogResult.Ok(true));
-        }
-    }
-}

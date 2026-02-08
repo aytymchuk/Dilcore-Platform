@@ -1,0 +1,25 @@
+/* Dashed Border Card Styles */
+.card-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.hover-mud-border-primary:hover {
+    border-color: var(--mud-palette-primary) !important;
+}
+
+.hover-bg-surface-container:hover {
+     background-color: rgba(25, 30, 51, 0.5) !important;
+}
+
+.mud-border-lines-default {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Utility */
+.border-dashed { border-style: dashed !important; }
+.rounded-xl { border-radius: 0.75rem !important; }
+.rounded-circle { border-radius: 50% !important; }
+.w-100 { width: 100% !important; }
+.h-100 { height: 100% !important; }
+.relative { position: relative !important; }

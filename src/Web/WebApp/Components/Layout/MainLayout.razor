@@ -1,4 +1,4 @@
-@using Dilcore.Platform.Web.WebApp.Components.Themes
+@using Dilcore.WebApp.Components.Themes
 @using Dilcore.WebApp.Features.Users
 @inherits LayoutComponentBase
 
@@ -29,27 +29,3 @@
         </MudMainContent>
     </MudLayout>
 </UserStateProvider>
-
-@code {
-    bool _drawerOpen = true;
-    bool _isDarkMode = true;
-    MudThemeProvider _mudThemeProvider = null!;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await _mudThemeProvider.WatchSystemDarkModeAsync(async (bool newValue) =>
-            {
-                _isDarkMode = newValue;
-                await InvokeAsync(StateHasChanged);
-            });
-            StateHasChanged();
-        }
-    }
-
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
-}

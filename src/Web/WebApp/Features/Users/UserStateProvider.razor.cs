@@ -27,11 +27,6 @@ public partial class UserStateProvider : AsyncComponentBase
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
-    /// Gets whether the user data is currently loading.
-    /// </summary>
-    public bool IsLoading { get; private set; } = true;
-
-    /// <summary>
     /// Gets the current user, or null if not loaded or not found.
     /// </summary>
     public UserModel? CurrentUser { get; private set; }
@@ -48,7 +43,6 @@ public partial class UserStateProvider : AsyncComponentBase
         // Only load user if authenticated
         if (authState.User.Identity?.IsAuthenticated != true)
         {
-            IsLoading = false;
             return;
         }
 
@@ -57,19 +51,18 @@ public partial class UserStateProvider : AsyncComponentBase
 
     private async Task LoadCurrentUserAsync()
     {
-        IsLoading = true;
-        StateHasChanged();
-
-        try
+        await ExecuteBusyAsync(async () =>
         {
             var result = await Sender.Send(new GetCurrentUserQuery());
 
-            if (result.IsSuccess)
+            if (result.IsSuccess && result.Value is not null)
             {
                 CurrentUser = result.Value;
                 IsUserNotFound = false;
+                return;
             }
-            else if (result.Errors.OfType<UserNotFoundError>().Any())
+
+            if ((result.IsSuccess && result.Value is null) || result.Errors.OfType<UserNotFoundError>().Any())
             {
                 IsUserNotFound = true;
                 CurrentUser = null;
@@ -79,19 +72,6 @@ public partial class UserStateProvider : AsyncComponentBase
                 return;
             }
             // Other errors are handled by SnackbarResultBehavior
-        }
-        finally
-        {
-            IsLoading = false;
-            StateHasChanged();
-        }
-    }
-
-    /// <summary>
-    /// Refreshes the current user state.
-    /// </summary>
-    public async Task RefreshAsync()
-    {
-        await LoadCurrentUserAsync();
+        });
     }
 }

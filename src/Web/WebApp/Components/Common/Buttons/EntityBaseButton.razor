@@ -1,0 +1,23 @@
+@using MudBlazor
+
+<MudButton Variant="@Variant" 
+           Color="@ButtonColor"
+           Size="@Size" 
+           EndIcon="@(IsProcessing ? null : ButtonIcon)" 
+           Disabled="@(Disabled || IsProcessing)"
+           Elevation="0"
+           FullWidth="@FullWidth"
+           Class="@($"rounded-pill shadow-none {Class}")" 
+           Style="@GetButtonStyle()"
+           OnClick="OnClick">
+    @if (IsProcessing)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+        <MudText Class="ms-2">Processing</MudText>
+    }
+    else
+    {
+        @ButtonText
+    }
+</MudButton>
+

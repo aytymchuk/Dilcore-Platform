@@ -19,3 +19,16 @@
 .blazor-error-boundary::after {
     content: "An error has occurred."
 }
+
+.rounded-28 {
+    border-radius: 28px !important;
+}
+
+.rounded-pill {
+    border-radius: 9999px !important;
+}
+
+/* Ensure no shadow even if shadow-none is overridden */
+.shadow-none {
+    box-shadow: none !important;
+}

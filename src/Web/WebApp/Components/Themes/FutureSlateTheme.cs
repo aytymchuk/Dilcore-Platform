@@ -1,6 +1,6 @@
 using MudBlazor;
 
-namespace Dilcore.Platform.Web.WebApp.Components.Themes;
+namespace Dilcore.WebApp.Components.Themes;
 
 public static class FutureSlateTheme
 {

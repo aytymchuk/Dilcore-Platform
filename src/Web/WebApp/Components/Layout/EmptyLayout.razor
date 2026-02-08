@@ -1,4 +1,4 @@
-@using Dilcore.Platform.Web.WebApp.Components.Themes
+@using Dilcore.WebApp.Components.Themes
 @inherits LayoutComponentBase
 
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="FutureSlateTheme.Default" />
@@ -13,21 +13,3 @@
         </GlobalErrorBoundary>
     </MudMainContent>
 </MudLayout>
-
-@code {
-    bool _isDarkMode;
-    MudThemeProvider _mudThemeProvider = null!;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await _mudThemeProvider.WatchSystemDarkModeAsync(async (bool newValue) =>
-            {
-                _isDarkMode = newValue;
-                await InvokeAsync(StateHasChanged);
-            });
-            StateHasChanged();
-        }
-    }
-}
