@@ -40,6 +40,13 @@ public partial class TenantList : AsyncComponentBase
             CloseOnEscapeKey = true
         };
 
-        await DialogService.ShowAsync<CreateEntityDialog>("", options);
+        var dialog = await DialogService.ShowAsync<Features.Tenants.Create.CreateTenantDialog>("", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data != null)
+        {
+            // Refresh the list
+            await OnInitializedAsync();
+        }
     }
 }

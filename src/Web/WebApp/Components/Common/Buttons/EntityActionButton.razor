@@ -1,0 +1,31 @@
+@using MudBlazor
+
+<MudButton Variant="Variant.Filled" 
+           Color="@ButtonColor" 
+           Size="Size.Small" 
+           EndIcon="@ButtonIcon" 
+           Class="rounded-lg shadow-none" 
+           Style="@GetButtonStyle()"
+           OnClick="OnClick">
+    @ButtonText
+</MudButton>
+
+@code {
+    [Parameter] public string ButtonText { get; set; } = "Select";
+    [Parameter] public string ButtonIcon { get; set; } = Icons.Material.Filled.ArrowForward;
+    [Parameter] public Color ButtonColor { get; set; } = Color.Primary;
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private string GetButtonStyle()
+    {
+        if (ButtonColor == Color.Primary)
+        {
+            return "text-transform: none; background-color: rgba(19, 55, 236, 0.1); color: var(--mud-palette-primary);";
+        }
+        else 
+        {
+            // Surface/Default
+            return "text-transform: none; background-color: var(--mud-palette-lines-default); color: white;";
+        }
+    }
+}

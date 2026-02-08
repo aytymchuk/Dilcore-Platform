@@ -1,0 +1,24 @@
+@using Dilcore.WebApp.Components.Common.Dialogs
+@inherits AsyncComponentBase
+
+<CreateEntityDialog Title="Create Tenant" 
+                    Subtitle="Set up a new tenant environment. System name must be unique."
+                    Label="New Environment"
+                    Icon="@Icons.Material.Filled.DomainAdd"
+                    SubmitButtonText="Create Tenant"
+                    OnSubmit="SubmitAsync"
+                    IsProcessing="@IsLoading">
+    <MudForm Model="@_model" @ref="_form" Validation="@(ValidateValue)" @bind-IsValid="@_isFormValid">
+        <MudTextField Label="Tenant Name" 
+                      @bind-Value="_model.Name"
+                      For="@(() => _model.Name)"
+                      Immediate="true"
+                      Class="mb-4" />
+        
+        <MudTextField Label="Description" 
+                      @bind-Value="_model.Description"
+                      For="@(() => _model.Description)"
+                      Lines="3"
+                      Immediate="true" />
+    </MudForm>
+</CreateEntityDialog>

@@ -1,44 +1,69 @@
-<MudDialog Class="rounded-[28px] overflow-hidden" Style="background-color: #1e2338; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1);">
+@using MudBlazor
+
+<MudDialog Class="rounded-[28px] overflow-hidden" Style="background-color: var(--mud-palette-surface); box-shadow: var(--mud-elevation-25); border: 1px solid var(--mud-palette-lines-default);">
     <DialogContent>
-        <div class="relative w-full max-w-lg p-6 text-left transition-all animate-[fadeIn_0.3s_ease-out]">
-            <div class="mb-6">
-                <div class="mb-2 flex items-center gap-2" style="color: #929bc9;">
-                    <MudIcon Icon="@Icons.Material.Filled.DomainAdd" Style="color: #1337ec;" />
-                    <span class="text-xs font-medium uppercase tracking-wider">New Environment</span>
-                </div>
-                <h3 class="text-2xl font-normal text-white" id="modal-title">Create Tenant</h3>
-                <p class="mt-2 text-sm" style="color: #929bc9;">Set up a new tenant environment. System name must be unique.</p>
-            </div>
-            <div class="space-y-4 d-flex flex-column gap-4">
+        <MudStack Spacing="0" Class="w-full max-w-lg p-6 transition-all animate-[fadeIn_0.3s_ease-out]">
+            <!-- Header -->
+            <MudStack Spacing="1" Class="mb-6">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudIcon Icon="@Icon" Color="Color.Primary" />
+                    <MudText Typo="Typo.caption" Class="font-medium uppercase tracking-wider" Style="color: var(--mud-palette-text-secondary);">@Label</MudText>
+                </MudStack>
+                <MudText Typo="Typo.h5" Class="font-normal" Color="Color.Inherit">@Title</MudText>
+                <MudText Typo="Typo.body2" Style="color: var(--mud-palette-text-secondary);">@Subtitle</MudText>
+            </MudStack>
+
+            <!-- Content -->
+            <MudStack Spacing="4">
                 @ChildContent
-            </div>
-            <div class="mt-8 flex items-center justify-end gap-2">
-                <MudButton OnClick="Cancel" Variant="Variant.Text" Class="rounded-full px-4 py-2.5 text-sm font-medium transition-colors hover:bg-primary/10" Style="color: #1337ec;">Cancel</MudButton>
-                <MudButton OnClick="Submit" Variant="Variant.Filled" Class="rounded-full px-6 py-2.5 text-sm font-medium text-white transition-all shadow-md hover:shadow-lg" Style="background-color: #1337ec; box-shadow: 0 4px 6px -1px rgba(19, 55, 236, 0.2);">Create Tenant</MudButton>
-            </div>
-        </div>
+            </MudStack>
+
+            <!-- Actions -->
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-8">
+                <MudButton OnClick="Cancel" Variant="Variant.Text" Class="rounded-full px-4 py-2.5 text-sm font-medium transition-colors hover:bg-primary/10" Color="Color.Primary">Cancel</MudButton>
+                <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Class="rounded-full px-6 py-2.5 text-sm font-medium text-white transition-all shadow-md hover:shadow-lg" Color="Color.Primary" Disabled="@IsProcessing">
+                    @if (IsProcessing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                        <MudText Class="ms-2">Processing</MudText>
+                    }
+                    else
+                    {
+                        @SubmitButtonText
+                    }
+                </MudButton>
+            </MudStack>
+        </MudStack>
     </DialogContent>
 </MudDialog>
 
 <style>
     .rounded-\[28px\] { border-radius: 28px !important; }
-    .bg-surface-bright\/30 { background-color: rgba(35, 41, 72, 0.3); }
-    .peer:focus ~ label, .peer:not(:placeholder-shown) ~ label {
-        --tw-translate-y: -0.75rem;
-        --tw-scale-x: 0.75;
-        --tw-scale-y: 0.75;
-        transform: translate(0, var(--tw-translate-y)) rotate(0) skewX(0) skewY(0) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-        color: #1337ec !important;
-    }
-    .peer:focus { border-color: #1337ec !important; }
 </style>
 
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
+    [Parameter] public string Title { get; set; } = "Create Entity";
+    [Parameter] public string Subtitle { get; set; } = "Please fill in the details below.";
+    [Parameter] public string Label { get; set; } = "New Entity";
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Add;
+    [Parameter] public string SubmitButtonText { get; set; } = "Create";
     [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public bool IsProcessing { get; set; }
 
     private void Cancel() => MudDialog.Cancel();
     
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    private async Task SubmitAsync()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync();
+        }
+        else
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+    }
 }

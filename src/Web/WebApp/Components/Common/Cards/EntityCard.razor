@@ -29,9 +29,11 @@
              <div class="d-flex">
                 @FooterContent
             </div>
-            <MudButton Variant="Variant.Filled" Color="@ButtonColor" Size="Size.Small" EndIcon="@ButtonIcon" Class="rounded-lg shadow-none" Style="@GetButtonStyle()">
-                @ButtonText
-            </MudButton>
+            <EntityActionButton 
+                ButtonText="@ButtonText"
+                ButtonIcon="@ButtonIcon"
+                ButtonColor="@ButtonColor"
+                OnClick="@OnClick" />
         </div>
     </MudCardContent>
 </MudCard>
@@ -121,23 +123,12 @@
     [Parameter] public Color ButtonColor { get; set; } = Color.Primary;
     
     [Parameter] public RenderFragment? FooterContent { get; set; }
+    
+    [Parameter] public EventCallback OnClick { get; set; }
 
     private string GetHeaderStyle()
     {
         return $"background-image: linear-gradient(to bottom right, {GradientStart}, {GradientEnd});";
-    }
-
-    private string GetButtonStyle()
-    {
-        if (ButtonColor == Color.Primary)
-        {
-            return "text-transform: none; background-color: rgba(19, 55, 236, 0.1); color: var(--mud-palette-primary);";
-        }
-        else 
-        {
-            // Surface/Default
-            return "text-transform: none; background-color: var(--mud-palette-lines-default); color: white;";
-        }
     }
 
     private string GetLabelStyle()
