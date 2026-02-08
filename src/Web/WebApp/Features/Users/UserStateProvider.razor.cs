@@ -1,3 +1,4 @@
+using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Features.Users.CurrentUser;
@@ -11,7 +12,7 @@ namespace Dilcore.WebApp.Features.Users;
 /// Cascading state provider for current user information.
 /// Loads the user on initialization and provides loading/error state.
 /// </summary>
-public partial class UserStateProvider : ComponentBase
+public partial class UserStateProvider : AsyncComponentBase
 {
     [Inject]
     private ISender Sender { get; set; } = null!;

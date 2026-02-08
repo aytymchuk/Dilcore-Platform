@@ -1,6 +1,4 @@
 using AutoMapper;
-using Dilcore.Authentication.Abstractions;
-using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.MediatR.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;

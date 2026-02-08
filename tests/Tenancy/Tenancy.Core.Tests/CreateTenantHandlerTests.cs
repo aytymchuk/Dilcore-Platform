@@ -1,9 +1,6 @@
 using AutoMapper;
-using Dilcore.Authentication.Abstractions;
-using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
-using Dilcore.Tenancy.Core;
 using Dilcore.Tenancy.Core.Features.Create;
 using Microsoft.Extensions.Logging;
 using Moq;

@@ -1,0 +1,15 @@
+@page "/"
+@using Dilcore.WebApp.Features.Tenants.List
+@inject IDialogService DialogService
+
+<PageTitle>Tenant Portal</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-8 px-8">
+    
+    <div class="mb-10">
+        <MudText Typo="Typo.h3" Class="mb-2" Style="font-weight: 900; letter-spacing: -0.025em;">Select Organization</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Surface" Style="font-size: 1.125rem; line-height: 1.75rem; max-width: 42rem;">Access and manage your deployed tenant environments. Select an instance to view detailed metrics.</MudText>
+    </div>
+
+    <TenantList />
+</MudContainer>

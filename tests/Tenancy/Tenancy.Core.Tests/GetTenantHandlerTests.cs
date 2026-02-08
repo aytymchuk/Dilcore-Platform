@@ -2,7 +2,6 @@ using AutoMapper;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
-using Dilcore.Tenancy.Core;
 using Dilcore.Tenancy.Core.Features.Get;
 using Microsoft.Extensions.Logging;
 using Moq;

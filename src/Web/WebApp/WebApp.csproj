@@ -17,6 +17,7 @@
     <PackageReference Include="Auth0.AspNetCore.Authentication" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="MudBlazor" />
+    <PackageReference Include="MediatR" />
   </ItemGroup>
 
   <ItemGroup>

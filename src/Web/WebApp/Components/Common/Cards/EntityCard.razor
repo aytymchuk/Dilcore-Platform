@@ -1,5 +1,3 @@
-@using MudBlazor
-
 <MudCard Class="entity-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
     <div class="card-header" style="@GetHeaderStyle()">
         <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
@@ -20,8 +18,8 @@
             @if (!string.IsNullOrEmpty(Subtitle))
             {
                 <div class="d-flex align-center gap-2">
-                    <MudIcon Icon="@SubtitleIcon" Size="Size.Small" Color="Color.Secondary" Style="font-size: 14px;" />
-                    <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Secondary">@Subtitle</MudText>
+                    <MudIcon Icon="@SubtitleIcon" Size="Size.Small" Color="Color.Surface" Style="font-size: 14px;" />
+                    <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Surface">@Subtitle</MudText>
                 </div>
             }
         </div>
@@ -149,6 +147,7 @@
         {
             style += $"background-color: {LabelBackgroundColor};";
         }
+
         if (!string.IsNullOrEmpty(LabelTextColor))
         {
             style += $"color: {LabelTextColor};";

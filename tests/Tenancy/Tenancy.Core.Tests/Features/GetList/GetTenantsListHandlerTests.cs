@@ -1,7 +1,5 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
-using Dilcore.Results.Abstractions;
-using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Core.Abstractions;
 using Dilcore.Tenancy.Core.Features.GetList;
 using Dilcore.Tenancy.Domain;
