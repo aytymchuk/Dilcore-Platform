@@ -10,8 +10,6 @@
 <UserStateProvider>
     <MudLayout>
         <MudAppBar Elevation="1" Color="Color.Default">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Edge="Edge.Start"
-                OnClick="@((e) => DrawerToggle())" />
             <MudText Typo="Typo.h5" Class="ml-3">Dilcore Platform</MudText>
             <MudSpacer />
             <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.Brightness7 : Icons.Material.Filled.Brightness4)" 
@@ -19,9 +17,6 @@
             <LoginDisplay />
 
         </MudAppBar>
-        <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-            <NavMenu />
-        </MudDrawer>
         <MudMainContent>
             <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
                 @Body

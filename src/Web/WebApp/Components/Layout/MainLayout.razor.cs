@@ -5,7 +5,6 @@ namespace Dilcore.WebApp.Components.Layout;
 
 public partial class MainLayout : LayoutComponentBase
 {
-    bool _drawerOpen = true;
     bool _isDarkMode = true;
     MudThemeProvider _mudThemeProvider = null!;
 
@@ -20,10 +19,5 @@ public partial class MainLayout : LayoutComponentBase
             });
             StateHasChanged();
         }
-    }
-
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
     }
 }

@@ -1,40 +1,42 @@
-<MudCard Class="entity-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
-    <div class="card-header" style="@GetHeaderStyle()">
-        <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
-        @if (!string.IsNullOrEmpty(PatternOverlayStyle))
-        {
-            <div class="card-overlay" style="@PatternOverlayStyle"></div>
-        }
-        <div class="status-chip-wrapper">
-             @if (!string.IsNullOrEmpty(Label))
-             {
-                 <MudChip T="string" Size="Size.Small" Color="@LabelColor" Variant="Variant.Text" Class="mud-chip-surface" Style="@GetLabelStyle()">@Label</MudChip>
-             }
-        </div>
-    </div>
-    <MudCardContent Class="d-flex flex-column pa-4" Style="height: calc(100% - 96px);">
-        <div class="mb-3">
-            <MudText Typo="Typo.subtitle1" Class="@(string.IsNullOrEmpty(Subtitle) ? "mb-0" : "mb-1")" Style="font-weight: 700;">@Title</MudText>
-            @if (!string.IsNullOrEmpty(Subtitle))
+<div class="entity-card-wrapper" style="height: 100%; width: 100%;">
+    <MudCard Elevation="0" Class="entity-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
+        <div class="card-header" style="@GetHeaderStyle()">
+            <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
+            @if (!string.IsNullOrEmpty(PatternOverlayStyle))
             {
-                <div class="d-flex align-center gap-2">
-                    <MudIcon Icon="@SubtitleIcon" Size="Size.Small" Color="Color.Surface" Style="font-size: 14px;" />
-                    <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Surface">@Subtitle</MudText>
-                </div>
+                <div class="card-overlay" style="@PatternOverlayStyle"></div>
             }
-        </div>
-        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4 line-clamp-2" Style="font-size: 0.875rem;">@Description</MudText>
-        
-        <div class="mt-auto d-flex align-center justify-space-between pt-3" style="border-top: 1px solid var(--mud-palette-lines-default);">
-             <div class="d-flex">
-                @FooterContent
+            <div class="status-chip-wrapper">
+                 @if (!string.IsNullOrEmpty(Label))
+                 {
+                     <span style="@GetLabelStyle()">@Label</span>
+                 }
             </div>
-            <EntityPrimaryButton 
-                ButtonText="@ButtonText"
-                ButtonIcon="@ButtonIcon"
-                ButtonColor="@ButtonColor"
-                Size="Size.Small"
-                OnClick="@OnClick" />
         </div>
-    </MudCardContent>
-</MudCard>
+        <MudCardContent Class="d-flex flex-column pa-4" Style="height: calc(100% - 96px);">
+            <div class="mb-3">
+                <MudText Typo="Typo.subtitle1" Class="@(string.IsNullOrEmpty(Subtitle) ? "mb-0" : "mb-1")" Style="font-weight: 700;">@Title</MudText>
+                @if (!string.IsNullOrEmpty(Subtitle))
+                {
+                    <div class="d-flex align-center gap-2">
+                        <MudIcon Icon="@SubtitleIcon" Size="Size.Small" Color="Color.Surface" Style="font-size: 14px;" />
+                        <MudText Typo="Typo.caption" Class="font-mono" Color="Color.Surface">@Subtitle</MudText>
+                    </div>
+                }
+            </div>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4 line-clamp-2" Style="font-size: 0.875rem;">@Description</MudText>
+            
+            <div class="mt-auto d-flex align-center justify-space-between pt-3" style="border-top: 1px solid var(--mud-palette-lines-default);">
+                 <div class="d-flex">
+                    @FooterContent
+                </div>
+                <EntityPrimaryButton 
+                    ButtonText="@ButtonText"
+                    ButtonIcon="@ButtonIcon"
+                    ButtonColor="@ButtonColor"
+                    Size="Size.Small"
+                    OnClick="@OnClick" />
+            </div>
+        </MudCardContent>
+    </MudCard>
+</div>

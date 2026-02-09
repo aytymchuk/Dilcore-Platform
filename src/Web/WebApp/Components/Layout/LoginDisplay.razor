@@ -4,12 +4,20 @@
 
 <AuthorizeView>
     <Authorized>
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
-            <MudText>Hello, @(UserState.CurrentUser?.FullName ?? context.User.Identity?.Name)!</MudText>
-            <MudLink Href="@RouteConstants.Identity.Logout">Sign Out</MudLink>
-        </MudStack>
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <ActivatorContent>
+                <MudAvatar Color="Color.Secondary" Variant="Variant.Filled">
+                    @(UserState.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                </MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem>Profile</MudMenuItem>
+                <MudMenuItem>Theme Preferences</MudMenuItem>
+                <MudMenuItem Href="@RouteConstants.Identity.Logout">Sign Out</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
     </Authorized>
     <NotAuthorized>
-        <MudLink Href="@RouteConstants.Identity.Login">Sign In</MudLink>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="@RouteConstants.Identity.Login">Sign In</MudButton>
     </NotAuthorized>
 </AuthorizeView>

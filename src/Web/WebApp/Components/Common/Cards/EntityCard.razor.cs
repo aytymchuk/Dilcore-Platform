@@ -13,6 +13,7 @@ public partial class EntityCard
     [Parameter] public string? Label { get; set; }
     [Parameter] public Color LabelColor { get; set; } = Color.Default;
     [Parameter] public string? LabelBackgroundColor { get; set; }
+    [Parameter] public string? LabelBorderColor { get; set; }
     [Parameter] public string? LabelTextColor { get; set; }
 
     [Parameter] public string GradientStart { get; set; } = "#1e3a8a";
@@ -34,7 +35,7 @@ public partial class EntityCard
 
     private string GetLabelStyle()
     {
-        var style = "";
+        var style = "border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 0.75rem; backdrop-filter: blur(4px);";
         if (!string.IsNullOrEmpty(LabelBackgroundColor))
         {
             style += $"background-color: {LabelBackgroundColor};";
@@ -43,6 +44,16 @@ public partial class EntityCard
         if (!string.IsNullOrEmpty(LabelTextColor))
         {
             style += $"color: {LabelTextColor};";
+        }
+
+        if (!string.IsNullOrEmpty(LabelBorderColor))
+        {
+            style += $"border: 1px solid {LabelBorderColor};";
+        }
+        else 
+        {
+            // Default transparent border to maintain layout
+             style += "border: 1px solid transparent;";
         }
         return style;
     }
