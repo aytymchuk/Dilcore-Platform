@@ -1,6 +1,6 @@
 using Dilcore.WebApp.Components.Common;
-using Dilcore.WebApp.Components.Common.Dialogs;
 using Dilcore.WebApp.Models.Tenants;
+using Dilcore.WebApp.Services;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MediatR;
@@ -11,6 +11,7 @@ public partial class TenantList : AsyncComponentBase
 {
     [Inject] public ISender Mediator { get; set; } = default!;
     [Inject] public IDialogService DialogService { get; set; } = default!;
+    [Inject] public IAppNavigator AppNavigator { get; set; } = default!;
 
     private List<Tenant>? _tenants;
 
@@ -37,16 +38,22 @@ public partial class TenantList : AsyncComponentBase
         { 
             NoHeader = true,
             BackgroundClass = "backdrop-blur-sm",
-            CloseOnEscapeKey = true
+            CloseOnEscapeKey = true,
+            // Disable default backdrop click to handle it manually with animation
+            BackdropClick = true
         };
 
         var dialog = await DialogService.ShowAsync<Features.Tenants.Create.CreateTenantDialog>("", options);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data != null)
+        if (result is not null && !result.Canceled && result.Data != null)
         {
-            // Refresh the list
             await OnInitializedAsync();
         }
+    }
+
+    private void OnTenantSelected(Tenant tenant)
+    {
+        AppNavigator.ToTenantWorkspace(tenant.SystemName);
     }
 }

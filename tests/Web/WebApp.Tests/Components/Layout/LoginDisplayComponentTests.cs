@@ -1,7 +1,8 @@
 using Bunit;
 using Bunit.TestDoubles;
 using Dilcore.WebApp.Components.Layout;
-using Dilcore.WebApp.Constants;
+using Dilcore.WebApp.Features.Users;
+using Dilcore.WebApp.Models.Users;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -13,15 +14,14 @@ namespace Dilcore.WebApp.Tests.Components.Layout;
 
 public class LoginDisplayComponentTests
 {
-    private Bunit.TestContext _ctx;
-    private TestAuthorizationContext _authContext;
+    private Bunit.TestContext _ctx = default!;
+    private TestAuthorizationContext _authContext = default!;
 
     [SetUp]
     public void Setup()
     {
         _ctx = new Bunit.TestContext();
         _ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-
         _ctx.Services.AddMudServices();
 
         var mockEnv = new Mock<IWebHostEnvironment>();
@@ -40,60 +40,83 @@ public class LoginDisplayComponentTests
     }
 
     [Test]
-    public void DisplaysUserName_WhenAuthenticated()
+    public void DisplaysAvatar_WhenAuthenticated_WithUserState()
     {
         // Arrange
         _authContext.SetAuthorized("Test User");
+        var userState = CreateUserStateProvider(
+            new UserModel(Guid.NewGuid(), "test@example.com", "Test", "User"));
 
         // Act
-        var cut = _ctx.RenderComponent<LoginDisplay>();
+        var cut = RenderWithCascadingUserState(userState);
 
-        // Assert
-        cut.Markup.ShouldContain("Hello, Test User!");
-        cut.Markup.ShouldContain("Sign Out");
+        // Assert — MudAvatar is rendered for authenticated users
+        cut.FindAll(".mud-avatar").Count.ShouldBeGreaterThan(0);
         cut.Markup.ShouldNotContain("Sign In");
     }
 
     [Test]
-    public void DisplaysSignInLink_WhenNotAuthenticated()
+    public void DisplaysAvatarWithFallbackInitial_WhenAuthenticated_WithoutCurrentUser()
+    {
+        // Arrange
+        _authContext.SetAuthorized("Test User");
+        var userState = CreateUserStateProvider(currentUser: null);
+
+        // Act
+        var cut = RenderWithCascadingUserState(userState);
+
+        // Assert — avatar renders with fallback, no Sign In button
+        cut.FindAll(".mud-avatar").Count.ShouldBeGreaterThan(0);
+        cut.Markup.ShouldNotContain("Sign In");
+    }
+
+    [Test]
+    public void DisplaysSignInButton_WhenNotAuthenticated()
     {
         // Arrange
         _authContext.SetNotAuthorized();
 
         // Act
-        var cut = _ctx.RenderComponent<LoginDisplay>();
+        var cut = RenderWithCascadingUserState(CreateUserStateProvider(currentUser: null));
 
         // Assert
         cut.Markup.ShouldContain("Sign In");
-        cut.Markup.ShouldNotContain("Hello,");
+        cut.FindAll(".mud-avatar").Count.ShouldBe(0);
     }
 
     [Test]
-    public void ShowsAccessTokenButton_WhenClaimExists()
+    public void RendersMenuComponent_WhenAuthenticated()
     {
         // Arrange
         _authContext.SetAuthorized("Test User");
-        _authContext.SetClaims(new System.Security.Claims.Claim(AuthConstants.AccessTokenClaim, "test-token"));
+        var userState = CreateUserStateProvider(
+            new UserModel(Guid.NewGuid(), "test@example.com", "Test", "User"));
 
         // Act
-        var cut = _ctx.RenderComponent<LoginDisplay>();
+        var cut = RenderWithCascadingUserState(userState);
 
-        // Assert
-        // Check for the key icon button which indicates the token functionality is present
-        cut.Find("[data-testid='access-token-button']").ShouldNotBeNull();
+        // Assert — MudMenu wrapper is rendered (menu items are in the popover)
+        cut.FindAll(".mud-menu").Count.ShouldBe(1);
     }
 
-    [Test]
-    public void DoesNotShowAccessTokenButton_WhenClaimMissing()
+    private IRenderedComponent<LoginDisplay> RenderWithCascadingUserState(UserStateProvider userState)
     {
-        // Arrange
-        _authContext.SetAuthorized("Test User");
-        // No access_token claim
+        return _ctx.RenderComponent<LoginDisplay>(parameters =>
+            parameters.Add(p => p.UserState, userState));
+    }
 
-        // Act
-        var cut = _ctx.RenderComponent<LoginDisplay>();
+    private static UserStateProvider CreateUserStateProvider(UserModel? currentUser)
+    {
+        var provider = new UserStateProvider();
 
-        // Assert
-        cut.FindAll("[data-testid='access-token-button']").Count.ShouldBe(0);
+        if (currentUser is null)
+        {
+            return provider;
+        }
+
+        var property = typeof(UserStateProvider).GetProperty(nameof(UserStateProvider.CurrentUser));
+        property!.SetValue(provider, currentUser);
+
+        return provider;
     }
 }

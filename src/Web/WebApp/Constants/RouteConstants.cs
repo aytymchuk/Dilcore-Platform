@@ -14,4 +14,13 @@ public static class RouteConstants
     {
         public const string Register = "/register";
     }
+
+    public static class Workspace
+    {
+        public const string Prefix = "workspaces";
+        public const string TenantRoot = "/workspaces/{tenant}";
+        public const string RouteParameter = "tenant";
+
+        public static string ForTenant(string systemName) => $"/workspaces/{systemName}";
+    }
 }

@@ -5,7 +5,6 @@
            Size="@Size" 
            EndIcon="@(IsProcessing ? null : ButtonIcon)" 
            Disabled="@(Disabled || IsProcessing)"
-           Elevation="0"
            FullWidth="@FullWidth"
            Class="@($"rounded-pill shadow-none {Class}")" 
            Style="@GetButtonStyle()"

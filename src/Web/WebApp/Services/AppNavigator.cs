@@ -9,6 +9,7 @@ public interface IAppNavigator
     void ToLogin();
     void ToLogout();
     void ToRegister();
+    void ToTenantWorkspace(string tenantSystemName);
 }
 
 public class AppNavigator : IAppNavigator
@@ -27,4 +28,6 @@ public class AppNavigator : IAppNavigator
     public void ToLogout() => _navigationManager.NavigateTo(RouteConstants.Identity.Logout, forceLoad: true);
 
     public void ToRegister() => _navigationManager.NavigateTo(RouteConstants.Users.Register);
+
+    public void ToTenantWorkspace(string tenantSystemName) => _navigationManager.NavigateTo(RouteConstants.Workspace.ForTenant(tenantSystemName));
 }
