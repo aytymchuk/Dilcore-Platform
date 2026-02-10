@@ -4,6 +4,6 @@ using Dilcore.WebApp.Models.Tenants;
 namespace Dilcore.WebApp.Features.Tenants.Get;
 
 /// <summary>
-/// Query to get a tenant by its system name.
+/// Query to get the current tenant based on the context.
 /// </summary>
-public record GetTenantBySystemNameQuery(string SystemName) : IQuery<Tenant>;
+public record GetTenantBySystemNameQuery() : IQuery<Tenant>;

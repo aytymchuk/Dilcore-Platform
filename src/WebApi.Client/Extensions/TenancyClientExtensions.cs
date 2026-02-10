@@ -8,7 +8,7 @@ namespace Dilcore.WebApi.Client.Extensions;
 /// <summary>
 /// Extension methods for ITenancyClient that provide Result-based error handling.
 /// </summary>
-internal static class TenancyClientExtensions
+public static class TenancyClientExtensions
 {
     /// <summary>
     /// Safely creates a new tenant, returning a Result instead of throwing exceptions.

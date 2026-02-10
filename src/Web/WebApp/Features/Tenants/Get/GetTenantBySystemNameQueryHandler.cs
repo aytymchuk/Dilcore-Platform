@@ -1,12 +1,13 @@
 using Dilcore.MediatR.Abstractions;
 using Dilcore.WebApi.Client.Clients;
+using Dilcore.WebApi.Client.Extensions;
 using Dilcore.WebApp.Models.Tenants;
 using FluentResults;
 
 namespace Dilcore.WebApp.Features.Tenants.Get;
 
 /// <summary>
-/// Handler for GetTenantBySystemNameQuery that retrieves tenant from the list and filters by system name.
+/// Handler for GetTenantBySystemNameQuery that retrieves the current tenant from the context.
 /// </summary>
 public class GetTenantBySystemNameQueryHandler : IQueryHandler<GetTenantBySystemNameQuery, Tenant>
 {
@@ -19,15 +20,14 @@ public class GetTenantBySystemNameQueryHandler : IQueryHandler<GetTenantBySystem
 
     public async Task<Result<Tenant>> Handle(GetTenantBySystemNameQuery request, CancellationToken cancellationToken)
     {
-        var tenants = await _tenancyClient.GetTenantsListAsync(cancellationToken);
+        var result = await _tenancyClient.SafeGetTenantAsync(cancellationToken);
 
-        var tenantDto = tenants.FirstOrDefault(t => 
-            string.Equals(t.SystemName, request.SystemName, StringComparison.OrdinalIgnoreCase));
-
-        if (tenantDto == null)
+        if (result.IsFailed)
         {
-            return Result.Fail<Tenant>($"Tenant with system name '{request.SystemName}' not found.");
+            return result.ToResult();
         }
+
+        var tenantDto = result.Value;
 
         var tenant = new Tenant
         {
