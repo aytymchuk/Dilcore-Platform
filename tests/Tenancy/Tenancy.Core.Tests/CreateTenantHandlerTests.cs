@@ -3,6 +3,7 @@ using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Core.Features.Create;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using ActorDto = Dilcore.Tenancy.Actors.Abstractions.TenantDto;
@@ -23,7 +24,7 @@ public class CreateTenantHandlerTests
     public void SetUp()
     {
         _grainFactoryMock = new Mock<IGrainFactory>();
-        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var loggerFactory = new NullLoggerFactory();
         
         var config = new MapperConfiguration(cfg => cfg.AddMaps(typeof(TenantMappingProfile).Assembly), loggerFactory);
         _mapper = config.CreateMapper();

@@ -28,15 +28,7 @@ public class GetTenantListQueryHandler : IQueryHandler<GetTenantListQuery, List<
     {
         var tenants = await _tenancyClient.GetTenantsListAsync(cancellationToken);
 
-        var tenantModels = tenants.Select(t => new Tenant
-            {
-                Id = t.Id,
-                Name = t.Name,
-                SystemName = t.SystemName,
-                Description = t.Description,
-                StoragePrefix = t.StoragePrefix,
-                CreatedAt = t.CreatedAt
-            }).ToList();
+        var tenantModels = tenants.Select(t => t.ToModel()).ToList();
 
         return Result.Ok(tenantModels);
     }

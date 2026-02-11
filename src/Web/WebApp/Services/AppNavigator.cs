@@ -29,5 +29,13 @@ public class AppNavigator : IAppNavigator
 
     public void ToRegister() => _navigationManager.NavigateTo(RouteConstants.Users.Register);
 
-    public void ToTenantWorkspace(string tenantSystemName) => _navigationManager.NavigateTo(RouteConstants.Workspace.ForTenant(tenantSystemName));
+    public void ToTenantWorkspace(string tenantSystemName)
+    {
+        if (string.IsNullOrWhiteSpace(tenantSystemName))
+        {
+            return;
+        }
+
+        _navigationManager.NavigateTo(RouteConstants.Workspace.ForTenant(tenantSystemName));
+    }
 }

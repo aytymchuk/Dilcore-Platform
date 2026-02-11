@@ -4,13 +4,11 @@ using MudBlazor;
 
 namespace Dilcore.WebApp.Components.Layout;
 
-public partial class WorkspaceLayout : LayoutComponentBase
+public partial class WorkspaceLayout : ThemeAwareLayoutBase
 {
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
 
-    private MudThemeProvider? _mudThemeProvider;
-    private bool _isDarkMode;
     private string _searchText = string.Empty;
 
     private string Tenant => ExtractTenant();

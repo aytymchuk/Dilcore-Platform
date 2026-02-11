@@ -18,6 +18,8 @@ public static class ResultExtensions
 
     public static IResult ToMinimalApiResult<T>(this Result<T> result, Func<T, IResult> onSuccess)
     {
+        ArgumentNullException.ThrowIfNull(onSuccess);
+
         if (result.IsSuccess)
         {
             return onSuccess(result.Value);

@@ -78,6 +78,5 @@
     <PackageVersion Include="MudBlazor" Version="8.15.0" />
     <PackageVersion Include="bunit.web" Version="1.40.0" />
     <!-- Performance Optimization -->
-    <PackageVersion Include="ZLinq" Version="1.0.0" />
   </ItemGroup>
 </Project>

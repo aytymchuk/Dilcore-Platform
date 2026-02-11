@@ -3,7 +3,7 @@
 <MudGrid Spacing="6">
     @if (_tenants == null)
     {
-        <MudItem xs="12">
+        <MudItem xs="12" data-testid="loading-tenants">
             <MudText>Loading tenants...</MudText>
         </MudItem>
     }
@@ -11,12 +11,12 @@
     {
         @foreach (var tenant in _tenants)
         {
-            <MudItem xs="12" sm="6" md="4" lg="3">
+            <MudItem xs="12" sm="6" md="4" lg="3" data-testid="tenant-card">
                 <EntityCard 
                     Title="@tenant.Name" 
                     Subtitle="@tenant.SystemName" 
                     Description="@tenant.Description"
-                    Label="Active"
+                    Label="@(IsActive(tenant) ? "Active" : null)"
                     LabelColor="Color.Success"
                     LabelBackgroundColor="rgba(16, 185, 129, 0.1)"
                     LabelBorderColor="rgba(16, 185, 129, 0.2)"
@@ -30,7 +30,7 @@
         }
 
         @* Card: Deploy New Tenant *@
-        <MudItem xs="12" sm="6" md="4" lg="3">
+        <MudItem xs="12" sm="6" md="4" lg="3" data-testid="create-tenant-card">
             <CreateEntityCard OnClick="OpenCreateDialog" />
         </MudItem>
     }

@@ -4,7 +4,7 @@ namespace Dilcore.WebApp.Tests.Routing;
 
 public class TenantRouteHelperTests
 {
-    [Test]
+
     [TestCase("/workspaces/acme", ExpectedResult = "acme")]
     [TestCase("/workspaces/acme/settings", ExpectedResult = "acme")]
     [TestCase("/workspaces/acme/settings/billing", ExpectedResult = "acme")]
@@ -14,7 +14,6 @@ public class TenantRouteHelperTests
         return TenantRouteHelper.ExtractTenantFromPath(path);
     }
 
-    [Test]
     [TestCase(null)]
     [TestCase("")]
     [TestCase("/")]

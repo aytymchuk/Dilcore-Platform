@@ -136,11 +136,11 @@ public class GetTenantsListHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        var tenantDtos = result.ShouldBeSuccessWithValue();
-        tenantDtos.Count.ShouldBe(3);
-        tenantDtos[0].SystemName.ShouldBe(tenant1SystemName);
-        tenantDtos[1].SystemName.ShouldBe(tenant2SystemName);
-        tenantDtos[2].SystemName.ShouldBe(tenant3SystemName);
+        var retrievedTenants = result.ShouldBeSuccessWithValue();
+        retrievedTenants.Count.ShouldBe(3);
+        retrievedTenants[0].SystemName.ShouldBe(tenant1SystemName);
+        retrievedTenants[1].SystemName.ShouldBe(tenant2SystemName);
+        retrievedTenants[2].SystemName.ShouldBe(tenant3SystemName);
     }
 
     [Test]
@@ -214,8 +214,8 @@ public class GetTenantsListHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         // Assert
-        var tenantDtos = result.ShouldBeSuccessWithValue();
-        var dto = tenantDtos.ShouldHaveSingleItem();
+        var tenants = result.ShouldBeSuccessWithValue();
+        var dto = tenants.ShouldHaveSingleItem();
         dto.Id.ShouldBe(tenantId);
         dto.Name.ShouldBe(tenantName);
         dto.SystemName.ShouldBe(tenantSystemName);

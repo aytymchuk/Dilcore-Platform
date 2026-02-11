@@ -52,6 +52,7 @@
                 </MudCardContent>
                 <MudCardActions Class="px-0 pt-4">
                     <EntityPrimaryButton Disabled="@(!_isFormValid || IsLoading)"
+                                IsProcessing="@IsLoading"
                                 OnClick="OnSubmitAsync"
                                 ButtonText="Complete Registration"
                                 FullWidth="true" />

@@ -9,7 +9,7 @@ namespace Dilcore.WebApp.Http;
 /// DelegatingHandler that adds the access token from the current user's claims to outgoing HTTP requests.
 /// Also adds the x-tenant header when a tenant context is available.
 /// </summary>
-internal class AccessTokenDelegatingHandler : DelegatingHandler
+internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 

@@ -38,7 +38,7 @@ public static class EndpointExtensions
             var result = await mediator.Send(command, cancellationToken);
             return result
                 .Map(MapToContractDto)
-                .ToMinimalApiResult(tenant => Microsoft.AspNetCore.Http.Results.Created("/tenants", tenant));
+                .ToMinimalApiResult(tenant => Microsoft.AspNetCore.Http.Results.Created($"/tenants/current", tenant));
         })
         .WithName("CreateTenant")
         .Produces<ContractTenantDto>()

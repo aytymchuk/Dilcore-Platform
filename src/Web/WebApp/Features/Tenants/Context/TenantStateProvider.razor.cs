@@ -13,9 +13,6 @@ public partial class TenantStateProvider : ComponentBase
     [Inject]
     private ISender Sender { get; set; } = null!;
 
-    [Inject]
-    private NavigationManager NavigationManager { get; set; } = null!;
-
     [Parameter, EditorRequired]
     public string SystemName { get; set; } = string.Empty;
 
@@ -26,17 +23,14 @@ public partial class TenantStateProvider : ComponentBase
 
     public string? ErrorMessage { get; private set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadTenantAsync();
-    }
-
     protected override async Task OnParametersSetAsync()
     {
-        if (!string.IsNullOrEmpty(SystemName))
+        if (string.IsNullOrEmpty(SystemName))
         {
-            await LoadTenantAsync();
+            return;
         }
+        
+        await LoadTenantAsync();
     }
 
     private async Task LoadTenantAsync()
@@ -49,14 +43,26 @@ public partial class TenantStateProvider : ComponentBase
 
         var result = await Sender.Send(new GetTenantBySystemNameQuery());
 
-        if (result.IsSuccess && result.Value is not null)
+        if (result.IsFailed)
         {
-            CurrentTenantState = new TenantState(result.Value.SystemName, result.Value.Name);
-            ErrorMessage = null;
+            ErrorMessage = result.Errors.First().Message;
             return;
         }
 
-        ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
-        CurrentTenantState = null;
+        if (result.ValueOrDefault is null)
+        {
+            ErrorMessage = "Tenant not found.";
+            return;
+        }
+
+        if (!result.Value.SystemName.Equals(SystemName, StringComparison.OrdinalIgnoreCase))
+        {
+            ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
+            CurrentTenantState = null;
+            return;
+        }
+
+        CurrentTenantState = new TenantState(result.Value.SystemName, result.Value.Name);
+        ErrorMessage = null;
     }
 }

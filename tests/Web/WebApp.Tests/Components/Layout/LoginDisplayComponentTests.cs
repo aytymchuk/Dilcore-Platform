@@ -114,8 +114,7 @@ public class LoginDisplayComponentTests
             return provider;
         }
 
-        var property = typeof(UserStateProvider).GetProperty(nameof(UserStateProvider.CurrentUser));
-        property!.SetValue(provider, currentUser);
+        provider.CurrentUser = currentUser;
 
         return provider;
     }

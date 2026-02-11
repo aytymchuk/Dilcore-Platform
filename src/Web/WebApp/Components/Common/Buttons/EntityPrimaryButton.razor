@@ -1,12 +1,12 @@
-@using MudBlazor
-
-<EntityBaseButton Variant="Variant.Filled"
-                  ButtonText="@ButtonText"
-                  ButtonIcon="@ButtonIcon"
-                  ButtonColor="@ButtonColor"
-                  OnClick="@OnClick"
-                  IsProcessing="@IsProcessing"
-                  Disabled="@Disabled"
-                  Class="@Class"
-                  FullWidth="@FullWidth"
-                  Size="@Size" />
+<EntityBaseButton 
+    ButtonText="@ButtonText"
+    ButtonIcon="@ButtonIcon"
+    ButtonColor="@ButtonColor"
+    OnClick="OnClick"
+    IsProcessing="@IsProcessing"
+    Disabled="@Disabled"
+    Class="@Class"
+    FullWidth="@FullWidth"
+    Size="@Size"
+    Variant="@Variant"
+    @attributes="AdditionalAttributes" />

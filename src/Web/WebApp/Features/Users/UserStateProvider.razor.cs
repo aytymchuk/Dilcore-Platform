@@ -29,7 +29,7 @@ public partial class UserStateProvider : AsyncComponentBase
     /// <summary>
     /// Gets the current user, or null if not loaded or not found.
     /// </summary>
-    public UserModel? CurrentUser { get; private set; }
+    public UserModel? CurrentUser { get; internal set; }
 
     /// <summary>
     /// Gets whether the user was not found (needs registration).

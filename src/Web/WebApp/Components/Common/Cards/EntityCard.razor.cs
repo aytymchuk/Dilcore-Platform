@@ -33,6 +33,28 @@ public partial class EntityCard
         return $"background-image: linear-gradient(to bottom right, {GradientStart}, {GradientEnd});";
     }
 
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrWhiteSpace(GradientStart) || !IsValidCssColor(GradientStart)) GradientStart = "#1e3a8a";
+        if (string.IsNullOrWhiteSpace(GradientEnd) || !IsValidCssColor(GradientEnd)) GradientEnd = "#0f172a";
+        
+        // Ensure label colors are valid if provided, otherwise fallback or clear them to avoid broken styles
+        if (!string.IsNullOrEmpty(LabelBackgroundColor) && !IsValidCssColor(LabelBackgroundColor)) LabelBackgroundColor = null;
+        if (!string.IsNullOrEmpty(LabelBorderColor) && !IsValidCssColor(LabelBorderColor)) LabelBorderColor = null;
+        if (!string.IsNullOrEmpty(LabelTextColor) && !IsValidCssColor(LabelTextColor)) LabelTextColor = null;
+    }
+
+    private bool IsValidCssColor(string color)
+    {
+        if (string.IsNullOrWhiteSpace(color)) return false;
+        // Basic loose validation for Hex, RGB, RGBA, HSL, HSLA, or named colors
+        return color.StartsWith("#") || 
+               color.StartsWith("rgb", StringComparison.OrdinalIgnoreCase) || 
+               color.StartsWith("hsl", StringComparison.OrdinalIgnoreCase) ||
+               char.IsLetter(color[0]); // Named colors
+    }
+
+
     private string GetLabelStyle()
     {
         var style = "border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 0.75rem; backdrop-filter: blur(4px);";

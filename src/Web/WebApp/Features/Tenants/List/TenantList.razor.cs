@@ -17,6 +17,11 @@ public partial class TenantList : AsyncComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadTenantsAsync();
+    }
+
+    private async Task LoadTenantsAsync()
+    {
         await ExecuteBusyAsync(async () =>
         {
             var result = await Mediator.Send(new GetTenantListQuery());
@@ -26,8 +31,8 @@ public partial class TenantList : AsyncComponentBase
             }
             else
             {
-                // Handle error (e.g., show snackbar)
-                _tenants = new List<Tenant>();
+                // Error handled in Behavior
+                 _tenants = new List<Tenant>();
             }
         });
     }
@@ -50,6 +55,14 @@ public partial class TenantList : AsyncComponentBase
         {
             await OnInitializedAsync();
         }
+    }
+
+    [CascadingParameter]
+    public TenantState? CurrentTenantState { get; set; }
+
+    private bool IsActive(Tenant tenant)
+    {
+        return CurrentTenantState?.SystemName == tenant.SystemName;
     }
 
     private void OnTenantSelected(Tenant tenant)

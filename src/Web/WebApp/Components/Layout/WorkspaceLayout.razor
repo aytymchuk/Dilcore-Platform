@@ -1,7 +1,8 @@
 @using Dilcore.WebApp.Features.Users
 @using Dilcore.WebApp.Components.Themes
 @using Dilcore.WebApp.Features.Tenants.Context
-@inherits LayoutComponentBase
+@using Dilcore.WebApp.Components.Layout
+@inherits ThemeAwareLayoutBase
 
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="FutureSlateTheme.Default" />
 <MudPopoverProvider />
@@ -13,10 +14,7 @@
         <MudLayout>
             <MudAppBar Elevation="0" Dense="true" Style="background-color: var(--mud-palette-surface); border-bottom: 1px solid var(--mud-palette-lines-default);">
                 <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" />
-                @if (!string.IsNullOrEmpty(TenantName))
-                {
-                    <MudText Typo="Typo.subtitle1" Class="ml-2" Style="font-weight: 600;">@TenantName</MudText>
-                }
+                <TenantTitle FallbackName="@TenantName" />
                 <MudSpacer />
                 <MudTextField @bind-Value="_searchText" 
                               Placeholder="Search..." 

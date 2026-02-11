@@ -12,6 +12,7 @@ using Shouldly;
 
 namespace Dilcore.WebApp.Tests.Features.Tenants.List;
 
+[TestFixture]
 public class TenantListComponentTests
 {
     private Bunit.TestContext _ctx = default!;
@@ -56,7 +57,7 @@ public class TenantListComponentTests
         var cut = _ctx.RenderComponent<TenantList>();
 
         // Assert
-        cut.Markup.ShouldContain("Loading tenants...");
+        cut.Find("div[data-testid='loading-tenants']").TextContent.ShouldContain("Loading tenants...");
     }
 
     [Test]
@@ -70,9 +71,12 @@ public class TenantListComponentTests
         var cut = _ctx.RenderComponent<TenantList>();
 
         // Assert — one EntityCard per tenant + one CreateEntityCard
-        cut.Markup.ShouldContain("Acme Corp");
-        cut.Markup.ShouldContain("Fin Consult");
-        cut.Markup.ShouldNotContain("Loading tenants...");
+        var cards = cut.FindAll("div[data-testid='tenant-card']");
+        cards.Count.ShouldBe(2);
+        cards[0].TextContent.ShouldContain("Acme Corp");
+        cards[1].TextContent.ShouldContain("Fin Consult");
+        
+        cut.FindAll("div[data-testid='loading-tenants']").ShouldBeEmpty();
     }
 
     [Test]
@@ -86,12 +90,17 @@ public class TenantListComponentTests
         var cut = _ctx.RenderComponent<TenantList>();
 
         // Assert — Name, SystemName (subtitle), Description visible
-        cut.Markup.ShouldContain("Acme Corp");
-        cut.Markup.ShouldContain("acme-corp");
-        cut.Markup.ShouldContain("Enterprise solutions provider");
-        cut.Markup.ShouldContain("Fin Consult");
-        cut.Markup.ShouldContain("fin-consult");
-        cut.Markup.ShouldContain("Financial consulting services");
+        var cards = cut.FindAll("div[data-testid='tenant-card']");
+        
+        var card1 = cards[0];
+        card1.TextContent.ShouldContain("Acme Corp");
+        card1.TextContent.ShouldContain("acme-corp");
+        card1.TextContent.ShouldContain("Enterprise solutions provider");
+
+        var card2 = cards[1];
+        card2.TextContent.ShouldContain("Fin Consult");
+        card2.TextContent.ShouldContain("fin-consult");
+        card2.TextContent.ShouldContain("Financial consulting services");
     }
 
     [Test]
@@ -104,7 +113,7 @@ public class TenantListComponentTests
         var cut = _ctx.RenderComponent<TenantList>();
 
         // Assert — CreateEntityCard always renders its "Deploy New Tenant" text
-        cut.Markup.ShouldContain("Deploy New Tenant");
+        cut.Find("div[data-testid='create-tenant-card']").TextContent.ShouldContain("Deploy New Tenant");
     }
 
     [Test]
@@ -120,7 +129,9 @@ public class TenantListComponentTests
         var cut = _ctx.RenderComponent<TenantList>();
 
         // Act — click the EntityCard button (EntityPrimaryButton renders as a MudButton)
-        var selectButton = cut.FindAll("button").FirstOrDefault(b => b.TextContent.Contains("Select"));
+        // Find the card, then find the button inside it
+        var card = cut.Find("div[data-testid='tenant-card']");
+        var selectButton = card.QuerySelector("button");
         selectButton.ShouldNotBeNull();
         selectButton.Click();
 
@@ -138,9 +149,9 @@ public class TenantListComponentTests
         var cut = _ctx.RenderComponent<TenantList>();
 
         // Assert — no tenant cards, but CreateEntityCard still rendered
-        cut.Markup.ShouldNotContain("Loading tenants...");
-        cut.Markup.ShouldContain("Deploy New Tenant");
-        cut.FindAll(".entity-card-wrapper").Count.ShouldBe(0);
+        cut.FindAll("div[data-testid='loading-tenants']").ShouldBeEmpty();
+        cut.Find("div[data-testid='create-tenant-card']").TextContent.ShouldContain("Deploy New Tenant");
+        cut.FindAll("div[data-testid='tenant-card']").ShouldBeEmpty();
     }
 
     [Test]
@@ -156,24 +167,35 @@ public class TenantListComponentTests
         var cut = _ctx.RenderComponent<TenantList>();
 
         // Assert — should show CreateEntityCard but no tenant cards
-        cut.Markup.ShouldNotContain("Loading tenants...");
-        cut.Markup.ShouldContain("Deploy New Tenant");
-        cut.FindAll(".entity-card-wrapper").Count.ShouldBe(0);
+        cut.FindAll("div[data-testid='loading-tenants']").ShouldBeEmpty();
+        cut.Find("div[data-testid='create-tenant-card']").TextContent.ShouldContain("Deploy New Tenant");
+        cut.FindAll("div[data-testid='tenant-card']").ShouldBeEmpty();
     }
 
     [Test]
-    public void RendersActiveLabel_OnEachTenantCard()
+    public void RendersActiveLabel_OnActiveTenantCard()
     {
         // Arrange
         var tenants = CreateTestTenants();
         SetupSuccessfulQuery(tenants);
 
-        // Act
-        var cut = _ctx.RenderComponent<TenantList>();
+        // Make the first tenant active
+        var activeTenant = tenants[0];
+        var tenantState = new TenantState(activeTenant.SystemName!, activeTenant.Name!);
 
-        // Assert — TenantList hardcodes Label="Active" on each EntityCard
-        var activeLabels = cut.FindAll("span").Where(s => s.TextContent.Trim() == "Active").ToList();
-        activeLabels.Count.ShouldBe(tenants.Count);
+        // Act
+        var cut = _ctx.RenderComponent<TenantList>(parameters => parameters
+            .AddCascadingValue(tenantState)
+        );
+
+        // Assert
+        var cards = cut.FindAll("div[data-testid='tenant-card']");
+        
+        // First card (Active)
+        cards[0].TextContent.ShouldContain("Active");
+        
+        // Second card (Inactive)
+        cards[1].TextContent.ShouldNotContain("Active");
     }
 
     private void SetupSuccessfulQuery(List<Tenant> tenants)

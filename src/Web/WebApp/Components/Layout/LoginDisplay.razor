@@ -1,18 +1,13 @@
 @using Dilcore.WebApp.Constants
-@using Microsoft.AspNetCore.Hosting
-@using Dilcore.WebApp.Features.Users
-
 <AuthorizeView>
     <Authorized>
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <ActivatorContent>
                 <MudAvatar Color="Color.Secondary" Variant="Variant.Filled">
-                    @(UserState.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                    @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
                 </MudAvatar>
             </ActivatorContent>
             <ChildContent>
-                <MudMenuItem>Profile</MudMenuItem>
-                <MudMenuItem>Theme Preferences</MudMenuItem>
                 <MudMenuItem Href="@RouteConstants.Identity.Logout">Sign Out</MudMenuItem>
             </ChildContent>
         </MudMenu>

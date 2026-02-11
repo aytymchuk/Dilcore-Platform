@@ -3,6 +3,7 @@ using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Validation;
 using Dilcore.WebApi.Client.Clients;
+using Dilcore.WebApp.Extensions;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -12,6 +13,7 @@ public partial class CreateTenantDialog : AsyncComponentBase
 {
     [Inject] private ITenancyClient TenancyClient { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private ILogger<CreateTenantDialog> Logger { get; set; } = default!;
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     private MudForm _form = default!;
@@ -43,8 +45,7 @@ public partial class CreateTenantDialog : AsyncComponentBase
             }
             catch (Exception ex)
             {
-                // In production, we should log this properly.
-                // Assuming Logger is available via base class or extension, but here we show UI feedback.
+                Logger.LogTenantCreationError(ex);
                 Snackbar.Add($"Failed to create tenant: {ex.Message}", Severity.Error);
             }
         });

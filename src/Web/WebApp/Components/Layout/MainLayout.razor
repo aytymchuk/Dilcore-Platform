@@ -1,6 +1,6 @@
 @using Dilcore.WebApp.Components.Themes
 @using Dilcore.WebApp.Features.Users
-@inherits LayoutComponentBase
+@inherits ThemeAwareLayoutBase
 
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="FutureSlateTheme.Default" />
 <MudPopoverProvider />

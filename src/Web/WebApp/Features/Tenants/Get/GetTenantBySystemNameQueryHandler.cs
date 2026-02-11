@@ -29,15 +29,7 @@ public class GetTenantBySystemNameQueryHandler : IQueryHandler<GetTenantBySystem
 
         var tenantDto = result.Value;
 
-        var tenant = new Tenant
-        {
-            Id = tenantDto.Id,
-            Name = tenantDto.Name,
-            SystemName = tenantDto.SystemName,
-            Description = tenantDto.Description,
-            StoragePrefix = tenantDto.StoragePrefix,
-            CreatedAt = tenantDto.CreatedAt
-        };
+        var tenant = tenantDto.ToModel();
 
         return Result.Ok(tenant);
     }

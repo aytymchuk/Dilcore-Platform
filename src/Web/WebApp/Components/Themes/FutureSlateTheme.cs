@@ -29,20 +29,20 @@ public static class FutureSlateTheme
             },
             PaletteDark = new PaletteDark()
             {
-                Primary = "#2563eb", // Primary Cobalt
-                Secondary = "#22d3ee", // Secondary Cyan
-                Background = "#0f172a", // Deep Navy/Cobalt
-                AppbarBackground = "#0f172a", 
-                AppbarText = "#ffffff",
-                DrawerBackground = "#0f172a",
-                Surface = "#1e293b", // Surface Container
-                TextPrimary = "#ffffff", // On Primary / High Contrast
-                TextSecondary = "#94a3b8", // Slate 400
-                ActionDefault = "#2563eb",
-                Success = "#10b981", // Validation
-                Warning = "#f59e0b", // Cautionary
-                Error = "#ef5350", // Destructive
-                Info = "#2563eb"
+                Primary = "#2563EB", // Primary Cobalt
+                Secondary = "#22D3EE", // Secondary Cyan
+                Background = "#0F172A", // Deep Navy/Cobalt
+                AppbarBackground = "#0F172A", 
+                AppbarText = "#FFFFFF",
+                DrawerBackground = "#0F172A",
+                Surface = "#1E293B", // Surface Container
+                TextPrimary = "#FFFFFF", // On Primary / High Contrast
+                TextSecondary = "#94A3B8", // Slate 400
+                ActionDefault = "#2563EB",
+                Success = "#10B981", // Validation
+                Warning = "#F59E0B", // Cautionary
+                Error = "#EF5350", // Destructive
+                Info = "#2563EB"
             }
         };
 

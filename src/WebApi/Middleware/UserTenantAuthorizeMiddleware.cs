@@ -44,9 +44,9 @@ public class UserTenantAuthorizeMiddleware : IMiddleware
             return;
         }
 
-        var userTenants = context.User.FindAll(UserConstants.TenantsClaimType).Select(c => c.Value).ToHashSet();
+        var userTenants = context.User.FindAll(UserConstants.TenantsClaimType).Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (!string.IsNullOrWhiteSpace(tenantContext?.Name) && userTenants.Contains(tenantContext.Name, StringComparer.OrdinalIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(tenantContext?.Name) && userTenants.Contains(tenantContext.Name))
         {
             await next(context);
             return;

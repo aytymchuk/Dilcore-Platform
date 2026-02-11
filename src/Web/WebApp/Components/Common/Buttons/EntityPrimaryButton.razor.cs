@@ -14,4 +14,9 @@ public partial class EntityPrimaryButton
     [Parameter] public string? Class { get; set; }
     [Parameter] public bool FullWidth { get; set; }
     [Parameter] public Size Size { get; set; } = Size.Large;
+    [Parameter] public Variant Variant { get; set; } = Variant.Filled;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; } = new();
 }
+
