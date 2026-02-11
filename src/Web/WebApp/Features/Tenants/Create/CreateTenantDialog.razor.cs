@@ -46,7 +46,7 @@ public partial class CreateTenantDialog : AsyncComponentBase
             catch (Exception ex)
             {
                 Logger.LogTenantCreationError(ex);
-                Snackbar.Add($"Failed to create tenant: {ex.Message}", Severity.Error);
+                Snackbar.Add("Failed to create tenant. Please try again or contact support.", Severity.Error);
             }
         });
     }

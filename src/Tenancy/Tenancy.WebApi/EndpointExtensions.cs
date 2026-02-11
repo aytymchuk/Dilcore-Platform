@@ -1,5 +1,6 @@
 using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.Results.Extensions.Api;
+using Dilcore.Tenancy.Core.Extensions;
 using Dilcore.Tenancy.Core.Features.Create;
 using Dilcore.Tenancy.Core.Features.Get;
 using Dilcore.Tenancy.Core.Features.GetList;
@@ -37,7 +38,7 @@ public static class EndpointExtensions
             
             var result = await mediator.Send(command, cancellationToken);
             return result
-                .Map(MapToContractDto)
+                .Map(t => t.ToContract())
                 .ToMinimalApiResult(tenant => Microsoft.AspNetCore.Http.Results.Created($"/tenants/current", tenant));
         })
         .WithName("CreateTenant")
@@ -54,10 +55,10 @@ public static class EndpointExtensions
         {
             var query = new GetTenantsListQuery();
             var result = await mediator.Send(query, cancellationToken);
-            return result.Map(tenants => tenants.Select(MapToContractDto)).ToMinimalApiResult();
+            return result.Map(tenants => tenants.Select(t => t.ToContract())).ToMinimalApiResult();
         })
         .WithName("GetTenantsList")
-        .Produces<List<ContractTenantDto>>()
+        .Produces<IEnumerable<ContractTenantDto>>()
         .ProducesProblem(StatusCodes.Status401Unauthorized)
         .ExcludeFromMultiTenantResolution();
 
@@ -68,24 +69,11 @@ public static class EndpointExtensions
         {
             var query = new GetTenantQuery();
             var result = await mediator.Send(query, cancellationToken);
-            return result.Map(MapToContractDto).ToMinimalApiResult();
+            return result.Map(t => t.ToContract()).ToMinimalApiResult();
         })
         .WithName("GetCurrentTenant")
         .Produces<ContractTenantDto>()
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status401Unauthorized);
-    }
-
-    private static ContractTenantDto MapToContractDto(Domain.Tenant tenant)
-    {
-        return new ContractTenantDto
-        {
-            Id = tenant.Id,
-            Name = tenant.Name,
-            SystemName = tenant.SystemName,
-            StoragePrefix = tenant.StoragePrefix,
-            Description = tenant.Description,
-            CreatedAt = tenant.CreatedAt
-        };
     }
 }

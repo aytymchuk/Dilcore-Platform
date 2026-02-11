@@ -173,7 +173,7 @@ public class GetTenantsListHandlerTests
     }
 
     [Test]
-    public async Task Handle_ShouldMapPropertiesCorrectly_ToTenantDto()
+    public async Task Handle_ShouldMapPropertiesCorrectly_ToTenant()
     {
         // Arrange
         const string userId = "test-user-123";
@@ -215,14 +215,14 @@ public class GetTenantsListHandlerTests
 
         // Assert
         var tenants = result.ShouldBeSuccessWithValue();
-        var dto = tenants.ShouldHaveSingleItem();
-        dto.Id.ShouldBe(tenantId);
-        dto.Name.ShouldBe(tenantName);
-        dto.SystemName.ShouldBe(tenantSystemName);
-        dto.Description.ShouldBe(description);
-        dto.StoragePrefix.ShouldBe(storagePrefix);
-        dto.CreatedAt.ShouldBe(createdAt);
-        dto.CreatedById.ShouldBe(createdById);
+        var resultTenant = tenants.ShouldHaveSingleItem();
+        resultTenant.Id.ShouldBe(tenantId);
+        resultTenant.Name.ShouldBe(tenantName);
+        resultTenant.SystemName.ShouldBe(tenantSystemName);
+        resultTenant.Description.ShouldBe(description);
+        resultTenant.StoragePrefix.ShouldBe(storagePrefix);
+        resultTenant.CreatedAt.ShouldBe(createdAt);
+        resultTenant.CreatedById.ShouldBe(createdById);
     }
 
     [Test]

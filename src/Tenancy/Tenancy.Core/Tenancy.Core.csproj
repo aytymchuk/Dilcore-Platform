@@ -13,5 +13,6 @@
     <ProjectReference Include="..\..\Common\FluentResults\Results.Abstractions\Results.Abstractions.csproj" />
     <ProjectReference Include="..\..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+    <ProjectReference Include="..\Tenancy.Contracts\Tenancy.Contracts.csproj" />
   </ItemGroup>
 </Project>

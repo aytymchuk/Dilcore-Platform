@@ -1,8 +1,6 @@
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApi.Client.Clients;
 using FluentResults;
-using MediatR;
-
 using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.WebApp.Features.Tenants.List;

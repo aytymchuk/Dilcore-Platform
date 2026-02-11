@@ -11,7 +11,7 @@ namespace Dilcore.WebApi.Middleware;
 /// Middleware that enforces tenant access authorization.
 /// Verifies that the authenticated user belongs to the requested tenant.
 /// </summary>
-public class UserTenantAuthorizeMiddleware : IMiddleware
+public sealed class UserTenantAuthorizeMiddleware : IMiddleware
 {
     private readonly ILogger<UserTenantAuthorizeMiddleware> _logger;
     private readonly ITenantContextResolver _tenantContextResolver;

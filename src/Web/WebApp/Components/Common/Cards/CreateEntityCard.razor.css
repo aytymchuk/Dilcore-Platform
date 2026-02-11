@@ -9,11 +9,11 @@
 }
 
 .hover-bg-surface-container:hover {
-     background-color: var(--mud-palette-surface) !important;
+     background-color: rgba(var(--mud-palette-surface-rgb), 0.5) !important;
 }
 
 .mud-border-lines-default {
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: var(--mud-palette-lines-default);
 }
 
 /* Utility */

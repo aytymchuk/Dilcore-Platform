@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-
 namespace Dilcore.WebApp.Components.Pages;
 
 public partial class Counter

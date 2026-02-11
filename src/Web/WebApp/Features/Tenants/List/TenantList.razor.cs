@@ -9,9 +9,9 @@ namespace Dilcore.WebApp.Features.Tenants.List;
 
 public partial class TenantList : AsyncComponentBase
 {
-    [Inject] public ISender Mediator { get; set; } = default!;
-    [Inject] public IDialogService DialogService { get; set; } = default!;
-    [Inject] public IAppNavigator AppNavigator { get; set; } = default!;
+    [Inject] private ISender Mediator { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private IAppNavigator AppNavigator { get; set; } = default!;
 
     private List<Tenant>? _tenants;
 

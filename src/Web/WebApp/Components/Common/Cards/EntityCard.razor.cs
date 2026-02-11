@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using System.Text.RegularExpressions;
 using MudBlazor;
 
 namespace Dilcore.WebApp.Components.Common.Cards;
@@ -47,13 +48,11 @@ public partial class EntityCard
     private bool IsValidCssColor(string color)
     {
         if (string.IsNullOrWhiteSpace(color)) return false;
-        // Basic loose validation for Hex, RGB, RGBA, HSL, HSLA, or named colors
-        return color.StartsWith("#") || 
-               color.StartsWith("rgb", StringComparison.OrdinalIgnoreCase) || 
-               color.StartsWith("hsl", StringComparison.OrdinalIgnoreCase) ||
-               char.IsLetter(color[0]); // Named colors
+        
+        // Strict regex for Hex, RGB, RGBA, HSL, HSLA, or named colors
+        // Note: This is not a strict security boundary, but prevents obvious injection.
+        return ColorValidatorRegex().IsMatch(color.Trim());
     }
-
 
     private string GetLabelStyle()
     {
@@ -79,4 +78,7 @@ public partial class EntityCard
         }
         return style;
     }
+
+    [GeneratedRegex(@"^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d\.]+\s*\)|hsl\(\s*\d+\s*,\s*[\d\.]+%?\s*,\s*[\d\.]+%?\s*\)|hsla\(\s*\d+\s*,\s*[\d\.]+%?\s*,\s*[\d\.]+%?\s*,\s*[\d\.]+\s*\)|[a-zA-Z]+)$", RegexOptions.IgnoreCase)]
+    private static partial Regex ColorValidatorRegex();
 }

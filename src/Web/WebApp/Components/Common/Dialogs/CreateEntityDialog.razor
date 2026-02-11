@@ -1,8 +1,6 @@
-@using MudBlazor
-
-<MudDialog Gutters="false" Class="rounded-xl overflow-hidden" Style="background-color: var(--mud-palette-surface); box-shadow: var(--mud-elevation-25); border: 1px solid var(--mud-palette-lines-default);">
+<MudDialog Gutters="false" Class="rounded-xl overflow-hidden fade-in" Style="background-color: var(--mud-palette-surface); box-shadow: var(--mud-elevation-25); border: 1px solid var(--mud-palette-lines-default);">
     <DialogContent>
-        <MudStack Spacing="0" Class="pa-6 w-full max-w-lg transition-all animate-[fadeIn_0.3s_ease-out]">
+        <MudStack Spacing="0" Class="pa-6 w-full max-w-lg transition-all">
             <!-- Header -->
             <MudStack Spacing="1" Class="mb-6">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
@@ -22,7 +20,8 @@
             <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-8">
                 <EntitySecondaryButton 
                     ButtonText="Cancel"
-                    OnClick="Cancel" />
+                    OnClick="Cancel"
+                    Disabled="@IsProcessing" />
                 <EntityPrimaryButton 
                     OnClick="SubmitAsync" 
                     ButtonText="@SubmitButtonText"

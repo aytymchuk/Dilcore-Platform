@@ -45,7 +45,7 @@ public partial class TenantStateProvider : ComponentBase
 
         if (result.IsFailed)
         {
-            ErrorMessage = result.Errors.First().Message;
+            ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
             return;
         }
 
