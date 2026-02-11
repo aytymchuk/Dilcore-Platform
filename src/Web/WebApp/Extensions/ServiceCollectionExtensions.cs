@@ -44,6 +44,9 @@ public static class ServiceCollectionExtensions
             cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
         });
 
+        // Register the redirect behavior for 401 Unauthorized responses
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RedirectOnUnauthorizedBehavior<,>));
+
         // Register the snackbar result behavior for all ResultBase responses
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(SnackbarResultBehavior<,>));
 

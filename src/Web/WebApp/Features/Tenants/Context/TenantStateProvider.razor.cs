@@ -41,7 +41,7 @@ public partial class TenantStateProvider : ComponentBase
             return;
         }
 
-        var result = await Sender.Send(new GetTenantBySystemNameQuery());
+        var result = await Sender.Send(new GetTenantBySystemNameQuery(SystemName));
 
         if (result.IsFailed)
         {

@@ -33,4 +33,13 @@ public interface ITenancyClient
     /// <returns>The current tenant details.</returns>
     [Get("/tenants/current")]
     Task<TenantDto> GetTenantAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a specific tenant by its system name.
+    /// </summary>
+    /// <param name="systemName">The system name of the tenant.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The tenant details.</returns>
+    [Get("/tenants/{systemName}")]
+    Task<TenantDto> GetTenantAsync(string systemName, CancellationToken cancellationToken = default);
 }

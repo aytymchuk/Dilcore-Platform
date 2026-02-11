@@ -56,29 +56,13 @@ public partial class EntityCard
 
     private string GetLabelStyle()
     {
-        var style = "border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 0.75rem; backdrop-filter: blur(4px);";
-        if (!string.IsNullOrEmpty(LabelBackgroundColor))
-        {
-            style += $"background-color: {LabelBackgroundColor};";
-        }
+        var backgroundColor = !string.IsNullOrEmpty(LabelBackgroundColor) ? $"background-color: {LabelBackgroundColor};" : string.Empty;
+        var textColor = !string.IsNullOrEmpty(LabelTextColor) ? $"color: {LabelTextColor};" : string.Empty;
+        var borderColor = !string.IsNullOrEmpty(LabelBorderColor) ? $"border: 1px solid {LabelBorderColor};" : "border: 1px solid transparent;";
 
-        if (!string.IsNullOrEmpty(LabelTextColor))
-        {
-            style += $"color: {LabelTextColor};";
-        }
-
-        if (!string.IsNullOrEmpty(LabelBorderColor))
-        {
-            style += $"border: 1px solid {LabelBorderColor};";
-        }
-        else 
-        {
-            // Default transparent border to maintain layout
-             style += "border: 1px solid transparent;";
-        }
-        return style;
+        return $"border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 0.75rem; backdrop-filter: blur(4px); {backgroundColor} {textColor} {borderColor}";
     }
 
-    [GeneratedRegex(@"^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d\.]+\s*\)|hsl\(\s*\d+\s*,\s*[\d\.]+%?\s*,\s*[\d\.]+%?\s*\)|hsla\(\s*\d+\s*,\s*[\d\.]+%?\s*,\s*[\d\.]+%?\s*,\s*[\d\.]+\s*\)|[a-zA-Z]+)$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^(#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|(rgb|hsl)a?\([\s\d%.,/]+\)|[a-zA-Z]+)$", RegexOptions.IgnoreCase)]
     private static partial Regex ColorValidatorRegex();
 }

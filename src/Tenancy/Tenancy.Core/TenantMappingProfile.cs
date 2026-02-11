@@ -13,5 +13,8 @@ public class TenantMappingProfile : Profile
     {
         CreateMap<TenantDto, Tenant>()
             .ForMember(dest => dest.StoragePrefix, opt => opt.MapFrom(src => src.StorageIdentifier));
+
+        CreateMap<Tenant, TenantDto>()
+            .ForMember(dest => dest.StorageIdentifier, opt => opt.MapFrom(src => src.StoragePrefix));
     }
 }

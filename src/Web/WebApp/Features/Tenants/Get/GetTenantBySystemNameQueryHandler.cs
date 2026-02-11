@@ -20,7 +20,7 @@ public class GetTenantBySystemNameQueryHandler : IQueryHandler<GetTenantBySystem
 
     public async Task<Result<Tenant>> Handle(GetTenantBySystemNameQuery request, CancellationToken cancellationToken)
     {
-        var result = await _tenancyClient.SafeGetTenantAsync(cancellationToken);
+        var result = await _tenancyClient.SafeGetTenantAsync(request.SystemName, cancellationToken);
 
         if (result.IsFailed)
         {

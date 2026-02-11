@@ -1,5 +1,6 @@
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApi.Client.Clients;
+using Dilcore.WebApi.Client.Extensions;
 using FluentResults;
 using Dilcore.MediatR.Abstractions;
 
@@ -24,10 +25,8 @@ public class GetTenantListQueryHandler : IQueryHandler<GetTenantListQuery, List<
 
     public async Task<Result<List<Tenant>>> Handle(GetTenantListQuery request, CancellationToken cancellationToken)
     {
-        var tenants = await _tenancyClient.GetTenantsListAsync(cancellationToken);
+        var result = await _tenancyClient.SafeGetTenantsListAsync(cancellationToken);
 
-        var tenantModels = tenants.Select(t => t.ToModel()).ToList();
-
-        return Result.Ok(tenantModels);
+        return result.Map(tenants => tenants.Select(t => t.ToModel()).ToList());
     }
 }

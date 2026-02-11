@@ -6,10 +6,7 @@ public static class TenantMappingExtensions
 {
     public static Tenant ToModel(this TenantDto dto)
     {
-        if (dto is null)
-        {
-            throw new ArgumentNullException(nameof(dto));
-        }
+        ArgumentNullException.ThrowIfNull(dto);
 
         return new Tenant
         {
@@ -24,10 +21,7 @@ public static class TenantMappingExtensions
 
     public static TenantDto ToContract(this Tenant entity)
     {
-        if (entity is null)
-        {
-            throw new ArgumentNullException(nameof(entity));
-        }
+        ArgumentNullException.ThrowIfNull(entity);
 
         return new TenantDto
         {
