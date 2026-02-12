@@ -39,21 +39,6 @@ public static class TenancyClientExtensions
     }
 
     /// <summary>
-    /// Safely gets a specific tenant by its system name, returning a Result instead of throwing exceptions.
-    /// </summary>
-    /// <param name="client">The tenancy client.</param>
-    /// <param name="systemName">The system name of the tenant.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Result containing the tenant details or error information with ProblemDetails.</returns>
-    public static Task<Result<TenantDto>> SafeGetTenantAsync(
-        this ITenancyClient client,
-        string systemName,
-        CancellationToken cancellationToken = default)
-    {
-        return SafeApiInvoker.InvokeAsync(() => client.GetTenantAsync(systemName, cancellationToken));
-    }
-
-    /// <summary>
     /// Safely gets the list of tenants, returning a Result instead of throwing exceptions.
     /// </summary>
     /// <param name="client">The tenancy client.</param>
