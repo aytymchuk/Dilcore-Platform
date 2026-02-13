@@ -6,6 +6,7 @@ using FluentResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Shouldly;
 
 namespace Dilcore.Identity.Actors.Tests.Storage;
 
@@ -146,8 +147,8 @@ public class UserGrainStorageTests
             .ReturnsAsync(Result.Fail("DB error"));
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _storage.ReadStateAsync("UserStore", _grainId, _grainStateMock.Object));
+        await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await _storage.ReadStateAsync("UserStore", _grainId, _grainStateMock.Object));
 
         // Verify scope was created before failure
         await Task.Delay(10); // Allow async to execute
@@ -166,8 +167,8 @@ public class UserGrainStorageTests
             .ReturnsAsync(Result.Fail("DB error"));
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _storage.WriteStateAsync("UserStore", _grainId, _grainStateMock.Object));
+        await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await _storage.WriteStateAsync("UserStore", _grainId, _grainStateMock.Object));
 
         // Verify scope was created and RecordExists/ETag not set on failure
         await Task.Delay(10); // Allow async to execute
@@ -199,29 +200,29 @@ public class UserGrainStorageTests
     }
 
     [Test]
-    public void WriteStateAsync_ShouldThrow_WhenStateIsInvalidType()
+    public async Task WriteStateAsync_ShouldThrow_WhenStateIsInvalidType()
     {
         // Arrange
         _grainStateMock.SetupGet(x => x.State).Returns(new object()); // Invalid type
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _storage.WriteStateAsync("UserStore", _grainId, _grainStateMock.Object));
+        await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await _storage.WriteStateAsync("UserStore", _grainId, _grainStateMock.Object));
     }
 
     [Test]
-    public void ClearStateAsync_ShouldThrow_WhenStateIsInvalidType()
+    public async Task ClearStateAsync_ShouldThrow_WhenStateIsInvalidType()
     {
         // Arrange
         _grainStateMock.SetupGet(x => x.State).Returns(new object()); // Invalid type
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _storage.ClearStateAsync("UserStore", _grainId, _grainStateMock.Object));
+        await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await _storage.ClearStateAsync("UserStore", _grainId, _grainStateMock.Object));
     }
 
     [Test]
-    public void ClearStateAsync_ShouldThrow_WhenRepositoryFails()
+    public async Task ClearStateAsync_ShouldThrow_WhenRepositoryFails()
     {
         // Arrange
         var userState = new UserState { IdentityId = IdentityId };
@@ -232,7 +233,7 @@ public class UserGrainStorageTests
             .ReturnsAsync(Result.Fail("DB error"));
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _storage.ClearStateAsync("UserStore", _grainId, _grainStateMock.Object));
+        await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await _storage.ClearStateAsync("UserStore", _grainId, _grainStateMock.Object));
     }
 }

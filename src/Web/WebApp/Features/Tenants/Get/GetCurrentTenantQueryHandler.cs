@@ -7,18 +7,18 @@ using FluentResults;
 namespace Dilcore.WebApp.Features.Tenants.Get;
 
 /// <summary>
-/// Handler for GetTenantBySystemNameQuery that retrieves the current tenant from the context.
+/// Handler for GetCurrentTenantQuery that retrieves the current tenant from the context.
 /// </summary>
-public class GetTenantBySystemNameQueryHandler : IQueryHandler<GetTenantBySystemNameQuery, Tenant>
+public class GetCurrentTenantQueryHandler : IQueryHandler<GetCurrentTenantQuery, Tenant>
 {
     private readonly ITenancyClient _tenancyClient;
 
-    public GetTenantBySystemNameQueryHandler(ITenancyClient tenancyClient)
+    public GetCurrentTenantQueryHandler(ITenancyClient tenancyClient)
     {
         _tenancyClient = tenancyClient;
     }
 
-    public async Task<Result<Tenant>> Handle(GetTenantBySystemNameQuery request, CancellationToken cancellationToken)
+    public async Task<Result<Tenant>> Handle(GetCurrentTenantQuery request, CancellationToken cancellationToken)
     {
         var result = await _tenancyClient.SafeGetTenantAsync(cancellationToken);
 

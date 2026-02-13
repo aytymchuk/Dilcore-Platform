@@ -75,7 +75,7 @@ public class GetTenantsListHandlerTests
             Name = "Test Tenant",
             SystemName = tenantSystemName,
             Description = "Description",
-            StoragePrefix = "storage-prefix",
+            StorageIdentifier = "storage-identifier",
             CreatedAt = DateTime.UtcNow,
             CreatedById = userId
         };
@@ -121,9 +121,9 @@ public class GetTenantsListHandlerTests
 
         var tenants = new[]
         {
-            new Tenant { Id = Guid.CreateVersion7(), Name = "Tenant One", SystemName = tenant1SystemName, Description = "First", StoragePrefix = "prefix1", CreatedAt = DateTime.UtcNow, CreatedById = userId },
-            new Tenant { Id = Guid.CreateVersion7(), Name = "Tenant Two", SystemName = tenant2SystemName, Description = "Second", StoragePrefix = "prefix2", CreatedAt = DateTime.UtcNow, CreatedById = userId },
-            new Tenant { Id = Guid.CreateVersion7(), Name = "Tenant Three", SystemName = tenant3SystemName, Description = "Third", StoragePrefix = "prefix3", CreatedAt = DateTime.UtcNow, CreatedById = userId }
+            new Tenant { Id = Guid.CreateVersion7(), Name = "Tenant One", SystemName = tenant1SystemName, Description = "First", StorageIdentifier = "prefix1", CreatedAt = DateTime.UtcNow, CreatedById = userId },
+            new Tenant { Id = Guid.CreateVersion7(), Name = "Tenant Two", SystemName = tenant2SystemName, Description = "Second", StorageIdentifier = "prefix2", CreatedAt = DateTime.UtcNow, CreatedById = userId },
+            new Tenant { Id = Guid.CreateVersion7(), Name = "Tenant Three", SystemName = tenant3SystemName, Description = "Third", StorageIdentifier = "prefix3", CreatedAt = DateTime.UtcNow, CreatedById = userId }
         };
 
         _tenantRepositoryMock
@@ -138,9 +138,7 @@ public class GetTenantsListHandlerTests
         // Assert
         var retrievedTenants = result.ShouldBeSuccessWithValue();
         retrievedTenants.Count.ShouldBe(3);
-        retrievedTenants[0].SystemName.ShouldBe(tenant1SystemName);
-        retrievedTenants[1].SystemName.ShouldBe(tenant2SystemName);
-        retrievedTenants[2].SystemName.ShouldBe(tenant3SystemName);
+        retrievedTenants.Select(t => t.SystemName).ShouldBe(new[] { tenant1SystemName, tenant2SystemName, tenant3SystemName }, ignoreOrder: true);
     }
 
     [Test]
@@ -181,7 +179,7 @@ public class GetTenantsListHandlerTests
         var tenantId = Guid.CreateVersion7();
         const string tenantName = "Test Tenant";
         const string description = "Test Description";
-        const string storagePrefix = "test-storage";
+        const string storageIdentifier = "test-storage";
         var createdAt = DateTime.UtcNow;
         const string createdById = "creator-123";
 
@@ -199,7 +197,7 @@ public class GetTenantsListHandlerTests
             Name = tenantName,
             SystemName = tenantSystemName,
             Description = description,
-            StoragePrefix = storagePrefix,
+            StorageIdentifier = storageIdentifier,
             CreatedAt = createdAt,
             CreatedById = createdById
         };
@@ -220,7 +218,7 @@ public class GetTenantsListHandlerTests
         resultTenant.Name.ShouldBe(tenantName);
         resultTenant.SystemName.ShouldBe(tenantSystemName);
         resultTenant.Description.ShouldBe(description);
-        resultTenant.StoragePrefix.ShouldBe(storagePrefix);
+        resultTenant.StorageIdentifier.ShouldBe(storageIdentifier);
         resultTenant.CreatedAt.ShouldBe(createdAt);
         resultTenant.CreatedById.ShouldBe(createdById);
     }

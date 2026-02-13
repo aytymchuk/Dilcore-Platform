@@ -38,9 +38,9 @@ public class CreateTenantHandlerTests
         const string displayName = "My Test Tenant";
         const string expectedKebabName = "my-test-tenant";
         const string description = "A test tenant";
-        const string storagePrefix = "my-test-tenant";
+        const string storageIdentifier = "my-test-tenant";
 
-        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, expectedKebabName, description, storagePrefix, true, DateTime.UtcNow, null);
+        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, expectedKebabName, description, storageIdentifier, true, DateTime.UtcNow, null);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.Is<CreateTenantGrainCommand>(c => c.DisplayName == displayName && c.Description == description)))
             .ReturnsAsync(TenantCreationResult.Success(expectedDto));
@@ -65,9 +65,9 @@ public class CreateTenantHandlerTests
         const string displayName = "UPPERCASE With Spaces";
         const string expectedKebabName = "uppercase-with-spaces";
         const string description = "Test";
-        const string storagePrefix = "uppercase-with-spaces";
+        const string storageIdentifier = "uppercase-with-spaces";
 
-        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, expectedKebabName, description, storagePrefix, true, DateTime.UtcNow, null);
+        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, expectedKebabName, description, storageIdentifier, true, DateTime.UtcNow, null);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.Is<CreateTenantGrainCommand>(c => c.DisplayName == displayName)))
             .ReturnsAsync(TenantCreationResult.Success(expectedDto));
@@ -90,10 +90,10 @@ public class CreateTenantHandlerTests
         // Arrange
         const string displayName = "Return Test";
         const string description = "Description";
-        const string storagePrefix = "return-test";
+        const string storageIdentifier = "return-test";
         var createdAt = DateTime.UtcNow;
 
-        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, "return-test", description, storagePrefix, true, createdAt, null);
+        var expectedDto = new ActorDto(Guid.CreateVersion7(), displayName, "return-test", description, storageIdentifier, true, createdAt, null);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.CreateAsync(It.IsAny<CreateTenantGrainCommand>()))
             .ReturnsAsync(TenantCreationResult.Success(expectedDto));

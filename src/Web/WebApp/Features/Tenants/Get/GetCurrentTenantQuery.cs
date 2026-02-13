@@ -6,4 +6,4 @@ namespace Dilcore.WebApp.Features.Tenants.Get;
 /// <summary>
 /// Query to get the current tenant based on the context.
 /// </summary>
-public record GetTenantBySystemNameQuery() : IQuery<Tenant>;
+public record GetCurrentTenantQuery() : IQuery<Tenant>;

@@ -1,6 +1,5 @@
 using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.Results.Extensions.Api;
-using Dilcore.Tenancy.Core.Extensions;
 using Dilcore.Tenancy.Core.Features.Create;
 using Dilcore.Tenancy.Core.Features.Get;
 using Dilcore.Tenancy.Core.Features.GetList;
@@ -32,14 +31,15 @@ public static class EndpointExtensions
         group.MapPost("/", async (
             CreateTenantDto request,
             IMediator mediator,
+            AutoMapper.IMapper mapper,
             CancellationToken cancellationToken) =>
         {
             var command = new CreateTenantCommand(request.Name, request.Description);
             
             var result = await mediator.Send(command, cancellationToken);
             return result
-                .Map(t => t.ToContract())
-                .ToMinimalApiResult(tenant => Microsoft.AspNetCore.Http.Results.Created($"/tenants/current", tenant));
+                .Map(t => mapper.Map<ContractTenantDto>(t))
+                .ToMinimalApiResult(tenant => Results.Created($"/tenants/current", tenant));
         })
         .WithName("CreateTenant")
         .Produces<ContractTenantDto>()
@@ -51,11 +51,12 @@ public static class EndpointExtensions
         // GET /tenants - Get list of user's tenants (user-scoped, no x-tenant header)
         group.MapGet("/", async (
             IMediator mediator,
+            AutoMapper.IMapper mapper,
             CancellationToken cancellationToken) =>
         {
             var query = new GetTenantsListQuery();
             var result = await mediator.Send(query, cancellationToken);
-            return result.Map(tenants => tenants.Select(t => t.ToContract())).ToMinimalApiResult();
+            return result.Map(tenants => mapper.Map<IEnumerable<ContractTenantDto>>(tenants)).ToMinimalApiResult();
         })
         .WithName("GetTenantsList")
         .Produces<IEnumerable<ContractTenantDto>>()
@@ -65,11 +66,12 @@ public static class EndpointExtensions
         // GET /tenants/current - Get current tenant (uses x-tenant header)
         group.MapGet("/current", async (
             IMediator mediator,
+            AutoMapper.IMapper mapper,
             CancellationToken cancellationToken) =>
         {
             var query = new GetTenantQuery();
             var result = await mediator.Send(query, cancellationToken);
-            return result.Map(t => t.ToContract()).ToMinimalApiResult();
+            return result.Map(t => mapper.Map<ContractTenantDto>(t)).ToMinimalApiResult();
         })
         .WithName("GetCurrentTenant")
         .Produces<ContractTenantDto>()

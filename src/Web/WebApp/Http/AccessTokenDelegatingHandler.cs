@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Routing;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
@@ -15,13 +16,16 @@ internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly AuthenticationStateProvider _authenticationStateProvider;
+    private readonly NavigationManager _navigationManager;
 
     public AccessTokenDelegatingHandler(
         IHttpContextAccessor httpContextAccessor,
-        AuthenticationStateProvider authenticationStateProvider)
+        AuthenticationStateProvider authenticationStateProvider,
+        NavigationManager navigationManager)
     {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _authenticationStateProvider = authenticationStateProvider ?? throw new ArgumentNullException(nameof(authenticationStateProvider));
+        _navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -61,13 +65,20 @@ internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
         // Try to get tenant from HttpContext path first
         var path = _httpContextAccessor.HttpContext?.Request.Path.Value;
         
-        // If path is null (Blazor Server), we can't easily get it from URL here 
-        // unless we parse the Referer or rely on another service.
-        // However, for API calls, the Tenant might be needed.
-        // Let's rely on what we have. If no path, we skip.
-        // BETTER: Inject NavigationManager to get current URI?
-        // NavigationManager is Scoped. DelegatingHandler might be Transient.
-        
+        // Fallback to NavigationManager for Blazor Server
+        if (string.IsNullOrEmpty(path))
+        {
+            try
+            {
+                var uri = new Uri(_navigationManager.Uri);
+                path = uri.AbsolutePath;
+            }
+            catch
+            {
+                // Ignore parsing errors
+            }
+        }
+
         var tenantSystemName = !string.IsNullOrEmpty(path) 
             ? TenantRouteHelper.ExtractTenantFromPath(path)
             : null;

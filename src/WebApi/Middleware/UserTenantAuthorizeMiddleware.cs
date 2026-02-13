@@ -46,13 +46,13 @@ public sealed class UserTenantAuthorizeMiddleware : IMiddleware
 
         var userTenants = context.User.FindAll(UserConstants.TenantsClaimType).Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (!string.IsNullOrWhiteSpace(tenantContext.Name) && userTenants.Contains(tenantContext.Name))
+        if (!string.IsNullOrWhiteSpace(tenantContext?.Name) && userTenants.Contains(tenantContext.Name))
         {
             await next(context);
             return;
         }
 
-        _logger.LogTenantAccessForbidden(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown", tenantContext.Name ?? "unknown");
+        _logger.LogTenantAccessForbidden(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown", tenantContext?.Name ?? "unknown");
 
         throw new ForbiddenException("Access to tenant is forbidden.");
     }

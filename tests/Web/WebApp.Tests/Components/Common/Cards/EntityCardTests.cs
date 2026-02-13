@@ -92,6 +92,7 @@ public class EntityCardTests : Bunit.TestContext
     [TestCase("hsla(0, 100%, 50%, 0.5)")]
     [TestCase("red")]
     [TestCase("blueviolet")]
+    [TestCase("notacolor")]
     public void IsValidCssColor_ShouldAcceptValidColors(string validColor)
     {
          // Arrange & Act

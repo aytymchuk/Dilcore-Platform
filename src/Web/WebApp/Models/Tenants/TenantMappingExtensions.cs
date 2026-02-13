@@ -14,7 +14,7 @@ public static class TenantMappingExtensions
             Name = dto.Name,
             SystemName = dto.SystemName,
             Description = dto.Description,
-            StoragePrefix = dto.StoragePrefix,
+            StorageIdentifier = dto.StorageIdentifier,
             CreatedAt = dto.CreatedAt
         };
     }
@@ -28,7 +28,7 @@ public static class TenantMappingExtensions
             Id = entity.Id,
             Name = entity.Name,
             SystemName = entity.SystemName,
-            StoragePrefix = entity.StoragePrefix,
+            StorageIdentifier = entity.StorageIdentifier,
             Description = entity.Description,
             CreatedAt = entity.CreatedAt
         };

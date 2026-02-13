@@ -26,9 +26,9 @@ public record Tenant
     public string? Description { get; init; }
 
     /// <summary>
-    /// Gets or sets the storage prefix for the tenant.
+    /// Gets or sets the unique identifier for the tenant's storage.
     /// </summary>
-    public string StoragePrefix { get; init; } = string.Empty;
+    public string StorageIdentifier { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets when the tenant was created.

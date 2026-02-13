@@ -11,7 +11,7 @@ public sealed class TenantDocument : IDocumentEntity
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public required string StoragePrefix { get; set; }
+    public required string StorageIdentifier { get; set; }
     public required string SystemName { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
@@ -21,7 +21,7 @@ public sealed class TenantDocument : IDocumentEntity
     public static TenantDocument FromDomain(Tenant tenant) => new()
     {
         Id = tenant.Id,
-        StoragePrefix = tenant.StoragePrefix,
+        StorageIdentifier = tenant.StorageIdentifier,
         SystemName = tenant.SystemName,
         Name = tenant.Name,
         Description = tenant.Description,
@@ -35,7 +35,7 @@ public sealed class TenantDocument : IDocumentEntity
     public Tenant ToDomain() => new()
     {
         Id = Id,
-        StoragePrefix = StoragePrefix,
+        StorageIdentifier = StorageIdentifier,
         SystemName = SystemName,
         Name = Name,
         Description = Description,

@@ -26,9 +26,9 @@ public class TenantDto
     public string? Description { get; set; }
 
     /// <summary>
-    /// Gets or sets the storage prefix for the tenant.
+    /// Gets or sets the unique identifier for the tenant's storage.
     /// </summary>
-    public string StoragePrefix { get; set; } = string.Empty;
+    public string StorageIdentifier { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets when the tenant was created.

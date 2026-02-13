@@ -1,4 +1,5 @@
 using Dilcore.WebApp.Routing;
+using Shouldly;
 
 namespace Dilcore.WebApp.Tests.Routing;
 
@@ -28,7 +29,7 @@ public class TenantRouteHelperTests
     {
         var result = TenantRouteHelper.ExtractTenantFromPath(path);
 
-        Assert.That(result, Is.Null);
+        result.ShouldBeNull();
     }
 
     [Test]
@@ -36,7 +37,7 @@ public class TenantRouteHelperTests
     {
         var result = TenantRouteHelper.ExtractTenantFromPath("/WORKSPACES/acme");
 
-        Assert.That(result, Is.EqualTo("acme"));
+        result.ShouldBe("acme");
     }
 
     [Test]
@@ -44,6 +45,6 @@ public class TenantRouteHelperTests
     {
         var result = TenantRouteHelper.ExtractTenantFromPath("/workspaces/MyTenant");
 
-        Assert.That(result, Is.EqualTo("MyTenant"));
+        result.ShouldBe("MyTenant");
     }
 }

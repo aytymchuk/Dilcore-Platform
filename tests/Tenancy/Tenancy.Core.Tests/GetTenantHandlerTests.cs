@@ -41,12 +41,12 @@ public class GetTenantHandlerTests
         const string tenantName = "test-tenant";
         const string displayName = "Test Tenant";
         const string description = "A test tenant";
-        const string storagePrefix = "uppercase-with-spaces";
+        const string storageIdentifier = "storage-identifier";
         var createdAt = DateTime.UtcNow;
 
         _tenantContextMock.Setup(x => x.Name).Returns(tenantName);
 
-        var expectedDto = new TenantDto(Guid.CreateVersion7(), displayName, tenantName, description, storagePrefix, true, createdAt, null);
+        var expectedDto = new TenantDto(Guid.CreateVersion7(), displayName, tenantName, description, storageIdentifier, true, createdAt, null);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.GetAsync()).ReturnsAsync(expectedDto);
 

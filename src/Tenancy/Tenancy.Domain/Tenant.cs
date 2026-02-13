@@ -7,10 +7,10 @@ namespace Dilcore.Tenancy.Domain;
 public sealed partial record Tenant : BaseDomain
 {
     /// <summary>
-    /// Prefix of the DB/Collection/Container name specified for this particular tenant.
+    /// Unique identifier for the tenant's storage (DB/Collection/Container name).
     /// Cannot be changed after tenant creation.
     /// </summary>
-    public required string StoragePrefix { get; init; }
+    public required string StorageIdentifier { get; init; }
 
     /// <summary>
     /// Unique system name (lower-kebab-case).
