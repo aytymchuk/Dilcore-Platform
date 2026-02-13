@@ -1,0 +1,17 @@
+/* Dashed Border Card Styles */
+.card-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.hover-mud-border-primary:hover {
+    border-color: var(--mud-palette-primary) !important;
+}
+
+.hover-bg-surface-container:hover {
+     background-color: rgb(var(--mud-palette-surface-rgb) / 50%) !important;
+}
+
+.mud-border-lines-default {
+    border-color: var(--mud-palette-lines-default);
+}

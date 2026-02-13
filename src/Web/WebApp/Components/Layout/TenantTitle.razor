@@ -1,0 +1,13 @@
+@using Dilcore.WebApp.Models.Tenants
+
+@if (!string.IsNullOrEmpty(DisplayName))
+{
+    <MudText Typo="Typo.subtitle1" Class="ml-2" Style="font-weight: 600;">@DisplayName</MudText>
+}
+
+@code {
+    [CascadingParameter] public TenantState? CurrentTenantState { get; set; }
+    [Parameter] public string? FallbackName { get; set; }
+
+    private string DisplayName => CurrentTenantState?.Name ?? FallbackName ?? string.Empty;
+}

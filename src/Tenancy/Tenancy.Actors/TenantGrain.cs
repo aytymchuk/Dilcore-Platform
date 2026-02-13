@@ -10,7 +10,7 @@ namespace Dilcore.Tenancy.Actors;
 /// Orleans grain representing a tenant entity.
 /// Grain key is the tenant name (lower kebab-case).
 /// </summary>
-public sealed partial class TenantGrain : Grain, ITenantGrain, IRemindable
+public partial class TenantGrain : Grain, ITenantGrain, IRemindable
 {
     private const string AssignRoleReminder = "assign-role-to-owner";
     private readonly IPersistentState<TenantState> _state;
@@ -61,7 +61,7 @@ public sealed partial class TenantGrain : Grain, ITenantGrain, IRemindable
         _state.State.IsCreated = true;
         _state.State.Id = Guid.CreateVersion7();
         _state.State.CreatedAt = _timeProvider.GetUtcNow().UtcDateTime;
-        _state.State.StoragePrefix = GenerateStoragePrefix(command.DisplayName, _state.State.Id);
+        _state.State.StorageIdentifier = GenerateStorageIdentifier(command.DisplayName, _state.State.Id);
 
         if (_userContext.TryResolve(out var userContext) && userContext != null)
         {
@@ -146,12 +146,12 @@ public sealed partial class TenantGrain : Grain, ITenantGrain, IRemindable
         _state.State.Name, // Name (display name)
         _state.State.SystemName,
         _state.State.Description,
-        _state.State.StoragePrefix,
+        _state.State.StorageIdentifier,
         _state.State.IsCreated,
         _state.State.CreatedAt,
         _state.State.CreatedById);
 
-    private string GenerateStoragePrefix(string displayName, Guid id)
+    private string GenerateStorageIdentifier(string displayName, Guid id)
     {
         var cleansed = NonAlphanumericRegex().Replace(displayName, "").ToLowerInvariant();
 

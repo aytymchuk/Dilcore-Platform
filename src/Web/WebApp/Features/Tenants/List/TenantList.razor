@@ -1,0 +1,38 @@
+@inherits AsyncComponentBase
+
+<MudGrid Spacing="6">
+    @if (_tenants == null)
+    {
+        <MudItem xs="12" Class="d-flex flex-column align-center" data-testid="loading-tenants">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            <MudText Typo="Typo.body1" Class="mt-4">Loading tenants...</MudText>
+        </MudItem>
+    }
+    else
+    {
+        @foreach (var tenant in _tenants)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="3" data-testid="tenant-card">
+                <EntityCard 
+                    Title="@tenant.Name" 
+                    Subtitle="@tenant.SystemName" 
+                    Description="@tenant.Description"
+                    Label="@(IsActive(tenant) ? "Active" : null)"
+                    LabelColor="@Color.Success"
+                    LabelBackgroundColor="rgba(16, 185, 129, 0.1)"
+                    LabelBorderColor="rgba(16, 185, 129, 0.2)"
+                    LabelTextColor="#34d399"
+                    GradientStart="#1e3a8a"
+                    GradientEnd="#0f172a"
+                    ButtonColor="@Color.Primary"
+                    OnClick="@(() => OnTenantSelected(tenant))">
+                </EntityCard>
+            </MudItem>
+        }
+
+        @* Card: Deploy New Tenant *@
+        <MudItem xs="12" sm="6" md="4" lg="3" data-testid="create-tenant-card">
+            <CreateEntityCard Title="Deploy New Tenant" OnClick="OpenCreateDialog" />
+        </MudItem>
+    }
+</MudGrid>

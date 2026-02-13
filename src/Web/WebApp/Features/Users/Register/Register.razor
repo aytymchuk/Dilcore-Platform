@@ -51,11 +51,11 @@
                     </MudGrid>
                 </MudCardContent>
                 <MudCardActions Class="px-0 pt-4">
-                    <LoadingButton Disabled="@(!_isFormValid || IsLoading)"
+                    <EntityPrimaryButton Disabled="@(!_isFormValid || IsLoading)"
+                                IsProcessing="@IsLoading"
                                 OnClick="OnSubmitAsync"
-                                IsLoading="@IsLoading"
-                                Text="COMPLETE REGISTRATION"
-                                Class="py-3 font-weight-bold" />
+                                ButtonText="Complete Registration"
+                                FullWidth="@true" />
                 </MudCardActions>
             </MudCard>
         </MudForm>

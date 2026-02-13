@@ -1,7 +1,9 @@
+using AutoMapper;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Dilcore.Tenancy.Core.Features.Get;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
 
@@ -15,6 +17,7 @@ public class GetTenantHandlerTests
 {
     private Mock<IGrainFactory> _grainFactoryMock = null!;
     private Mock<ITenantContext> _tenantContextMock = null!;
+    private IMapper _mapper = null!;
     private GetTenantHandler _sut = null!;
 
     [SetUp]
@@ -22,7 +25,13 @@ public class GetTenantHandlerTests
     {
         _grainFactoryMock = new Mock<IGrainFactory>();
         _tenantContextMock = new Mock<ITenantContext>();
-        _sut = new GetTenantHandler(_tenantContextMock.Object, _grainFactoryMock.Object);
+
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        
+        var config = new MapperConfiguration(cfg => cfg.AddMaps(typeof(TenantMappingProfile).Assembly), loggerFactory);
+        _mapper = config.CreateMapper();
+
+        _sut = new GetTenantHandler(_tenantContextMock.Object, _grainFactoryMock.Object, _mapper);
     }
 
     [Test]
@@ -32,12 +41,12 @@ public class GetTenantHandlerTests
         const string tenantName = "test-tenant";
         const string displayName = "Test Tenant";
         const string description = "A test tenant";
-        const string storagePrefix = "uppercase-with-spaces";
+        const string storageIdentifier = "storage-identifier";
         var createdAt = DateTime.UtcNow;
 
         _tenantContextMock.Setup(x => x.Name).Returns(tenantName);
 
-        var expectedDto = new TenantDto(Guid.CreateVersion7(), displayName, tenantName, description, storagePrefix, true, createdAt, null);
+        var expectedDto = new TenantDto(Guid.CreateVersion7(), displayName, tenantName, description, storageIdentifier, true, createdAt, null);
         var tenantGrainMock = new Mock<ITenantGrain>();
         tenantGrainMock.Setup(x => x.GetAsync()).ReturnsAsync(expectedDto);
 

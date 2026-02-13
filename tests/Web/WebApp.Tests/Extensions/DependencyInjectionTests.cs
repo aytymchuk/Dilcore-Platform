@@ -2,8 +2,8 @@ using Dilcore.WebApp.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Shouldly;
+using Moq;
 
 namespace Dilcore.WebApp.Tests.Extensions;
 

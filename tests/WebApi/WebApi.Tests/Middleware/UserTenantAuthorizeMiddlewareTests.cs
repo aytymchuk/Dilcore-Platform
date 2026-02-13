@@ -15,6 +15,7 @@ public class UserTenantAuthorizeMiddlewareTests
 {
     private Mock<ILogger<UserTenantAuthorizeMiddleware>> _loggerMock;
     private Mock<RequestDelegate> _nextMock;
+    private Mock<ITenantContextResolver> _resolverMock;
     private UserTenantAuthorizeMiddleware _sut;
 
     [SetUp]
@@ -22,7 +23,8 @@ public class UserTenantAuthorizeMiddlewareTests
     {
         _loggerMock = new Mock<ILogger<UserTenantAuthorizeMiddleware>>();
         _nextMock = new Mock<RequestDelegate>();
-        _sut = new UserTenantAuthorizeMiddleware(_nextMock.Object, _loggerMock.Object);
+        _resolverMock = new Mock<ITenantContextResolver>();
+        _sut = new UserTenantAuthorizeMiddleware(_loggerMock.Object, _resolverMock.Object);
     }
 
     private void SetEndpoint(HttpContext context)
@@ -37,11 +39,10 @@ public class UserTenantAuthorizeMiddlewareTests
         var context = new DefaultHttpContext();
         SetEndpoint(context);
 
-        var resolverMock = new Mock<ITenantContextResolver>();
         ITenantContext? nullContext = null;
-        resolverMock.Setup(x => x.TryResolve(out nullContext)).Returns(false);
+        _resolverMock.Setup(x => x.TryResolve(out nullContext)).Returns(false);
 
-        await _sut.InvokeAsync(context, resolverMock.Object);
+        await _sut.InvokeAsync(context, _nextMock.Object);
 
         _nextMock.Verify(x => x(context), Times.Once);
     }
@@ -51,16 +52,15 @@ public class UserTenantAuthorizeMiddlewareTests
     {
         var context = new DefaultHttpContext();
         SetEndpoint(context);
-        var resolverMock = new Mock<ITenantContextResolver>();
 
         // Mock success but with valid context to pass first check
         var tenantContextMock = new Mock<ITenantContext>();
         tenantContextMock.Setup(x => x.Id).Returns(Guid.NewGuid());
         tenantContextMock.Setup(x => x.StorageIdentifier).Returns("tenant1");
         ITenantContext? outContext = tenantContextMock.Object;
-        resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
+        _resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
 
-        await _sut.InvokeAsync(context, resolverMock.Object);
+        await _sut.InvokeAsync(context, _nextMock.Object);
 
         _nextMock.Verify(x => x(context), Times.Once);
     }
@@ -80,11 +80,10 @@ public class UserTenantAuthorizeMiddlewareTests
         tenantContextMock.Setup(x => x.StorageIdentifier).Returns(tenantId);
         tenantContextMock.Setup(x => x.Name).Returns(tenantId);
 
-        var resolverMock = new Mock<ITenantContextResolver>();
         ITenantContext? outContext = tenantContextMock.Object;
-        resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
+        _resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
 
-        await _sut.InvokeAsync(context, resolverMock.Object);
+        await _sut.InvokeAsync(context, _nextMock.Object);
 
         _nextMock.Verify(x => x(context), Times.Once);
     }
@@ -104,12 +103,11 @@ public class UserTenantAuthorizeMiddlewareTests
         tenantContextMock.Setup(x => x.StorageIdentifier).Returns(tenantId);
         tenantContextMock.Setup(x => x.Name).Returns("tenant1");
 
-        var resolverMock = new Mock<ITenantContextResolver>();
         ITenantContext? outContext = tenantContextMock.Object;
-        resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
+        _resolverMock.Setup(x => x.TryResolve(out outContext)).Returns(true);
 
         // Act & Assert
-        var ex = await Should.ThrowAsync<ForbiddenException>(() => _sut.InvokeAsync(context, resolverMock.Object));
+        var ex = await Should.ThrowAsync<ForbiddenException>(() => _sut.InvokeAsync(context, _nextMock.Object));
         ex.Message.ShouldBe("Access to tenant is forbidden.");
 
         _nextMock.Verify(x => x(context), Times.Never);

@@ -1,5 +1,5 @@
 using Dilcore.MediatR.Abstractions;
-using Dilcore.Tenancy.Actors.Abstractions;
+using Dilcore.Tenancy.Domain;
 
 namespace Dilcore.Tenancy.Core.Features.Create;
 
@@ -9,7 +9,7 @@ namespace Dilcore.Tenancy.Core.Features.Create;
 /// </summary>
 /// <param name="Name">The human-readable display name.</param>
 /// <param name="Description">Optional description of the tenant.</param>
-public record CreateTenantCommand(string Name, string? Description) : ICommand<TenantDto>
+public record CreateTenantCommand(string Name, string? Description) : ICommand<Tenant>
 {
     public string SystemName { get; init; } = string.Empty;
 }

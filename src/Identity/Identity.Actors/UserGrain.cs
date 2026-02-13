@@ -8,7 +8,7 @@ namespace Dilcore.Identity.Actors;
 /// Orleans grain representing a user entity.
 /// Grain key is the user ID from IUserContext.Id.
 /// </summary>
-public sealed class UserGrain : Grain, IUserGrain
+public class UserGrain : Grain, IUserGrain
 {
     private readonly IPersistentState<UserState> _state;
     private readonly ILogger<UserGrain> _logger;

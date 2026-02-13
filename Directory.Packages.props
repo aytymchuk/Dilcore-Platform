@@ -7,7 +7,7 @@
     <PackageVersion Include="Auth0.AspNetCore.Authentication.Api" Version="1.0.0-beta.2" />
     <PackageVersion Include="AutoFixture" Version="4.18.1" />
     <PackageVersion Include="AutoMapper" Version="16.0.0" />
-    <PackageVersion Include="Azure.Data.AppConfiguration" Version="1.7.0" />
+    <PackageVersion Include="Azure.Data.AppConfiguration" Version="1.8.0" />
     <PackageVersion Include="Azure.Identity" Version="1.17.1" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.4.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4">
@@ -46,9 +46,9 @@
     <PackageVersion Include="MediatR" Version="14.0.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
     <PackageVersion Include="FluentResults" Version="4.0.0" />
-    <PackageVersion Include="TngTech.ArchUnitNET.NUnit" Version="0.13.1" />
+    <PackageVersion Include="TngTech.ArchUnitNET.NUnit" Version="0.13.2" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.14" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.12.35" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageVersion Include="MicroElements.OpenApi.FluentValidation" Version="7.0.3" />
@@ -71,11 +71,12 @@
     <!-- Testcontainers -->
     <PackageVersion Include="Testcontainers.MongoDb" Version="4.10.0" />
     <!-- Refit HTTP Client -->
-    <PackageVersion Include="Refit" Version="9.0.2" />
-    <PackageVersion Include="Refit.HttpClientFactory" Version="9.0.2" />
+    <PackageVersion Include="Refit" Version="10.0.1" />
+    <PackageVersion Include="Refit.HttpClientFactory" Version="10.0.1" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
     <!-- Blazor UI -->
     <PackageVersion Include="MudBlazor" Version="8.15.0" />
     <PackageVersion Include="bunit.web" Version="1.40.0" />
+
   </ItemGroup>
 </Project>

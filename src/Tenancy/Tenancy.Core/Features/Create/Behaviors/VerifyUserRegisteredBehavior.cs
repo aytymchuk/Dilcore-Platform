@@ -1,13 +1,13 @@
 using Dilcore.Authentication.Abstractions;
 using Dilcore.Identity.Actors.Abstractions;
-using Dilcore.Tenancy.Actors.Abstractions;
+using Dilcore.Tenancy.Domain;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Dilcore.Tenancy.Core.Features.Create.Behaviors;
 
-public sealed class VerifyUserRegisteredBehavior : IPipelineBehavior<CreateTenantCommand, Result<TenantDto>>
+public sealed class VerifyUserRegisteredBehavior : IPipelineBehavior<CreateTenantCommand, Result<Tenant>>
 {
     private readonly IUserContext _userContext;
     private readonly IGrainFactory _grainFactory;
@@ -23,9 +23,9 @@ public sealed class VerifyUserRegisteredBehavior : IPipelineBehavior<CreateTenan
         _logger = logger;
     }
 
-    public async Task<Result<TenantDto>> Handle(
+    public async Task<Result<Tenant>> Handle(
         CreateTenantCommand request,
-        RequestHandlerDelegate<Result<TenantDto>> next,
+        RequestHandlerDelegate<Result<Tenant>> next,
         CancellationToken cancellationToken)
     {
         var userGrain = _grainFactory.GetGrain<IUserGrain>(_userContext.Id);
@@ -34,9 +34,9 @@ public sealed class VerifyUserRegisteredBehavior : IPipelineBehavior<CreateTenan
         if (!isRegistered)
         {
             _logger.LogUserNotRegisteredForTenantCreation(_userContext.Id);
-            return Result.Fail<TenantDto>("User is not registered.");
+            return Result.Fail<Tenant>("User is not registered.");
         }
 
-        return await next(cancellationToken);
+        return await next();
     }
 }

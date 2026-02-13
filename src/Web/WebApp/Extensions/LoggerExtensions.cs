@@ -17,4 +17,11 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(EventId = 2000, Level = LogLevel.Error, Message = "An unhandled exception occurred")]
     public static partial void LogUnhandledException(this ILogger logger, Exception ex);
+
+    // Tenant Features
+    [LoggerMessage(EventId = 3000, Level = LogLevel.Error, Message = "Failed to create tenant")]
+    public static partial void LogTenantCreationError(this ILogger logger, Exception ex);
+
+    [LoggerMessage(EventId = 3001, Level = LogLevel.Error, Message = "Failed to load tenants list: {Error}")]
+    public static partial void LogLoadTenantsFailure(this ILogger logger, string error);
 }

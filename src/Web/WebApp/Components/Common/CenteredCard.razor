@@ -1,5 +1,5 @@
 <MudContainer MaxWidth="@ContainerMaxWidth" Class="d-flex align-center justify-center" Style="height: 100dvh; overflow-y: auto;">
-    <MudPaper Class="pa-6 backdrop-blur" Elevation="0" Outlined="true" Style="@($"width: 100%; max-width: {PaperMaxWidth}; background: var(--mud-palette-surface-quarter-transparent); overflow: hidden; position: relative;")">
+    <MudPaper Class="pa-6 backdrop-blur rounded-xl overflow-hidden" Elevation="0" Outlined="true" Style="@($"width: 100%; max-width: {PaperMaxWidth}; background: var(--mud-palette-surface-quarter-transparent); position: relative;")">
         @if (IsLoading)
         {
             <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="rounded-0" Style="position: absolute; top: 0; left: 0; width: 100%; height: 4px;" />
@@ -7,10 +7,3 @@
         @ChildContent
     </MudPaper>
 </MudContainer>
-
-@code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public bool IsLoading { get; set; }
-    [Parameter] public string PaperMaxWidth { get; set; } = "440px";
-    [Parameter] public MaxWidth ContainerMaxWidth { get; set; } = MaxWidth.Small;
-}

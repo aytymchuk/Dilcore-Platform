@@ -11,9 +11,20 @@ namespace Dilcore.WebApi.Middleware;
 /// Middleware that enforces tenant access authorization.
 /// Verifies that the authenticated user belongs to the requested tenant.
 /// </summary>
-public sealed class UserTenantAuthorizeMiddleware(RequestDelegate next, ILogger<UserTenantAuthorizeMiddleware> logger)
+public sealed class UserTenantAuthorizeMiddleware : IMiddleware
 {
-    public async Task InvokeAsync(HttpContext context, ITenantContextResolver tenantContextResolver)
+    private readonly ILogger<UserTenantAuthorizeMiddleware> _logger;
+    private readonly ITenantContextResolver _tenantContextResolver;
+
+    public UserTenantAuthorizeMiddleware(
+        ILogger<UserTenantAuthorizeMiddleware> logger,
+        ITenantContextResolver tenantContextResolver)
+    {
+        _logger = logger;
+        _tenantContextResolver = tenantContextResolver;
+    }
+
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         if (context.IsExcludedFromMultiTenant())
         {
@@ -21,43 +32,27 @@ public sealed class UserTenantAuthorizeMiddleware(RequestDelegate next, ILogger<
             return;
         }
 
-        // 1. Resolve tenant context
-        // If resolution fails or returns empty/null context, we proceed but validation below will likely skip or fail depending on logic.
-        // The original code checked: if (tenantContext.Id == Guid.Empty || string.IsNullOrEmpty(tenantContext.StorageIdentifier)) -> skip
-
-        if (!tenantContextResolver.TryResolve(out var tenantContext))
+        if (!_tenantContextResolver.TryResolve(out var tenantContext))
         {
-            // If we can't resolve a tenant, we can't enforce tenant authorization.
-            // Depending on requirements this might be 404 or just proceed (public endpoint might be caught by IsExcluded, but what if it's not excluded but no tenant provided?)
-            // Original behavior: if empty, await next(context).
             await next(context);
             return;
         }
 
-        // 2. Skip if user is not authenticated (AuthenticationMiddleware handles 401)
         if (context.User.Identity?.IsAuthenticated != true)
         {
             await next(context);
             return;
         }
 
-        // 3. Authorization Check
-        // We check if the user has a claim "tenants" that matches the current tenant's StorageIdentifier
-        // The "tenants" claim was added by UserClaimsTransformation
-        var userTenants = context.User.FindAll(UserConstants.TenantsClaimType).Select(c => c.Value).ToHashSet();
+        var userTenants = context.User.FindAll(UserConstants.TenantsClaimType).Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        // Also support single claim with JSON or comma-separated list if implementation changes
-        // But for now UserClaimsTransformation adds multiple claims.
-
-        if (!string.IsNullOrWhiteSpace(tenantContext?.Name) && userTenants.Contains(tenantContext.Name, StringComparer.OrdinalIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(tenantContext?.Name) && userTenants.Contains(tenantContext.Name))
         {
             await next(context);
             return;
         }
 
-        // 4. Forbidden - Authenticated but not Authorized for this tenant
-        var availableTenants = string.Join(", ", userTenants);
-        logger.LogTenantAccessForbidden(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown", tenantContext.Name ?? "unknown-tenant");
+        _logger.LogTenantAccessForbidden(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown", tenantContext?.Name ?? "unknown");
 
         throw new ForbiddenException("Access to tenant is forbidden.");
     }

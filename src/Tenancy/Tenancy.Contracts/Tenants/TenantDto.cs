@@ -26,22 +26,12 @@ public class TenantDto
     public string? Description { get; set; }
 
     /// <summary>
-    /// Gets or sets the storage prefix for the tenant.
+    /// Gets or sets the unique identifier for the tenant's storage.
     /// </summary>
-    public string StoragePrefix { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the tenant is created.
-    /// </summary>
-    public bool IsCreated { get; set; }
+    public string StorageIdentifier { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets when the tenant was created.
     /// </summary>
     public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user id of the person who created the tenant.
-    /// </summary>
-    public string? CreatedById { get; set; }
 }

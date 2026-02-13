@@ -1,3 +1,4 @@
+using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Features.Users.CurrentUser;
@@ -11,7 +12,7 @@ namespace Dilcore.WebApp.Features.Users;
 /// Cascading state provider for current user information.
 /// Loads the user on initialization and provides loading/error state.
 /// </summary>
-public partial class UserStateProvider : ComponentBase
+public partial class UserStateProvider : AsyncComponentBase
 {
     [Inject]
     private ISender Sender { get; set; } = null!;
@@ -26,14 +27,9 @@ public partial class UserStateProvider : ComponentBase
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
-    /// Gets whether the user data is currently loading.
-    /// </summary>
-    public bool IsLoading { get; private set; } = true;
-
-    /// <summary>
     /// Gets the current user, or null if not loaded or not found.
     /// </summary>
-    public UserModel? CurrentUser { get; private set; }
+    public UserModel? CurrentUser { get; internal set; }
 
     /// <summary>
     /// Gets whether the user was not found (needs registration).
@@ -47,7 +43,6 @@ public partial class UserStateProvider : ComponentBase
         // Only load user if authenticated
         if (authState.User.Identity?.IsAuthenticated != true)
         {
-            IsLoading = false;
             return;
         }
 
@@ -56,19 +51,18 @@ public partial class UserStateProvider : ComponentBase
 
     private async Task LoadCurrentUserAsync()
     {
-        IsLoading = true;
-        StateHasChanged();
-
-        try
+        await ExecuteBusyAsync(async () =>
         {
             var result = await Sender.Send(new GetCurrentUserQuery());
 
-            if (result.IsSuccess)
+            if (result.IsSuccess && result.Value is not null)
             {
                 CurrentUser = result.Value;
                 IsUserNotFound = false;
+                return;
             }
-            else if (result.Errors.OfType<UserNotFoundError>().Any())
+
+            if ((result.IsSuccess && result.Value is null) || result.Errors.OfType<UserNotFoundError>().Any())
             {
                 IsUserNotFound = true;
                 CurrentUser = null;
@@ -78,19 +72,6 @@ public partial class UserStateProvider : ComponentBase
                 return;
             }
             // Other errors are handled by SnackbarResultBehavior
-        }
-        finally
-        {
-            IsLoading = false;
-            StateHasChanged();
-        }
-    }
-
-    /// <summary>
-    /// Refreshes the current user state.
-    /// </summary>
-    public async Task RefreshAsync()
-    {
-        await LoadCurrentUserAsync();
+        });
     }
 }

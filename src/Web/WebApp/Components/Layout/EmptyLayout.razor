@@ -1,7 +1,7 @@
-@using Dilcore.Platform.Web.WebApp.Components.Themes
-@inherits LayoutComponentBase
+@using Dilcore.WebApp.Components.Themes
+@inherits ThemeAwareLayoutBase
 
-<MudThemeProvider Theme="FutureSlateTheme.Default" />
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="FutureSlateTheme.Default" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />

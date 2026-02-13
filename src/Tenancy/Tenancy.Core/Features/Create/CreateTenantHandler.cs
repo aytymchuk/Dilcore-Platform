@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dilcore.MediatR.Abstractions;
 using Dilcore.Results.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
@@ -9,35 +10,42 @@ namespace Dilcore.Tenancy.Core.Features.Create;
 /// <summary>
 /// Handles tenant creation by generating a kebab-case name and invoking TenantGrain.
 /// </summary>
-public sealed class CreateTenantHandler(IGrainFactory grainFactory)
-    : ICommandHandler<CreateTenantCommand, TenantDto>
+public class CreateTenantHandler : ICommandHandler<CreateTenantCommand, Tenant>
 {
-    private readonly IGrainFactory _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
+    private readonly IGrainFactory _grainFactory;
+    private readonly IMapper _mapper;
 
-    public async Task<Result<TenantDto>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
+    public CreateTenantHandler(IGrainFactory grainFactory, IMapper mapper)
+    {
+        _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    }
+
+    public async Task<Result<Tenant>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
         // 1. Generate SystemName
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Fail<TenantDto>(new ValidationError("Name is required"));
+            return Result.Fail<Tenant>(new ValidationError("Name is required"));
         }
 
         var systemName = Tenant.ToKebabCase(request.Name);
         if (string.IsNullOrWhiteSpace(systemName))
         {
-            return Result.Fail<TenantDto>(new ValidationError("Tenant name is invalid after normalization"));
+            return Result.Fail<Tenant>(new ValidationError("Tenant name is invalid after normalization"));
         }
 
+        // 2. Validate Tenant Uniqueness
         var grain = _grainFactory.GetGrain<ITenantGrain>(systemName);
 
         var existingTenant = await grain.GetAsync();
 
         if (existingTenant is { IsCreated: true })
         {
-            return Result.Fail<TenantDto>(new ConflictError("Tenant already exists"));
+            return Result.Fail<Tenant>(new ConflictError("Tenant already exists"));
         }
 
-        // 2. Create Tenant Grain
+        // 3. Create Tenant Grain
         // The grain handles uniqueness check atomically inside CreateAsync.
         var command = new CreateTenantGrainCommand
         {
@@ -49,14 +57,14 @@ public sealed class CreateTenantHandler(IGrainFactory grainFactory)
 
         if (!result.IsSuccess)
         {
-            return Result.Fail<TenantDto>(new ConflictError(result?.ErrorMessage ?? "Failed to create tenant"));
+            return Result.Fail<Tenant>(new ConflictError(result?.ErrorMessage ?? "Failed to create tenant"));
         }
 
         if (result.Tenant is null || !result.Tenant.IsCreated)
         {
-            return Result.Fail<TenantDto>("Tenant creation failed");
+            return Result.Fail<Tenant>("Tenant creation failed");
         }
 
-        return Result.Ok(result.Tenant);
+        return Result.Ok(_mapper.Map<Tenant>(result.Tenant));
     }
 }

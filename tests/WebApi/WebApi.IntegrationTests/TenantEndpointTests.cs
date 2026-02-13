@@ -232,4 +232,135 @@ public class TenantEndpointTests
     }
 
     #endregion
+
+    #region GET /tenants (List)
+
+    [Test]
+    public async Task GetTenantsList_ShouldReturnUnauthorized_WhenNotAuthenticated()
+    {
+        // Arrange
+        _factory.FakeUser.IsAuthenticated = false;
+
+        // Act & Assert
+        var exception = await Should.ThrowAsync<ApiException>(() => _tenancyClient.Client.GetTenantsListAsync());
+        exception.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    [Test]
+    public async Task GetTenantsList_ShouldReturnEmptyList_WhenUserHasNoTenants()
+    {
+        // Arrange - user is registered but has no tenants
+
+        // Act
+        var result = await _tenancyClient.Client.GetTenantsListAsync();
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task GetTenantsList_ShouldReturnSingleTenant_WhenUserHasOneTenant()
+    {
+        // Arrange
+        var uniqueName = $"Single Tenant {Guid.CreateVersion7():N}";
+        var request = new CreateTenantDto { Name = uniqueName, Description = "Single tenant test" };
+        var createdTenant = await _tenancyClient.Client.CreateTenantAsync(request);
+
+        // Act
+        var result = await _tenancyClient.Client.GetTenantsListAsync();
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.ShouldHaveSingleItem();
+        result[0].SystemName.ShouldBe(createdTenant.SystemName);
+        result[0].Name.ShouldBe(createdTenant.Name);
+    }
+
+    [Test]
+    public async Task GetTenantsList_ShouldReturnMultipleTenants_WhenUserHasMultipleTenants()
+    {
+        // Arrange - create 3 tenants
+        var uniqueSuffix = Guid.CreateVersion7().ToString("N");
+        var tenant1 = await _tenancyClient.Client.CreateTenantAsync(new CreateTenantDto
+        {
+            Name = $"Tenant One {uniqueSuffix}",
+            Description = "First tenant"
+        });
+
+        var tenant2 = await _tenancyClient.Client.CreateTenantAsync(new CreateTenantDto
+        {
+            Name = $"Tenant Two {uniqueSuffix}",
+            Description = "Second tenant"
+        });
+
+        var tenant3 = await _tenancyClient.Client.CreateTenantAsync(new CreateTenantDto
+        {
+            Name = $"Tenant Three {uniqueSuffix}",
+            Description = "Third tenant"
+        });
+
+        // Act
+        var result = await _tenancyClient.Client.GetTenantsListAsync();
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Count.ShouldBe(3);
+        result.ShouldContain(t => t.SystemName == tenant1.SystemName);
+        result.ShouldContain(t => t.SystemName == tenant2.SystemName);
+        result.ShouldContain(t => t.SystemName == tenant3.SystemName);
+    }
+
+    [Test]
+    public async Task GetTenantsList_ShouldReturnDifferentLists_ForDifferentUsers()
+    {
+        // Arrange - create tenants for user A
+        var userAId = _factory.FakeUser.UserId;
+        var userATenant = await _tenancyClient.Client.CreateTenantAsync(new CreateTenantDto
+        {
+            Name = $"User A Tenant {Guid.CreateVersion7():N}",
+            Description = "Belongs to user A"
+        });
+
+        // Switch to user B
+        _factory.FakeUser.UserId = $"test-user-b-{Guid.CreateVersion7():N}";
+        _factory.FakeUser.TenantId = $"test-tenant-b-{Guid.CreateVersion7():N}";
+
+        // Register user B
+        using var scope = _factory.Services.CreateScope();
+        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        var userBGrain = grainFactory.GetGrain<IUserGrain>(_factory.FakeUser.UserId);
+        await userBGrain.RegisterAsync($"{_factory.FakeUser.UserId}@example.com", "User", "B");
+
+        // Create client for user B
+        using var userBClient = _factory.CreateTypedClient<ITenancyClient>();
+
+        // Create tenant for user B
+        var userBTenant = await userBClient.Client.CreateTenantAsync(new CreateTenantDto
+        {
+            Name = $"User B Tenant {Guid.CreateVersion7():N}",
+            Description = "Belongs to user B"
+        });
+
+        // Act - get tenants for both users
+        // Get User B's list first (while still authenticated as User B)
+        var userBResult = await userBClient.Client.GetTenantsListAsync();
+
+        // Switch back to user A and get their list
+        _factory.FakeUser.UserId = userAId;
+        using var userAClient = _factory.CreateTypedClient<ITenancyClient>();
+        var userAResult = await userAClient.Client.GetTenantsListAsync();
+
+        // Assert - each user sees only their own tenants
+        userAResult.ShouldNotBeNull();
+        userAResult.ShouldHaveSingleItem();
+        userAResult[0].SystemName.ShouldBe(userATenant.SystemName);
+
+        userBResult.ShouldNotBeNull();
+        userBResult.ShouldHaveSingleItem();
+        userBResult[0].SystemName.ShouldBe(userBTenant.SystemName);
+
+    }
+
+    #endregion
 }

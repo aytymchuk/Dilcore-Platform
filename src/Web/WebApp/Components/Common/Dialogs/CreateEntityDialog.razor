@@ -1,0 +1,33 @@
+<MudDialog Gutters="false" Class="rounded-xl overflow-hidden fade-in" Style="background-color: var(--mud-palette-surface); box-shadow: var(--mud-elevation-25); border: 1px solid var(--mud-palette-lines-default);">
+    <DialogContent>
+        <MudStack Spacing="0" Class="pa-6 w-full max-w-lg transition-all">
+            <!-- Header -->
+            <MudStack Spacing="1" Class="mb-6">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudIcon Icon="@Icon" Color="Color.Primary" />
+                    <MudText Typo="Typo.caption" Class="font-medium uppercase tracking-wider" Style="color: var(--mud-palette-text-secondary);">@Label</MudText>
+                </MudStack>
+                <MudText Typo="Typo.h5" Class="font-normal" Color="Color.Inherit">@Title</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Style="color: var(--mud-palette-text-secondary);">@Subtitle</MudText>
+            </MudStack>
+
+            <!-- Content -->
+            <MudStack Spacing="4">
+                @ChildContent
+            </MudStack>
+
+            <!-- Actions -->
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-8">
+                <EntitySecondaryButton 
+                    ButtonText="Cancel"
+                    OnClick="Cancel"
+                    Disabled="@IsProcessing" />
+                <EntityPrimaryButton 
+                    OnClick="SubmitAsync" 
+                    ButtonText="@SubmitButtonText"
+                    ButtonColor="@Color.Primary"
+                    IsProcessing="@IsProcessing" />
+            </MudStack>
+        </MudStack>
+    </DialogContent>
+</MudDialog>

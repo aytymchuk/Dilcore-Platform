@@ -1,0 +1,40 @@
+@using Dilcore.WebApp.Features.Users
+@using Dilcore.WebApp.Components.Themes
+@using Dilcore.WebApp.Features.Tenants.Context
+@inherits ThemeAwareLayoutBase
+
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="FutureSlateTheme.Default" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<UserStateProvider>
+    <TenantStateProvider SystemName="@Tenant">
+        <MudLayout>
+            <MudAppBar Elevation="0" Dense="true" Style="background-color: var(--mud-palette-surface); border-bottom: 1px solid var(--mud-palette-lines-default);">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" />
+                <TenantTitle FallbackName="@TenantName" />
+                <MudSpacer />
+                <MudTextField @bind-Value="_searchText" 
+                              Placeholder="Search..." 
+                              Variant="Variant.Outlined" 
+                              Adornment="Adornment.Start" 
+                              AdornmentIcon="@Icons.Material.Filled.Search" 
+                              IconSize="Size.Small"
+                              Class="mt-0"
+                              Style="max-width: 400px;"
+                              Margin="Margin.Dense" />
+                <MudSpacer />
+               <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.Brightness7 : Icons.Material.Filled.Brightness4)"
+                               OnClick="@((e) => _isDarkMode = !_isDarkMode)"
+                               Color="Color.Inherit" />
+                <LoginDisplay />
+            </MudAppBar>
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+        </MudLayout>
+    </TenantStateProvider>
+</UserStateProvider>

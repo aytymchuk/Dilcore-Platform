@@ -8,7 +8,7 @@ namespace Dilcore.WebApi.Client.Extensions;
 /// <summary>
 /// Extension methods for ITenancyClient that provide Result-based error handling.
 /// </summary>
-internal static class TenancyClientExtensions
+public static class TenancyClientExtensions
 {
     /// <summary>
     /// Safely creates a new tenant, returning a Result instead of throwing exceptions.
@@ -36,5 +36,18 @@ internal static class TenancyClientExtensions
         CancellationToken cancellationToken = default)
     {
         return SafeApiInvoker.InvokeAsync(() => client.GetTenantAsync(cancellationToken));
+    }
+
+    /// <summary>
+    /// Safely gets the list of tenants, returning a Result instead of throwing exceptions.
+    /// </summary>
+    /// <param name="client">The tenancy client.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Result containing the tenant list or error information with ProblemDetails.</returns>
+    public static Task<Result<IReadOnlyList<TenantDto>>> SafeGetTenantsListAsync(
+        this ITenancyClient client,
+        CancellationToken cancellationToken = default)
+    {
+        return SafeApiInvoker.InvokeAsync(() => client.GetTenantsListAsync(cancellationToken));
     }
 }

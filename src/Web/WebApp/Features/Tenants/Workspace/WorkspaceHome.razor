@@ -1,0 +1,39 @@
+@page "/workspaces/{tenant}"
+@attribute [Authorize]
+@using Dilcore.WebApp.Features.Tenants.Context
+@using Dilcore.WebApp.Models.Tenants
+@using Dilcore.WebApp.Components.Layout
+@inherits AsyncTenantComponentBase
+@layout WorkspaceLayout
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="pa-4" Elevation="0">
+            <MudText Typo="Typo.h4" Class="mb-4">Welcome to @TenantContext?.Name</MudText>
+           
+            <MudDivider Class="my-4" />
+            
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2" Style="font-weight: 600;">Tenant Information</MudText>
+                    <MudText Typo="Typo.body2" Class="mb-1"><strong>Name:</strong> @TenantContext?.Name</MudText>
+                    <MudText Typo="Typo.body2"><strong>System Name:</strong> @TenantContext?.SystemName</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2" Style="font-weight: 600;">Quick Actions</MudText>
+                    <MudTooltip Text="Coming soon">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mr-2 mb-2" Disabled="true">Create New</MudButton>
+                    </MudTooltip>
+                    <MudTooltip Text="Coming soon">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="mb-2" Disabled="true">View All</MudButton>
+                    </MudTooltip>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [CascadingParameter]
+    public TenantState? TenantContext { get; set; }
+}

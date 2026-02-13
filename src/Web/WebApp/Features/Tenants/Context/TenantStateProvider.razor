@@ -1,0 +1,31 @@
+<CascadingValue Value="@CurrentTenantState">
+    @if (CurrentTenantState == null && string.IsNullOrEmpty(ErrorMessage))
+    {
+        <MudGrid Class="mt-4">
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudText>Loading tenant...</MudText>
+            </MudItem>
+        </MudGrid>
+    }
+    else if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <MudGrid Class="mt-4">
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudText Typo="Typo.h5" Color="Color.Error">Tenant Not Found</MudText>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudText>@ErrorMessage</MudText>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary">Return to Home</MudButton>
+            </MudItem>
+        </MudGrid>
+    }
+    else
+    {
+        @ChildContent
+    }
+</CascadingValue>

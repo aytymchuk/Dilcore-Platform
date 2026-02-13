@@ -163,7 +163,7 @@ public class TenancyClientSafeExtensionsTests
             CreatedAt = DateTime.UtcNow
         };
 
-        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
+        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants/current")
             .Respond("application/json", JsonSerializer.Serialize(expectedTenant));
 
         // Act
@@ -191,7 +191,7 @@ public class TenancyClientSafeExtensionsTests
             timestamp = DateTime.UtcNow
         };
 
-        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
+        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants/current")
             .Respond(HttpStatusCode.NotFound, "application/problem+json", JsonSerializer.Serialize(problemDetails));
 
         // Act
@@ -223,7 +223,7 @@ public class TenancyClientSafeExtensionsTests
             errorCode = "UNAUTHORIZED"
         };
 
-        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
+        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants/current")
             .Respond(HttpStatusCode.Unauthorized, "application/problem+json", JsonSerializer.Serialize(problemDetails));
 
         // Act
@@ -253,7 +253,7 @@ public class TenancyClientSafeExtensionsTests
             errorCode = "TIMEOUT"
         };
 
-        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
+        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants/current")
             .Respond(HttpStatusCode.ServiceUnavailable, "application/problem+json", JsonSerializer.Serialize(problemDetails));
 
         // Act
@@ -301,7 +301,7 @@ public class TenancyClientSafeExtensionsTests
     public async Task SafeGetTenantAsync_ShouldReturnFailure_OnTimeout()
     {
         // Arrange
-        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
+        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants/current")
             .Throw(new TaskCanceledException("Operation timed out"));
 
         // Act
@@ -324,7 +324,7 @@ public class TenancyClientSafeExtensionsTests
         cts.Cancel();
         var token = cts.Token;
 
-        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants")
+        _mockHttp.When(HttpMethod.Get, "https://api.example.com/tenants/current")
             .Throw(new TaskCanceledException("The API request was cancelled.", null, token));
 
         // Act
