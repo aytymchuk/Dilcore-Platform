@@ -6,8 +6,8 @@
            EndIcon="@(IsProcessing ? null : ButtonIcon)" 
            Disabled="@(Disabled || IsProcessing)"
            FullWidth="@FullWidth"
-           Class="@($"rounded-pill shadow-none {Class}")" 
-           Style="@GetButtonStyle()"
+           Class="@($"shadow-none {Class}")" 
+           Style="@Style"
            OnClick="OnClick">
     @if (IsProcessing)
     {

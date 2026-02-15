@@ -14,9 +14,4 @@ public partial class EntityBaseButton : MudComponentBase
     [Parameter] public bool FullWidth { get; set; }
     [Parameter] public Size Size { get; set; } = Size.Medium;
     [Parameter] public Variant Variant { get; set; } = Variant.Filled;
-
-    private string GetButtonStyle()
-    {
-        return $"text-transform: none; {Style}";
-    }
 }

@@ -10,13 +10,17 @@ public static class FutureSlateTheme
     {
         var theme = new MudTheme()
         {
+            LayoutProperties = new LayoutProperties()
+            {
+                DefaultBorderRadius = "0.75rem",
+            },
             PaletteLight = new PaletteLight()
             {
                 Primary = "#5E6AD2",
                 Secondary = "#414141",
                 Background = "#FFFFFF",
                 Surface = "#F9FAFB",
-                AppbarBackground = "#FFFFFF",
+                AppbarBackground = "#F9FAFB",
                 AppbarText = "#0F172A",
                 DrawerBackground = "#F9FAFB",
                 DrawerText = "#0F172A",
@@ -44,7 +48,7 @@ public static class FutureSlateTheme
                 PrimaryContrastText = "#FFFFFF",
                 Secondary = "#414141",
                 Background = "#09090B",
-                AppbarBackground = "#09090B",
+                AppbarBackground = "#18181B",
                 AppbarText = "#FFFFFF",
                 DrawerBackground = "#09090B",
                 DrawerText = "#A1A1AA",
@@ -80,6 +84,8 @@ public static class FutureSlateTheme
         theme.Typography.H1.FontWeight = "300";
         theme.Typography.H1.LineHeight = "1.167";
         theme.Typography.H1.LetterSpacing = "-.01562em";
+
+        theme.Typography.Button.TextTransform = "none";
 
         // Custom Shadows (Shadowless Elevation)
         // We simulate a 1px border using box-shadow to avoid layout shifts and ensure compatibility with MudPaper's Elevation property.
