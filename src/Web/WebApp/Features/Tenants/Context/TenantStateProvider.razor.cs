@@ -1,5 +1,6 @@
 using Dilcore.WebApp.Features.Tenants.Get;
 using Dilcore.WebApp.Models.Tenants;
+using Dilcore.WebApp.Services;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -12,6 +13,9 @@ public partial class TenantStateProvider : ComponentBase
 {
     [Inject]
     private ISender Sender { get; set; } = null!;
+
+    [Inject]
+    private IBlazorTenantAccessor TenantAccessor { get; set; } = null!;
 
     [Parameter, EditorRequired]
     public string SystemName { get; set; } = string.Empty;
@@ -40,6 +44,8 @@ public partial class TenantStateProvider : ComponentBase
             ErrorMessage = "No tenant specified in URL.";
             return;
         }
+
+        TenantAccessor.TenantName = SystemName;
 
         var result = await Sender.Send(new GetCurrentTenantQuery());
 

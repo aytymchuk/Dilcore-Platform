@@ -1,8 +1,7 @@
 using System.Net.Http.Headers;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApp.Constants;
-using Dilcore.WebApp.Routing;
-using Microsoft.AspNetCore.Components;
+using Dilcore.WebApp.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
@@ -12,20 +11,20 @@ namespace Dilcore.WebApp.Http;
 /// DelegatingHandler that adds the access token from the current user's claims to outgoing HTTP requests.
 /// Also adds the x-tenant header when a tenant context is available.
 /// </summary>
-internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
+internal class AccessTokenDelegatingHandler : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly AuthenticationStateProvider _authenticationStateProvider;
-    private readonly NavigationManager _navigationManager;
+    private readonly IBlazorTenantAccessor _tenantAccessor;
 
     public AccessTokenDelegatingHandler(
         IHttpContextAccessor httpContextAccessor,
         AuthenticationStateProvider authenticationStateProvider,
-        NavigationManager navigationManager)
+        IBlazorTenantAccessor tenantAccessor)
     {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _authenticationStateProvider = authenticationStateProvider ?? throw new ArgumentNullException(nameof(authenticationStateProvider));
-        _navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+        _tenantAccessor = tenantAccessor ?? throw new ArgumentNullException(nameof(tenantAccessor));
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -44,7 +43,7 @@ internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
         if (user?.Identity?.IsAuthenticated == true)
         {
             AddAccessToken(user, request);
-            AddTenantHeader(user, request);
+            AddTenantHeader(request);
         }
 
         return await base.SendAsync(request, cancellationToken);
@@ -60,28 +59,9 @@ internal sealed class AccessTokenDelegatingHandler : DelegatingHandler
         }
     }
 
-    private void AddTenantHeader(ClaimsPrincipal user, HttpRequestMessage request)
+    private void AddTenantHeader(HttpRequestMessage request)
     {
-        // Try to get tenant from HttpContext path first
-        var path = _httpContextAccessor.HttpContext?.Request.Path.Value;
-        
-        // Fallback to NavigationManager for Blazor Server
-        if (string.IsNullOrEmpty(path))
-        {
-            try
-            {
-                var uri = new Uri(_navigationManager.Uri);
-                path = uri.AbsolutePath;
-            }
-            catch
-            {
-                // Ignore parsing errors
-            }
-        }
-
-        var tenantSystemName = !string.IsNullOrEmpty(path) 
-            ? TenantRouteHelper.ExtractTenantFromPath(path)
-            : null;
+        var tenantSystemName = _tenantAccessor.TenantName;
 
         if (!string.IsNullOrEmpty(tenantSystemName) && !request.Headers.Contains(TenantConstants.HeaderName))
         {
