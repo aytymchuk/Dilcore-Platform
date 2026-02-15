@@ -1,0 +1,31 @@
+@using Dilcore.WebApp.Constants
+@using Dilcore.WebApp.Components.Themes
+@using Dilcore.WebApp.Features.Users
+
+<AuthorizeView>
+    <Authorized>
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" LockScroll="true" PopoverClass="mt-2">
+            <ActivatorContent>
+                <MudAvatar Color="Color.Primary" Variant="Variant.Filled">
+                    @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                </MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <div class="px-4 py-3">
+                    <MudText Typo="Typo.body2" Class="font-bold">@(UserState?.CurrentUser?.FullName ?? context.User.Identity?.Name)</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@(UserState?.CurrentUser?.Email ?? "No Email")</MudText>
+                </div>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Filled.Person" Disabled="true">Profile</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Settings" Disabled="true">System Preferences</MudMenuItem>
+                <MudDivider />
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout" Href="@RouteConstants.Identity.Logout">Sign Out</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="@RouteConstants.Identity.Login">Sign In</MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+

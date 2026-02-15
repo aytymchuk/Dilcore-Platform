@@ -91,9 +91,10 @@ public static class FutureSlateTheme
         // We simulate a 1px border using box-shadow to avoid layout shifts and ensure compatibility with MudPaper's Elevation property.
         string shadowlessBorder = "0px 0px 0px 1px var(--mud-palette-lines-default)";
 
-        theme.Shadows.Elevation[1] = shadowlessBorder;
-        theme.Shadows.Elevation[2] = shadowlessBorder; // Consistency for higher elevations for now
-        theme.Shadows.Elevation[3] = shadowlessBorder;
+        for (int i = 1; i < 25; i++)
+        {
+            theme.Shadows.Elevation[i] = shadowlessBorder;
+        }
 
         return theme;
     }

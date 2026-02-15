@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace Dilcore.WebApp.Tests.Components.Layout;
 
-public class LoginDisplayComponentTests
+public class UserMenuTests
 {
     private Bunit.TestContext _ctx = default!;
     private TestAuthorizationContext _authContext = default!;
@@ -99,9 +99,37 @@ public class LoginDisplayComponentTests
         cut.FindAll(".mud-menu").Count.ShouldBe(1);
     }
 
-    private IRenderedComponent<LoginDisplay> RenderWithCascadingUserState(UserStateProvider userState)
+    [Test]
+    public void DisplaysUserDetails_WhenMenuIsOpened()
     {
-        return _ctx.RenderComponent<LoginDisplay>(parameters =>
+        // Arrange
+        var testUser = new UserModel(Guid.NewGuid(), "test@example.com", "Test", "User");
+        _authContext.SetAuthorized("Test User");
+        var userState = CreateUserStateProvider(testUser);
+
+        // Act
+        var cut = RenderWithCascadingUserState(userState);
+        
+        // Find the activator (MudMenu renders it) and click it to open the popover
+        // The activator content is wrapped in a div with class mud-menu-activator
+        // Clicking this should toggle the menu.
+        // We use Find(".mud-menu-activator") to target it directly.
+        var activator = cut.Find(".mud-menu-activator");
+        activator.Click();
+
+        // Assert — Check if user details are present in the markup (popover content)
+        // Note: MudPopover might render in a separate portal/root component, so we check the entire Context markup or cut.
+        // But in Bunit, verifying cut.Markup or finding components usually works if they are rooted in the render tree.
+        // MudPopoverProvider renders the popover.
+        cut.WaitForAssertion(() => cut.FindAll(".mud-typography").Count.ShouldBeGreaterThan(0));
+        var popoverContent = _ctx.RenderComponent<MudPopoverProvider>();
+        popoverContent.WaitForAssertion(() => popoverContent.Markup.ShouldContain(testUser.FullName));
+        popoverContent.Markup.ShouldContain(testUser.Email);
+    }
+
+    private IRenderedComponent<UserMenu> RenderWithCascadingUserState(UserStateProvider userState)
+    {
+        return _ctx.RenderComponent<UserMenu>(parameters =>
             parameters.Add(p => p.UserState, userState));
     }
 
