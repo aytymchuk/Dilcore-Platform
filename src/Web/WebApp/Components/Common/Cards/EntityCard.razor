@@ -1,40 +1,27 @@
 <div class="entity-card-wrapper" style="height: 100%; width: 100%;">
-    <MudCard Elevation="0" Class="entity-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default);">
-        <div class="card-header" style="@GetHeaderStyle()">
-            <div class="card-overlay" style="background-color: rgba(0,0,0,0.2);"></div>
-            @if (!string.IsNullOrEmpty(PatternOverlayStyle))
-            {
-                <div class="card-overlay" style="@PatternOverlayStyle"></div>
-            }
-            <div class="status-chip-wrapper">
-                 @if (!string.IsNullOrEmpty(Label))
-                 {
-                     <span style="@GetLabelStyle()">@Label</span>
-                 }
+    <MudCard Elevation="0" Class="entity-card mud-border-lines-default" Style="background-color: var(--mud-palette-surface); border-color: var(--mud-palette-lines-default); height: 100%; display: flex; flex-direction: column;">
+        <MudCardContent Class="d-flex flex-column pa-6 flex-grow-1">
+            <div class="d-flex align-start justify-space-between mb-8">
+               <div class="d-flex align-center justify-center rounded-lg" style="height: 48px; width: 48px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 1.5rem; font-weight: 700; color: var(--mud-palette-primary);">
+                   @GetInitials(Title)
+               </div>
+               <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--mud-palette-text-secondary); padding: 4px 8px; background-color: rgba(255, 255, 255, 0.05); border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">@Role</span>
             </div>
-        </div>
-        <MudCardContent Class="d-flex flex-column pa-4" Style="height: calc(100% - 96px);">
-            <div class="mb-3">
-                <MudText Typo="@Typo.subtitle1" Class="@(string.IsNullOrEmpty(Subtitle) ? "mb-0" : "mb-1")" Style="font-weight: 700;">@Title</MudText>
+            
+            <div class="mb-6">
+                <MudText Typo="@Typo.h6" Class="mb-1" Style="font-weight: 600; font-size: 1.125rem; color: var(--mud-palette-text-primary);">@Title</MudText>
                 @if (!string.IsNullOrEmpty(Subtitle))
                 {
-                    <div class="d-flex align-center gap-2">
-                        <MudIcon Icon="@SubtitleIcon" Size="@Size.Small" Color="@Color.Surface" Style="font-size: 14px;" />
-                        <MudText Typo="@Typo.caption" Class="font-mono" Color="@Color.Surface">@Subtitle</MudText>
-                    </div>
+                    <MudText Typo="@Typo.body2" Color="@Color.Secondary" Style="font-size: 0.875rem;">@Subtitle</MudText>
                 }
             </div>
-            <MudText Typo="@Typo.body2" Color="@Color.Secondary" Class="mb-4 line-clamp-2" Style="font-size: 0.875rem;">@Description</MudText>
             
-            <div class="mt-auto d-flex align-center justify-space-between pt-3" style="border-top: 1px solid var(--mud-palette-lines-default);">
-                 <div class="d-flex">
-                    @FooterContent
-                </div>
+            <div class="mt-auto pt-3">
                 <EntityPrimaryButton 
                     ButtonText="@ButtonText"
                     ButtonIcon="@ButtonIcon"
                     ButtonColor="@ButtonColor"
-                    Size="@Size.Small"
+                    FullWidth="true"
                     OnClick="@OnClick" />
             </div>
         </MudCardContent>

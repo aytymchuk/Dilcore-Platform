@@ -3,7 +3,7 @@
     <Authorized>
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <ActivatorContent>
-                <MudAvatar Color="Color.Secondary" Variant="Variant.Filled">
+                <MudAvatar Color="Color.Primary" Variant="Variant.Filled">
                     @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
                 </MudAvatar>
             </ActivatorContent>

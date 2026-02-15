@@ -1,6 +1,8 @@
 using Dilcore.WebApp.Components.Common.Cards;
 using MudBlazor.Services;
+using Bunit;
 using Shouldly;
+using MudBlazor;
 
 namespace Dilcore.WebApp.Tests.Components.Common.Cards;
 
@@ -10,97 +12,83 @@ public class EntityCardTests : Bunit.TestContext
     {
         Services.AddMudServices();
     }
+
+    [Test]
+    public void EntityCard_ShouldRenderInitials_FromTitle()
+    {
+        // Arrange
+        var title = "Acme Corp";
+
+        // Act
+        var cut = RenderComponent<EntityCard>(parameters => parameters
+            .Add(p => p.Title, title)
+        );
+
+        // Assert
+        cut.Markup.ShouldContain("AC");
+    }
+
+    [Test]
+    public void EntityCard_ShouldRenderRole()
+    {
+        // Arrange
+        var role = "Admin";
+
+        // Act
+        var cut = RenderComponent<EntityCard>(parameters => parameters
+            .Add(p => p.Role, role)
+        );
+
+        // Assert
+        cut.Markup.ShouldContain(role);
+    }
     
     [Test]
-    public void GradientStart_ShouldFallbackToDefault_WhenInvalidColorProvided()
-    {
-        // Arrange & Act
-        var cut = RenderComponent<EntityCard>(parameters => parameters
-            .Add(p => p.GradientStart, "invalid-color-value")
-        );
-
-        // Assert
-        // Logic in OnParametersSet checks validity. If invalid, it reverts to default "#1e3a8a".
-        cut.Instance.GradientStart.ShouldBe("#1e3a8a");
-    }
-
-    [Test]
-    public void GradientStart_ShouldKeepValue_WhenValidHexColorProvided()
+    public void EntityCard_ShouldRenderTitleAndSubtitle_WhenProvided()
     {
         // Arrange
-        var validColor = "#ff0000";
+        var title = "Test Title";
+        var subtitle = "Test Subtitle";
 
         // Act
         var cut = RenderComponent<EntityCard>(parameters => parameters
-            .Add(p => p.GradientStart, validColor)
+            .Add(p => p.Title, title)
+            .Add(p => p.Subtitle, subtitle)
         );
 
         // Assert
-        cut.Instance.GradientStart.ShouldBe(validColor);
+        cut.Find("h6").TextContent.ShouldBe(title);
+        cut.Find(".mud-typography-body2").TextContent.ShouldBe(subtitle);
     }
 
     [Test]
-    public void GradientStart_ShouldKeepValue_WhenValidRgbColorProvided()
+    public void EntityCard_ShouldRenderButton_WithCorrectText()
     {
         // Arrange
-        var validColor = "rgb(255, 0, 0)";
+        var buttonText = "Click Me";
 
         // Act
         var cut = RenderComponent<EntityCard>(parameters => parameters
-            .Add(p => p.GradientStart, validColor)
+            .Add(p => p.ButtonText, buttonText)
         );
 
         // Assert
-        cut.Instance.GradientStart.ShouldBe(validColor);
+        cut.Find("button").TextContent.ShouldContain(buttonText);
     }
-
+    
     [Test]
-    public void GradientEnd_ShouldFallbackToDefault_WhenInvalidColorProvided()
+    public void EntityCard_ShouldTriggerOnClick_WhenButtonClicked()
     {
-        // Arrange & Act
+        // Arrange
+        var clicked = false;
         var cut = RenderComponent<EntityCard>(parameters => parameters
-            .Add(p => p.GradientEnd, "url('http://malicious.com')")
+            .Add(p => p.OnClick, () => clicked = true)
         );
 
-        // Assert
-        // Default is "#0f172a"
-        cut.Instance.GradientEnd.ShouldBe("#0f172a");
-    }
-
-    [Test]
-    public void LabelColors_ShouldBeNull_WhenInvalidColorProvided()
-    {
-        // Arrange & Act
-        var cut = RenderComponent<EntityCard>(parameters => parameters
-            .Add(p => p.Label, "Test Label")
-            .Add(p => p.LabelBackgroundColor, "javascript:alert(1)")
-            .Add(p => p.LabelTextColor, "invalid-color")
-            .Add(p => p.LabelBorderColor, "  ")
-        );
+        // Act
+        cut.Find("button").Click();
 
         // Assert
-        cut.Instance.LabelBackgroundColor.ShouldBeNull();
-        cut.Instance.LabelTextColor.ShouldBeNull();
-        cut.Instance.LabelBorderColor.ShouldBeNull();
-    }
-
-    [TestCase("#abc")]
-    [TestCase("#AABBCC")]
-    [TestCase("rgb(0,0,0)")]
-    [TestCase("rgba(0, 0, 0, 0.5)")]
-    [TestCase("hsl(0, 100%, 50%)")]
-    [TestCase("hsla(0, 100%, 50%, 0.5)")]
-    [TestCase("red")]
-    [TestCase("blueviolet")]
-    [TestCase("notacolor")]
-    public void IsValidCssColor_ShouldAcceptValidColors(string validColor)
-    {
-         // Arrange & Act
-        var cut = RenderComponent<EntityCard>(parameters => parameters
-            .Add(p => p.GradientStart, validColor)
-        );
-
-        // Assert
-        cut.Instance.GradientStart.ShouldBe(validColor);
+        clicked.ShouldBeTrue();
     }
 }

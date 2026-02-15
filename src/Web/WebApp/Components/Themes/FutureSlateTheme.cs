@@ -12,47 +12,82 @@ public static class FutureSlateTheme
         {
             PaletteLight = new PaletteLight()
             {
-                Primary = "#2563EB", // Primary Cobalt
-                Secondary = "#0891B2", // Secondary Cyan
-                Background = "#F8FAFF", // Soft Cobalt Tint
+                Primary = "#5E6AD2",
+                Secondary = "#414141",
+                Background = "#FFFFFF",
+                Surface = "#F9FAFB",
                 AppbarBackground = "#FFFFFF",
-                AppbarText = "#1e293b",
-                DrawerBackground = "#FFFFFF",
-                Surface = "#FFFFFF", // Surface Bright
-                TextPrimary = "#1e293b", // Slate 800
-                TextSecondary = "#64748b", // Slate 500
-                ActionDefault = "#2563EB",
-                Success = "#16A34A", // Validation
-                Warning = "#D97706", // Cautionary
-                Error = "#DC2626", // Destructive
-                Info = "#2563EB"
+                AppbarText = "#0F172A",
+                DrawerBackground = "#F9FAFB",
+                DrawerText = "#0F172A",
+                DrawerIcon = "#64748B",
+                TextPrimary = "#0F172A",
+                TextSecondary = "#64748B",
+                ActionDefault = "#0F172A",
+                ActionDisabled = "#E4E4E7",
+                ActionDisabledBackground = "#F9FAFB",
+                Divider = "#E4E4E7",
+                DividerLight = "#E4E4E7",
+                TableLines = "#E4E4E7",
+                LinesDefault = "#E4E4E7",
+                LinesInputs = "#E4E4E7",
+                Success = "#10B981",
+                Warning = "#F59E0B",
+                Error = "#EF4444",
+                Info = "#606BD2",
+                Black = "#000000",
+                White = "#FFFFFF"
             },
             PaletteDark = new PaletteDark()
             {
-                Primary = "#2563EB", // Primary Cobalt
-                Secondary = "#22D3EE", // Secondary Cyan
-                Background = "#0F172A", // Deep Navy/Cobalt
-                AppbarBackground = "#0F172A", 
+                Primary = "#5E6AD2",
+                PrimaryContrastText = "#FFFFFF",
+                Secondary = "#414141",
+                Background = "#09090B",
+                AppbarBackground = "#09090B",
                 AppbarText = "#FFFFFF",
-                DrawerBackground = "#0F172A",
-                Surface = "#1E293B", // Surface Container
-                TextPrimary = "#FFFFFF", // On Primary / High Contrast
-                TextSecondary = "#94A3B8", // Slate 400
-                ActionDefault = "#2563EB",
-                Success = "#10B981", // Validation
-                Warning = "#F59E0B", // Cautionary
-                Error = "#EF5350", // Destructive
-                Info = "#2563EB"
+                DrawerBackground = "#09090B",
+                DrawerText = "#A1A1AA",
+                DrawerIcon = "#A1A1AA",
+                Surface = "#18181B",
+                TextPrimary = "#FAFAFA",
+                TextSecondary = "#A1A1AA",
+                ActionDefault = "#A1A1AA",
+                ActionDisabled = "#27272A",
+                ActionDisabledBackground = "#121212",
+                Divider = "#27272A",
+                DividerLight = "#27272A",
+                TableLines = "#27272A",
+                LinesDefault = "#27272A",
+                LinesInputs = "#27272A",
+                Success = "#10B981",
+                Warning = "#F59E0B",
+                Error = "#EF4444",
+                Info = "#3B82F6",
+                Black = "#000000",
+                White = "#FFFFFF"
             }
         };
 
         // Typography
         theme.Typography.Default.FontFamily = new[] { "Inter", "sans-serif" };
+        theme.Typography.Default.FontSize = "0.875rem";
+        theme.Typography.Default.FontWeight = "400";
+        theme.Typography.Default.LineHeight = "1.43";
+        theme.Typography.Default.LetterSpacing = ".01071em";
 
-        // Custom Shadows
-        theme.Shadows.Elevation[1] = "0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15)";
-        theme.Shadows.Elevation[2] = "0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15)";
-        theme.Shadows.Elevation[3] = "0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3)";
+        theme.Typography.H1.FontSize = "6rem";
+        theme.Typography.H1.FontWeight = "300";
+        theme.Typography.H1.LineHeight = "1.167";
+        theme.Typography.H1.LetterSpacing = "-.01562em";
+
+        // Custom Shadows (Shadowless Elevation)
+        // We simulate a 1px border using box-shadow to avoid layout shifts and ensure compatibility with MudPaper's Elevation property.
+        string shadowlessBorder = "0px 0px 0px 1px var(--mud-palette-lines-default)";
+
+        theme.Shadows.Elevation[1] = shadowlessBorder;
+        theme.Shadows.Elevation[2] = shadowlessBorder; // Consistency for higher elevations for now
+        theme.Shadows.Elevation[3] = shadowlessBorder;
 
         return theme;
     }

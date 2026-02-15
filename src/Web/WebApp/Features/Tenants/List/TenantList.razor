@@ -15,15 +15,9 @@
             <MudItem xs="12" sm="6" md="4" lg="3" data-testid="tenant-card">
                 <EntityCard 
                     Title="@tenant.Name" 
-                    Subtitle="@tenant.SystemName" 
-                    Description="@tenant.Description"
-                    Label="@(IsActive(tenant) ? "Active" : null)"
-                    LabelColor="@Color.Success"
-                    LabelBackgroundColor="rgba(16, 185, 129, 0.1)"
-                    LabelBorderColor="rgba(16, 185, 129, 0.2)"
-                    LabelTextColor="#34d399"
-                    GradientStart="#1e3a8a"
-                    GradientEnd="#0f172a"
+                    Subtitle="0 active projects • 0 members" 
+                    Role="Owner"
+                    ButtonText="Select Workspace"
                     ButtonColor="@Color.Primary"
                     OnClick="@(() => OnTenantSelected(tenant))">
                 </EntityCard>

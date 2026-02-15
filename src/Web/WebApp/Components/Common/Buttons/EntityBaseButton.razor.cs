@@ -12,7 +12,7 @@ public partial class EntityBaseButton : MudComponentBase
     [Parameter] public bool IsProcessing { get; set; }
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool FullWidth { get; set; }
-    [Parameter] public Size Size { get; set; } = Size.Large;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
     [Parameter] public Variant Variant { get; set; } = Variant.Filled;
 
     private string GetButtonStyle()
