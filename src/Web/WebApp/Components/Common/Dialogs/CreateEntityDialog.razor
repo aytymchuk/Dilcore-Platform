@@ -3,12 +3,15 @@
         <MudStack Spacing="0" Class="pa-6 w-full max-w-lg transition-all">
             <!-- Header -->
             <MudStack Spacing="1" Class="mb-6">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudIcon Icon="@Icon" Color="Color.Primary" />
-                    <MudText Typo="Typo.caption" Class="font-medium uppercase tracking-wider" Style="color: var(--mud-palette-text-secondary);">@Label</MudText>
-                </MudStack>
+                @if (!string.IsNullOrEmpty(Label))
+                {
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudIcon Icon="@Icon" Color="Color.Primary" />
+                        <MudText Typo="Typo.caption" Class="font-medium uppercase tracking-wider" Style="color: var(--mud-palette-text-secondary);">@Label</MudText>
+                    </MudStack>
+                }
                 <MudText Typo="Typo.h5" Class="font-normal" Color="Color.Inherit">@Title</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary" Style="color: var(--mud-palette-text-secondary);">@Subtitle</MudText>
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Style="color: var(--mud-palette-text-secondary);">@Subtitle</MudText>
             </MudStack>
 
             <!-- Content -->

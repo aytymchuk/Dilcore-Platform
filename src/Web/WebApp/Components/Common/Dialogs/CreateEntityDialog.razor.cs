@@ -9,8 +9,8 @@ public partial class CreateEntityDialog
 
     [Parameter] public string Title { get; set; } = "Create Entity";
     [Parameter] public string Subtitle { get; set; } = "Please fill in the details below.";
-    [Parameter] public string Label { get; set; } = "New Entity";
-    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Add;
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public string? Icon { get; set; }
     [Parameter] public string SubmitButtonText { get; set; } = "Create";
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public EventCallback OnSubmit { get; set; }

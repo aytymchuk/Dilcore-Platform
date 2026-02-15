@@ -1,3 +1,4 @@
+using Dilcore.WebApp.Services.Loading;
 using Microsoft.AspNetCore.Components;
 
 namespace Dilcore.WebApp.Components.Common;
@@ -14,6 +15,9 @@ public abstract class AsyncComponentBase : ComponentBase
     /// Thread-safe property derived from an atomic counter.
     /// </summary>
     protected bool IsLoading => _busyCount > 0;
+
+    [Inject]
+    protected ILoadingService LoadingService { get; set; } = null!;
 
     /// <summary>
     /// Executes an async action while tracking the busy state.
@@ -39,6 +43,22 @@ public abstract class AsyncComponentBase : ComponentBase
             {
                 await InvokeAsync(StateHasChanged);
             }
+        }
+    }
+
+    /// <summary>
+    /// Executes an async action while showing a loading screen with the specified text.
+    /// </summary>
+    protected async Task ExecuteAsync(Func<Task> action, string loadingText)
+    {
+        LoadingService.Show(loadingText);
+        try
+        {
+            await ExecuteBusyAsync(action);
+        }
+        finally
+        {
+            LoadingService.Hide(loadingText);
         }
     }
 }

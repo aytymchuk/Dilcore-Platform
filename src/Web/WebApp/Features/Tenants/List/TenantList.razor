@@ -1,14 +1,7 @@
 @inherits AsyncComponentBase
 
 <MudGrid Spacing="6">
-    @if (_tenants == null)
-    {
-        <MudItem xs="12" Class="d-flex flex-column align-center" data-testid="loading-tenants">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            <MudText Typo="Typo.body1" Class="mt-4">Loading tenants...</MudText>
-        </MudItem>
-    }
-    else
+    @if (_tenants != null)
     {
         @foreach (var tenant in _tenants)
         {

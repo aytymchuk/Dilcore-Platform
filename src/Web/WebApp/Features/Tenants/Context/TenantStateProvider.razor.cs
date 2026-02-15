@@ -1,6 +1,8 @@
+using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Features.Tenants.Get;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Services;
+using Dilcore.WebApp.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -9,7 +11,7 @@ namespace Dilcore.WebApp.Features.Tenants.Context;
 /// <summary>
 /// Cascading state provider for tenant context that resolves tenant from URL and provides it to child components.
 /// </summary>
-public partial class TenantStateProvider : ComponentBase
+public partial class TenantStateProvider : AsyncComponentBase
 {
     [Inject]
     private ISender Sender { get; set; } = null!;
@@ -39,36 +41,39 @@ public partial class TenantStateProvider : ComponentBase
 
     private async Task LoadTenantAsync()
     {
-        if (string.IsNullOrWhiteSpace(SystemName))
+        await ExecuteAsync(async () =>
         {
-            ErrorMessage = "No tenant specified in URL.";
-            return;
-        }
+            if (string.IsNullOrWhiteSpace(SystemName))
+            {
+                ErrorMessage = "No tenant specified in URL.";
+                return;
+            }
 
-        TenantAccessor.TenantName = SystemName;
+            TenantAccessor.TenantName = SystemName;
 
-        var result = await Sender.Send(new GetCurrentTenantQuery());
+            var result = await Sender.Send(new GetCurrentTenantQuery());
 
-        if (result.IsFailed)
-        {
-            ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
-            return;
-        }
+            if (result.IsFailed)
+            {
+                ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
+                return;
+            }
 
-        if (result.ValueOrDefault is null)
-        {
-            ErrorMessage = "Tenant not found.";
-            return;
-        }
+            if (result.ValueOrDefault is null)
+            {
+                ErrorMessage = "Tenant not found.";
+                return;
+            }
 
-        if (!result.Value.SystemName.Equals(SystemName, StringComparison.OrdinalIgnoreCase))
-        {
-            ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
-            CurrentTenantState = null;
-            return;
-        }
+            if (!result.Value.SystemName.Equals(SystemName, StringComparison.OrdinalIgnoreCase))
+            {
+                ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
+                CurrentTenantState = null;
+                return;
+            }
 
-        CurrentTenantState = new TenantState(result.Value.SystemName, result.Value.Name);
-        ErrorMessage = null;
+            CurrentTenantState = new TenantState(result.Value.SystemName, result.Value.Name);
+            ErrorMessage = null;
+        }, LoadingConstants.WorkspaceData);   
     }
 }

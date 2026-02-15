@@ -1,6 +1,7 @@
 using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Services;
+using Dilcore.WebApp.Constants;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MediatR;
@@ -22,7 +23,7 @@ public partial class TenantList : AsyncComponentBase
 
     private async Task LoadTenantsAsync()
     {
-        await ExecuteBusyAsync(async () =>
+        await ExecuteAsync(async () =>
         {
             var result = await Mediator.Send(new GetTenantListQuery());
             if (result.IsSuccess)
@@ -34,7 +35,7 @@ public partial class TenantList : AsyncComponentBase
                 // Error handled in Behavior
                  _tenants = new List<Tenant>();
             }
-        });
+        }, LoadingConstants.Tenants);
     }
 
     private async Task OpenCreateDialog()
