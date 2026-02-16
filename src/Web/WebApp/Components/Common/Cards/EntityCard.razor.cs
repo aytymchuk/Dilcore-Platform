@@ -7,8 +7,10 @@ public partial class EntityCard
 {
     [Parameter] public string Title { get; set; } = "";
     [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public string Description { get; set; } = "";
     
     [Parameter] public string Role { get; set; } = "Member";
+    [Parameter] public string StatusLabel { get; set; } = "";
     
     [Parameter] public string ButtonText { get; set; } = "Select Workspace";
     [Parameter] public string ButtonIcon { get; set; } = "";

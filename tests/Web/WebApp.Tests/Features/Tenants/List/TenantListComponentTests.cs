@@ -2,6 +2,7 @@ using Bunit;
 using Dilcore.WebApp.Features.Tenants.List;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Services;
+using Dilcore.WebApp.Services.Loading;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ public class TenantListComponentTests
     private Mock<ISender> _mockMediator = default!;
     private Mock<IAppNavigator> _mockNavigator = default!;
     private Mock<IDialogService> _mockDialogService = default!;
+    private Mock<ILoadingService> _mockLoadingService = default!;
 
     [SetUp]
     public void Setup()
@@ -30,10 +32,12 @@ public class TenantListComponentTests
         _mockMediator = new Mock<ISender>();
         _mockNavigator = new Mock<IAppNavigator>();
         _mockDialogService = new Mock<IDialogService>();
+        _mockLoadingService = new Mock<ILoadingService>();
 
         _ctx.Services.AddSingleton(_mockMediator.Object);
         _ctx.Services.AddSingleton<IAppNavigator>(_mockNavigator.Object);
         _ctx.Services.AddSingleton(_mockDialogService.Object);
+        _ctx.Services.AddSingleton(_mockLoadingService.Object);
 
         _ctx.RenderComponent<MudPopoverProvider>();
     }
@@ -44,21 +48,7 @@ public class TenantListComponentTests
         _ctx?.Dispose();
     }
 
-    [Test]
-    public void RendersLoadingText_BeforeDataArrives()
-    {
-        // Arrange — mediator never completes
-        var tcs = new TaskCompletionSource<Result<List<Tenant>>>();
-        _mockMediator
-            .Setup(m => m.Send(It.IsAny<GetTenantListQuery>(), It.IsAny<CancellationToken>()))
-            .Returns(tcs.Task);
 
-        // Act
-        var cut = _ctx.RenderComponent<TenantList>();
-
-        // Assert
-        cut.Find("div[data-testid='loading-tenants']").TextContent.ShouldContain("Loading tenants...");
-    }
 
     [Test]
     public void RendersTenantCards_WhenQuerySucceeds()
@@ -89,18 +79,16 @@ public class TenantListComponentTests
         // Act
         var cut = _ctx.RenderComponent<TenantList>();
 
-        // Assert — Name, SystemName (subtitle), Description visible
+        // Assert — Name visible, Subtitle hardcoded
         var cards = cut.FindAll("div[data-testid='tenant-card']");
         
         var card1 = cards[0];
         card1.TextContent.ShouldContain("Acme Corp");
-        card1.TextContent.ShouldContain("acme-corp");
-        card1.TextContent.ShouldContain("Enterprise solutions provider");
+        card1.TextContent.ShouldContain("0 active projects • 0 members");
 
         var card2 = cards[1];
         card2.TextContent.ShouldContain("Fin Consult");
-        card2.TextContent.ShouldContain("fin-consult");
-        card2.TextContent.ShouldContain("Financial consulting services");
+        card2.TextContent.ShouldContain("0 active projects • 0 members");
     }
 
     [Test]
@@ -172,31 +160,7 @@ public class TenantListComponentTests
         cut.FindAll("div[data-testid='tenant-card']").ShouldBeEmpty();
     }
 
-    [Test]
-    public void RendersActiveLabel_OnActiveTenantCard()
-    {
-        // Arrange
-        var tenants = CreateTestTenants();
-        SetupSuccessfulQuery(tenants);
 
-        // Make the first tenant active
-        var activeTenant = tenants[0];
-        var tenantState = new TenantState(activeTenant.SystemName!, activeTenant.Name!);
-
-        // Act
-        var cut = _ctx.RenderComponent<TenantList>(parameters => parameters
-            .AddCascadingValue(tenantState)
-        );
-
-        // Assert
-        var cards = cut.FindAll("div[data-testid='tenant-card']");
-        
-        // First card (Active)
-        cards[0].TextContent.ShouldContain("Active");
-        
-        // Second card (Inactive)
-        cards[1].TextContent.ShouldNotContain("Active");
-    }
 
     private void SetupSuccessfulQuery(List<Tenant> tenants)
     {

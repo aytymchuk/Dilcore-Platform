@@ -6,6 +6,10 @@
                    @GetInitials(Title)
                </div>
                <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--mud-palette-text-secondary); padding: 4px 8px; background-color: rgba(255, 255, 255, 0.05); border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05);">@Role</span>
+               @if (!string.IsNullOrEmpty(StatusLabel))
+               {
+                   <span Class="ml-2" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--mud-palette-success); padding: 4px 8px; background-color: rgba(0, 255, 0, 0.1); border-radius: 4px; border: 1px solid rgba(0, 255, 0, 0.2);">@StatusLabel</span>
+               }
             </div>
             
             <div class="mb-6">
@@ -13,6 +17,10 @@
                 @if (!string.IsNullOrEmpty(Subtitle))
                 {
                     <MudText Typo="@Typo.body2" Color="@Color.Secondary" Style="font-size: 0.875rem;">@Subtitle</MudText>
+                }
+                @if (!string.IsNullOrEmpty(Description))
+                {
+                    <MudText Typo="@Typo.body2" Class="mt-2" Style="color: var(--mud-palette-text-secondary); font-size: 0.875rem;">@Description</MudText>
                 }
             </div>
             

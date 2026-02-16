@@ -16,6 +16,7 @@ public class UserMenuTests
 {
     private Bunit.TestContext _ctx = default!;
     private TestAuthorizationContext _authContext = default!;
+    private IRenderedComponent<MudPopoverProvider> _popoverProvider = default!;
 
     [SetUp]
     public void Setup()
@@ -30,12 +31,13 @@ public class UserMenuTests
 
         _authContext = _ctx.AddTestAuthorization();
 
-        _ctx.RenderComponent<MudPopoverProvider>();
+        _popoverProvider = _ctx.RenderComponent<MudPopoverProvider>();
     }
 
     [TearDown]
     public void TearDown()
     {
+        _popoverProvider?.Dispose();
         _ctx?.Dispose();
     }
 
@@ -118,13 +120,10 @@ public class UserMenuTests
         activator.Click();
 
         // Assert — Check if user details are present in the markup (popover content)
-        // Note: MudPopover might render in a separate portal/root component, so we check the entire Context markup or cut.
-        // But in Bunit, verifying cut.Markup or finding components usually works if they are rooted in the render tree.
-        // MudPopoverProvider renders the popover.
-        cut.WaitForAssertion(() => cut.FindAll(".mud-typography").Count.ShouldBeGreaterThan(0));
-        var popoverContent = _ctx.RenderComponent<MudPopoverProvider>();
-        popoverContent.WaitForAssertion(() => popoverContent.Markup.ShouldContain(testUser.FullName));
-        popoverContent.Markup.ShouldContain(testUser.Email);
+        // Note: MudPopover might render in a separate portal/root component, so we check the MudPopoverProvider.
+        _popoverProvider.WaitForAssertion(() => _popoverProvider.FindAll(".mud-typography").Count.ShouldBeGreaterThan(0));
+        _popoverProvider.Markup.ShouldContain(testUser.FullName);
+        _popoverProvider.Markup.ShouldContain(testUser.Email);
     }
 
     private IRenderedComponent<UserMenu> RenderWithCascadingUserState(UserStateProvider userState)
