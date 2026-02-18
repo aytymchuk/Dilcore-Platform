@@ -24,4 +24,8 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(EventId = 3001, Level = LogLevel.Error, Message = "Failed to load tenants list: {Error}")]
     public static partial void LogLoadTenantsFailure(this ILogger logger, string error);
+
+    // Loading Service
+    [LoggerMessage(EventId = 4000, Level = LogLevel.Error, Message = "Error notifying subscriber {SubscriberInfo}")]
+    public static partial void LogLoadingSubscriberError(this ILogger logger, Exception ex, string subscriberInfo);
 }

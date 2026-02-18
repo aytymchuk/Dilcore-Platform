@@ -1,10 +1,17 @@
 using System.Collections.Immutable;
+using Dilcore.WebApp.Extensions;
 
 namespace Dilcore.WebApp.Services.Loading;
 
 public class LoadingService : ILoadingService
 {
     private ImmutableList<string> _loadingMessages = ImmutableList<string>.Empty;
+    private readonly ILogger<LoadingService> _logger;
+
+    public LoadingService(ILogger<LoadingService> logger)
+    {
+        _logger = logger;
+    }
 
     public event Action? OnChange;
 
@@ -58,10 +65,11 @@ public class LoadingService : ILoadingService
             {
                 ((Action)d).Invoke();
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore exceptions from subscribers to prevent breaking other subscribers
+                // Log exception from subscriber to prevent it from breaking other subscribers
                 // or the loading service itself.
+                _logger.LogLoadingSubscriberError(ex, d.Method.Name);
             }
         }
     }

@@ -6,6 +6,7 @@ using MudBlazor;
 
 namespace Dilcore.WebApp.Tests.Components.Common.Cards;
 
+[TestFixture]
 public class EntityCardTests : Bunit.TestContext
 {
     public EntityCardTests()
@@ -30,8 +31,6 @@ public class EntityCardTests : Bunit.TestContext
         {
              // If expected is empty, we check that it doesn't contain a specific class or check emptiness
              // But the component logic returns "", so we can check if it contains the text.
-             // However, Markup.ShouldContain("") is always true.
-             // We can check the element text content.
              var initialsEl = cut.FindAll(".rounded-lg").FirstOrDefault();
              initialsEl.ShouldNotBeNull();
              initialsEl.TextContent.Trim().ShouldBe(expectedInitials);

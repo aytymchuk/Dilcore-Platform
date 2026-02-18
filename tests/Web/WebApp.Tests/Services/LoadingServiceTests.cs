@@ -1,4 +1,6 @@
 using Dilcore.WebApp.Services.Loading;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Shouldly;
 using NUnit.Framework;
 
@@ -12,7 +14,8 @@ public class LoadingServiceTests
     [SetUp]
     public void Setup()
     {
-        _sut = new LoadingService();
+        var logger = new Mock<ILogger<LoadingService>>();
+        _sut = new LoadingService(logger.Object);
     }
 
     [Test]
@@ -132,10 +135,10 @@ public class LoadingServiceTests
     }
 
     [Test]
+    // This test primarily checks for crashes and deadlocks under chaotic concurrent load
     public void ChaosTesting_RandomShowHide_ShouldEventuallySettle()
     {
         // Arrange
-        var random = new Random(42);
         var operations = 10000;
         var activeMessages = new System.Collections.Concurrent.ConcurrentDictionary<string, byte>();
         var exceptions = new System.Collections.Concurrent.ConcurrentBag<Exception>();
