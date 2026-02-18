@@ -33,7 +33,8 @@ public class EntityCardTests : Bunit.TestContext
              // However, Markup.ShouldContain("") is always true.
              // We can check the element text content.
              var initialsEl = cut.FindAll(".rounded-lg").FirstOrDefault();
-             initialsEl?.TextContent.Trim().ShouldBe(expectedInitials);
+             initialsEl.ShouldNotBeNull();
+             initialsEl.TextContent.Trim().ShouldBe(expectedInitials);
         }
         else
         {

@@ -120,8 +120,15 @@ public class UserMenuTests
         // Assert — Check if user details are present in the markup (popover content)
         // Note: MudPopover might render in a separate portal/root component, so we check the MudPopoverProvider.
         _popoverProvider.WaitForAssertion(() => _popoverProvider.FindAll(".mud-typography").Count.ShouldBeGreaterThan(0));
-        _popoverProvider.Markup.ShouldContain(testUser.FullName);
-        _popoverProvider.Markup.ShouldContain(testUser.Email);
+        
+        // Find specific elements by class
+        // Name has "font-bold" class
+        var nameElement = _popoverProvider.Find(".mud-typography.font-bold");
+        nameElement.TextContent.Trim().ShouldBe(testUser.FullName);
+
+        // Email has "mud-typography-caption" class (from Typo.caption)
+        var emailElement = _popoverProvider.Find(".mud-typography-caption");
+        emailElement.TextContent.Trim().ShouldBe(testUser.Email);
     }
 
     private IRenderedComponent<UserMenu> RenderWithCascadingUserState(UserStateProvider userState)

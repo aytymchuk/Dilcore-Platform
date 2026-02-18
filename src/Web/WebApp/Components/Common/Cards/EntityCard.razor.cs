@@ -5,15 +5,15 @@ namespace Dilcore.WebApp.Components.Common.Cards;
 
 public partial class EntityCard
 {
-    [Parameter] public string Title { get; set; } = "";
-    [Parameter] public string Subtitle { get; set; } = "";
-    [Parameter] public string Description { get; set; } = "";
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
     
     [Parameter] public string Role { get; set; } = string.Empty;
-    [Parameter] public string StatusLabel { get; set; } = "";
+    [Parameter] public string StatusLabel { get; set; } = string.Empty;
     
     [Parameter] public string ButtonText { get; set; } = string.Empty;
-    [Parameter] public string ButtonIcon { get; set; } = "";
+    [Parameter] public string ButtonIcon { get; set; } = string.Empty;
     [Parameter] public Color ButtonColor { get; set; } = Color.Primary;
     
     [Parameter] public EventCallback OnClick { get; set; }

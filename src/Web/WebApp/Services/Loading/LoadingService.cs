@@ -1,56 +1,56 @@
+using System.Collections.Immutable;
+
 namespace Dilcore.WebApp.Services.Loading;
 
 public class LoadingService : ILoadingService
 {
-    private readonly List<string> _loadingMessages = new();
-    private readonly object _lock = new();
+    private ImmutableList<string> _loadingMessages = ImmutableList<string>.Empty;
 
     public event Action? OnChange;
 
-    public bool IsLoading
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _loadingMessages.Count > 0;
-            }
-        }
-    }
+    public bool IsLoading => !_loadingMessages.IsEmpty;
 
-    public string? CurrentMessage
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _loadingMessages.LastOrDefault();
-            }
-        }
-    }
-
+    public string? CurrentMessage => _loadingMessages.LastOrDefault();
     public void Show(string message)
     {
-        lock (_lock)
-        {
-            _loadingMessages.Add(message);
-        }
+        if (string.IsNullOrEmpty(message)) return;
+
+        ImmutableInterlocked.Update(ref _loadingMessages, list => list.Add(message));
         NotifyStateChanged();
     }
 
     public void Hide(string message)
     {
-        lock (_lock)
+        // Optimistic concurrency loop to detect if removal actually happened
+        var spinWait = new SpinWait();
+        while (true)
         {
-            _loadingMessages.Remove(message);
+            var oldList = _loadingMessages;
+            var newList = oldList.Remove(message);
+
+            // If the list is unchanged (item not found), no update needed
+            if (oldList == newList) return;
+
+            // Attempt to atomically update the list
+            if (Interlocked.CompareExchange(ref _loadingMessages, newList, oldList) == oldList)
+            {
+                // Successful update
+                NotifyStateChanged();
+                return;
+            }
+
+            // Update failed (concurrent modification), retry
+            spinWait.SpinOnce();
         }
-        NotifyStateChanged();
     }
 
     private void NotifyStateChanged()
     {
         var delegates = OnChange?.GetInvocationList();
-        if (delegates == null) return;
+        if (delegates == null) 
+        {
+            return;
+        }
 
         foreach (var d in delegates)
         {

@@ -95,4 +95,116 @@ public class LoadingServiceTests
 
         _sut.IsLoading.ShouldBeFalse();
     }
+    [Test]
+    public void MassiveConcurrency_ShouldNotDeadlockOrCorruptState()
+    {
+        // Arrange
+        var threadCount = 20;
+        var iterationsPerThread = 1000;
+        var exceptions = new System.Collections.Concurrent.ConcurrentBag<Exception>();
+
+        // Act
+        Parallel.For(0, threadCount, _ =>
+        {
+            try
+            {
+                for (var i = 0; i < iterationsPerThread; i++)
+                {
+                    var msg = $"msg-{Guid.NewGuid()}";
+                    _sut.Show(msg);
+                    
+                    // Small spinning to simulate work / increase chance of overlap
+                    if (i % 100 == 0) Thread.SpinWait(10);
+                    
+                    _sut.Hide(msg);
+                }
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
+        });
+
+        // Assert
+        exceptions.ShouldBeEmpty();
+        _sut.IsLoading.ShouldBeFalse();
+        _sut.CurrentMessage.ShouldBeNull();
+    }
+
+    [Test]
+    public void ChaosTesting_RandomShowHide_ShouldEventuallySettle()
+    {
+        // Arrange
+        var random = new Random(42);
+        var operations = 10000;
+        var activeMessages = new System.Collections.Concurrent.ConcurrentDictionary<string, byte>();
+        var exceptions = new System.Collections.Concurrent.ConcurrentBag<Exception>();
+
+        // Act
+        Parallel.For(0, operations, i =>
+        {
+            try
+            {
+                var msg = $"msg-{i % 100}"; // Reuse keys to force collisions
+                var isShow = i % 2 == 0; // Simple distinct pattern, but concurrent exec makes it chaotic
+
+                if (isShow)
+                {
+                    _sut.Show(msg);
+                    activeMessages.TryAdd(msg, 0);
+                }
+                else
+                {
+                    _sut.Hide(msg);
+                    activeMessages.TryRemove(msg, out _);
+                }
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
+        });
+
+        // Cleanup phase - ensure everything is hidden
+        foreach (var key in activeMessages.Keys)
+        {
+            _sut.Hide(key);
+        }
+
+        // Just to be sure, hide everything we might have missed in the concurrent map (though logic above should cover it)
+        // Actually, pure random chaos might leave the service "Loading" if Shows > Hides. 
+        // So we just assert consistency: exceptions empty.
+        exceptions.ShouldBeEmpty();
+        
+        // To verify state consistency, we can force clear everything
+        // But since we don't have a Clear(), we can't easily assert IsLoading is false unless we track strict balance.
+        // The main goal here is checking for crashes/deadlocks.
+    }
+
+    [Test]
+    public void NotifyStateChanged_ShouldHandleSubscriberExceptions_WithoutBreakingService()
+    {
+        // Arrange
+        var exceptionThrowingSubscriberCalled = false;
+        var normalSubscriberCalled = false;
+
+        _sut.OnChange += () =>
+        {
+            exceptionThrowingSubscriberCalled = true;
+            throw new InvalidOperationException("I am a bad subscriber!");
+        };
+
+        _sut.OnChange += () =>
+        {
+            normalSubscriberCalled = true;
+        };
+
+        // Act
+        Should.NotThrow(() => _sut.Show("Test"));
+
+        // Assert
+        exceptionThrowingSubscriberCalled.ShouldBeTrue();
+        normalSubscriberCalled.ShouldBeTrue("Normal subscriber should still be called even if another fails");
+        _sut.IsLoading.ShouldBeTrue();
+    }
 }

@@ -21,6 +21,8 @@ public class TenantListComponentTests
     private Mock<IAppNavigator> _mockNavigator = default!;
     private Mock<IDialogService> _mockDialogService = default!;
     private Mock<ILoadingService> _mockLoadingService = default!;
+    
+    private const string ExpectedEntityCardSubtitle = "0 active projects • 0 members";
 
     [SetUp]
     public void Setup()
@@ -84,11 +86,11 @@ public class TenantListComponentTests
         
         var card1 = cards[0];
         card1.TextContent.ShouldContain("Acme Corp");
-        card1.TextContent.ShouldContain("0 active projects • 0 members");
+        card1.TextContent.ShouldContain(ExpectedEntityCardSubtitle);
 
         var card2 = cards[1];
         card2.TextContent.ShouldContain("Fin Consult");
-        card2.TextContent.ShouldContain("0 active projects • 0 members");
+        card2.TextContent.ShouldContain(ExpectedEntityCardSubtitle);
     }
 
     [Test]
