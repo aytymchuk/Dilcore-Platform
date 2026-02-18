@@ -67,7 +67,7 @@ public class LoadingServiceTests
     }
 
     [Test]
-    public void Show_ShouldBeThreadSafe()
+    public void ShowAndHide_ShouldBeThreadSafe()
     {
         Parallel.For(0, 100, i =>
         {
@@ -75,5 +75,24 @@ public class LoadingServiceTests
         });
 
         _sut.IsLoading.ShouldBeTrue();
+
+        Parallel.For(0, 100, i =>
+        {
+            _sut.Hide($"Message {i}");
+        });
+
+        _sut.IsLoading.ShouldBeFalse();
+    }
+
+    [Test]
+    public void MixedShowAndHide_ShouldBeThreadSafe()
+    {
+        Parallel.For(0, 1000, i =>
+        {
+            _sut.Show($"Message {i}");
+            _sut.Hide($"Message {i}");
+        });
+
+        _sut.IsLoading.ShouldBeFalse();
     }
 }

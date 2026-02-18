@@ -38,7 +38,7 @@ public static class FutureSlateTheme
                 Success = "#10B981",
                 Warning = "#F59E0B",
                 Error = "#EF4444",
-                Info = "#606BD2",
+                Info = "#3B82F6",
                 Black = "#000000",
                 White = "#FFFFFF"
             },

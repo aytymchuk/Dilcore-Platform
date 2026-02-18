@@ -13,19 +13,32 @@ public class EntityCardTests : Bunit.TestContext
         Services.AddMudServices();
     }
 
-    [Test]
-    public void EntityCard_ShouldRenderInitials_FromTitle()
+    [TestCase("Acme Corp", "AC")]
+    [TestCase("Acme", "AC")]
+    [TestCase("A", "A")]
+    [TestCase("", "")]
+    [TestCase("   ", "")]
+    public void EntityCard_ShouldRenderInitials(string title, string expectedInitials)
     {
-        // Arrange
-        var title = "Acme Corp";
-
         // Act
         var cut = RenderComponent<EntityCard>(parameters => parameters
             .Add(p => p.Title, title)
         );
 
         // Assert
-        cut.Markup.ShouldContain("AC");
+        if (string.IsNullOrEmpty(expectedInitials))
+        {
+             // If expected is empty, we check that it doesn't contain a specific class or check emptiness
+             // But the component logic returns "", so we can check if it contains the text.
+             // However, Markup.ShouldContain("") is always true.
+             // We can check the element text content.
+             var initialsEl = cut.FindAll(".rounded-lg").FirstOrDefault();
+             initialsEl?.TextContent.Trim().ShouldBe(expectedInitials);
+        }
+        else
+        {
+             cut.Markup.ShouldContain(expectedInitials);
+        }
     }
 
     [Test]

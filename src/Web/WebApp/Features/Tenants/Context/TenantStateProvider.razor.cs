@@ -55,12 +55,14 @@ public partial class TenantStateProvider : AsyncComponentBase
 
             if (result.IsFailed)
             {
+                CurrentTenantState = null;
                 ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
                 return;
             }
 
             if (result.ValueOrDefault is null)
             {
+                CurrentTenantState = null;
                 ErrorMessage = "Tenant not found.";
                 return;
             }

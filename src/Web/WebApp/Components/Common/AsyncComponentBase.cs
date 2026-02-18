@@ -16,8 +16,13 @@ public abstract class AsyncComponentBase : ComponentBase
     /// </summary>
     protected bool IsLoading => _busyCount > 0;
 
+    /// <summary>
+    /// Indicates whether the strict execute-async lock is active.
+    /// </summary>
+    protected bool IsBusy { get; set; }
+
     [Inject]
-    protected ILoadingService LoadingService { get; set; } = null!;
+    public ILoadingService? LoadingService { get; set; }
 
     /// <summary>
     /// Executes an async action while tracking the busy state.
@@ -49,16 +54,28 @@ public abstract class AsyncComponentBase : ComponentBase
     /// <summary>
     /// Executes an async action while showing a loading screen with the specified text.
     /// </summary>
-    protected async Task ExecuteAsync(Func<Task> action, string loadingText)
+    protected async Task ExecuteAsync(Func<Task> action, string? loadingText = null)
     {
-        LoadingService.Show(loadingText);
+        if (IsBusy) return;
+
+        var message = loadingText ?? "Loading...";
+
         try
         {
-            await ExecuteBusyAsync(action);
+            IsBusy = true;
+            if (LoadingService != null)
+            {
+                LoadingService.Show(message);
+            }
+            await action();
         }
         finally
         {
-            LoadingService.Hide(loadingText);
+            if (LoadingService != null)
+            {
+                LoadingService.Hide(message);
+            }
+            IsBusy = false;
         }
     }
 }

@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 namespace Dilcore.WebApp.Services.Loading;
 
 public class LoadingService : ILoadingService
@@ -49,5 +47,22 @@ public class LoadingService : ILoadingService
         NotifyStateChanged();
     }
 
-    private void NotifyStateChanged() => OnChange?.Invoke();
+    private void NotifyStateChanged()
+    {
+        var delegates = OnChange?.GetInvocationList();
+        if (delegates == null) return;
+
+        foreach (var d in delegates)
+        {
+            try
+            {
+                ((Action)d).Invoke();
+            }
+            catch
+            {
+                // Ignore exceptions from subscribers to prevent breaking other subscribers
+                // or the loading service itself.
+            }
+        }
+    }
 }

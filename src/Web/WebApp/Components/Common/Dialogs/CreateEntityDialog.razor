@@ -6,7 +6,10 @@
                 @if (!string.IsNullOrEmpty(Label))
                 {
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                        <MudIcon Icon="@Icon" Color="Color.Primary" />
+                        @if (!string.IsNullOrEmpty(Icon))
+                        {
+                            <MudIcon Icon="@Icon" Color="Color.Primary" />
+                        }
                         <MudText Typo="Typo.caption" Class="font-medium uppercase tracking-wider" Style="color: var(--mud-palette-text-secondary);">@Label</MudText>
                     </MudStack>
                 }

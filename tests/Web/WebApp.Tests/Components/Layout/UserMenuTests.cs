@@ -12,6 +12,7 @@ using Shouldly;
 
 namespace Dilcore.WebApp.Tests.Components.Layout;
 
+[TestFixture]
 public class UserMenuTests
 {
     private Bunit.TestContext _ctx = default!;
@@ -112,10 +113,7 @@ public class UserMenuTests
         // Act
         var cut = RenderWithCascadingUserState(userState);
         
-        // Find the activator (MudMenu renders it) and click it to open the popover
-        // The activator content is wrapped in a div with class mud-menu-activator
-        // Clicking this should toggle the menu.
-        // We use Find(".mud-menu-activator") to target it directly.
+        // Open menu popover
         var activator = cut.Find(".mud-menu-activator");
         activator.Click();
 
