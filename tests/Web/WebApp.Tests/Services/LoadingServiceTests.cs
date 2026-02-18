@@ -26,6 +26,26 @@ public class LoadingServiceTests
     }
 
     [Test]
+    public void Show_ShouldNoOp_WhenMessageIsInvalid()
+    {
+        _sut.Show(null!);
+        _sut.IsLoading.ShouldBeFalse();
+        _sut.CurrentMessage.ShouldBeNull();
+
+        _sut.Show("");
+        _sut.IsLoading.ShouldBeFalse();
+        _sut.CurrentMessage.ShouldBeNull();
+    }
+
+    [Test]
+    public void Hide_ShouldNoOp_WhenMessageDoesNotExist()
+    {
+        _sut.Hide("nonexistent");
+        _sut.IsLoading.ShouldBeFalse();
+        _sut.CurrentMessage.ShouldBeNull();
+    }
+
+    [Test]
     public void Show_ShouldAddMessage_AndTriggerOnChange()
     {
         var eventTriggered = false;
@@ -98,6 +118,7 @@ public class LoadingServiceTests
 
         _sut.IsLoading.ShouldBeFalse();
     }
+
     [Test]
     public void MassiveConcurrency_ShouldNotDeadlockOrCorruptState()
     {

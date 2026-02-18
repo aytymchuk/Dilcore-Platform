@@ -41,7 +41,7 @@
 .status-label {
     margin-left: 8px;
     color: var(--mud-palette-success);
-    background-color: var(--mud-palette-success-hover);
+    background-color: var(--mud-palette-success-lighten);
     border: 1px solid transparent;
 }
 

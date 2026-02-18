@@ -29,8 +29,6 @@ public class EntityCardTests : Bunit.TestContext
         // Assert
         if (string.IsNullOrEmpty(expectedInitials))
         {
-             // If expected is empty, we check that it doesn't contain a specific class or check emptiness
-             // But the component logic returns "", so we can check if it contains the text.
              var initialsEl = cut.FindAll(".rounded-lg").FirstOrDefault();
              initialsEl.ShouldNotBeNull();
              initialsEl.TextContent.Trim().ShouldBe(expectedInitials);
@@ -54,6 +52,21 @@ public class EntityCardTests : Bunit.TestContext
 
         // Assert
         cut.Markup.ShouldContain(role);
+    }
+
+    [Test]
+    public void EntityCard_ShouldRenderStatusLabel()
+    {
+        // Arrange
+        var statusLabel = "Active";
+
+        // Act
+        var cut = RenderComponent<EntityCard>(parameters => parameters
+            .Add(p => p.StatusLabel, statusLabel)
+        );
+
+        // Assert
+        cut.Markup.ShouldContain(statusLabel);
     }
     
     [Test]

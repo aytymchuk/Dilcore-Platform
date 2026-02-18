@@ -5,14 +5,16 @@
                <div class="d-flex align-center justify-center rounded-lg initials-badge">
                    @GetInitials(Title)
                </div>
-               @if (!string.IsNullOrEmpty(Role))
-               {
-                   <span class="chip role-chip">@Role</span>
-               }
-               @if (!string.IsNullOrEmpty(StatusLabel))
-               {
-                   <span class="chip status-label">@StatusLabel</span>
-               }
+                <div class="d-flex align-center gap-2">
+                    @if (!string.IsNullOrEmpty(Role))
+                    {
+                        <span class="chip role-chip">@Role</span>
+                    }
+                    @if (!string.IsNullOrEmpty(StatusLabel))
+                    {
+                        <span class="chip status-label">@StatusLabel</span>
+                    }
+                </div>
             </div>
             
             <div class="mb-6">
