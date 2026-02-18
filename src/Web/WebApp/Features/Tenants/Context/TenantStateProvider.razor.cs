@@ -1,6 +1,8 @@
+using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Features.Tenants.Get;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Services;
+using Dilcore.WebApp.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -9,7 +11,7 @@ namespace Dilcore.WebApp.Features.Tenants.Context;
 /// <summary>
 /// Cascading state provider for tenant context that resolves tenant from URL and provides it to child components.
 /// </summary>
-public partial class TenantStateProvider : ComponentBase
+public partial class TenantStateProvider : AsyncComponentBase, IDisposable
 {
     [Inject]
     private ISender Sender { get; set; } = null!;
@@ -37,38 +39,62 @@ public partial class TenantStateProvider : ComponentBase
         await LoadTenantAsync();
     }
 
+    private CancellationTokenSource? _reloadCts;
+
     private async Task LoadTenantAsync()
     {
-        if (string.IsNullOrWhiteSpace(SystemName))
+        // Cancel previous load if any
+        _reloadCts?.Cancel();
+        _reloadCts?.Dispose();
+        _reloadCts = new CancellationTokenSource();
+        var token = _reloadCts.Token;
+
+        try 
         {
-            ErrorMessage = "No tenant specified in URL.";
-            return;
+            await ExecuteAsync(async () =>
+            {
+                // Redundant check removed as OnParametersSetAsync handles it
+                
+                TenantAccessor.TenantName = SystemName;
+
+                var result = await Sender.Send(new GetCurrentTenantQuery(), token);
+
+                if (token.IsCancellationRequested) return;
+
+                if (result.IsFailed)
+                {
+                    CurrentTenantState = null;
+                    ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
+                    return;
+                }
+
+                if (result.ValueOrDefault is null)
+                {
+                    CurrentTenantState = null;
+                    ErrorMessage = "Tenant not found.";
+                    return;
+                }
+
+                if (!result.Value.SystemName.Equals(SystemName, StringComparison.OrdinalIgnoreCase))
+                {
+                    ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
+                    CurrentTenantState = null;
+                    return;
+                }
+
+                CurrentTenantState = new TenantState(result.Value.SystemName, result.Value.Name);
+                ErrorMessage = null;
+            }, LoadingConstants.WorkspaceData);
         }
-
-        TenantAccessor.TenantName = SystemName;
-
-        var result = await Sender.Send(new GetCurrentTenantQuery());
-
-        if (result.IsFailed)
+        catch (OperationCanceledException)
         {
-            ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
-            return;
+            // Ignore cancellation
         }
+    }
 
-        if (result.ValueOrDefault is null)
-        {
-            ErrorMessage = "Tenant not found.";
-            return;
-        }
-
-        if (!result.Value.SystemName.Equals(SystemName, StringComparison.OrdinalIgnoreCase))
-        {
-            ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
-            CurrentTenantState = null;
-            return;
-        }
-
-        CurrentTenantState = new TenantState(result.Value.SystemName, result.Value.Name);
-        ErrorMessage = null;
+    public void Dispose()
+    {
+        _reloadCts?.Cancel();
+        _reloadCts?.Dispose();
     }
 }

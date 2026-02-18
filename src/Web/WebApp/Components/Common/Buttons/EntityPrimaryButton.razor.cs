@@ -13,7 +13,7 @@ public partial class EntityPrimaryButton
     [Parameter] public bool FullWidth { get; set; }
     [Parameter] public string? ButtonIcon { get; set; }
     [Parameter] public string? Class { get; set; }
-    [Parameter] public Size Size { get; set; } = Size.Large;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
     [Parameter] public Color ButtonColor { get; set; } = Color.Primary;
 
     [Parameter(CaptureUnmatchedValues = true)]

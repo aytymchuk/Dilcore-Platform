@@ -15,5 +15,5 @@ public partial class EntitySecondaryButton
     [Parameter] public bool IsProcessing { get; set; }
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool FullWidth { get; set; }
-    [Parameter] public Size Size { get; set; } = Size.Large;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
 }

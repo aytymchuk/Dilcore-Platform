@@ -4,6 +4,7 @@ using Dilcore.WebApp.Features.Users.CurrentUser;
 using Dilcore.WebApp.Features.Users.Register;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Services;
+using Dilcore.WebApp.Services.Loading;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
@@ -28,6 +29,7 @@ public class RegisterTests
     private Mock<ISender> _mockSender = null!;
     private Mock<IAppNavigator> _mockNavigator = null!;
     private Mock<ISnackbar> _mockSnackbar = null!;
+    private Mock<ILoadingService> _mockLoadingService = null!;
 
     [SetUp]
     public void Setup()
@@ -46,10 +48,12 @@ public class RegisterTests
         _mockSender = new Mock<ISender>();
         _mockNavigator = new Mock<IAppNavigator>();
         _mockSnackbar = new Mock<ISnackbar>();
+        _mockLoadingService = new Mock<ILoadingService>();
 
         _ctx.Services.AddSingleton(_mockSender.Object);
         _ctx.Services.AddSingleton(_mockNavigator.Object);
         _ctx.Services.AddSingleton(_mockSnackbar.Object);
+        _ctx.Services.AddSingleton(_mockLoadingService.Object);
 
         _ctx.RenderComponent<MudPopoverProvider>();
         _ctx.RenderComponent<MudDialogProvider>();

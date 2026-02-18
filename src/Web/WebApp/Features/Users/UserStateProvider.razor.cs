@@ -2,6 +2,7 @@ using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Features.Users.CurrentUser;
+using Dilcore.WebApp.Services.Loading;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -51,27 +52,27 @@ public partial class UserStateProvider : AsyncComponentBase
 
     private async Task LoadCurrentUserAsync()
     {
-        await ExecuteBusyAsync(async () =>
-        {
-            var result = await Sender.Send(new GetCurrentUserQuery());
-
-            if (result.IsSuccess && result.Value is not null)
+        await ExecuteAsync(async () =>
             {
-                CurrentUser = result.Value;
-                IsUserNotFound = false;
-                return;
-            }
+                var result = await Sender.Send(new GetCurrentUserQuery());
 
-            if ((result.IsSuccess && result.Value is null) || result.Errors.OfType<UserNotFoundError>().Any())
-            {
-                IsUserNotFound = true;
-                CurrentUser = null;
+                if (result.IsSuccess && result.Value is not null)
+                {
+                    CurrentUser = result.Value;
+                    IsUserNotFound = false;
+                    return;
+                }
 
-                // Navigate to registration page and return to suppress the error from snackbar behavior
-                NavigationManager.NavigateTo(RouteConstants.Users.Register, forceLoad: false);
-                return;
-            }
-            // Other errors are handled by SnackbarResultBehavior
-        });
+                if ((result.IsSuccess && result.Value is null) || result.Errors.OfType<UserNotFoundError>().Any())
+                {
+                    IsUserNotFound = true;
+                    CurrentUser = null;
+
+                    // Navigate to registration page and return to suppress the error from snackbar behavior
+                    NavigationManager.NavigateTo(RouteConstants.Users.Register, forceLoad: false);
+                    return;
+                }
+                // Other errors are handled by SnackbarResultBehavior
+            }, LoadingConstants.UserProfile);
     }
 }

@@ -1,23 +1,24 @@
 @inherits AsyncComponentBase
 
 <CreateEntityDialog Title="Create Tenant" 
-                    Subtitle="Set up a new tenant environment. System name must be unique."
-                    Label="New Environment"
-                    Icon="@Icons.Material.Filled.DomainAdd"
+                    Subtitle="Set up a new tenant environment. System name must be unique across your organization."
                     SubmitButtonText="Create Tenant"
                     OnSubmit="SubmitAsync"
                     IsProcessing="@IsLoading">
-    <MudForm Model="@_model" @ref="_form" Validation="@(ValidateValue)" @bind-IsValid="@_isFormValid">
-        <MudTextField Label="Tenant Name" 
-                      @bind-Value="_model.Name"
-                      For="@(() => _model.Name)"
-                      Immediate="true"
-                      Class="mb-4" />
-        
-        <MudTextField Label="Description" 
-                      @bind-Value="_model.Description"
-                      For="@(() => _model.Description)"
-                      Lines="3"
-                      Immediate="true" />
+    <MudForm Model="@_model" @ref="_form" Validation="@(ValidateValue)" @bind-IsValid="@_isFormValid" Disabled="@IsLoading">
+        <MudStack Spacing="4">
+            <MudTextField Label="Tenant Name" 
+                          @bind-Value="_model.Name"
+                          For="@(() => _model.Name)"
+                          Immediate="true"
+                          Variant="Variant.Outlined" />
+            
+            <MudTextField Label="Description" 
+                          @bind-Value="_model.Description"
+                          For="@(() => _model.Description)"
+                          Lines="3"
+                          Immediate="true"
+                          Variant="Variant.Outlined" />
+        </MudStack>
     </MudForm>
 </CreateEntityDialog>

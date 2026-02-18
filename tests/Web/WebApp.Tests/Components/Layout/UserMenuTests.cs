@@ -12,10 +12,12 @@ using Shouldly;
 
 namespace Dilcore.WebApp.Tests.Components.Layout;
 
-public class LoginDisplayComponentTests
+[TestFixture]
+public class UserMenuTests
 {
     private Bunit.TestContext _ctx = default!;
     private TestAuthorizationContext _authContext = default!;
+    private IRenderedComponent<MudPopoverProvider> _popoverProvider = default!;
 
     [SetUp]
     public void Setup()
@@ -30,12 +32,13 @@ public class LoginDisplayComponentTests
 
         _authContext = _ctx.AddTestAuthorization();
 
-        _ctx.RenderComponent<MudPopoverProvider>();
+        _popoverProvider = _ctx.RenderComponent<MudPopoverProvider>();
     }
 
     [TearDown]
     public void TearDown()
     {
+        _popoverProvider?.Dispose();
         _ctx?.Dispose();
     }
 
@@ -99,9 +102,38 @@ public class LoginDisplayComponentTests
         cut.FindAll(".mud-menu").Count.ShouldBe(1);
     }
 
-    private IRenderedComponent<LoginDisplay> RenderWithCascadingUserState(UserStateProvider userState)
+    [Test]
+    public void DisplaysUserDetails_WhenMenuIsOpened()
     {
-        return _ctx.RenderComponent<LoginDisplay>(parameters =>
+        // Arrange
+        var testUser = new UserModel(Guid.NewGuid(), "test@example.com", "Test", "User");
+        _authContext.SetAuthorized("Test User");
+        var userState = CreateUserStateProvider(testUser);
+
+        // Act
+        var cut = RenderWithCascadingUserState(userState);
+        
+        // Open menu popover
+        var activator = cut.Find(".mud-menu-activator");
+        activator.Click();
+
+        // Assert — Check if user details are present in the markup (popover content)
+        // Note: MudPopover might render in a separate portal/root component, so we check the MudPopoverProvider.
+        _popoverProvider.WaitForAssertion(() => _popoverProvider.FindAll(".mud-typography").Count.ShouldBeGreaterThan(0));
+        
+        // Find specific elements by class
+        // Name has "font-bold" class
+        var nameElement = _popoverProvider.Find(".mud-typography.font-bold");
+        nameElement.TextContent.Trim().ShouldBe(testUser.FullName);
+
+        // Email has "mud-typography-caption" class (from Typo.caption)
+        var emailElement = _popoverProvider.Find(".mud-typography-caption");
+        emailElement.TextContent.Trim().ShouldBe(testUser.Email);
+    }
+
+    private IRenderedComponent<UserMenu> RenderWithCascadingUserState(UserStateProvider userState)
+    {
+        return _ctx.RenderComponent<UserMenu>(parameters =>
             parameters.Add(p => p.UserState, userState));
     }
 

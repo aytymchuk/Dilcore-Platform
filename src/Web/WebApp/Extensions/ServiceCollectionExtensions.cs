@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<Services.IAppNavigator, Services.AppNavigator>();
         services.AddScoped<Services.IBlazorTenantAccessor, Services.BlazorTenantAccessor>();
+        services.AddScoped<Services.Loading.ILoadingService, Services.Loading.LoadingService>();
 
         services.AddMudServices();
         services.AddMediatRInfrastructure();

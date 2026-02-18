@@ -1,14 +1,9 @@
+@inherits AsyncComponentBase
+
 <CascadingValue Value="@CurrentTenantState">
     @if (CurrentTenantState == null && string.IsNullOrEmpty(ErrorMessage))
     {
-        <MudGrid Class="mt-4">
-            <MudItem xs="12" Class="d-flex justify-center">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </MudItem>
-            <MudItem xs="12" Class="d-flex justify-center">
-                <MudText>Loading tenant...</MudText>
-            </MudItem>
-        </MudGrid>
+       @* Loading managed by LoadingService *@
     }
     else if (!string.IsNullOrEmpty(ErrorMessage))
     {
