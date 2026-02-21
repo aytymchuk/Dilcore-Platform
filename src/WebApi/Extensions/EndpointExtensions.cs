@@ -1,3 +1,4 @@
+using Dilcore.Blueprints.WebApi;
 using Dilcore.Identity.WebApi;
 using Dilcore.Tenancy.WebApi;
 
@@ -10,6 +11,7 @@ public static class EndpointExtensions
         // Domain Module Endpoints
         app.MapIdentityEndpoints();
         app.MapTenancyEndpoints();
+        app.MapBlueprintsEndpoints();
 
         return app;
     }

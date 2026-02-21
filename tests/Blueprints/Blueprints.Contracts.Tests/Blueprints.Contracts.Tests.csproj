@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Contracts\Blueprints.Contracts.csproj" />
+  </ItemGroup>
+</Project>

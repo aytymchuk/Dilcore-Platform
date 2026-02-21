@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Orleans.Reminders" />
+    <PackageReference Include="Microsoft.Orleans.Server" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Blueprints.Actors.Abstractions\Blueprints.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\Blueprints.Core\Blueprints.Core.csproj" />
+    <ProjectReference Include="..\..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
