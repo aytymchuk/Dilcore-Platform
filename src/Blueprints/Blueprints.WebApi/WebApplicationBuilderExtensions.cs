@@ -1,3 +1,4 @@
+using Dilcore.Blueprints.Core;
 using Dilcore.Blueprints.Store;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,8 +15,7 @@ public static class WebApplicationBuilderExtensions
     /// </summary>
     public static WebApplicationBuilder AddBlueprintsModule(this WebApplicationBuilder builder)
     {
-        // Add Core services (MediatR handlers and behaviors)
-        // builder.Services.AddBlueprintsApplication();
+        builder.Services.AddBlueprintsApplication();
 
         // Add Store services
         builder.Services.AddBlueprintsStore(builder.Configuration);

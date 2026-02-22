@@ -107,7 +107,8 @@ public class ArchitectureTests
     public void Actors_Should_Only_Depend_On_Store_And_Abstractions_And_Transitive()
     {
         Types().That().Are(_actorsLayer)
-            .Should().NotDependOnAny(_infrastructureLayer)
+            .Should().NotDependOnAny(_coreLayer)
+            .AndShould().NotDependOnAny(_infrastructureLayer)
             .AndShould().NotDependOnAny(_webApiLayer)
             .WithoutRequiringPositiveResults()
             .Check(Architecture);

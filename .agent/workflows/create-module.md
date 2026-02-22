@@ -97,8 +97,7 @@ dotnet add "$SRC_DIR/$MODULE_NAME.Store/$MODULE_NAME.Store.csproj" reference "$S
 
 # Actors
 dotnet add "$SRC_DIR/$MODULE_NAME.Actors/$MODULE_NAME.Actors.csproj" reference "$SRC_DIR/$MODULE_NAME.Actors.Abstractions/$MODULE_NAME.Actors.Abstractions.csproj"
-dotnet add "$SRC_DIR/$MODULE_NAME.Actors/$MODULE_NAME.Actors.csproj" reference "$SRC_DIR/$MODULE_NAME.Core/$MODULE_NAME.Core.csproj"
-dotnet add "$SRC_DIR/$MODULE_NAME.Actors/$MODULE_NAME.Actors.csproj" reference "$SRC_DIR/$MODULE_NAME.Domain/$MODULE_NAME.Domain.csproj"
+dotnet add "$SRC_DIR/$MODULE_NAME.Actors/$MODULE_NAME.Actors.csproj" reference "$SRC_DIR/$MODULE_NAME.Store/$MODULE_NAME.Store.csproj"
 
 # Infrastructure
 dotnet add "$SRC_DIR/$MODULE_NAME.Infrastructure/$MODULE_NAME.Infrastructure.csproj" reference "$SRC_DIR/$MODULE_NAME.Core/$MODULE_NAME.Core.csproj"
@@ -106,7 +105,7 @@ dotnet add "$SRC_DIR/$MODULE_NAME.Infrastructure/$MODULE_NAME.Infrastructure.csp
 # Test dependencies
 # For Architecture tests
 dotnet add "$TESTS_DIR/$MODULE_NAME.Architecture.Tests/$MODULE_NAME.Architecture.Tests.csproj" reference "$SRC_DIR/$MODULE_NAME.WebApi/$MODULE_NAME.WebApi.csproj"
-dotnet add "$TESTS_DIR/$MODULE_NAME.Architecture.Tests/$MODULE_NAME.Architecture.Tests.csproj" package NetArchTest.Rules
+dotnet add "$TESTS_DIR/$MODULE_NAME.Architecture.Tests/$MODULE_NAME.Architecture.Tests.csproj" package TngTech.ArchUnitNET.NUnit
 
 for PROJ in "Actors" "Actors.Abstractions" "Contracts" "Core" "Domain" "Infrastructure" "Store" "WebApi"; do
     dotnet add "$TESTS_DIR/$MODULE_NAME.$PROJ.Tests/$MODULE_NAME.$PROJ.Tests.csproj" reference "$SRC_DIR/$MODULE_NAME.$PROJ/$MODULE_NAME.$PROJ.csproj"
@@ -151,8 +150,8 @@ Compare with a similar module (e.g. `src/Tenancy`) and add the same `PackageRefe
 - Packages: `FluentValidation`.
 
 **Actors** (`[ModuleName].Actors.csproj`):
-- Packages: `Microsoft.Orleans.Server`, `Microsoft.Orleans.Reminders`, `Microsoft.Extensions.Logging.Abstractions`, `AutoMapper`.
-- Project refs: `[ModuleName].Actors.Abstractions`, `[ModuleName].Core`, `Identity/Identity.Actors.Abstractions`, `Common/Authentication/Authentication.Abstractions`.
+- Packages: `Microsoft.Orleans.Sdk`, `Microsoft.Orleans.Reminders` (only if reminders are used), `Microsoft.Extensions.Logging.Abstractions`, `AutoMapper`.
+- Project refs: `[ModuleName].Actors.Abstractions`, `[ModuleName].Store`, `Identity/Identity.Actors.Abstractions`, `Common/Authentication/Authentication.Abstractions`.
 
 **Actors.Abstractions** (`[ModuleName].Actors.Abstractions.csproj`):
 - Packages: `Microsoft.Orleans.Core.Abstractions`, `Microsoft.Orleans.CodeGenerator` (with `PrivateAssets`/`IncludeAssets` as in the reference module).

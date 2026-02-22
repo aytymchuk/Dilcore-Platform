@@ -4,7 +4,7 @@ The **Blueprints** module is a domain module within the Dilcore Platform respons
 
 ## Project Structure
 
-```
+```text
 src/Blueprints/
 ├── Blueprints.Actors.Abstractions/   # Orleans grain interfaces for Blueprints
 ├── Blueprints.Actors/                # Orleans grain implementations
@@ -21,7 +21,7 @@ src/Blueprints/
 | Project | Responsibility |
 |---|---|
 | `Blueprints.Contracts` | Shared request/response records consumed by clients |
-| `Blueprints.Domain` | Core domain entities and business rules, no external dependencies |
+| `Blueprints.Domain` | Core domain entities and business rules; may reference `Domain.Abstractions` |
 | `Blueprints.Actors.Abstractions` | Orleans grain interface definitions |
 | `Blueprints.Actors` | Orleans grain implementations for distributed blueprint state |
 | `Blueprints.Core` | MediatR command/query handlers, AutoMapper profiles, FluentValidation validators |
@@ -73,7 +73,7 @@ The store requires a MongoDB connection string. Add the following section to you
 
 Corresponding test projects live under `tests/Blueprints/` and mirror this structure:
 
-```
+```text
 tests/Blueprints/
 ├── Blueprints.Actors.Abstractions.Tests/
 ├── Blueprints.Actors.Tests/

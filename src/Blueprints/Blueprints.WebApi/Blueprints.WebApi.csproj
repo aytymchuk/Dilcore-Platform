@@ -13,6 +13,7 @@
     <ProjectReference Include="..\Blueprints.Store\Blueprints.Store.csproj" />
     <ProjectReference Include="..\Blueprints.Actors\Blueprints.Actors.csproj" />
     <ProjectReference Include="..\Blueprints.Actors.Abstractions\Blueprints.Actors.Abstractions.csproj" />
+    <ProjectReference Include="..\Blueprints.Domain\Blueprints.Domain.csproj" />
     <ProjectReference Include="..\Blueprints.Infrastructure\Blueprints.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Common\FluentResults\Results.Extensions.Api\Results.Extensions.Api.csproj" />
   </ItemGroup>
