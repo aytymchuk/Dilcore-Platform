@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Dilcore.DocumentDb.MongoDb" />
+    <PackageReference Include="Dilcore.DocumentDb.MongoDb.Repositories" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Configuration\Configuration.Extensions\Configuration.Extensions.csproj" />
+    <ProjectReference Include="..\Blueprints.Core\Blueprints.Core.csproj" />
+    <ProjectReference Include="..\Blueprints.Domain\Blueprints.Domain.csproj" />
+  </ItemGroup>
+</Project>

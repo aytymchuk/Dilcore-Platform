@@ -12,6 +12,7 @@ using Dilcore.MultiTenant.Abstractions;
 using Dilcore.MultiTenant.Extensions.OpenApi;
 using Dilcore.MultiTenant.Http.Extensions;
 using Dilcore.Telemetry.Extensions.OpenTelemetry;
+using Dilcore.Blueprints.WebApi;
 using Dilcore.Tenancy.WebApi;
 using Dilcore.WebApi.Infrastructure;
 using Dilcore.WebApi.Infrastructure.Exceptions;
@@ -86,6 +87,7 @@ internal static class ServiceCollectionExtensions
     {
         builder.AddIdentityModule();
         builder.AddTenancyModule();
+        builder.AddBlueprintsModule();
         return builder;
     }
 }

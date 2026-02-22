@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.WebApi\Blueprints.WebApi.csproj" />
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Core\Blueprints.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Store\Blueprints.Store.csproj" />
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Infrastructure\Blueprints.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Domain\Blueprints.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Actors\Blueprints.Actors.csproj" />
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Actors.Abstractions\Blueprints.Actors.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="TngTech.ArchUnitNET.NUnit" />
+  </ItemGroup>
+</Project>
