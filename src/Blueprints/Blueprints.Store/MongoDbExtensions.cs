@@ -36,7 +36,7 @@ public static class MongoDbExtensions
             {
                 dbContainer.AddDatabase(DatabaseName, db =>
                 {
-                    db.AddGenericRepository<BlueprintDocument>(options =>
+                    db.AddGenericRepository<EntityDefinitionDocument>(options =>
                     {
                         options.WithCollectionName(BlueprintsCollectionName);
                         options.WithDatabaseName(DatabaseName);

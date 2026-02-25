@@ -1,0 +1,33 @@
+using Dilcore.Blueprints.Domain.Entities.Fields;
+using Dilcore.Domain.Abstractions;
+
+namespace Dilcore.Blueprints.Domain.Entities;
+
+public record EntityDefinition : BaseDomain
+{
+    private readonly List<FieldDefinition> _fields = [];
+
+    public required string Name { get; init; }
+    public required string DisplayName { get; init; }
+    public string? Description { get; init; }
+    public bool IsAbstract { get; init; }
+    public Guid? ExtendsEntityId { get; init; }
+
+    public IReadOnlyList<FieldDefinition> Fields => _fields;
+    public EntityMetadata Metadata { get; init; } = new();
+
+    public EntityDefinition(IEnumerable<FieldDefinition>? fields = null)
+    {
+        _fields = fields?.ToList() ?? [];
+    }
+
+    public void AddField(FieldDefinition field)
+    {
+        _fields.Add(field);
+    }
+
+    public void RemoveField(Guid fieldId)
+    {
+        _fields.RemoveAll(f => f.Id == fieldId);
+    }
+}
