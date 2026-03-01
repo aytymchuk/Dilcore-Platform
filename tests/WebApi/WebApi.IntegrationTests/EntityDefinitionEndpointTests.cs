@@ -69,8 +69,14 @@ public class EntityDefinitionEndpointTests
         SchemaName = schemaName
     };
 
-    private static int GetStatusCode(FluentResults.ResultBase result) =>
-        result.Errors.OfType<ApiError>().First().StatusCode;
+    private static int GetStatusCode(FluentResults.ResultBase result)
+    {
+        var apiError = result.Errors.OfType<ApiError>().FirstOrDefault();
+        if (apiError is null)
+            throw new InvalidOperationException(
+                $"Expected an ApiError but found: [{string.Join(", ", result.Errors.Select(e => $"{e.GetType().Name}: {e.Message}"))}]");
+        return apiError.StatusCode;
+    }
 
     #region POST /blueprints/entity-definitions
 

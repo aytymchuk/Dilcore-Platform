@@ -31,9 +31,14 @@ public class EntityDefinitionStoreMappingProfile : Profile
 
         CreateMap<FieldDefinitionDocument, FieldDefinition>()
             .Include<ComplexFieldDefinitionDocument, ComplexFieldDefinition>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => Enum.Parse<FieldType>(src.Type)));
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ParseFieldType(src.Type)));
 
         CreateMap<ComplexFieldDefinitionDocument, ComplexFieldDefinition>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => Enum.Parse<FieldType>(src.Type)));
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ParseFieldType(src.Type)));
     }
+
+    private static FieldType ParseFieldType(string type) =>
+        Enum.TryParse<FieldType>(type, ignoreCase: true, out var parsed)
+            ? parsed
+            : throw new AutoMapperMappingException($"Unknown field type '{type}'.");
 }

@@ -6,7 +6,7 @@ namespace Dilcore.Blueprints.Core.Features.EntityDefinitions.Update;
 public record UpdateEntityDefinitionCommand : ICommand<EntityDefinition>
 {
     public required Guid Id { get; init; }
-    public long ETag { get; init; }
+    public required long ETag { get; init; }
     public string? DisplayName { get; init; }
     public string? Description { get; init; }
     public bool IsAbstract { get; init; }

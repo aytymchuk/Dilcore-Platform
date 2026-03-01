@@ -6,7 +6,7 @@ description: Build the solution and run all tests, fixing any errors iteratively
 
 Run the full solution build:
 
-```
+```bash
 dotnet build Dilcore.Platform.sln
 ```
 
@@ -22,7 +22,7 @@ If the build fails:
 
 Once the build is green, run all tests:
 
-```
+```bash
 dotnet test Dilcore.Platform.sln --no-build --verbosity normal
 ```
 

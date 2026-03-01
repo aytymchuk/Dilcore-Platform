@@ -13,7 +13,8 @@ public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// Adds the Platform API clients to the service collection.
-    /// Registers IIdentityClient and ITenancyClient as independent services.
+    /// Registers <see cref="IIdentityClient"/>, <see cref="ITenancyClient"/>,
+    /// and <see cref="IBlueprintsClient"/> as independent Refit services.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configureOptions">Action to configure client options.</param>

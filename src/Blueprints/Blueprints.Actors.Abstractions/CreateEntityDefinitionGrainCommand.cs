@@ -17,10 +17,10 @@ public sealed record CreateEntityDefinitionGrainCommand
     public Guid? ExtendsEntityId { get; init; }
 
     [Id(4)]
-    public List<FieldDefinitionGrainDto> Fields { get; init; } = [];
+    public FieldDefinitionGrainDto[] Fields { get; init; } = [];
 
     [Id(5)]
-    public List<string> Tags { get; init; } = [];
+    public string[] Tags { get; init; } = [];
 
     [Id(6)]
     public string? SchemaName { get; init; }

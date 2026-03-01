@@ -54,4 +54,7 @@ public static partial class LoggerExtensions
 
     [LoggerMessage(LogLevel.Debug, "Clearing {StateType} state: {Id}")]
     public static partial void LogClearingState(this ILogger logger, string stateType, Guid id);
+
+    [LoggerMessage(LogLevel.Error, "Error clearing {StateType} state: {Id}")]
+    public static partial void LogClearStateError(this ILogger logger, Exception? ex, string stateType, Guid id);
 }

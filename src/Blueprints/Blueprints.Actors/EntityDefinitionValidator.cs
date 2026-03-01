@@ -18,10 +18,15 @@ internal static class EntityDefinitionValidator
         nameof(FieldType.Object), nameof(FieldType.Array)
     };
 
-    public static string? ValidateFields(List<FieldDefinitionGrainDto> fields) =>
-        ValidateFieldsRecursive(fields, EntityDefinitionLimits.MaxTopLevelFields, depth: 1);
+    public static string? ValidateFields(IReadOnlyList<FieldDefinitionGrainDto>? fields)
+    {
+        if (fields is null)
+            return "Fields must not be null.";
 
-    private static string? ValidateFieldsRecursive(List<FieldDefinitionGrainDto> fields, int maxCount, int depth)
+        return ValidateFieldsRecursive(fields, EntityDefinitionLimits.MaxTopLevelFields, depth: 1);
+    }
+
+    private static string? ValidateFieldsRecursive(IReadOnlyList<FieldDefinitionGrainDto> fields, int maxCount, int depth)
     {
         if (fields.Count > maxCount)
             return $"Must not have more than {maxCount} fields at depth {depth}.";
@@ -43,13 +48,13 @@ internal static class EntityDefinitionValidator
 
         var isComplex = ComplexFieldTypes.Contains(field.Type);
 
-        if (isComplex && field.Fields is not { Count: > 0 })
+        if (isComplex && field.Fields is not { Length: > 0 })
             return $"Field '{field.DisplayName}' of type {field.Type} must contain at least one nested field.";
 
-        if (!isComplex && field.Fields is { Count: > 0 })
+        if (!isComplex && field.Fields is { Length: > 0 })
             return $"Field '{field.DisplayName}' of type {field.Type} must not have nested fields.";
 
-        if (field.Fields is { Count: > 0 })
+        if (field.Fields is { Length: > 0 })
         {
             if (depth >= EntityDefinitionLimits.MaxNestingDepth)
                 return $"Field nesting depth must not exceed {EntityDefinitionLimits.MaxNestingDepth} levels.";

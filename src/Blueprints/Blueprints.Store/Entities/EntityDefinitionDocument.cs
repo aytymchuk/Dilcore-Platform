@@ -8,7 +8,10 @@ public sealed class EntityDefinitionDocument : IDocumentEntity
     public Guid Id { get; set; }
     public long ETag { get; set; }
     public bool IsDeleted { get; set; }
+    /// <summary>Always stored as UTC (<see cref="DateTimeKind.Utc"/>).</summary>
     public DateTime CreatedAt { get; set; }
+
+    /// <summary>Always stored as UTC (<see cref="DateTimeKind.Utc"/>).</summary>
     public DateTime UpdatedAt { get; set; }
 
     public required string SchemaName { get; set; }

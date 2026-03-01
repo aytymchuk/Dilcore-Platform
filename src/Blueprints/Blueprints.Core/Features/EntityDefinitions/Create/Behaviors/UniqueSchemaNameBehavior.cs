@@ -22,10 +22,16 @@ public sealed class UniqueSchemaNameBehavior
         RequestHandlerDelegate<Result<EntityDefinition>> next,
         CancellationToken cancellationToken)
     {
-        var schemaName = SchemaNameGenerator.Generate(request.SchemaName ?? request.DisplayName);
+        var schemaInput = !string.IsNullOrWhiteSpace(request.SchemaName)
+            ? request.SchemaName
+            : request.DisplayName;
+        var schemaName = SchemaNameGenerator.Generate(schemaInput);
 
         var existsResult = await _repository.ExistsBySchemaNameAsync(schemaName, cancellationToken);
-        if (existsResult.IsSuccess && existsResult.Value)
+        if (existsResult.IsFailed)
+            return Result.Fail<EntityDefinition>(existsResult.Errors);
+
+        if (existsResult.Value)
             return Result.Fail<EntityDefinition>(
                 new ConflictError($"An entity definition with schema name '{schemaName}' already exists."));
 

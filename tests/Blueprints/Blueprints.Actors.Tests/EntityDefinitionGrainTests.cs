@@ -31,8 +31,8 @@ public class EntityDefinitionGrainTests
         string? description = "Stores customer data",
         bool isAbstract = false,
         Guid? extendsEntityId = null,
-        List<FieldDefinitionGrainDto>? fields = null,
-        List<string>? tags = null) => new()
+        FieldDefinitionGrainDto[]? fields = null,
+        string[]? tags = null) => new()
     {
         DisplayName = displayName,
         Description = description,
@@ -96,7 +96,7 @@ public class EntityDefinitionGrainTests
     {
         var grain = GetGrain();
         var extendsId = Guid.CreateVersion7();
-        var fields = new List<FieldDefinitionGrainDto>
+        var fields = new FieldDefinitionGrainDto[]
         {
             new()
             {
@@ -120,7 +120,7 @@ public class EntityDefinitionGrainTests
                 ]
             }
         };
-        List<string> tags = ["crm", "core"];
+        string[] tags = ["crm", "core"];
 
         var result = await grain.CreateAsync(CreateCommand(
             displayName: "Contact",
@@ -134,15 +134,33 @@ public class EntityDefinitionGrainTests
         var entity = result.Entity!;
         entity.IsAbstract.ShouldBeTrue();
         entity.ExtendsEntityId.ShouldBe(extendsId);
-        entity.Fields.Count.ShouldBe(2);
+        entity.Fields.Length.ShouldBe(2);
         entity.Fields[0].SchemaName.ShouldBe("firstName");
         entity.Fields[1].SchemaName.ShouldBe("address");
         entity.Fields[1].Fields.ShouldNotBeNull();
-        entity.Fields[1].Fields!.Count.ShouldBe(1);
+        entity.Fields[1].Fields!.Length.ShouldBe(1);
         entity.Fields[1].Fields![0].SchemaName.ShouldBe("street");
-        entity.Tags.Count.ShouldBe(2);
+        entity.Tags.Length.ShouldBe(2);
         entity.Tags.ShouldContain("crm");
         entity.Tags.ShouldContain("core");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldRejectDuplicateFieldSchemaNames()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "DupCreateTest",
+            fields:
+            [
+                new() { SchemaName = "", DisplayName = "Same Name", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Same Name", Type = "Number" }
+            ]));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name");
     }
 
     #endregion
@@ -228,7 +246,7 @@ public class EntityDefinitionGrainTests
     {
         var grain = GetGrain();
         var createResult = await grain.CreateAsync(CreateCommand(displayName: "Old Name"));
-        var newFields = new List<FieldDefinitionGrainDto>
+        var newFields = new FieldDefinitionGrainDto[]
         {
             new()
             {
@@ -255,7 +273,7 @@ public class EntityDefinitionGrainTests
         entity.SchemaName.ShouldBe("oldName");
         entity.Description.ShouldBe("Updated description");
         entity.IsAbstract.ShouldBeTrue();
-        entity.Fields.Count.ShouldBe(1);
+        entity.Fields.Length.ShouldBe(1);
         entity.Fields[0].SchemaName.ShouldBe("email");
         entity.Tags.ShouldContain("updated");
     }
@@ -342,7 +360,7 @@ public class EntityDefinitionGrainTests
         });
 
         result.IsSuccess.ShouldBeTrue();
-        result.Entity!.Fields.Count.ShouldBe(3);
+        result.Entity!.Fields.Length.ShouldBe(3);
         result.Entity!.Fields[0].SchemaName.ShouldBe("firstName");
         result.Entity!.Fields[0].DisplayName.ShouldBe("Updated Display");
         result.Entity!.Fields[1].SchemaName.ShouldBe("lastName");
@@ -363,7 +381,7 @@ public class EntityDefinitionGrainTests
             Description = "Updated"
         });
 
-        updateResult.Entity!.UpdatedAt.ShouldBeGreaterThanOrEqualTo(createResult.Entity!.UpdatedAt);
+        updateResult.Entity!.UpdatedAt.ShouldBeGreaterThan(createResult.Entity!.UpdatedAt);
         updateResult.Entity.CreatedAt.ShouldBe(createResult.Entity.CreatedAt);
     }
 

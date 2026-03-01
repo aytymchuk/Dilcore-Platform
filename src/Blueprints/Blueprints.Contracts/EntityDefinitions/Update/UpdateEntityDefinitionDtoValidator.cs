@@ -7,13 +7,15 @@ public class UpdateEntityDefinitionDtoValidator : AbstractValidator<UpdateEntity
     public UpdateEntityDefinitionDtoValidator()
     {
         RuleFor(x => x.DisplayName)
+            .NotEmpty()
+            .WithMessage("DisplayName must not be empty.")
             .MinimumLength(ValidationConstants.DisplayNameMinLength)
             .WithMessage($"DisplayName must be at least {ValidationConstants.DisplayNameMinLength} characters.")
             .MaximumLength(ValidationConstants.DisplayNameMaxLength)
             .WithMessage($"DisplayName must not exceed {ValidationConstants.DisplayNameMaxLength} characters.")
             .Matches(ValidationConstants.AlphanumericRequiredPattern)
             .WithMessage("DisplayName must contain at least one alphanumeric character.")
-            .When(x => !string.IsNullOrEmpty(x.DisplayName));
+            .When(x => x.DisplayName is not null);
 
         RuleFor(x => x.Description)
             .MaximumLength(ValidationConstants.DescriptionMaxLength)

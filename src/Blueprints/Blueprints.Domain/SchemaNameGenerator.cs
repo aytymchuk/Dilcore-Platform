@@ -17,6 +17,8 @@ public static partial class SchemaNameGenerator
 
     public static string Generate(string displayName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+
         var words = WordSplitRegex().Split(displayName.Trim())
             .Where(w => w.Length > 0)
             .ToArray();

@@ -32,7 +32,7 @@ public static class EndpointExtensions
     {
         var entities = group.MapGroup("/entity-definitions");
 
-        entities.MapGet("/", async (
+        entities.MapGet("/", async Task<IResult> (
             int? skip,
             int? take,
             string? search,
@@ -42,6 +42,17 @@ public static class EndpointExtensions
             IMapper mapper,
             CancellationToken ct) =>
         {
+            const int maxTake = 100;
+            var effectiveSkip = skip ?? 0;
+            var effectiveTake = take ?? 20;
+
+            if (effectiveSkip < 0)
+                return Microsoft.AspNetCore.Http.Results.BadRequest(
+                    new { field = "skip", error = "Must be >= 0." });
+            if (effectiveTake < 1 || effectiveTake > maxTake)
+                return Microsoft.AspNetCore.Http.Results.BadRequest(
+                    new { field = "take", error = $"Must be between 1 and {maxTake}." });
+
             var tagList = string.IsNullOrWhiteSpace(tags)
                 ? null
                 : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -49,8 +60,8 @@ public static class EndpointExtensions
 
             var query = new GetEntityDefinitionsQuery
             {
-                Skip = skip ?? 0,
-                Take = take ?? 20,
+                Skip = effectiveSkip,
+                Take = effectiveTake,
                 SearchTerm = search,
                 IsAbstract = isAbstract,
                 Tags = tagList

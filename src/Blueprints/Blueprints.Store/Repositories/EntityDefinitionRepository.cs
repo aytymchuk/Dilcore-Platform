@@ -111,14 +111,18 @@ public sealed class EntityDefinitionRepository : IEntityDefinitionRepository
 
         var totalCount = countResult.Value;
 
+        // TODO: Replace with server-side Skip/Limit once IGenericRepository supports paged queries.
         var items = new List<EntityDefinition>();
-        var index = 0;
+        var skipped = 0;
         await foreach (var doc in _repository.GetAsyncEnumerable(filter).WithCancellation(cancellationToken))
         {
-            if (index >= skip && items.Count < take)
-                items.Add(_mapper.Map<EntityDefinition>(doc));
+            if (skipped < skip)
+            {
+                skipped++;
+                continue;
+            }
 
-            index++;
+            items.Add(_mapper.Map<EntityDefinition>(doc));
 
             if (items.Count >= take)
                 break;

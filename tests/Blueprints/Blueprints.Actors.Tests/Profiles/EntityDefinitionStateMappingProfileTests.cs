@@ -231,7 +231,7 @@ public class EntityDefinitionStateMappingProfileTests
         dto.SchemaName.ShouldBe("items");
         dto.Type.ShouldBe("Array");
         dto.Fields.ShouldNotBeNull();
-        dto.Fields!.Count.ShouldBe(1);
+        dto.Fields!.Length.ShouldBe(1);
         dto.Fields[0].SchemaName.ShouldBe("sku");
         dto.Fields[0].Type.ShouldBe("String");
     }
@@ -287,7 +287,7 @@ public class EntityDefinitionStateMappingProfileTests
         roundTripped.Fields.Count.ShouldBe(1);
         roundTripped.Fields[0].SchemaName.ShouldBe("profile");
         roundTripped.Fields[0].Fields.ShouldNotBeNull();
-        roundTripped.Fields[0].Fields!.Count.ShouldBe(1);
+        roundTripped.Fields[0].Fields!.Length.ShouldBe(1);
         roundTripped.Fields[0].Fields![0].SchemaName.ShouldBe("bio");
         roundTripped.Tags.ShouldContain("account");
         roundTripped.IsCreated.ShouldBeTrue();

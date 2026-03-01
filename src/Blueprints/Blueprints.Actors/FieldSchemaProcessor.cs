@@ -5,13 +5,13 @@ namespace Dilcore.Blueprints.Actors;
 
 internal static class FieldSchemaProcessor
 {
-    public static List<FieldDefinitionGrainDto> GenerateSchemaNames(List<FieldDefinitionGrainDto> fields) =>
+    public static List<FieldDefinitionGrainDto> GenerateSchemaNames(IReadOnlyList<FieldDefinitionGrainDto> fields) =>
         fields.Select(f => f with
         {
             SchemaName = SchemaNameGenerator.Generate(
                 !string.IsNullOrEmpty(f.SchemaName) ? f.SchemaName : f.DisplayName),
-            Fields = f.Fields is { Count: > 0 }
-                ? GenerateSchemaNames(f.Fields)
+            Fields = f.Fields is { Length: > 0 }
+                ? GenerateSchemaNames(f.Fields).ToArray()
                 : f.Fields
         }).ToList();
 
@@ -20,14 +20,16 @@ internal static class FieldSchemaProcessor
     /// preserve their SchemaName. New fields get SchemaNames generated from DisplayName.
     /// </summary>
     public static List<FieldDefinitionGrainDto> MergeWithExisting(
-        List<FieldDefinitionGrainDto> incoming,
-        List<FieldDefinitionGrainDto> existing)
+        IReadOnlyList<FieldDefinitionGrainDto> incoming,
+        IReadOnlyList<FieldDefinitionGrainDto> existing)
     {
-        var existingBySchema = existing.ToDictionary(f => f.SchemaName, StringComparer.Ordinal);
+        var existingBySchema = existing
+            .GroupBy(f => f.SchemaName, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
         return incoming.Select(f => MergeField(f, existingBySchema)).ToList();
     }
 
-    public static string? FindDuplicate(List<FieldDefinitionGrainDto> fields)
+    public static string? FindDuplicate(IReadOnlyList<FieldDefinitionGrainDto> fields)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var field in fields)
@@ -35,7 +37,7 @@ internal static class FieldSchemaProcessor
             if (!seen.Add(field.SchemaName))
                 return field.SchemaName;
 
-            if (field.Fields is { Count: > 0 })
+            if (field.Fields is { Length: > 0 })
             {
                 var nested = FindDuplicate(field.Fields);
                 if (nested is not null)
@@ -46,14 +48,14 @@ internal static class FieldSchemaProcessor
         return null;
     }
 
-    public static string? FindReserved(List<FieldDefinitionGrainDto> fields)
+    public static string? FindReserved(IReadOnlyList<FieldDefinitionGrainDto> fields)
     {
         foreach (var field in fields)
         {
             if (SchemaNameGenerator.IsReserved(field.SchemaName))
                 return field.SchemaName;
 
-            if (field.Fields is { Count: > 0 })
+            if (field.Fields is { Length: > 0 })
             {
                 var nested = FindReserved(field.Fields);
                 if (nested is not null)
@@ -68,7 +70,7 @@ internal static class FieldSchemaProcessor
     /// Validates field schema name integrity: checks for duplicates and reserved names in one pass.
     /// Returns a validation error message or <c>null</c> if all names are valid.
     /// </summary>
-    public static string? ValidateSchemaNames(List<FieldDefinitionGrainDto> fields)
+    public static string? ValidateSchemaNames(IReadOnlyList<FieldDefinitionGrainDto> fields)
     {
         var duplicate = FindDuplicate(fields);
         if (duplicate is not null)
@@ -82,8 +84,8 @@ internal static class FieldSchemaProcessor
     }
 
     public static FieldChanges ComputeChanges(
-        List<FieldDefinitionGrainDto> oldFields,
-        List<FieldDefinitionGrainDto> newFields)
+        IReadOnlyList<FieldDefinitionGrainDto> oldFields,
+        IReadOnlyList<FieldDefinitionGrainDto> newFields)
     {
         var oldNames = CollectSchemaNames(oldFields);
         var newNames = CollectSchemaNames(newFields);
@@ -93,7 +95,7 @@ internal static class FieldSchemaProcessor
             Removed: oldNames.Except(newNames).ToList());
     }
 
-    private static HashSet<string> CollectSchemaNames(List<FieldDefinitionGrainDto> fields)
+    private static HashSet<string> CollectSchemaNames(IReadOnlyList<FieldDefinitionGrainDto> fields)
     {
         var result = new HashSet<string>(StringComparer.Ordinal);
         CollectSchemaNamesRecursive(fields, result);
@@ -101,12 +103,12 @@ internal static class FieldSchemaProcessor
     }
 
     private static void CollectSchemaNamesRecursive(
-        List<FieldDefinitionGrainDto> fields, HashSet<string> result)
+        IReadOnlyList<FieldDefinitionGrainDto> fields, HashSet<string> result)
     {
         foreach (var field in fields)
         {
             result.Add(field.SchemaName);
-            if (field.Fields is { Count: > 0 })
+            if (field.Fields is { Length: > 0 })
                 CollectSchemaNamesRecursive(field.Fields, result);
         }
     }
@@ -121,8 +123,8 @@ internal static class FieldSchemaProcessor
         return field with
         {
             SchemaName = schemaName,
-            Fields = field.Fields is { Count: > 0 }
-                ? MergeWithExisting(field.Fields, nestedExisting)
+            Fields = field.Fields is { Length: > 0 }
+                ? MergeWithExisting(field.Fields, nestedExisting).ToArray()
                 : field.Fields
         };
     }
@@ -134,10 +136,10 @@ internal static class FieldSchemaProcessor
             ? field.SchemaName
             : SchemaNameGenerator.Generate(field.DisplayName);
 
-    private static List<FieldDefinitionGrainDto> GetNestedExisting(
+    private static FieldDefinitionGrainDto[] GetNestedExisting(
         string schemaName,
         Dictionary<string, FieldDefinitionGrainDto> existingBySchema) =>
-        existingBySchema.TryGetValue(schemaName, out var match)
-            ? match.Fields ?? []
+        existingBySchema.TryGetValue(schemaName, out var match) && match.Fields is not null
+            ? match.Fields
             : [];
 }

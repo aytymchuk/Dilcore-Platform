@@ -17,8 +17,8 @@ public sealed record UpdateEntityDefinitionGrainCommand
     public string? DisplayName { get; init; }
 
     [Id(4)]
-    public List<FieldDefinitionGrainDto> Fields { get; init; } = [];
+    public FieldDefinitionGrainDto[] Fields { get; init; } = [];
 
     [Id(5)]
-    public List<string> Tags { get; init; } = [];
+    public string[] Tags { get; init; } = [];
 }

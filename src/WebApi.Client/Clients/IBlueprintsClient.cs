@@ -14,6 +14,12 @@ public interface IBlueprintsClient
     /// <summary>
     /// Gets a paginated list of entity definitions.
     /// </summary>
+    /// <param name="skip">Number of items to skip.</param>
+    /// <param name="take">Number of items to return.</param>
+    /// <param name="search">Optional display name search term.</param>
+    /// <param name="isAbstract">Optional filter by abstract flag.</param>
+    /// <param name="tags">Optional comma-separated list of tags to filter by (e.g. "crm,billing").</param>
+    /// <param name="ct">Cancellation token.</param>
     [Get("/blueprints/entity-definitions")]
     Task<PagedResult<EntityDefinitionDto>> GetEntityDefinitionsAsync(
         [Query] int? skip = null,

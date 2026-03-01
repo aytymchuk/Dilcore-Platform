@@ -104,7 +104,7 @@ public sealed class BlueprintDefinitionStorage : IGrainStorage
 
         if (result.IsFailed)
         {
-            _logger.LogWriteStateError(null, typeof(T).Name, id);
+            _logger.LogClearStateError(null, typeof(T).Name, id);
             throw new InvalidOperationException(
                 $"Failed to clear {typeof(T).Name} '{id}': {string.Join(", ", result.Errors.Select(e => e.Message))}");
         }

@@ -53,7 +53,10 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         if (fieldError is not null)
             return EntityDefinitionGrainResult.Validation(fieldError);
 
-        var entitySchemaName = SchemaNameGenerator.Generate(command.SchemaName ?? command.DisplayName);
+        var schemaInput = !string.IsNullOrWhiteSpace(command.SchemaName)
+            ? command.SchemaName
+            : command.DisplayName;
+        var entitySchemaName = SchemaNameGenerator.Generate(schemaInput);
 
         if (string.IsNullOrEmpty(entitySchemaName))
             return EntityDefinitionGrainResult.Validation("DisplayName must produce a non-empty schema name.");
@@ -67,7 +70,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         _state.State.IsAbstract = command.IsAbstract;
         _state.State.ExtendsEntityId = command.ExtendsEntityId;
         _state.State.Fields = fields;
-        _state.State.Tags = command.Tags;
+        _state.State.Tags = command.Tags.ToList();
         _state.State.CreatedAt = now;
         _state.State.UpdatedAt = now;
         _state.State.IsCreated = true;
@@ -123,7 +126,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         _state.State.Description = command.Description;
         _state.State.IsAbstract = command.IsAbstract;
         _state.State.Fields = newFields;
-        _state.State.Tags = command.Tags;
+        _state.State.Tags = command.Tags.ToList();
         _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
 
         await _state.WriteStateAsync();
@@ -164,8 +167,8 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         Description = _state.State.Description,
         IsAbstract = _state.State.IsAbstract,
         ExtendsEntityId = _state.State.ExtendsEntityId,
-        Fields = _state.State.Fields,
-        Tags = _state.State.Tags,
+        Fields = _state.State.Fields.ToArray(),
+        Tags = _state.State.Tags.ToArray(),
         CreatedAt = _state.State.CreatedAt,
         UpdatedAt = _state.State.UpdatedAt,
         ETag = _state.State.ETag

@@ -29,7 +29,7 @@ public class EntityMetadataTests
     }
 
     [Test]
-    public void Should_SupportValueEquality_WhenSameTagsInstance()
+    public void Should_SupportReferenceEquality_WhenSameTagsInstance()
     {
         IReadOnlyList<string> tags = ["crm", "sales"];
         var a = new EntityMetadata { Tags = tags };

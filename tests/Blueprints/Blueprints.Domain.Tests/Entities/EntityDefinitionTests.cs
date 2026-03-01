@@ -5,6 +5,7 @@ using Shouldly;
 
 namespace Dilcore.Blueprints.Domain.Tests.Entities;
 
+[TestFixture]
 public class EntityDefinitionTests
 {
     [Test]

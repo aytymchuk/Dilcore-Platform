@@ -18,7 +18,7 @@ public class EntityDefinitionMappingProfile : Profile
     {
         CreateMap<EntityDefinitionGrainDto, EntityDefinition>()
             .ForCtorParam("fields", opt => opt.MapFrom(src => src.Fields.Select(MapGrainDtoToField).ToList()))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => new EntityMetadata { Tags = src.Tags }))
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => new EntityMetadata { Tags = src.Tags.ToList() }))
             .ForMember(dest => dest.Fields, opt => opt.Ignore());
 
         CreateMap<CreateEntityDefinitionCommand, CreateEntityDefinitionGrainCommand>();

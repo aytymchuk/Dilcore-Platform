@@ -11,7 +11,7 @@ public class EntityDefinitionStateMappingProfile : Profile
     {
         CreateMap<EntityDefinitionState, EntityDefinition>()
             .ForCtorParam("fields", opt => opt.MapFrom(src => MapFieldDtos(src.Fields)))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => new EntityMetadata { Tags = src.Tags }))
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => new EntityMetadata { Tags = src.Tags.ToList() }))
             .ForMember(dest => dest.Fields, opt => opt.Ignore());
 
         CreateMap<EntityDefinition, EntityDefinitionState>()
@@ -21,21 +21,7 @@ public class EntityDefinitionStateMappingProfile : Profile
             .ForMember(dest => dest.SchemaName, opt => opt.MapFrom(src => src.SchemaName));
 
         CreateMap<FieldDefinitionGrainDto, FieldDefinition>()
-            .ConstructUsing(src =>
-                IsComplexType(src.Type)
-                    ? new ComplexFieldDefinition
-                    {
-                        SchemaName = src.SchemaName,
-                        DisplayName = src.DisplayName,
-                        Type = Enum.Parse<FieldType>(src.Type),
-                        Fields = (src.Fields ?? new List<FieldDefinitionGrainDto>()).Select(MapFieldDto).ToList()
-                    }
-                    : new FieldDefinition
-                    {
-                        SchemaName = src.SchemaName,
-                        DisplayName = src.DisplayName,
-                        Type = Enum.Parse<FieldType>(src.Type)
-                    })
+            .ConstructUsing(src => MapFieldDto(src))
             .ForAllMembers(opt => opt.Ignore());
 
         CreateMap<FieldDefinition, FieldDefinitionGrainDto>()
@@ -75,23 +61,23 @@ public class EntityDefinitionStateMappingProfile : Profile
             DisplayName = field.DisplayName,
             Type = field.Type.ToString(),
             Fields = field is ComplexFieldDefinition complex
-                ? complex.Fields.Select(MapField).ToList()
+                ? complex.Fields.Select(MapField).ToArray()
                 : null
         };
 }
 
 internal class FieldDefinitionFieldsResolver
-    : IValueResolver<FieldDefinition, FieldDefinitionGrainDto, List<FieldDefinitionGrainDto>?>
+    : IValueResolver<FieldDefinition, FieldDefinitionGrainDto, FieldDefinitionGrainDto[]?>
 {
-    public List<FieldDefinitionGrainDto>? Resolve(
+    public FieldDefinitionGrainDto[]? Resolve(
         FieldDefinition source, FieldDefinitionGrainDto destination,
-        List<FieldDefinitionGrainDto>? destMember, ResolutionContext context)
+        FieldDefinitionGrainDto[]? destMember, ResolutionContext context)
     {
         if (source is not ComplexFieldDefinition complex)
             return null;
 
         return complex.Fields
             .Select(f => context.Mapper.Map<FieldDefinitionGrainDto>(f))
-            .ToList();
+            .ToArray();
     }
 }

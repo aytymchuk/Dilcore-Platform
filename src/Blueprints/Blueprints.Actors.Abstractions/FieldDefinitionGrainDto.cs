@@ -15,5 +15,5 @@ public sealed record FieldDefinitionGrainDto
     public required string Type { get; init; }
 
     [Id(3)]
-    public List<FieldDefinitionGrainDto>? Fields { get; init; }
+    public FieldDefinitionGrainDto[]? Fields { get; init; }
 }

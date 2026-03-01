@@ -27,10 +27,10 @@ public sealed record EntityDefinitionGrainDto
     public Guid? ExtendsEntityId { get; init; }
 
     [Id(7)]
-    public List<FieldDefinitionGrainDto> Fields { get; init; } = [];
+    public FieldDefinitionGrainDto[] Fields { get; init; } = [];
 
     [Id(8)]
-    public List<string> Tags { get; init; } = [];
+    public string[] Tags { get; init; } = [];
 
     [Id(9)]
     public DateTime CreatedAt { get; init; }

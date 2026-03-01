@@ -16,7 +16,6 @@ public class GenerateSchemaNameTests
 
     [TestCase("  Leading Spaces  ", "leadingSpaces")]
     [TestCase("  hello  ", "hello")]
-    [TestCase("   ", "")]
     public void ShouldTrimWhitespace(string input, string expected)
     {
         SchemaNameGenerator.Generate(input).ShouldBe(expected);
@@ -81,12 +80,18 @@ public class GenerateSchemaNameTests
         SchemaNameGenerator.Generate(input).ShouldBe(expected);
     }
 
-    [TestCase("")]
-    [TestCase("   ")]
     [TestCase("!!!")]
     [TestCase("@#$%")]
     public void ShouldReturnEmptyForNonAlphanumericInput(string input)
     {
         SchemaNameGenerator.Generate(input).ShouldBeEmpty();
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    public void ShouldThrowForNullOrWhitespaceInput(string? input)
+    {
+        Should.Throw<ArgumentException>(() => SchemaNameGenerator.Generate(input!));
     }
 }

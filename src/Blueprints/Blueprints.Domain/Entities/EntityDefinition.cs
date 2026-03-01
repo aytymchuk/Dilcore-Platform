@@ -22,7 +22,7 @@ public record EntityDefinition : BaseDomain
     public bool IsAbstract { get; init; }
     public Guid? ExtendsEntityId { get; init; }
 
-    public IReadOnlyList<FieldDefinition> Fields => _fields;
+    public IReadOnlyList<FieldDefinition> Fields => _fields.AsReadOnly();
     public EntityMetadata Metadata { get; init; } = new();
 
     public EntityDefinition(IEnumerable<FieldDefinition>? fields = null)
