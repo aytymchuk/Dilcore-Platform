@@ -5,6 +5,7 @@ namespace Dilcore.Blueprints.Actors.Abstractions;
 public sealed record EntityDefinitionGrainResult
 {
     public const string NotFoundCode = "NOT_FOUND";
+    public const string AlreadyExistsCode = "ALREADY_EXISTS";
     public const string ETagMismatchCode = "ETAG_MISMATCH";
     public const string ValidationErrorCode = "VALIDATION_ERROR";
 
@@ -37,6 +38,9 @@ public sealed record EntityDefinitionGrainResult
 
     public static EntityDefinitionGrainResult NotFound(string error) =>
         new() { IsSuccess = false, ErrorMessage = error, ErrorCode = NotFoundCode };
+
+    public static EntityDefinitionGrainResult AlreadyExists(string error) =>
+        new() { IsSuccess = false, ErrorMessage = error, ErrorCode = AlreadyExistsCode };
 
     public static EntityDefinitionGrainResult ETagMismatch(string error) =>
         new() { IsSuccess = false, ErrorMessage = error, ErrorCode = ETagMismatchCode };

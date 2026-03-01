@@ -100,7 +100,18 @@ public sealed class BlueprintDefinitionStorage : IGrainStorage
         _logger.LogClearingState(typeof(T).Name, id);
 
         using var scope = _scopeFactory.CreateScope();
-        await handler.DeleteAsync(scope.ServiceProvider, id);
+        var result = await handler.DeleteAsync(scope.ServiceProvider, id);
+
+        if (result.IsFailed)
+        {
+            _logger.LogWriteStateError(null, typeof(T).Name, id);
+            throw new InvalidOperationException(
+                $"Failed to clear {typeof(T).Name} '{id}': {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        }
+
+        grainState.State = Activator.CreateInstance<T>();
+        grainState.RecordExists = false;
+        grainState.ETag = null;
     }
 
     private static IStateStorageHandler ResolveHandler(Type stateType)
@@ -117,7 +128,7 @@ internal interface IStateStorageHandler
     Task<Result<BaseDomain?>> ReadAsync(IServiceProvider services, IMapper mapper, Guid id);
     BaseDomain MapToDomain(IMapper mapper, object state);
     Task<Result<BaseDomain>> WriteAsync(IServiceProvider services, IMapper mapper, BaseDomain entity);
-    Task DeleteAsync(IServiceProvider services, Guid id);
+    Task<Result> DeleteAsync(IServiceProvider services, Guid id);
 }
 
 internal sealed class StateStorageHandler<TState, TDomain, TRepository>
@@ -162,10 +173,10 @@ internal sealed class StateStorageHandler<TState, TDomain, TRepository>
             : Result.Fail<BaseDomain>(result.Errors);
     }
 
-    public async Task DeleteAsync(IServiceProvider services, Guid id)
+    public async Task<Result> DeleteAsync(IServiceProvider services, Guid id)
     {
-        if (_delete is null) return;
+        if (_delete is null) return Result.Ok();
         var repository = services.GetRequiredService<TRepository>();
-        await _delete(repository, id);
+        return await _delete(repository, id);
     }
 }

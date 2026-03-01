@@ -33,9 +33,14 @@ public class CreateEntityDefinitionHandler
 
         if (!result.IsSuccess)
         {
-            var error = result.ErrorCode == EntityDefinitionGrainResult.ValidationErrorCode
-                ? (FluentResults.IError)new ValidationError(result.ErrorMessage ?? "Validation failed.")
-                : new ConflictError(result.ErrorMessage ?? "Failed to create entity definition.");
+            FluentResults.IError error = result.ErrorCode switch
+            {
+                EntityDefinitionGrainResult.ValidationErrorCode =>
+                    new ValidationError(result.ErrorMessage ?? "Validation failed."),
+                EntityDefinitionGrainResult.AlreadyExistsCode =>
+                    new ConflictError(result.ErrorMessage ?? "Entity definition already exists."),
+                _ => new ConflictError(result.ErrorMessage ?? "Failed to create entity definition.")
+            };
 
             return Result.Fail<EntityDefinition>(error);
         }

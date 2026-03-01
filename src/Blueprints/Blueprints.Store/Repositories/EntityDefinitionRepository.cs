@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Dilcore.Blueprints.Core.Abstractions;
 using Dilcore.Blueprints.Domain.Entities;
@@ -135,7 +136,7 @@ public sealed class EntityDefinitionRepository : IEntityDefinitionRepository
         {
             filters.Add(Builders<EntityDefinitionDocument>.Filter.Regex(
                 x => x.DisplayName,
-                new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")));
+                new MongoDB.Bson.BsonRegularExpression(Regex.Escape(searchTerm), "i")));
         }
 
         if (isAbstract.HasValue)

@@ -42,7 +42,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         if (_state.State.IsCreated)
         {
             _logger.LogEntityDefinitionAlreadyExists(grainId);
-            return EntityDefinitionGrainResult.NotFound($"Entity definition '{grainId}' already exists.");
+            return EntityDefinitionGrainResult.AlreadyExists($"Entity definition '{grainId}' already exists.");
         }
 
         var fields = FieldSchemaProcessor.GenerateSchemaNames(command.Fields);
