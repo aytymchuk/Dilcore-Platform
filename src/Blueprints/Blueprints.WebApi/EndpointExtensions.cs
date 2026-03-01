@@ -1,23 +1,117 @@
+using AutoMapper;
+using Dilcore.Blueprints.Contracts.EntityDefinitions;
+using Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
+using Dilcore.Blueprints.Contracts.EntityDefinitions.Update;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.Delete;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.GetById;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.GetList;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.Update;
+using Dilcore.FluentValidation.Extensions.MinimalApi;
+using Dilcore.Results.Extensions.Api;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace Dilcore.Blueprints.WebApi;
 
-/// <summary>
-/// HTTP endpoints for the Blueprints module.
-/// </summary>
 public static class EndpointExtensions
 {
-    /// <summary>
-    /// Maps all Blueprints module endpoints.
-    /// </summary>
     public static void MapBlueprintsEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/blueprints")
             .WithTags("Blueprints")
             .RequireAuthorization();
 
-        // Map endpoints here
+        MapEntityDefinitionEndpoints(group);
+    }
+
+    private static void MapEntityDefinitionEndpoints(RouteGroupBuilder group)
+    {
+        var entities = group.MapGroup("/entity-definitions");
+
+        entities.MapGet("/", async (
+            IMediator mediator,
+            IMapper mapper,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetEntityDefinitionsQuery(), ct);
+            return result
+                .Map(list => mapper.Map<IEnumerable<EntityDefinitionDto>>(list))
+                .ToMinimalApiResult();
+        })
+        .WithName("GetEntityDefinitions")
+        .Produces<IEnumerable<EntityDefinitionDto>>()
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        entities.MapGet("/{id:guid}", async (
+            Guid id,
+            IMediator mediator,
+            IMapper mapper,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetEntityDefinitionQuery(id), ct);
+            return result
+                .Map(mapper.Map<EntityDefinitionDto>)
+                .ToMinimalApiResult();
+        })
+        .WithName("GetEntityDefinition")
+        .Produces<EntityDefinitionDto>()
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        entities.MapPost("/", async (
+            CreateEntityDefinitionDto request,
+            IMediator mediator,
+            IMapper mapper,
+            CancellationToken ct) =>
+        {
+            var command = mapper.Map<CreateEntityDefinitionCommand>(request);
+            var result = await mediator.Send(command, ct);
+            return result
+                .Map(mapper.Map<EntityDefinitionDto>)
+                .ToMinimalApiResult(dto =>
+                    Microsoft.AspNetCore.Http.Results.Created($"/blueprints/entity-definitions/{dto.Id}", dto));
+        })
+        .WithName("CreateEntityDefinition")
+        .Produces<EntityDefinitionDto>(StatusCodes.Status201Created)
+        .AddValidationFilter<CreateEntityDefinitionDto>()
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        entities.MapPut("/{id:guid}", async (
+            Guid id,
+            UpdateEntityDefinitionDto request,
+            IMediator mediator,
+            IMapper mapper,
+            CancellationToken ct) =>
+        {
+            var command = mapper.Map<UpdateEntityDefinitionCommand>(request) with { Id = id };
+            var result = await mediator.Send(command, ct);
+            return result
+                .Map(mapper.Map<EntityDefinitionDto>)
+                .ToMinimalApiResult();
+        })
+        .WithName("UpdateEntityDefinition")
+        .Produces<EntityDefinitionDto>()
+        .AddValidationFilter<UpdateEntityDefinitionDto>()
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        entities.MapDelete("/{id:guid}", async (
+            Guid id,
+            IMediator mediator,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteEntityDefinitionCommand(id), ct);
+            return result.ToMinimalApiResult();
+        })
+        .WithName("DeleteEntityDefinition")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
     }
 }

@@ -8,18 +8,14 @@ public class FieldDefinitionTests
     [Test]
     public void Should_SetAllProperties_WhenInstantiated()
     {
-        var id = Guid.CreateVersion7();
-
         var field = new FieldDefinition
         {
-            Id = id,
-            Name = "total_amount",
+            SchemaName = "total_amount",
             DisplayName = "Total Amount",
             Type = FieldType.Number
         };
 
-        field.Id.ShouldBe(id);
-        field.Name.ShouldBe("total_amount");
+        field.SchemaName.ShouldBe("total_amount");
         field.DisplayName.ShouldBe("Total Amount");
         field.Type.ShouldBe(FieldType.Number);
     }
@@ -29,12 +25,12 @@ public class FieldDefinitionTests
     [TestCase(FieldType.Boolean)]
     [TestCase(FieldType.DateTime)]
     [TestCase(FieldType.File)]
+    [TestCase(FieldType.Identifier)]
     public void Should_SupportPrimitiveFieldTypes(FieldType type)
     {
         var field = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "test_field",
+            SchemaName = "test_field",
             DisplayName = "Test",
             Type = type
         };
@@ -47,8 +43,7 @@ public class FieldDefinitionTests
     {
         var complex = new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "address",
+            SchemaName = "address",
             DisplayName = "Address",
             Type = FieldType.Object
         };
@@ -61,12 +56,12 @@ public class FieldDefinitionTests
     [TestCase(FieldType.Boolean)]
     [TestCase(FieldType.DateTime)]
     [TestCase(FieldType.File)]
+    [TestCase(FieldType.Identifier)]
     public void ComplexField_ShouldRejectNonComplexTypes(FieldType type)
     {
         Should.Throw<ArgumentException>(() => new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "test",
+            SchemaName = "test",
             DisplayName = "Test",
             Type = type
         });
@@ -78,8 +73,7 @@ public class FieldDefinitionTests
     {
         Should.NotThrow(() => new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "test",
+            SchemaName = "test",
             DisplayName = "Test",
             Type = type
         });
@@ -90,8 +84,7 @@ public class FieldDefinitionTests
     {
         var complex = new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "address",
+            SchemaName = "address",
             DisplayName = "Address",
             Type = FieldType.Object
         };
@@ -105,23 +98,21 @@ public class FieldDefinitionTests
     {
         var streetField = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "street",
+            SchemaName = "street",
             DisplayName = "Street",
             Type = FieldType.String
         };
 
         var objectField = new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "address",
+            SchemaName = "address",
             DisplayName = "Address",
             Type = FieldType.Object,
             Fields = [streetField]
         };
 
         objectField.Fields.Count.ShouldBe(1);
-        objectField.Fields[0].Name.ShouldBe("street");
+        objectField.Fields[0].SchemaName.ShouldBe("street");
         objectField.Fields[0].Type.ShouldBe(FieldType.String);
     }
 
@@ -130,16 +121,14 @@ public class FieldDefinitionTests
     {
         var cityField = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "city",
+            SchemaName = "city",
             DisplayName = "City",
             Type = FieldType.String
         };
 
         var locationField = new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "location",
+            SchemaName = "location",
             DisplayName = "Location",
             Type = FieldType.Object,
             Fields = [cityField]
@@ -147,15 +136,14 @@ public class FieldDefinitionTests
 
         var addressField = new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "address",
+            SchemaName = "address",
             DisplayName = "Address",
             Type = FieldType.Object,
             Fields = [locationField]
         };
 
         var nested = addressField.Fields[0].ShouldBeOfType<ComplexFieldDefinition>();
-        nested.Fields[0].Name.ShouldBe("city");
+        nested.Fields[0].SchemaName.ShouldBe("city");
     }
 
     [Test]
@@ -163,24 +151,21 @@ public class FieldDefinitionTests
     {
         var nameField = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "product_name",
+            SchemaName = "product_name",
             DisplayName = "Product Name",
             Type = FieldType.String
         };
 
         var quantityField = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "quantity",
+            SchemaName = "quantity",
             DisplayName = "Quantity",
             Type = FieldType.Number
         };
 
         var lineItemsField = new ComplexFieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "line_items",
+            SchemaName = "line_items",
             DisplayName = "Line Items",
             Type = FieldType.Array,
             Fields = [nameField, quantityField]
@@ -196,23 +181,20 @@ public class FieldDefinitionTests
         {
             new FieldDefinition
             {
-                Id = Guid.CreateVersion7(),
-                Name = "title",
+                SchemaName = "title",
                 DisplayName = "Title",
                 Type = FieldType.String
             },
             new ComplexFieldDefinition
             {
-                Id = Guid.CreateVersion7(),
-                Name = "address",
+                SchemaName = "address",
                 DisplayName = "Address",
                 Type = FieldType.Object,
                 Fields =
                 [
                     new FieldDefinition
                     {
-                        Id = Guid.CreateVersion7(),
-                        Name = "city",
+                        SchemaName = "city",
                         DisplayName = "City",
                         Type = FieldType.String
                     }

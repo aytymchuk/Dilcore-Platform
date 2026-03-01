@@ -11,7 +11,7 @@ public sealed class EntityDefinitionDocument : IDocumentEntity
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public required string Name { get; set; }
+    public required string SchemaName { get; set; }
     public required string DisplayName { get; set; }
     public string? Description { get; set; }
     public bool IsAbstract { get; set; }

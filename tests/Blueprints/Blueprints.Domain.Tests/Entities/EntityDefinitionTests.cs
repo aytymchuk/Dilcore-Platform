@@ -17,8 +17,7 @@ public class EntityDefinitionTests
         var entity = new EntityDefinition
         {
             Id = id,
-            Name = "invoice_record",
-            DisplayName = "Invoice",
+            DisplayName = "Invoice Record",
             Description = "Tracks all invoices",
             IsAbstract = false,
             ExtendsEntityId = extendsId,
@@ -26,8 +25,8 @@ public class EntityDefinitionTests
         };
 
         entity.Id.ShouldBe(id);
-        entity.Name.ShouldBe("invoice_record");
-        entity.DisplayName.ShouldBe("Invoice");
+        entity.SchemaName.ShouldBe("invoiceRecord");
+        entity.DisplayName.ShouldBe("Invoice Record");
         entity.Description.ShouldBe("Tracks all invoices");
         entity.IsAbstract.ShouldBe(false);
         entity.ExtendsEntityId.ShouldBe(extendsId);
@@ -39,7 +38,6 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
@@ -51,7 +49,6 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
@@ -64,7 +61,6 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
@@ -77,7 +73,6 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
@@ -89,7 +84,6 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
@@ -101,7 +95,6 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
@@ -113,14 +106,12 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
         var field = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "amount",
+            SchemaName = "amount",
             DisplayName = "Amount",
             Type = FieldType.Number
         };
@@ -136,22 +127,19 @@ public class EntityDefinitionTests
     {
         var field1 = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "name",
+            SchemaName = "name",
             DisplayName = "Name",
             Type = FieldType.String
         };
 
         var entity = new EntityDefinition([field1])
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
         var field2 = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "active",
+            SchemaName = "active",
             DisplayName = "Active",
             Type = FieldType.Boolean
         };
@@ -166,22 +154,19 @@ public class EntityDefinitionTests
     [Test]
     public void RemoveField_ShouldRemoveMatchingField()
     {
-        var fieldId = Guid.CreateVersion7();
         var field = new FieldDefinition
         {
-            Id = fieldId,
-            Name = "amount",
+            SchemaName = "amount",
             DisplayName = "Amount",
             Type = FieldType.Number
         };
 
         var entity = new EntityDefinition([field])
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
-        entity.RemoveField(fieldId);
+        entity.RemoveField("amount");
 
         entity.Fields.ShouldBeEmpty();
     }
@@ -191,51 +176,45 @@ public class EntityDefinitionTests
     {
         var keepField = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "name",
+            SchemaName = "name",
             DisplayName = "Name",
             Type = FieldType.String
         };
 
-        var removeId = Guid.CreateVersion7();
         var removeField = new FieldDefinition
         {
-            Id = removeId,
-            Name = "temp",
+            SchemaName = "temp",
             DisplayName = "Temp",
             Type = FieldType.String
         };
 
         var entity = new EntityDefinition([keepField, removeField])
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
-        entity.RemoveField(removeId);
+        entity.RemoveField("temp");
 
         entity.Fields.Count.ShouldBe(1);
         entity.Fields[0].ShouldBe(keepField);
     }
 
     [Test]
-    public void RemoveField_WithNonExistentId_ShouldNotChangeFields()
+    public void RemoveField_WithNonExistentSchemaName_ShouldNotChangeFields()
     {
         var field = new FieldDefinition
         {
-            Id = Guid.CreateVersion7(),
-            Name = "name",
+            SchemaName = "name",
             DisplayName = "Name",
             Type = FieldType.String
         };
 
         var entity = new EntityDefinition([field])
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
-        entity.RemoveField(Guid.CreateVersion7());
+        entity.RemoveField("nonexistent");
 
         entity.Fields.Count.ShouldBe(1);
     }
@@ -247,8 +226,7 @@ public class EntityDefinitionTests
         {
             new()
             {
-                Id = Guid.CreateVersion7(),
-                Name = "name",
+                SchemaName = "name",
                 DisplayName = "Name",
                 Type = FieldType.String
             }
@@ -256,12 +234,11 @@ public class EntityDefinitionTests
 
         var entity = new EntityDefinition(fields)
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
         entity.Fields.Count.ShouldBe(1);
-        entity.Fields[0].Name.ShouldBe("name");
+        entity.Fields[0].SchemaName.ShouldBe("name");
     }
 
     [Test]
@@ -269,11 +246,44 @@ public class EntityDefinitionTests
     {
         var entity = new EntityDefinition(fields: null)
         {
-            Name = "test",
             DisplayName = "Test"
         };
 
         entity.Fields.ShouldNotBeNull();
         entity.Fields.ShouldBeEmpty();
+    }
+
+    [Test]
+    public void SchemaName_ShouldBeGeneratedFromDisplayName()
+    {
+        var entity = new EntityDefinition { DisplayName = "Invoice Record" };
+
+        entity.SchemaName.ShouldBe("invoiceRecord");
+    }
+
+    [TestCase("My Entity", "myEntity")]
+    [TestCase("  Leading Spaces  ", "leadingSpaces")]
+    [TestCase("Special!@#Chars$%^", "specialChars")]
+    [TestCase("Multiple   Spaces", "multipleSpaces")]
+    [TestCase("Already-Hyphenated", "alreadyHyphenated")]
+    [TestCase("Mixed CASE Name", "mixedCaseName")]
+    [TestCase("dots.and_underscores", "dotsAndUnderscores")]
+    public void SchemaName_ShouldNormalizeDisplayName(string displayName, string expected)
+    {
+        var entity = new EntityDefinition { DisplayName = displayName };
+
+        entity.SchemaName.ShouldBe(expected);
+    }
+
+    [Test]
+    public void SchemaName_CanBeExplicitlySet()
+    {
+        var entity = new EntityDefinition
+        {
+            SchemaName = "custom-name",
+            DisplayName = "Invoice Record"
+        };
+
+        entity.SchemaName.ShouldBe("custom-name");
     }
 }

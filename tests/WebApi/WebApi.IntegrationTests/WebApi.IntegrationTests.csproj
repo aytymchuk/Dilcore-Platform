@@ -7,6 +7,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Contracts\Blueprints.Contracts.csproj" />
     <ProjectReference Include="..\..\..\src\Identity\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\..\..\src\Tenancy\Tenancy.Contracts\Tenancy.Contracts.csproj" />
     <ProjectReference Include="..\..\..\src\WebApi.Client\WebApi.Client.csproj" />

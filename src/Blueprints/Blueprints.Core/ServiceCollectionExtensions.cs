@@ -1,4 +1,6 @@
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create.Behaviors;
 using Dilcore.MediatR.Extensions;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Blueprints.Core;
@@ -13,7 +15,10 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddBlueprintsApplication(this IServiceCollection services)
     {
-        services.AddMediatRInfrastructure(typeof(ServiceCollectionExtensions).Assembly);
+        services.AddMediatRInfrastructure(typeof(ServiceCollectionExtensions).Assembly, cfg =>
+        {
+            cfg.RegisterCreateEntityDefinitionBehaviors();
+        });
 
         services.AddAutoMapper(cfg =>
         {
@@ -21,5 +26,10 @@ public static class ServiceCollectionExtensions
         });
 
         return services;
+    }
+
+    private static void RegisterCreateEntityDefinitionBehaviors(this MediatRServiceConfiguration cfg)
+    {
+        cfg.AddBehavior<UniqueSchemaNameBehavior>();
     }
 }

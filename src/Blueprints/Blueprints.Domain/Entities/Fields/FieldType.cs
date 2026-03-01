@@ -8,5 +8,6 @@ public enum FieldType
     DateTime,
     Object,
     Array,
-    File
+    File,
+    Identifier
 }

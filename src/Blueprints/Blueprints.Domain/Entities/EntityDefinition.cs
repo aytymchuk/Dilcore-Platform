@@ -7,8 +7,17 @@ public record EntityDefinition : BaseDomain
 {
     private readonly List<FieldDefinition> _fields = [];
 
-    public required string Name { get; init; }
-    public required string DisplayName { get; init; }
+    public string SchemaName { get; init; } = string.Empty;
+    public required string DisplayName
+    {
+        get;
+        init
+        {
+            field = value;
+            if (string.IsNullOrEmpty(SchemaName))
+                SchemaName = SchemaNameGenerator.Generate(value);
+        }
+    }
     public string? Description { get; init; }
     public bool IsAbstract { get; init; }
     public Guid? ExtendsEntityId { get; init; }
@@ -26,8 +35,8 @@ public record EntityDefinition : BaseDomain
         _fields.Add(field);
     }
 
-    public void RemoveField(Guid fieldId)
+    public void RemoveField(string schemaName)
     {
-        _fields.RemoveAll(f => f.Id == fieldId);
+        _fields.RemoveAll(f => f.SchemaName == schemaName);
     }
 }

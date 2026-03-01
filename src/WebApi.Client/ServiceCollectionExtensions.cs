@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
         // Register all clients
         RegisterRefitClient<IIdentityClient>(services, options, configureClient);
         RegisterRefitClient<ITenancyClient>(services, options, configureClient);
+        RegisterRefitClient<IBlueprintsClient>(services, options, configureClient);
 
         return services;
     }
