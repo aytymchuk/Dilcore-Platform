@@ -2,6 +2,7 @@ using Dilcore.Blueprints.Store.Entities;
 using Dilcore.DocumentDb.MongoDb.Extensions;
 using Dilcore.DocumentDb.MongoDb.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 
 namespace Dilcore.Blueprints.Store;
 
@@ -40,12 +41,32 @@ public static class MongoDbExtensions
 
                     db.AddGenericRepository<EntityDefinitionDocument>(options =>
                     {
+                        var indexes = CreateIndexes().ToArray();
+
                         options.WithCollectionName(BlueprintsCollectionName);
                         options.WithDatabaseName(DatabaseName);
+                        options.WithIndexes(indexes);
                     });
                 });
             });
 
         return services;
+    }
+
+    private static IEnumerable<CreateIndexModel<EntityDefinitionDocument>> CreateIndexes()
+    {
+        yield return new CreateIndexModel<EntityDefinitionDocument>(
+            Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.SchemaName),
+            new CreateIndexOptions
+            {
+                Unique = true,
+                Collation = new Collation("en", strength: CollationStrength.Secondary)
+            });
+
+        yield return new CreateIndexModel<EntityDefinitionDocument>(
+            Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.DisplayName));
+
+        yield return new CreateIndexModel<EntityDefinitionDocument>(
+            Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.Metadata.Tags));
     }
 }

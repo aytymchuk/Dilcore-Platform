@@ -10,6 +10,8 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
     private readonly ILogger<EntityDefinitionGrain> _logger;
     private readonly TimeProvider _timeProvider;
 
+    internal FieldChanges? LastFieldChanges { get; private set; }
+
     public EntityDefinitionGrain(
         [PersistentState("entityDefinition", SiloBuilderExtensions.StoreName)]
         IPersistentState<EntityDefinitionState> state,
@@ -43,15 +45,28 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return EntityDefinitionGrainResult.NotFound($"Entity definition '{grainId}' already exists.");
         }
 
+        var fields = FieldSchemaProcessor.GenerateSchemaNames(command.Fields);
+
+        var fieldError = EntityDefinitionValidator.ValidateFields(fields)
+            ?? FieldSchemaProcessor.ValidateSchemaNames(fields);
+
+        if (fieldError is not null)
+            return EntityDefinitionGrainResult.Validation(fieldError);
+
+        var entitySchemaName = SchemaNameGenerator.Generate(command.SchemaName ?? command.DisplayName);
+
+        if (string.IsNullOrEmpty(entitySchemaName))
+            return EntityDefinitionGrainResult.Validation("DisplayName must produce a non-empty schema name.");
+
         var now = _timeProvider.GetUtcNow().UtcDateTime;
 
         _state.State.Id = grainId;
-        _state.State.SchemaName = SchemaNameGenerator.Generate(command.DisplayName);
+        _state.State.SchemaName = entitySchemaName;
         _state.State.DisplayName = command.DisplayName;
         _state.State.Description = command.Description;
         _state.State.IsAbstract = command.IsAbstract;
         _state.State.ExtendsEntityId = command.ExtendsEntityId;
-        _state.State.Fields = GenerateFieldSchemaNames(command.Fields);
+        _state.State.Fields = fields;
         _state.State.Tags = command.Tags;
         _state.State.CreatedAt = now;
         _state.State.UpdatedAt = now;
@@ -92,10 +107,22 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                 $"ETag mismatch for entity definition '{grainId}'. Expected {_state.State.ETag}, got {command.ETag}.");
         }
 
+        var newFields = FieldSchemaProcessor.MergeWithExisting(command.Fields, _state.State.Fields);
+
+        var fieldError = EntityDefinitionValidator.ValidateFields(newFields)
+            ?? FieldSchemaProcessor.ValidateSchemaNames(newFields);
+
+        if (fieldError is not null)
+            return EntityDefinitionGrainResult.Validation(fieldError);
+
+        LastFieldChanges = FieldSchemaProcessor.ComputeChanges(_state.State.Fields, newFields);
+
+        if (!string.IsNullOrEmpty(command.DisplayName))
+            _state.State.DisplayName = command.DisplayName;
+
         _state.State.Description = command.Description;
         _state.State.IsAbstract = command.IsAbstract;
-        _state.State.ExtendsEntityId = command.ExtendsEntityId;
-        _state.State.Fields = GenerateFieldSchemaNames(command.Fields);
+        _state.State.Fields = newFields;
         _state.State.Tags = command.Tags;
         _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
 
@@ -103,7 +130,8 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         _logger.LogEntityDefinitionUpdated(grainId, _state.State.SchemaName);
 
-        return EntityDefinitionGrainResult.Success(ToDto());
+        return EntityDefinitionGrainResult.Success(
+            ToDto(), LastFieldChanges.Added, LastFieldChanges.Removed);
     }
 
     public async Task<EntityDefinitionGrainResult> DeleteAsync()
@@ -128,15 +156,6 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         return EntityDefinitionGrainResult.Success(dto);
     }
 
-    private static List<FieldDefinitionGrainDto> GenerateFieldSchemaNames(List<FieldDefinitionGrainDto> fields) =>
-        fields.Select(f => f with
-        {
-            SchemaName = SchemaNameGenerator.Generate(f.DisplayName),
-            Fields = f.Fields is { Count: > 0 }
-                ? GenerateFieldSchemaNames(f.Fields)
-                : f.Fields
-        }).ToList();
-
     private EntityDefinitionGrainDto ToDto() => new()
     {
         Id = _state.State.Id,
@@ -152,3 +171,5 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         ETag = _state.State.ETag
     };
 }
+
+internal record FieldChanges(IReadOnlyList<string> Added, IReadOnlyList<string> Removed);

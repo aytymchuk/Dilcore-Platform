@@ -21,4 +21,7 @@ public sealed record CreateEntityDefinitionGrainCommand
 
     [Id(5)]
     public List<string> Tags { get; init; } = [];
+
+    [Id(6)]
+    public string? SchemaName { get; init; }
 }

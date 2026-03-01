@@ -3,7 +3,6 @@ using Dilcore.Blueprints.Core;
 using Dilcore.Blueprints.Store;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Blueprints.WebApi;
 

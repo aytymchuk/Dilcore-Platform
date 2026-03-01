@@ -6,7 +6,7 @@ using FluentResults;
 namespace Dilcore.Blueprints.Core.Features.EntityDefinitions.GetList;
 
 public class GetEntityDefinitionsHandler
-    : IQueryHandler<GetEntityDefinitionsQuery, IReadOnlyList<EntityDefinition>>
+    : IQueryHandler<GetEntityDefinitionsQuery, PagedEntityDefinitions>
 {
     private readonly IEntityDefinitionRepository _repository;
 
@@ -15,9 +15,21 @@ public class GetEntityDefinitionsHandler
         _repository = repository;
     }
 
-    public async Task<Result<IReadOnlyList<EntityDefinition>>> Handle(
+    public async Task<Result<PagedEntityDefinitions>> Handle(
         GetEntityDefinitionsQuery request, CancellationToken cancellationToken)
     {
-        return await _repository.GetAllAsync(cancellationToken);
+        var result = await _repository.GetPagedAsync(
+            request.Skip,
+            request.Take,
+            request.SearchTerm,
+            request.IsAbstract,
+            request.Tags,
+            cancellationToken);
+
+        if (result.IsFailed)
+            return result.ToResult<PagedEntityDefinitions>();
+
+        var (items, totalCount) = result.Value;
+        return Result.Ok(new PagedEntityDefinitions(items, totalCount));
     }
 }

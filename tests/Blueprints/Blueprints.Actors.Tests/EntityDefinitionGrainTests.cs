@@ -228,7 +228,6 @@ public class EntityDefinitionGrainTests
     {
         var grain = GetGrain();
         var createResult = await grain.CreateAsync(CreateCommand(displayName: "Old Name"));
-        var newExtendsId = Guid.CreateVersion7();
         var newFields = new List<FieldDefinitionGrainDto>
         {
             new()
@@ -242,9 +241,9 @@ public class EntityDefinitionGrainTests
         var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
         {
             ETag = createResult.Entity!.ETag,
+            DisplayName = "New Name",
             Description = "Updated description",
             IsAbstract = true,
-            ExtendsEntityId = newExtendsId,
             Fields = newFields,
             Tags = ["updated"]
         });
@@ -252,21 +251,38 @@ public class EntityDefinitionGrainTests
         result.IsSuccess.ShouldBeTrue();
         var entity = result.Entity!;
         entity.Id.ShouldBe(createResult.Entity!.Id);
-        entity.DisplayName.ShouldBe("Old Name");
+        entity.DisplayName.ShouldBe("New Name");
         entity.SchemaName.ShouldBe("oldName");
         entity.Description.ShouldBe("Updated description");
         entity.IsAbstract.ShouldBeTrue();
-        entity.ExtendsEntityId.ShouldBe(newExtendsId);
         entity.Fields.Count.ShouldBe(1);
         entity.Fields[0].SchemaName.ShouldBe("email");
         entity.Tags.ShouldContain("updated");
     }
 
     [Test]
-    public async Task UpdateAsync_ShouldNotChangeDisplayNameOrSchemaName()
+    public async Task UpdateAsync_ShouldNotChangeSchemaName_EvenWhenDisplayNameChanges()
     {
         var grain = GetGrain();
         var createResult = await grain.CreateAsync(CreateCommand(displayName: "Original"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            DisplayName = "Completely Different Name",
+            Description = "Changed description"
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.DisplayName.ShouldBe("Completely Different Name");
+        result.Entity!.SchemaName.ShouldBe("original");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldPreserveDisplayName_WhenNotProvided()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "Keep This"));
 
         var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
         {
@@ -275,8 +291,62 @@ public class EntityDefinitionGrainTests
         });
 
         result.IsSuccess.ShouldBeTrue();
-        result.Entity!.DisplayName.ShouldBe("Original");
-        result.Entity!.SchemaName.ShouldBe("original");
+        result.Entity!.DisplayName.ShouldBe("Keep This");
+        result.Entity!.SchemaName.ShouldBe("keepThis");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldNotChangeExtendsEntityId()
+    {
+        var grain = GetGrain();
+        var extendsId = Guid.CreateVersion7();
+        var createResult = await grain.CreateAsync(CreateCommand(
+            displayName: "Child Entity",
+            extendsEntityId: extendsId));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Description = "Updated"
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.ExtendsEntityId.ShouldBe(extendsId);
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldPreserveExistingFieldSchemaNames()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(
+            displayName: "TestEntity",
+            fields:
+            [
+                new() { SchemaName = "", DisplayName = "First Name", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Last Name", Type = "String" }
+            ]));
+
+        var created = createResult.Entity!;
+        created.Fields[0].SchemaName.ShouldBe("firstName");
+        created.Fields[1].SchemaName.ShouldBe("lastName");
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = created.ETag,
+            Fields =
+            [
+                new() { SchemaName = "firstName", DisplayName = "Updated Display", Type = "String" },
+                new() { SchemaName = "lastName", DisplayName = "Also Updated", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Email Address", Type = "String" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.Fields.Count.ShouldBe(3);
+        result.Entity!.Fields[0].SchemaName.ShouldBe("firstName");
+        result.Entity!.Fields[0].DisplayName.ShouldBe("Updated Display");
+        result.Entity!.Fields[1].SchemaName.ShouldBe("lastName");
+        result.Entity!.Fields[2].SchemaName.ShouldBe("emailAddress");
     }
 
     [Test]
@@ -295,6 +365,135 @@ public class EntityDefinitionGrainTests
 
         updateResult.Entity!.UpdatedAt.ShouldBeGreaterThanOrEqualTo(createResult.Entity!.UpdatedAt);
         updateResult.Entity.CreatedAt.ShouldBe(createResult.Entity.CreatedAt);
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldTrackAddedFields()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(
+            displayName: "Tracked",
+            fields:
+            [
+                new() { SchemaName = "", DisplayName = "Name", Type = "String" }
+            ]));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new() { SchemaName = "name", DisplayName = "Name", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Email", Type = "String" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.AddedFields.ShouldNotBeNull();
+        result.AddedFields.ShouldContain("email");
+        result.RemovedFields.ShouldNotBeNull();
+        result.RemovedFields.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldTrackRemovedFields()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(
+            displayName: "Tracked",
+            fields:
+            [
+                new() { SchemaName = "", DisplayName = "Name", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Phone", Type = "String" }
+            ]));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new() { SchemaName = "name", DisplayName = "Name", Type = "String" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.RemovedFields.ShouldNotBeNull();
+        result.RemovedFields.ShouldContain("phone");
+        result.AddedFields.ShouldNotBeNull();
+        result.AddedFields.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldTrackNoChanges_WhenFieldsAreSame()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(
+            displayName: "Tracked",
+            fields:
+            [
+                new() { SchemaName = "", DisplayName = "Name", Type = "String" }
+            ]));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new() { SchemaName = "name", DisplayName = "Name", Type = "String" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.AddedFields.ShouldBeEmpty();
+        result.RemovedFields.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldTrackMixedChanges()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(
+            displayName: "Tracked",
+            fields:
+            [
+                new() { SchemaName = "", DisplayName = "First Name", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Last Name", Type = "String" }
+            ]));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new() { SchemaName = "firstName", DisplayName = "First Name", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Email Address", Type = "String" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.AddedFields!.ShouldContain("emailAddress");
+        result.RemovedFields!.ShouldContain("lastName");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldRejectDuplicateFieldSchemaNames()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "DupTest"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new() { SchemaName = "", DisplayName = "Same Name", Type = "String" },
+                new() { SchemaName = "", DisplayName = "Same Name", Type = "Number" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name");
     }
 
     #endregion

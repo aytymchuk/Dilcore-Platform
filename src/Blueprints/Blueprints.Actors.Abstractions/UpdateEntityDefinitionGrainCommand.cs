@@ -14,7 +14,7 @@ public sealed record UpdateEntityDefinitionGrainCommand
     public bool IsAbstract { get; init; }
 
     [Id(3)]
-    public Guid? ExtendsEntityId { get; init; }
+    public string? DisplayName { get; init; }
 
     [Id(4)]
     public List<FieldDefinitionGrainDto> Fields { get; init; } = [];

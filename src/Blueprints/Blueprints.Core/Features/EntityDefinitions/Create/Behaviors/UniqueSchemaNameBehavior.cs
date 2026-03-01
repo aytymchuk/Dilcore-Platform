@@ -22,7 +22,7 @@ public sealed class UniqueSchemaNameBehavior
         RequestHandlerDelegate<Result<EntityDefinition>> next,
         CancellationToken cancellationToken)
     {
-        var schemaName = SchemaNameGenerator.Generate(request.DisplayName);
+        var schemaName = SchemaNameGenerator.Generate(request.SchemaName ?? request.DisplayName);
 
         var existsResult = await _repository.ExistsBySchemaNameAsync(schemaName, cancellationToken);
         if (existsResult.IsSuccess && existsResult.Value)

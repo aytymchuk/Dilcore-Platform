@@ -2,7 +2,6 @@ using Dilcore.WebApp.Components.Common.Cards;
 using MudBlazor.Services;
 using Bunit;
 using Shouldly;
-using MudBlazor;
 
 namespace Dilcore.WebApp.Tests.Components.Common.Cards;
 

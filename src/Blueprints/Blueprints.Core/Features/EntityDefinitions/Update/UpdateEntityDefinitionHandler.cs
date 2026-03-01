@@ -29,9 +29,14 @@ public class UpdateEntityDefinitionHandler
 
         if (!result.IsSuccess)
         {
-            var error = result.ErrorCode == EntityDefinitionGrainResult.ETagMismatchCode
-                ? (FluentResults.IError)new ConflictError(result.ErrorMessage ?? "ETag mismatch.")
-                : new NotFoundError(result.ErrorMessage ?? "Entity definition not found.");
+            FluentResults.IError error = result.ErrorCode switch
+            {
+                EntityDefinitionGrainResult.ETagMismatchCode =>
+                    new ConflictError(result.ErrorMessage ?? "ETag mismatch."),
+                EntityDefinitionGrainResult.ValidationErrorCode =>
+                    new ValidationError(result.ErrorMessage ?? "Validation failed."),
+                _ => new NotFoundError(result.ErrorMessage ?? "Entity definition not found.")
+            };
 
             return Result.Fail<EntityDefinition>(error);
         }

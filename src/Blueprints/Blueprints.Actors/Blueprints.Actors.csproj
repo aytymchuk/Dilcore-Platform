@@ -10,4 +10,7 @@
     <ProjectReference Include="..\..\Identity\Identity.Actors.Abstractions\Identity.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dilcore.Blueprints.Actors.Tests" />
+  </ItemGroup>
 </Project>

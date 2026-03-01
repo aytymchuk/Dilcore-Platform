@@ -5,6 +5,7 @@ namespace Dilcore.Blueprints.Core.Features.EntityDefinitions.Create;
 
 public record CreateEntityDefinitionCommand : ICommand<EntityDefinition>
 {
+    public string? SchemaName { get; init; }
     public required string DisplayName { get; init; }
     public string? Description { get; init; }
     public bool IsAbstract { get; init; }

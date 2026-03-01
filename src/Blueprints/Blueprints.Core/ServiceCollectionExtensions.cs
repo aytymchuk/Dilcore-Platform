@@ -1,6 +1,5 @@
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create.Behaviors;
 using Dilcore.MediatR.Extensions;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Blueprints.Core;
@@ -31,5 +30,6 @@ public static class ServiceCollectionExtensions
     private static void RegisterCreateEntityDefinitionBehaviors(this MediatRServiceConfiguration cfg)
     {
         cfg.AddBehavior<UniqueSchemaNameBehavior>();
+        cfg.AddBehavior<ValidateExtendsEntityBehavior>();
     }
 }

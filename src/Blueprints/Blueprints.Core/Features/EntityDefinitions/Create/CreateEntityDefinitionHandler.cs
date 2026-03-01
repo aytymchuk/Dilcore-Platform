@@ -32,7 +32,13 @@ public class CreateEntityDefinitionHandler
         var result = await grain.CreateAsync(grainCommand);
 
         if (!result.IsSuccess)
-            return Result.Fail<EntityDefinition>(new ConflictError(result.ErrorMessage ?? "Failed to create entity definition."));
+        {
+            var error = result.ErrorCode == EntityDefinitionGrainResult.ValidationErrorCode
+                ? (FluentResults.IError)new ValidationError(result.ErrorMessage ?? "Validation failed.")
+                : new ConflictError(result.ErrorMessage ?? "Failed to create entity definition.");
+
+            return Result.Fail<EntityDefinition>(error);
+        }
 
         return Result.Ok(_mapper.Map<EntityDefinition>(result.Entity!));
     }

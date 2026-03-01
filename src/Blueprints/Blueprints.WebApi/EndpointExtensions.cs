@@ -1,4 +1,5 @@
 using AutoMapper;
+using Dilcore.Blueprints.Contracts;
 using Dilcore.Blueprints.Contracts.EntityDefinitions;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Update;
@@ -32,17 +33,40 @@ public static class EndpointExtensions
         var entities = group.MapGroup("/entity-definitions");
 
         entities.MapGet("/", async (
+            int? skip,
+            int? take,
+            string? search,
+            bool? isAbstract,
+            string? tags,
             IMediator mediator,
             IMapper mapper,
             CancellationToken ct) =>
         {
-            var result = await mediator.Send(new GetEntityDefinitionsQuery(), ct);
+            var tagList = string.IsNullOrWhiteSpace(tags)
+                ? null
+                : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .ToList() as IReadOnlyList<string>;
+
+            var query = new GetEntityDefinitionsQuery
+            {
+                Skip = skip ?? 0,
+                Take = take ?? 20,
+                SearchTerm = search,
+                IsAbstract = isAbstract,
+                Tags = tagList
+            };
+
+            var result = await mediator.Send(query, ct);
             return result
-                .Map(list => mapper.Map<IEnumerable<EntityDefinitionDto>>(list))
+                .Map(paged => new PagedResult<EntityDefinitionDto>
+                {
+                    Items = mapper.Map<List<EntityDefinitionDto>>(paged.Items),
+                    TotalCount = paged.TotalCount
+                })
                 .ToMinimalApiResult();
         })
         .WithName("GetEntityDefinitions")
-        .Produces<IEnumerable<EntityDefinitionDto>>()
+        .Produces<PagedResult<EntityDefinitionDto>>()
         .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         entities.MapGet("/{id:guid}", async (

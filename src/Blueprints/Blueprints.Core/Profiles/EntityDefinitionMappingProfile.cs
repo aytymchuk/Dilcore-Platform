@@ -23,8 +23,7 @@ public class EntityDefinitionMappingProfile : Profile
 
         CreateMap<CreateEntityDefinitionCommand, CreateEntityDefinitionGrainCommand>();
         CreateMap<UpdateEntityDefinitionCommand, UpdateEntityDefinitionGrainCommand>();
-        CreateMap<FieldDefinitionParameters, FieldDefinitionGrainDto>()
-            .ForMember(dest => dest.SchemaName, opt => opt.Ignore());
+        CreateMap<FieldDefinitionParameters, FieldDefinitionGrainDto>();
 
         CreateMap<CreateEntityDefinitionDto, CreateEntityDefinitionCommand>();
         CreateMap<UpdateEntityDefinitionDto, UpdateEntityDefinitionCommand>();

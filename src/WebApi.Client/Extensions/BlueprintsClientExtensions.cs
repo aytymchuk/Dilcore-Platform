@@ -1,3 +1,4 @@
+using Dilcore.Blueprints.Contracts;
 using Dilcore.Blueprints.Contracts.EntityDefinitions;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Update;
@@ -12,14 +13,17 @@ namespace Dilcore.WebApi.Client.Extensions;
 public static class BlueprintsClientExtensions
 {
     /// <summary>
-    /// Safely gets all entity definitions, returning a Result instead of throwing exceptions.
+    /// Safely gets a paginated list of entity definitions, returning a Result instead of throwing exceptions.
     /// </summary>
-    /// <param name="client">The blueprints client.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Result containing the entity definition list or error information with ProblemDetails.</returns>
-    public static Task<Result<IReadOnlyList<EntityDefinitionDto>>> SafeGetEntityDefinitionsAsync(
-        this IBlueprintsClient client, CancellationToken ct = default)
-        => SafeApiInvoker.InvokeAsync(() => client.GetEntityDefinitionsAsync(ct));
+    public static Task<Result<PagedResult<EntityDefinitionDto>>> SafeGetEntityDefinitionsAsync(
+        this IBlueprintsClient client,
+        int? skip = null,
+        int? take = null,
+        string? search = null,
+        bool? isAbstract = null,
+        string? tags = null,
+        CancellationToken ct = default)
+        => SafeApiInvoker.InvokeAsync(() => client.GetEntityDefinitionsAsync(skip, take, search, isAbstract, tags, ct));
 
     /// <summary>
     /// Safely gets an entity definition by its identifier, returning a Result instead of throwing exceptions.

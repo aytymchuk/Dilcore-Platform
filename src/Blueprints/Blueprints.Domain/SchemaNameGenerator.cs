@@ -10,6 +10,11 @@ namespace Dilcore.Blueprints.Domain;
 /// </summary>
 public static partial class SchemaNameGenerator
 {
+    private static readonly HashSet<string> ReservedNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
+    };
+
     public static string Generate(string displayName)
     {
         var words = WordSplitRegex().Split(displayName.Trim())
@@ -28,6 +33,9 @@ public static partial class SchemaNameGenerator
 
         return sb.ToString();
     }
+
+    public static bool IsReserved(string schemaName) =>
+        ReservedNames.Contains(schemaName);
 
     [GeneratedRegex(@"[^a-zA-Z0-9]+")]
     private static partial Regex WordSplitRegex();

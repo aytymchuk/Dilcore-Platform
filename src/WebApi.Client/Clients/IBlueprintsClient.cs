@@ -1,3 +1,4 @@
+using Dilcore.Blueprints.Contracts;
 using Dilcore.Blueprints.Contracts.EntityDefinitions;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Update;
@@ -11,12 +12,16 @@ namespace Dilcore.WebApi.Client.Clients;
 public interface IBlueprintsClient
 {
     /// <summary>
-    /// Gets the list of all entity definitions.
+    /// Gets a paginated list of entity definitions.
     /// </summary>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>List of entity definitions.</returns>
     [Get("/blueprints/entity-definitions")]
-    Task<IReadOnlyList<EntityDefinitionDto>> GetEntityDefinitionsAsync(CancellationToken ct = default);
+    Task<PagedResult<EntityDefinitionDto>> GetEntityDefinitionsAsync(
+        [Query] int? skip = null,
+        [Query] int? take = null,
+        [Query] string? search = null,
+        [Query] bool? isAbstract = null,
+        [Query] string? tags = null,
+        CancellationToken ct = default);
 
     /// <summary>
     /// Gets an entity definition by its identifier.

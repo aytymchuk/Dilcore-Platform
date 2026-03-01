@@ -4,25 +4,39 @@ namespace Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 
 public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntityDefinitionDto>
 {
-    private static readonly FieldDefinitionDtoValidator FieldValidator = new();
-
     public CreateEntityDefinitionDtoValidator()
     {
         RuleFor(x => x.DisplayName)
             .NotEmpty()
             .WithMessage("DisplayName is required.")
-            .MinimumLength(2)
-            .WithMessage("DisplayName must be at least 2 characters.")
-            .MaximumLength(128)
-            .WithMessage("DisplayName must not exceed 128 characters.")
-            .Matches(@"[a-zA-Z0-9]")
+            .MinimumLength(ValidationConstants.DisplayNameMinLength)
+            .WithMessage($"DisplayName must be at least {ValidationConstants.DisplayNameMinLength} characters.")
+            .MaximumLength(ValidationConstants.DisplayNameMaxLength)
+            .WithMessage($"DisplayName must not exceed {ValidationConstants.DisplayNameMaxLength} characters.")
+            .Matches(ValidationConstants.AlphanumericRequiredPattern)
             .WithMessage("DisplayName must contain at least one alphanumeric character.");
 
         RuleFor(x => x.Description)
-            .MaximumLength(200)
-            .WithMessage("Description must not exceed 200 characters.");
+            .MaximumLength(ValidationConstants.DescriptionMaxLength)
+            .WithMessage($"Description must not exceed {ValidationConstants.DescriptionMaxLength} characters.");
+
+        RuleFor(x => x.Fields.Count)
+            .LessThanOrEqualTo(ValidationConstants.MaxTopLevelFields)
+            .WithMessage($"An entity must not have more than {ValidationConstants.MaxTopLevelFields} top-level fields.");
 
         RuleForEach(x => x.Fields)
-            .SetValidator(FieldValidator);
+            .SetValidator(new FieldDefinitionDtoValidator());
+
+        RuleFor(x => x.Tags.Count)
+            .LessThanOrEqualTo(ValidationConstants.MaxTags)
+            .WithMessage($"An entity must not have more than {ValidationConstants.MaxTags} tags.");
+
+        RuleForEach(x => x.Tags)
+            .NotEmpty()
+            .WithMessage("Tags must not be empty.")
+            .MaximumLength(ValidationConstants.MaxTagLength)
+            .WithMessage($"Each tag must not exceed {ValidationConstants.MaxTagLength} characters.")
+            .Matches(ValidationConstants.TagFormatPattern)
+            .WithMessage("Tags must only contain alphanumeric characters, hyphens, or underscores.");
     }
 }
