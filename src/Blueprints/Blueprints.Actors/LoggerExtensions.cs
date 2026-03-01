@@ -25,7 +25,7 @@ public static partial class LoggerExtensions
     public static partial void LogEntityDefinitionNotFound(this ILogger logger, Guid grainId);
 
     [LoggerMessage(LogLevel.Warning, "ETag mismatch for entity definition {GrainId}: expected {CurrentETag}, got {IncomingETag}")]
-    public static partial void LogEntityDefinitionETagMismatch(this ILogger logger, Guid grainId, long incomingETag, long currentETag);
+    public static partial void LogEntityDefinitionETagMismatch(this ILogger logger, Guid grainId, long currentETag, long incomingETag);
 
     [LoggerMessage(LogLevel.Information, "Entity definition deleted: {GrainId}, SchemaName: {SchemaName}")]
     public static partial void LogEntityDefinitionDeleted(this ILogger logger, Guid grainId, string schemaName);

@@ -2,6 +2,8 @@
 description: Build the solution and run all tests, fixing any errors iteratively.
 ---
 
+# Build & Test
+
 ## Step 1 — Build
 
 Run the full solution build:

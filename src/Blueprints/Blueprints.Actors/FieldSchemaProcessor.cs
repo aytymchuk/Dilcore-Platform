@@ -29,9 +29,11 @@ internal static class FieldSchemaProcessor
         return incoming.Select(f => MergeField(f, existingBySchema)).ToList();
     }
 
-    public static string? FindDuplicate(IReadOnlyList<FieldDefinitionGrainDto> fields)
+    public static string? FindDuplicate(IReadOnlyList<FieldDefinitionGrainDto> fields) =>
+        FindDuplicate(fields, new HashSet<string>(StringComparer.Ordinal));
+
+    private static string? FindDuplicate(IReadOnlyList<FieldDefinitionGrainDto> fields, HashSet<string> seen)
     {
-        var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var field in fields)
         {
             if (!seen.Add(field.SchemaName))
@@ -39,7 +41,7 @@ internal static class FieldSchemaProcessor
 
             if (field.Fields is { Length: > 0 })
             {
-                var nested = FindDuplicate(field.Fields);
+                var nested = FindDuplicate(field.Fields, seen);
                 if (nested is not null)
                     return nested;
             }

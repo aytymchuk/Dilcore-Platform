@@ -105,7 +105,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         if (command.ETag != _state.State.ETag)
         {
-            _logger.LogEntityDefinitionETagMismatch(grainId, command.ETag, _state.State.ETag);
+            _logger.LogEntityDefinitionETagMismatch(grainId, _state.State.ETag, command.ETag);
             return EntityDefinitionGrainResult.ETagMismatch(
                 $"ETag mismatch for entity definition '{grainId}'. Expected {_state.State.ETag}, got {command.ETag}.");
         }

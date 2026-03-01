@@ -175,7 +175,8 @@ internal sealed class StateStorageHandler<TState, TDomain, TRepository>
 
     public async Task<Result> DeleteAsync(IServiceProvider services, Guid id)
     {
-        if (_delete is null) return Result.Ok();
+        if (_delete is null)
+            return Result.Fail($"Delete not configured for {typeof(TState).Name}.");
         var repository = services.GetRequiredService<TRepository>();
         return await _delete(repository, id);
     }

@@ -14,7 +14,7 @@ public record EntityDefinition : BaseDomain
         init
         {
             field = value;
-            if (string.IsNullOrEmpty(SchemaName))
+            if (string.IsNullOrWhiteSpace(SchemaName))
                 SchemaName = SchemaNameGenerator.Generate(value);
         }
     }

@@ -38,14 +38,14 @@ public class EntityDefinitionStateMappingProfile : Profile
             {
                 SchemaName = dto.SchemaName,
                 DisplayName = dto.DisplayName,
-                Type = Enum.Parse<FieldType>(dto.Type),
+                Type = Enum.Parse<FieldType>(dto.Type, ignoreCase: true),
                 Fields = (dto.Fields ?? []).Select(MapFieldDto).ToList()
             }
             : new FieldDefinition
             {
                 SchemaName = dto.SchemaName,
                 DisplayName = dto.DisplayName,
-                Type = Enum.Parse<FieldType>(dto.Type)
+                Type = Enum.Parse<FieldType>(dto.Type, ignoreCase: true)
             };
 
     private static bool IsComplexType(string type) =>

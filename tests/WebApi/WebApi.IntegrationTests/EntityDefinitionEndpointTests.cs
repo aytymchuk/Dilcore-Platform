@@ -761,7 +761,7 @@ public class EntityDefinitionEndpointTests
     [Test]
     public async Task Update_ShouldReturn404_WhenNotExists()
     {
-        var updateDto = new UpdateEntityDefinitionDto { Description = "Nonexistent" };
+        var updateDto = new UpdateEntityDefinitionDto { ETag = 1, Description = "Nonexistent" };
 
         var result = await _client.SafeUpdateEntityDefinitionAsync(Guid.CreateVersion7(), updateDto);
 
@@ -1161,7 +1161,8 @@ public class EntityDefinitionEndpointTests
                 extendsEntityId: parentResult.Value.Id));
         childResult.IsSuccess.ShouldBeTrue();
 
-        await _client.SafeDeleteEntityDefinitionAsync(parentResult.Value.Id);
+        var deleteResult = await _client.SafeDeleteEntityDefinitionAsync(parentResult.Value.Id);
+        deleteResult.IsSuccess.ShouldBeTrue();
 
         var childFetch = await _client.SafeGetEntityDefinitionAsync(childResult.Value.Id);
         childFetch.IsSuccess.ShouldBeTrue();

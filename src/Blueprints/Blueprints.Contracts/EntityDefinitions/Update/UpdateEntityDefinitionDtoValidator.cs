@@ -21,23 +21,29 @@ public class UpdateEntityDefinitionDtoValidator : AbstractValidator<UpdateEntity
             .MaximumLength(ValidationConstants.DescriptionMaxLength)
             .WithMessage($"Description must not exceed {ValidationConstants.DescriptionMaxLength} characters.");
 
-        RuleFor(x => x.Fields.Count)
-            .LessThanOrEqualTo(ValidationConstants.MaxTopLevelFields)
-            .WithMessage($"An entity must not have more than {ValidationConstants.MaxTopLevelFields} top-level fields.");
+        When(x => x.Fields is not null, () =>
+        {
+            RuleFor(x => x.Fields.Count)
+                .LessThanOrEqualTo(ValidationConstants.MaxTopLevelFields)
+                .WithMessage($"An entity must not have more than {ValidationConstants.MaxTopLevelFields} top-level fields.");
 
-        RuleForEach(x => x.Fields)
-            .SetValidator(new FieldDefinitionDtoValidator());
+            RuleForEach(x => x.Fields)
+                .SetValidator(new FieldDefinitionDtoValidator());
+        });
 
-        RuleFor(x => x.Tags.Count)
-            .LessThanOrEqualTo(ValidationConstants.MaxTags)
-            .WithMessage($"An entity must not have more than {ValidationConstants.MaxTags} tags.");
+        When(x => x.Tags is not null, () =>
+        {
+            RuleFor(x => x.Tags.Count)
+                .LessThanOrEqualTo(ValidationConstants.MaxTags)
+                .WithMessage($"An entity must not have more than {ValidationConstants.MaxTags} tags.");
 
-        RuleForEach(x => x.Tags)
-            .NotEmpty()
-            .WithMessage("Tags must not be empty.")
-            .MaximumLength(ValidationConstants.MaxTagLength)
-            .WithMessage($"Each tag must not exceed {ValidationConstants.MaxTagLength} characters.")
-            .Matches(ValidationConstants.TagFormatPattern)
-            .WithMessage("Tags must only contain alphanumeric characters, hyphens, or underscores.");
+            RuleForEach(x => x.Tags)
+                .NotEmpty()
+                .WithMessage("Tags must not be empty.")
+                .MaximumLength(ValidationConstants.MaxTagLength)
+                .WithMessage($"Each tag must not exceed {ValidationConstants.MaxTagLength} characters.")
+                .Matches(ValidationConstants.TagFormatPattern)
+                .WithMessage("Tags must only contain alphanumeric characters, hyphens, or underscores.");
+        });
     }
 }

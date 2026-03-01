@@ -103,6 +103,9 @@ public sealed class EntityDefinitionRepository : IEntityDefinitionRepository
         IReadOnlyList<string>? tags = null,
         CancellationToken cancellationToken = default)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(skip);
+        ArgumentOutOfRangeException.ThrowIfLessThan(take, 1);
+
         var filter = BuildFilter(searchTerm, isAbstract, tags);
 
         var countResult = await _repository.CountAsync(filter, cancellationToken);

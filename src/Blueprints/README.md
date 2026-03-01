@@ -20,7 +20,7 @@ All Blueprints operations are tenant-scoped. The tenant is identified by the `x-
 
 ### Architecture at a Glance
 
-```
+```text
 HTTP Request
   │
   ▼
@@ -430,14 +430,14 @@ Always generate output conforming to this structure:
 
 1. **Never invent schema names.** Omit `schemaName` from the payload entirely — the API auto-generates them from display names.
 2. **Field type selection:**
-   - Use `String` for names, labels, descriptions, emails, URLs, addresses, statuses, and any free text.
-   - Use `Number` for quantities, amounts, prices, percentages, scores, and numeric IDs.
-   - Use `Boolean` for yes/no flags, toggles, and binary states.
-   - Use `DateTime` for dates, timestamps, deadlines, and schedules.
-   - Use `File` for attachments, images, documents, and uploads.
-   - Use `Identifier` for references to other entities or external system IDs.
-   - Use `Object` when the user describes a *group* of related sub-fields (e.g. "address with street, city, zip"). Must contain at least one nested field.
-   - Use `Array` when the user describes a *list* of structured items (e.g. "line items" or "phone numbers with label and number"). Must contain at least one nested field.
+   - `String` — names, labels, descriptions, emails, URLs, addresses, statuses, and any free text.
+   - `Number` — quantities, amounts, prices, percentages, scores, and numeric IDs.
+   - `Boolean` — yes/no flags, toggles, and binary states.
+   - `DateTime` — dates, timestamps, deadlines, and schedules.
+   - `File` — attachments, images, documents, and uploads.
+   - `Identifier` — references to other entities or external system IDs.
+   - `Object` — groups related sub-fields together (e.g. "address with street, city, zip"). Must contain at least one nested field.
+   - `Array` — lists of structured items (e.g. "line items" or "phone numbers with label and number"). Must contain at least one nested field.
 3. **Nesting limits:** maximum 5 levels deep. Maximum 50 fields per nested level. Maximum 100 top-level fields.
 4. **Tags:** if the user mentions a domain area (e.g. "CRM", "HR", "inventory"), add it as a lowercase tag. Always add tags that help categorize the entity.
 5. **`isAbstract`:** set to `true` only if the user explicitly says this is a base/abstract entity not meant to hold data directly.
