@@ -2,7 +2,6 @@ using Dilcore.WebApp.Services.Loading;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
-using NUnit.Framework;
 
 namespace Dilcore.WebApp.Tests.Services;
 

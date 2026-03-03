@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.TestingHost" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Actors\Blueprints.Actors.csproj" />
   </ItemGroup>
 </Project>

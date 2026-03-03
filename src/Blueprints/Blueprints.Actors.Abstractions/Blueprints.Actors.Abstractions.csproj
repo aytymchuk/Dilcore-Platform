@@ -6,4 +6,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Blueprints.Domain\Blueprints.Domain.csproj" />
+  </ItemGroup>
 </Project>

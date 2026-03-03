@@ -21,6 +21,7 @@
   </ItemGroup>
     <ItemGroup>
     <ProjectReference Include="..\Common\FluentResults\Results.Abstractions\Results.Abstractions.csproj" />
+    <ProjectReference Include="..\Blueprints\Blueprints.Contracts\Blueprints.Contracts.csproj" />
     <ProjectReference Include="..\Identity\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\Tenancy\Tenancy.Contracts\Tenancy.Contracts.csproj" />
   </ItemGroup>

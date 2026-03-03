@@ -1,3 +1,4 @@
+using Dilcore.Identity.Actors.Abstractions;
 using Dilcore.Tenancy.Actors.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +21,15 @@ public abstract class BaseIntegrationTest
         await Factory.DisposeAsync();
     }
 
-    protected static async Task SeedTenantAsync(CustomWebApplicationFactory factory, string tenantId)
+    public static async Task SeedUserAsync(CustomWebApplicationFactory factory, string userId)
+    {
+        using var scope = factory.Services.CreateScope();
+        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        var userGrain = grainFactory.GetGrain<IUserGrain>(userId);
+        await userGrain.RegisterAsync($"{userId}@example.com", "Test", "User");
+    }
+
+    public static async Task SeedTenantAsync(CustomWebApplicationFactory factory, string tenantId)
     {
         using var scope = factory.Services.CreateScope();
         var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
@@ -35,5 +44,11 @@ public abstract class BaseIntegrationTest
                 Description = "Seeded for Integration Tests"
             });
         }
+    }
+
+    public static async Task SeedUserAndTenantAsync(CustomWebApplicationFactory factory, FakeUser fakeUser)
+    {
+        await SeedUserAsync(factory, fakeUser.UserId);
+        await SeedTenantAsync(factory, fakeUser.TenantId);
     }
 }
