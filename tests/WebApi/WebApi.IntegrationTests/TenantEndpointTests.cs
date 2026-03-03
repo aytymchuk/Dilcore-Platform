@@ -7,6 +7,7 @@ using Dilcore.WebApi.IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
 using Shouldly;
+using static Dilcore.WebApi.IntegrationTests.Infrastructure.BaseIntegrationTest;
 
 namespace Dilcore.WebApi.IntegrationTests;
 
@@ -34,13 +35,7 @@ public class TenantEndpointTests
         _factory.FakeUser.IsAuthenticated = true;
         _tenancyClient = _factory.CreateTypedClient<ITenancyClient>();
 
-        // Register the user to ensure happy paths pass
-        using var scope = _factory.Services.CreateScope();
-
-        var grainFactory = scope.ServiceProvider.GetRequiredService<IGrainFactory>();
-        var userGrain = grainFactory.GetGrain<IUserGrain>(_factory.FakeUser.UserId);
-        var uniqueEmail = $"{_factory.FakeUser.UserId}@example.com";
-        await userGrain.RegisterAsync(uniqueEmail, "Test", "User");
+        await SeedUserAsync(_factory, _factory.FakeUser.UserId);
     }
 
     [TearDown]

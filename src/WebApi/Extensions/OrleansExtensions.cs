@@ -1,4 +1,5 @@
 using Azure.Data.Tables;
+using Dilcore.Blueprints.Actors;
 using Dilcore.Identity.Actors;
 using Dilcore.Authentication.Orleans.Extensions;
 using Dilcore.MultiTenant.Orleans.Extensions;
@@ -46,6 +47,8 @@ internal static class OrleansExtensions
             siloBuilder.AddUserGrainStorage();
             // Register Tenant Grain Storage
             siloBuilder.AddTenancyActors();
+            // Register Blueprint Grain Storage
+            siloBuilder.AddBlueprintsActors();
 
             // OpenTelemetry activity propagation
             siloBuilder.AddActivityPropagation();

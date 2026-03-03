@@ -1,7 +1,6 @@
 using Dilcore.Tenancy.Contracts.Tenants;
 using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApp.Features.Tenants.Get;
-using Dilcore.WebApp.Models.Tenants;
 using Moq;
 using Shouldly;
 
