@@ -577,8 +577,8 @@ public class EntityDefinitionEndpointTests
     [Test]
     public async Task GetList_ShouldReturnPagedList()
     {
-        await _client.SafeCreateEntityDefinitionAsync(NewCreateDto());
-        await _client.SafeCreateEntityDefinitionAsync(NewCreateDto());
+        (await _client.SafeCreateEntityDefinitionAsync(NewCreateDto())).IsSuccess.ShouldBeTrue();
+        (await _client.SafeCreateEntityDefinitionAsync(NewCreateDto())).IsSuccess.ShouldBeTrue();
 
         var result = await _client.SafeGetEntityDefinitionsAsync();
 
@@ -713,8 +713,10 @@ public class EntityDefinitionEndpointTests
     [Test]
     public async Task Update_ShouldReturnUpdated_WhenValid()
     {
-        var created = (await _client.SafeCreateEntityDefinitionAsync(
-            NewCreateDto(displayName: "Before Update"))).Value;
+        var createResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: "Before Update"));
+        createResult.IsSuccess.ShouldBeTrue();
+        var created = createResult.Value;
 
         var updateDto = new UpdateEntityDefinitionDto
         {

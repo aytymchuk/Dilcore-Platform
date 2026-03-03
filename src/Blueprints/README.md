@@ -224,7 +224,6 @@ Schema names are the stable, storage-safe identifiers for entities and fields. T
   "description": "Represents a customer purchase order",
   "isAbstract": false,
   "extendsEntityId": null,
-  "schemaName": null,
   "fields": [
     {
       "displayName": "Order Number",
