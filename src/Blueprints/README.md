@@ -486,13 +486,70 @@ When the user's request is vague:
 
 ## Getting Started
 
-### Register the Module
+### Prerequisites
+
+The Blueprints module depends on three platform-level services that must be configured before adding the module:
+
+1. **Authentication & Authorization** — endpoints require an authenticated user.
+2. **Multi-tenancy** — every request is tenant-scoped via the `x-tenant` header.
+3. **Orleans** — grains handle single-writer concurrency per entity definition.
+
+### 1. Configure Authentication
+
+Register the authentication and authorization services before domain modules:
+
+```csharp
+builder.Services
+    .AddAuthentication()   // or AddAuth0Authentication(configuration) for Auth0
+    .AddAuthorization();
+```
+
+The host must also add the middleware in the correct order:
+
+```csharp
+app.UseAuthentication();
+app.UseAuthorization();
+```
+
+### 2. Configure Multi-Tenancy
+
+Register the tenant resolver so the Blueprints module can resolve the current tenant from the `x-tenant` header and route to the correct MongoDB database:
+
+```csharp
+builder.Services.AddMultiTenancy<AppTenantInfo>(mtb =>
+{
+    mtb.WithStore<OrleansTenantStore>(ServiceLifetime.Scoped);
+});
+```
+
+The `TenantDatabasePrefixProvider` uses the resolved tenant to derive the per-tenant database name automatically.
+
+### 3. Configure Orleans
+
+The Blueprints grains require an Orleans silo. For local development use localhost clustering; for production use Azure Table Storage or another clustering provider:
+
+```csharp
+builder.Host.UseOrleans((context, siloBuilder) =>
+{
+    // Local development
+    siloBuilder.UseLocalhostClustering();
+
+    // Register Blueprints grain storage (backed by MongoDB via the Store layer)
+    siloBuilder.AddBlueprintsActors();
+});
+```
+
+`AddBlueprintsActors()` registers the `BlueprintDefinitionStorage` grain storage provider and the AutoMapper profiles used by the grains.
+
+### 4. Register the Module
+
+Once the prerequisites are in place, register the Blueprints services (MediatR handlers, FluentValidation validators, Store layer):
 
 ```csharp
 builder.AddBlueprintsModule();
 ```
 
-### Map Endpoints
+### 5. Map Endpoints
 
 ```csharp
 app.MapBlueprintsEndpoints();

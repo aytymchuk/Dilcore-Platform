@@ -21,7 +21,7 @@ public class EntityDefinitionStateMappingProfile : Profile
             .ForMember(dest => dest.SchemaName, opt => opt.MapFrom(src => src.SchemaName));
 
         CreateMap<FieldDefinitionGrainDto, FieldDefinition>()
-            .ConstructUsing(src => MapFieldDto(src))
+            .ConstructUsing(src => FieldDefinitionMapper.ToFieldDefinition(src))
             .ForAllMembers(opt => opt.Ignore());
 
         CreateMap<FieldDefinition, FieldDefinitionGrainDto>()
@@ -30,26 +30,7 @@ public class EntityDefinitionStateMappingProfile : Profile
     }
 
     private static List<FieldDefinition> MapFieldDtos(List<FieldDefinitionGrainDto> dtos) =>
-        dtos.Select(MapFieldDto).ToList();
-
-    private static FieldDefinition MapFieldDto(FieldDefinitionGrainDto dto) =>
-        IsComplexType(dto.Type)
-            ? new ComplexFieldDefinition
-            {
-                SchemaName = dto.SchemaName,
-                DisplayName = dto.DisplayName,
-                Type = Enum.Parse<FieldType>(dto.Type, ignoreCase: true),
-                Fields = (dto.Fields ?? []).Select(MapFieldDto).ToList()
-            }
-            : new FieldDefinition
-            {
-                SchemaName = dto.SchemaName,
-                DisplayName = dto.DisplayName,
-                Type = Enum.Parse<FieldType>(dto.Type, ignoreCase: true)
-            };
-
-    private static bool IsComplexType(string type) =>
-        type is nameof(FieldType.Object) or nameof(FieldType.Array);
+        dtos.Select(FieldDefinitionMapper.ToFieldDefinition).ToList();
 
     private static List<FieldDefinitionGrainDto> MapFields(IReadOnlyList<FieldDefinition> fields) =>
         fields.Select(MapField).ToList();

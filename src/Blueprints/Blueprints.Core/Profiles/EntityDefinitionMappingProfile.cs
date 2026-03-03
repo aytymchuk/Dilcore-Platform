@@ -17,7 +17,7 @@ public class EntityDefinitionMappingProfile : Profile
     public EntityDefinitionMappingProfile()
     {
         CreateMap<EntityDefinitionGrainDto, EntityDefinition>()
-            .ForCtorParam("fields", opt => opt.MapFrom(src => src.Fields.Select(MapGrainDtoToField).ToList()))
+            .ForCtorParam("fields", opt => opt.MapFrom(src => src.Fields.Select(FieldDefinitionMapper.ToFieldDefinition).ToList()))
             .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => new EntityMetadata { Tags = src.Tags.ToList() }))
             .ForMember(dest => dest.Fields, opt => opt.Ignore());
 
@@ -37,25 +37,6 @@ public class EntityDefinitionMappingProfile : Profile
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
             .ForMember(dest => dest.Fields, opt => opt.MapFrom(new ContractFieldsResolver()));
     }
-
-    private static FieldDefinition MapGrainDtoToField(FieldDefinitionGrainDto dto) =>
-        IsComplexType(dto.Type)
-            ? new ComplexFieldDefinition
-            {
-                SchemaName = dto.SchemaName,
-                DisplayName = dto.DisplayName,
-                Type = Enum.Parse<FieldType>(dto.Type, ignoreCase: true),
-                Fields = (dto.Fields ?? []).Select(MapGrainDtoToField).ToList()
-            }
-            : new FieldDefinition
-            {
-                SchemaName = dto.SchemaName,
-                DisplayName = dto.DisplayName,
-                Type = Enum.Parse<FieldType>(dto.Type, ignoreCase: true)
-            };
-
-    private static bool IsComplexType(string type) =>
-        type is nameof(FieldType.Object) or nameof(FieldType.Array);
 
     private class ContractFieldsResolver : IValueResolver<FieldDefinition, ContractFieldDto, List<ContractFieldDto>?>
     {

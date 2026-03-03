@@ -685,8 +685,10 @@ public class EntityDefinitionEndpointTests
     [Test]
     public async Task GetById_ShouldReturnEntity_WhenExists()
     {
-        var created = (await _client.SafeCreateEntityDefinitionAsync(
-            NewCreateDto(displayName: "GetById Target"))).Value;
+        var createResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: "GetById Target"));
+        createResult.IsSuccess.ShouldBeTrue();
+        var created = createResult.Value;
 
         var result = await _client.SafeGetEntityDefinitionAsync(created.Id);
 
@@ -1031,7 +1033,8 @@ public class EntityDefinitionEndpointTests
         var created = (await _client.SafeCreateEntityDefinitionAsync(
             NewCreateDto(displayName: "Ephemeral"))).Value;
 
-        await _client.SafeDeleteEntityDefinitionAsync(created.Id);
+        var deleteResult = await _client.SafeDeleteEntityDefinitionAsync(created.Id);
+        deleteResult.IsSuccess.ShouldBeTrue();
 
         var result = await _client.SafeGetEntityDefinitionAsync(created.Id);
 
@@ -1046,7 +1049,8 @@ public class EntityDefinitionEndpointTests
         var created = (await _client.SafeCreateEntityDefinitionAsync(
             NewCreateDto(tags: [tag]))).Value;
 
-        await _client.SafeDeleteEntityDefinitionAsync(created.Id);
+        var deleteResult = await _client.SafeDeleteEntityDefinitionAsync(created.Id);
+        deleteResult.IsSuccess.ShouldBeTrue();
 
         var result = await _client.SafeGetEntityDefinitionsAsync(tags: tag);
         result.IsSuccess.ShouldBeTrue();
@@ -1060,7 +1064,8 @@ public class EntityDefinitionEndpointTests
         var created = (await _client.SafeCreateEntityDefinitionAsync(
             NewCreateDto(displayName: displayName))).Value;
 
-        await _client.SafeDeleteEntityDefinitionAsync(created.Id);
+        var deleteResult = await _client.SafeDeleteEntityDefinitionAsync(created.Id);
+        deleteResult.IsSuccess.ShouldBeTrue();
 
         var result = await _client.SafeCreateEntityDefinitionAsync(
             NewCreateDto(displayName: displayName));

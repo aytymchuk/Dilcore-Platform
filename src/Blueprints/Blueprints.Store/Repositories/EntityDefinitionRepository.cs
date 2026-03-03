@@ -77,7 +77,8 @@ public sealed class EntityDefinitionRepository : IEntityDefinitionRepository
     public async Task<Result> DeleteAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
-        var filter = Builders<EntityDefinitionDocument>.Filter.Eq(x => x.Id, id);
+        var filter = Builders<EntityDefinitionDocument>.Filter.Eq(x => x.Id, id)
+                     & NotDeleted;
         var result = await _repository.DeleteAsync(filter, cancellationToken);
         return result.ToResult();
     }
