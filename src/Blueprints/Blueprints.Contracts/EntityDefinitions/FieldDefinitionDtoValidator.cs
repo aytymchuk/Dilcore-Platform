@@ -24,6 +24,13 @@ public class FieldDefinitionDtoValidator : AbstractValidator<FieldDefinitionDto>
             .Matches(ValidationConstants.AlphanumericRequiredPattern)
             .WithMessage("Field display name must contain at least one alphanumeric character.");
 
+        RuleFor(x => x.SchemaName)
+            .MaximumLength(ValidationConstants.SchemaNameMaxLength)
+            .WithMessage($"Field schema name must not exceed {ValidationConstants.SchemaNameMaxLength} characters.")
+            .Matches(ValidationConstants.SchemaNameFormatPattern)
+            .WithMessage("Field schema name must be camelCase, contain only latin characters, numbers, and hyphens.")
+            .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
+
         RuleFor(x => x.Type)
             .NotEmpty()
             .WithMessage("Field type is required.")
