@@ -14,6 +14,11 @@ public class FieldDefinitionDtoValidator : AbstractValidator<FieldDefinitionDto>
     {
         _currentDepth = depth;
 
+        RuleFor(x => x.SchemaName)
+            .MaximumLength(ValidationConstants.SchemaNameMaxLength)
+            .WithMessage($"Field schema name must not exceed {ValidationConstants.SchemaNameMaxLength} characters.")
+            .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
+
         RuleFor(x => x.DisplayName)
             .NotEmpty()
             .WithMessage("Field display name is required.")

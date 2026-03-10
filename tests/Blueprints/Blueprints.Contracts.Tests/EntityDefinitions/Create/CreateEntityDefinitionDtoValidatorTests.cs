@@ -15,25 +15,6 @@ public class CreateEntityDefinitionDtoValidatorTests
         _validator = new CreateEntityDefinitionDtoValidator();
     }
 
-    [TestCase("id")]
-    [TestCase("createdAt")]
-    [TestCase("tenantId")]
-    public void GivenValidation_WhenSchemaNameIsReserved_ThenShouldHaveValidationError(string schemaName)
-    {
-        var dto = new CreateEntityDefinitionDto
-        {
-            SchemaName = schemaName,
-            DisplayName = "My Entity",
-            Fields = [],
-            Tags = []
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.SchemaName)
-            .WithErrorMessage($"SchemaName '{schemaName}' is reserved.");
-    }
-
     [TestCase("myEntity")]
     [TestCase("validSchemaName")]
     [TestCase("phone-number")]
@@ -51,24 +32,6 @@ public class CreateEntityDefinitionDtoValidatorTests
         var result = _validator.TestValidate(dto);
 
         result.ShouldNotHaveValidationErrorFor(x => x.SchemaName);
-    }
-
-    [TestCase("---")]
-    [TestCase("  -  ")]
-    [TestCase(".")]
-    public void GivenValidation_WhenSchemaNameHasNoAlphanumeric_ThenShouldHaveValidationError(string schemaName)
-    {
-        var dto = new CreateEntityDefinitionDto
-        {
-            SchemaName = schemaName,
-            DisplayName = "My Entity",
-            Fields = [],
-            Tags = []
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.SchemaName);
     }
 
     [Test]

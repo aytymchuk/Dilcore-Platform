@@ -7,13 +7,8 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
     public CreateEntityDefinitionDtoValidator()
     {
         RuleFor(x => x.SchemaName)
-            .Must(schemaName => !ValidationConstants.IsReservedSchemaName(schemaName))
-            .WithMessage(x => $"SchemaName '{x.SchemaName}' is reserved.")
-            .When(x => !string.IsNullOrWhiteSpace(x.SchemaName))
             .MaximumLength(ValidationConstants.SchemaNameMaxLength)
             .WithMessage($"SchemaName must not exceed {ValidationConstants.SchemaNameMaxLength} characters.")
-            .Matches(ValidationConstants.AlphanumericRequiredPattern)
-            .WithMessage("SchemaName must contain at least one alphanumeric character.")
             .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
 
         RuleFor(x => x.DisplayName)
