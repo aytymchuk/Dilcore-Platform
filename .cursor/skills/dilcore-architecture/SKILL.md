@@ -48,7 +48,7 @@ Each cell shows whether the **row** layer may depend on the **column** layer.
 **Contracts** — API boundary. DTOs, FluentValidation validators. Shared with clients.
 - Must NOT depend on: Domain, Core, Store, Infrastructure, Actors, Actors.Abstractions, WebApi
 - May reference: FluentValidation, NuGet packages only
-- If validation needs to mirror Domain logic, duplicate it in a self-contained helper (e.g. `SchemaNameHelper`)
+- If validation needs to mirror Domain logic, duplicate it in a self-contained helper (e.g. `ValidationConstants`)
 
 **Actors.Abstractions** — Orleans grain interfaces and serializable DTOs.
 - Must NOT depend on: Core, Store, Infrastructure, Actors, WebApi
