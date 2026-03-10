@@ -1,6 +1,6 @@
 namespace Dilcore.Blueprints.Contracts.EntityDefinitions;
 
-internal static class ValidationConstants
+public static class ValidationConstants
 {
     public const int DisplayNameMinLength = 2;
     public const int DisplayNameMaxLength = 128;
@@ -17,5 +17,10 @@ internal static class ValidationConstants
 
     public const string AlphanumericRequiredPattern = @"[a-zA-Z0-9]";
     public const string TagFormatPattern = @"^[a-zA-Z0-9_-]+$";
-    public const string SchemaNameFormatPattern = @"^[a-z][a-zA-Z0-9\-]*$";
+    public const string SchemaNameFormatPattern = @"^[a-z][a-zA-Z0-9]*$";
+
+    public static readonly HashSet<string> ReservedSchemaNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
+    };
 }

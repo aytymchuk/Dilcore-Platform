@@ -25,6 +25,7 @@ public sealed class UniqueSchemaNameBehavior
         var schemaInput = !string.IsNullOrWhiteSpace(request.SchemaName)
             ? request.SchemaName
             : request.DisplayName;
+            
         var schemaName = SchemaNameGenerator.Generate(schemaInput);
 
         var existsResult = await _repository.ExistsBySchemaNameAsync(schemaName, cancellationToken);
@@ -35,6 +36,6 @@ public sealed class UniqueSchemaNameBehavior
             return Result.Fail<EntityDefinition>(
                 new ConflictError($"An entity definition with schema name '{schemaName}' already exists."));
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

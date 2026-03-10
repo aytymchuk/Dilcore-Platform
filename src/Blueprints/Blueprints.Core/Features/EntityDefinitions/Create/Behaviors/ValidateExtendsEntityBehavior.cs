@@ -22,7 +22,7 @@ public sealed class ValidateExtendsEntityBehavior
         CancellationToken cancellationToken)
     {
         if (request.ExtendsEntityId is null)
-            return await next();
+            return await next(cancellationToken);
 
         var grain = _grainFactory.GetGrain<IEntityDefinitionGrain>(request.ExtendsEntityId.Value);
         var dto = await grain.GetAsync();
@@ -31,6 +31,6 @@ public sealed class ValidateExtendsEntityBehavior
             return Result.Fail<EntityDefinition>(
                 new ValidationError($"Referenced entity definition '{request.ExtendsEntityId}' does not exist."));
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

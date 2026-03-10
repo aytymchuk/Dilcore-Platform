@@ -163,6 +163,63 @@ public class EntityDefinitionGrainTests
         result.ErrorMessage!.ShouldContain("Duplicate field schema name");
     }
 
+    [Test]
+    public async Task CreateAsync_ShouldRejectDuplicateFieldSchemaNames_CaseInsensitive()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "CaseInsensitiveDupTest",
+            fields:
+            [
+                new() { SchemaName = "fieldA", DisplayName = "Field A", Type = "String" },
+                new() { SchemaName = "FIELDA", DisplayName = "Field A Again", Type = "Number" }
+            ]));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'FIELDA'");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldPreserveExplicitSchemaName()
+    {
+        var grain = GetGrain();
+        var command = CreateCommand(displayName: "Ignore Me") with { SchemaName = "explicitName" };
+
+        var result = await grain.CreateAsync(command);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.SchemaName.ShouldBe("explicitName");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldPreserveExplicitFieldSchemaNames()
+    {
+        var grain = GetGrain();
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "FieldPreserveTest",
+            fields:
+            [
+                new() { SchemaName = "CustomField", DisplayName = "Some Display", Type = "String" }
+            ]));
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.Fields[0].SchemaName.ShouldBe("CustomField");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldRejectReservedFieldSchemaNames()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "ReservedTest",
+            fields: [new() { SchemaName = "createdAt", DisplayName = "Created At", Type = "DateTime" }]));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Field schema name 'createdAt' is reserved.");
+    }
+
     #endregion
 
     #region GetAsync
@@ -512,6 +569,51 @@ public class EntityDefinitionGrainTests
         result.IsSuccess.ShouldBeFalse();
         result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
         result.ErrorMessage!.ShouldContain("Duplicate field schema name");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldRejectDuplicateFieldSchemaNames_CaseInsensitive()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "CaseDupUpdate"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new() { SchemaName = "fieldX", DisplayName = "Field X", Type = "String" },
+                new() { SchemaName = "FIELDX", DisplayName = "Field X Again", Type = "Number" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'FIELDX'");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldRejectNestedDuplicateFieldSchemaNames()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "NestedDupUpdate"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new()
+                {
+                    SchemaName = "Root",
+                    DisplayName = "Root",
+                    Type = "Object",
+                    Fields = [new() { SchemaName = "Root", DisplayName = "Sub Root", Type = "String" }]
+                }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'Root'");
     }
 
     #endregion

@@ -15,9 +15,21 @@ public static partial class EntityDefinitionLimits
     public const int MaxTags = 20;
     public const int MaxTagLength = 64;
 
-    [GeneratedRegex(@"[a-zA-Z0-9]")]
-    public static partial Regex AlphanumericRequiredRegex();
+    public const int SchemaNameMaxLength = 64;
+
+    public const string SchemaNameFormatPattern = @"^[a-z][a-zA-Z0-9]*$";
+
+    public static readonly HashSet<string> ReservedSchemaNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
+    };
+
+    [GeneratedRegex(@"[^a-zA-Z0-9]")]
+    public static partial Regex NonAlphanumericRegex();
 
     [GeneratedRegex(@"^[a-zA-Z0-9_-]+$")]
     public static partial Regex TagFormatRegex();
+
+    [GeneratedRegex(SchemaNameFormatPattern)]
+    public static partial Regex SchemaNameFormatRegex();
 }

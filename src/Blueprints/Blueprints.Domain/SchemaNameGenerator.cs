@@ -10,35 +10,49 @@ namespace Dilcore.Blueprints.Domain;
 /// </summary>
 public static partial class SchemaNameGenerator
 {
-    private static readonly HashSet<string> ReservedNames = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
-    };
+    private static readonly Regex FormatRegex = EntityDefinitionLimits.SchemaNameFormatRegex();
 
     public static string Generate(string displayName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            throw new ArgumentException("Display name cannot be null or empty.", nameof(displayName));
+        }
 
-        var words = WordSplitRegex().Split(displayName.Trim())
-            .Where(w => w.Length > 0)
-            .ToArray();
+        var words = EntityDefinitionLimits.NonAlphanumericRegex()
+            .Replace(displayName, " ")
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         if (words.Length == 0)
+        {
             return string.Empty;
+        }
 
-        var sb = new StringBuilder(words[0].ToLowerInvariant());
+        var sb = new StringBuilder();
+        sb.Append(words[0].ToLowerInvariant());
+
         for (var i = 1; i < words.Length; i++)
         {
-            sb.Append(char.ToUpperInvariant(words[i][0]));
-            sb.Append(words[i][1..].ToLowerInvariant());
+            var word = words[i];
+            if (word.Length > 0)
+            {
+                sb.Append(char.ToUpperInvariant(word[0]));
+                if (word.Length > 1)
+                {
+                    sb.Append(word[1..].ToLowerInvariant());
+                }
+            }
         }
 
         return sb.ToString();
     }
 
-    public static bool IsReserved(string schemaName) =>
-        ReservedNames.Contains(schemaName);
+    public static bool IsValid(string schemaName) =>
+        !string.IsNullOrWhiteSpace(schemaName) &&
+        schemaName.Length <= EntityDefinitionLimits.SchemaNameMaxLength &&
+        FormatRegex.IsMatch(schemaName) &&
+        !IsReserved(schemaName);
 
-    [GeneratedRegex(@"[^a-zA-Z0-9]+")]
-    private static partial Regex WordSplitRegex();
+    public static bool IsReserved(string schemaName) =>
+        EntityDefinitionLimits.ReservedSchemaNames.Contains(schemaName);
 }

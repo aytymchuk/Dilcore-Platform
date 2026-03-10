@@ -29,7 +29,6 @@ public class FieldDefinitionDtoValidatorTests
 
     [TestCase("camelCase")]
     [TestCase("camelCase012")]
-    [TestCase("camel-case")]
     [TestCase("firstName")]
     [TestCase("a")]
     [TestCase("x123")]
@@ -61,7 +60,7 @@ public class FieldDefinitionDtoValidatorTests
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.SchemaName)
-              .WithErrorMessage("Field schema name must be camelCase, contain only latin characters, numbers, and hyphens.");
+              .WithErrorMessage("Field schema name must be camelCase and contain only latin characters and numbers.");
     }
 
     [Test]

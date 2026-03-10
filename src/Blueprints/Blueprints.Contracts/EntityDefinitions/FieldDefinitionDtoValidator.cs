@@ -10,7 +10,7 @@ public class FieldDefinitionDtoValidator : AbstractValidator<FieldDefinitionDto>
     {
     }
 
-    private FieldDefinitionDtoValidator(int depth)
+    internal FieldDefinitionDtoValidator(int depth)
     {
         _currentDepth = depth;
 
@@ -28,7 +28,9 @@ public class FieldDefinitionDtoValidator : AbstractValidator<FieldDefinitionDto>
             .MaximumLength(ValidationConstants.SchemaNameMaxLength)
             .WithMessage($"Field schema name must not exceed {ValidationConstants.SchemaNameMaxLength} characters.")
             .Matches(ValidationConstants.SchemaNameFormatPattern)
-            .WithMessage("Field schema name must be camelCase, contain only latin characters, numbers, and hyphens.")
+            .WithMessage("Field schema name must be camelCase and contain only latin characters and numbers.")
+            .Must(name => name == null || !ValidationConstants.ReservedSchemaNames.Contains(name))
+            .WithMessage(x => $"Field schema name '{x.SchemaName}' is reserved.")
             .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
 
         RuleFor(x => x.Type)

@@ -47,19 +47,18 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         var fields = FieldSchemaProcessor.GenerateSchemaNames(command.Fields);
 
+        var entitySchemaName = !string.IsNullOrWhiteSpace(command.SchemaName)
+            ? command.SchemaName
+            : SchemaNameGenerator.Generate(command.DisplayName);
+
+        if (string.IsNullOrEmpty(entitySchemaName))
+            return EntityDefinitionGrainResult.Validation("Schema name could not be generated.");
+
         var fieldError = EntityDefinitionValidator.ValidateFields(fields)
-            ?? FieldSchemaProcessor.ValidateSchemaNames(fields);
+            ?? FieldSchemaProcessor.ValidateSchemaNames(fields, entitySchemaName);
 
         if (fieldError is not null)
             return EntityDefinitionGrainResult.Validation(fieldError);
-
-        var schemaInput = !string.IsNullOrWhiteSpace(command.SchemaName)
-            ? command.SchemaName
-            : command.DisplayName;
-        var entitySchemaName = SchemaNameGenerator.Generate(schemaInput);
-
-        if (string.IsNullOrEmpty(entitySchemaName))
-            return EntityDefinitionGrainResult.Validation("DisplayName must produce a non-empty schema name.");
 
         var now = _timeProvider.GetUtcNow().UtcDateTime;
 
@@ -113,7 +112,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         var newFields = FieldSchemaProcessor.MergeWithExisting(command.Fields, _state.State.Fields);
 
         var fieldError = EntityDefinitionValidator.ValidateFields(newFields)
-            ?? FieldSchemaProcessor.ValidateSchemaNames(newFields);
+            ?? FieldSchemaProcessor.ValidateSchemaNames(newFields, _state.State.SchemaName);
 
         if (fieldError is not null)
             return EntityDefinitionGrainResult.Validation(fieldError);

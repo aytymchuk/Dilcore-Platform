@@ -8,8 +8,9 @@ internal static class FieldSchemaProcessor
     public static List<FieldDefinitionGrainDto> GenerateSchemaNames(IReadOnlyList<FieldDefinitionGrainDto> fields) =>
         fields.Select(f => f with
         {
-            SchemaName = SchemaNameGenerator.Generate(
-                !string.IsNullOrEmpty(f.SchemaName) ? f.SchemaName : f.DisplayName),
+            SchemaName = !string.IsNullOrEmpty(f.SchemaName)
+                ? f.SchemaName
+                : SchemaNameGenerator.Generate(f.DisplayName),
             Fields = f.Fields is { Length: > 0 }
                 ? GenerateSchemaNames(f.Fields).ToArray()
                 : f.Fields
@@ -24,15 +25,15 @@ internal static class FieldSchemaProcessor
         IReadOnlyList<FieldDefinitionGrainDto> existing)
     {
         var existingBySchema = existing
-            .GroupBy(f => f.SchemaName, StringComparer.Ordinal)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+            .GroupBy(f => f.SchemaName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
         return incoming.Select(f => MergeField(f, existingBySchema)).ToList();
     }
 
-    public static string? FindDuplicate(IReadOnlyList<FieldDefinitionGrainDto> fields) =>
-        FindDuplicate(fields, new HashSet<string>(StringComparer.Ordinal));
+    public static string? FindDuplicate(IReadOnlyList<FieldDefinitionGrainDto> fields, HashSet<string>? seen = null) =>
+        FindDuplicateRecursive(fields, seen ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
-    private static string? FindDuplicate(IReadOnlyList<FieldDefinitionGrainDto> fields, HashSet<string> seen)
+    private static string? FindDuplicateRecursive(IReadOnlyList<FieldDefinitionGrainDto> fields, HashSet<string> seen)
     {
         foreach (var field in fields)
         {
@@ -41,7 +42,7 @@ internal static class FieldSchemaProcessor
 
             if (field.Fields is { Length: > 0 })
             {
-                var nested = FindDuplicate(field.Fields, seen);
+                var nested = FindDuplicateRecursive(field.Fields, seen);
                 if (nested is not null)
                     return nested;
             }
@@ -70,13 +71,24 @@ internal static class FieldSchemaProcessor
 
     /// <summary>
     /// Validates field schema name integrity: checks for duplicates and reserved names in one pass.
+    /// Also checks for collisions with the entity's own schema name.
     /// Returns a validation error message or <c>null</c> if all names are valid.
     /// </summary>
-    public static string? ValidateSchemaNames(IReadOnlyList<FieldDefinitionGrainDto> fields)
+    public static string? ValidateSchemaNames(IReadOnlyList<FieldDefinitionGrainDto> fields, string? entitySchemaName = null)
     {
-        var duplicate = FindDuplicate(fields);
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (!string.IsNullOrEmpty(entitySchemaName))
+        {
+            seen.Add(entitySchemaName);
+        }
+
+        var duplicate = FindDuplicate(fields, seen);
         if (duplicate is not null)
-            return $"Duplicate field schema name '{duplicate}'.";
+        {
+            return duplicate.Equals(entitySchemaName, StringComparison.OrdinalIgnoreCase)
+                ? $"Field schema name '{duplicate}' collides with entity schema name."
+                : $"Duplicate field schema name '{duplicate}'.";
+        }
 
         var reserved = FindReserved(fields);
         if (reserved is not null)
@@ -93,13 +105,13 @@ internal static class FieldSchemaProcessor
         var newNames = CollectSchemaNames(newFields);
 
         return new FieldChanges(
-            Added: newNames.Except(oldNames).ToList(),
-            Removed: oldNames.Except(newNames).ToList());
+            Added: newNames.Except(oldNames, StringComparer.OrdinalIgnoreCase).ToList(),
+            Removed: oldNames.Except(newNames, StringComparer.OrdinalIgnoreCase).ToList());
     }
 
     private static HashSet<string> CollectSchemaNames(IReadOnlyList<FieldDefinitionGrainDto> fields)
     {
-        var result = new HashSet<string>(StringComparer.Ordinal);
+        var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         CollectSchemaNamesRecursive(fields, result);
         return result;
     }
@@ -133,10 +145,20 @@ internal static class FieldSchemaProcessor
 
     private static string ResolveSchemaName(
         FieldDefinitionGrainDto field,
-        Dictionary<string, FieldDefinitionGrainDto> existingBySchema) =>
-        !string.IsNullOrEmpty(field.SchemaName) && existingBySchema.ContainsKey(field.SchemaName)
-            ? field.SchemaName
-            : SchemaNameGenerator.Generate(field.DisplayName);
+        Dictionary<string, FieldDefinitionGrainDto> existingBySchema)
+    {
+        if (!string.IsNullOrEmpty(field.SchemaName))
+        {
+            if (existingBySchema.TryGetValue(field.SchemaName, out var existingField))
+            {
+                return existingField.SchemaName;
+            }
+
+            return SchemaNameGenerator.Generate(field.SchemaName);
+        }
+
+        return SchemaNameGenerator.Generate(field.DisplayName);
+    }
 
     private static FieldDefinitionGrainDto[] GetNestedExisting(
         string schemaName,

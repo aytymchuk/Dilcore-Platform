@@ -21,14 +21,14 @@ public class UpdateEntityDefinitionDtoValidator : AbstractValidator<UpdateEntity
             .MaximumLength(ValidationConstants.DescriptionMaxLength)
             .WithMessage($"Description must not exceed {ValidationConstants.DescriptionMaxLength} characters.");
 
-        When(x => x.Fields is not null, () =>
+        When(x => x.Fields is { Count: > 0 }, () =>
         {
-            RuleFor(x => x.Fields.Count)
+            RuleFor(x => x.Fields!.Count)
                 .LessThanOrEqualTo(ValidationConstants.MaxTopLevelFields)
-                .WithMessage($"An entity must not have more than {ValidationConstants.MaxTopLevelFields} top-level fields.");
+                .WithMessage($"An entity definition must not have more than {ValidationConstants.MaxTopLevelFields} top-level fields.");
 
             RuleForEach(x => x.Fields)
-                .SetValidator(new FieldDefinitionDtoValidator());
+                .SetValidator(new FieldDefinitionDtoValidator(1));
         });
 
         When(x => x.Tags is not null, () =>

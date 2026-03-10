@@ -1,3 +1,4 @@
+using Dilcore.Blueprints.Contracts.EntityDefinitions;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 using FluentValidation.TestHelper;
 
@@ -5,7 +6,7 @@ namespace Dilcore.Blueprints.Contracts.Tests.EntityDefinitions.Create;
 
 public class CreateEntityDefinitionDtoValidatorTests
 {
-    private CreateEntityDefinitionDtoValidator _validator;
+    private CreateEntityDefinitionDtoValidator? _validator;
 
     [SetUp]
     public void Setup()
@@ -54,7 +55,6 @@ public class CreateEntityDefinitionDtoValidatorTests
 
     [TestCase("camelCase")]
     [TestCase("camelCase012")]
-    [TestCase("camel-case")]
     public void GivenValidation_WhenSchemaNameIsValid_ThenShouldNotHaveError(string schemaName)
     {
         // Arrange
@@ -67,13 +67,13 @@ public class CreateEntityDefinitionDtoValidatorTests
         result.ShouldNotHaveValidationErrorFor(x => x.SchemaName);
     }
 
-    [TestCase("InvalidName", "SchemaName must be camelCase, contain only latin characters, numbers, and hyphens.")]
-    [TestCase("PascalCase", "SchemaName must be camelCase, contain only latin characters, numbers, and hyphens.")]
-    [TestCase("schema_name", "SchemaName must be camelCase, contain only latin characters, numbers, and hyphens.")]
-    [TestCase("123schemaName", "SchemaName must be camelCase, contain only latin characters, numbers, and hyphens.")]
-    [TestCase("-schemaName", "SchemaName must be camelCase, contain only latin characters, numbers, and hyphens.")]
-    [TestCase("schemaName!", "SchemaName must be camelCase, contain only latin characters, numbers, and hyphens.")]
-    [TestCase("schema-Name$", "SchemaName must be camelCase, contain only latin characters, numbers, and hyphens.")]
+    [TestCase("InvalidName", "SchemaName must be camelCase and contain only latin characters and numbers.")]
+    [TestCase("PascalCase", "SchemaName must be camelCase and contain only latin characters and numbers.")]
+    [TestCase("schema_name", "SchemaName must be camelCase and contain only latin characters and numbers.")]
+    [TestCase("123schemaName", "SchemaName must be camelCase and contain only latin characters and numbers.")]
+    [TestCase("-schemaName", "SchemaName must be camelCase and contain only latin characters and numbers.")]
+    [TestCase("schemaName!", "SchemaName must be camelCase and contain only latin characters and numbers.")]
+    [TestCase("schema-Name$", "SchemaName must be camelCase and contain only latin characters and numbers.")]
     public void GivenValidation_WhenSchemaNameIsInvalidFormat_ThenShouldHaveValidationError(string schemaName, string expectedErrorMessage)
     {
         // Arrange
