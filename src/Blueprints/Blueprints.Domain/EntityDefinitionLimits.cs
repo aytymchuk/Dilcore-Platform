@@ -19,10 +19,15 @@ public static partial class EntityDefinitionLimits
 
     public const string SchemaNameFormatPattern = @"^[a-z][a-zA-Z0-9]*$";
 
-    public static readonly HashSet<string> ReservedSchemaNames = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> ReservedSchemaNamesBacking = new(StringComparer.OrdinalIgnoreCase)
     {
         "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
     };
+
+    /// <summary>
+    /// Reserved schema names used by the platform internally. Cannot be used as field schema names at any nesting depth.
+    /// </summary>
+    public static IReadOnlySet<string> ReservedSchemaNames => ReservedSchemaNamesBacking;
 
     [GeneratedRegex(@"[^a-zA-Z0-9]")]
     public static partial Regex NonAlphanumericRegex();

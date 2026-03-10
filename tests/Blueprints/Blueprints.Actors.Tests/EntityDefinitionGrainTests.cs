@@ -81,6 +81,48 @@ public class EntityDefinitionGrainTests
     }
 
     [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenDisplayNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "!!!"));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage!.ShouldContain("alphanumeric");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenEntitySchemaNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "Valid Name") with { SchemaName = "---" });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("alphanumeric");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenFieldSchemaNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "Valid Entity",
+            fields: [new() { SchemaName = "---", DisplayName = "Some Field", Type = "String" }]));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("alphanumeric");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
     public async Task CreateAsync_ShouldGenerateSchemaName_FromDisplayName()
     {
         var grain = GetGrain();
@@ -614,6 +656,23 @@ public class EntityDefinitionGrainTests
 
         result.IsSuccess.ShouldBeFalse();
         result.ErrorMessage!.ShouldContain("Duplicate field schema name 'root'");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldReturnValidation_WhenFieldSchemaNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "UpdateSchemaTest"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields = [new() { SchemaName = "---", DisplayName = "Invalid Schema", Type = "String" }]
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("alphanumeric");
     }
 
     #endregion

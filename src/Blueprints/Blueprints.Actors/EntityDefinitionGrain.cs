@@ -1,5 +1,6 @@
 using Dilcore.Blueprints.Actors.Abstractions;
 using Dilcore.Blueprints.Domain;
+using FluentResults;
 using Microsoft.Extensions.Logging;
 
 namespace Dilcore.Blueprints.Actors;
@@ -45,38 +46,46 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return EntityDefinitionGrainResult.AlreadyExists($"Entity definition '{grainId}' already exists.");
         }
 
-        var fields = FieldSchemaProcessor.GenerateSchemaNames(command.Fields);
+        try
+        {
+            var fields = FieldSchemaProcessor.GenerateSchemaNames(command.Fields);
 
-        var entitySchemaName = SchemaNameGenerator.Resolve(command.SchemaName, command.DisplayName);
+            var schemaNameResult = SchemaNameGenerator.SafeResolve(command.SchemaName, command.DisplayName);
+            if (schemaNameResult.IsFailed)
+                return EntityDefinitionGrainResult.Validation(schemaNameResult.Errors.First().Message);
 
-        if (string.IsNullOrEmpty(entitySchemaName))
-            return EntityDefinitionGrainResult.Validation("Schema name could not be generated.");
+            var entitySchemaName = schemaNameResult.Value;
 
-        var fieldError = EntityDefinitionValidator.ValidateFields(fields)
-            ?? FieldSchemaProcessor.ValidateSchemaNames(fields, entitySchemaName);
+            var fieldError = EntityDefinitionValidator.ValidateFields(fields)
+                ?? FieldSchemaProcessor.ValidateSchemaNames(fields, entitySchemaName);
 
-        if (fieldError is not null)
-            return EntityDefinitionGrainResult.Validation(fieldError);
+            if (fieldError is not null)
+                return EntityDefinitionGrainResult.Validation(fieldError);
 
-        var now = _timeProvider.GetUtcNow().UtcDateTime;
+            var now = _timeProvider.GetUtcNow().UtcDateTime;
 
-        _state.State.Id = grainId;
-        _state.State.SchemaName = entitySchemaName;
-        _state.State.DisplayName = command.DisplayName;
-        _state.State.Description = command.Description;
-        _state.State.IsAbstract = command.IsAbstract;
-        _state.State.ExtendsEntityId = command.ExtendsEntityId;
-        _state.State.Fields = fields;
-        _state.State.Tags = command.Tags.ToList();
-        _state.State.CreatedAt = now;
-        _state.State.UpdatedAt = now;
-        _state.State.IsCreated = true;
+            _state.State.Id = grainId;
+            _state.State.SchemaName = entitySchemaName;
+            _state.State.DisplayName = command.DisplayName;
+            _state.State.Description = command.Description;
+            _state.State.IsAbstract = command.IsAbstract;
+            _state.State.ExtendsEntityId = command.ExtendsEntityId;
+            _state.State.Fields = fields;
+            _state.State.Tags = command.Tags.ToList();
+            _state.State.CreatedAt = now;
+            _state.State.UpdatedAt = now;
+            _state.State.IsCreated = true;
 
-        await _state.WriteStateAsync();
+            await _state.WriteStateAsync();
 
-        _logger.LogEntityDefinitionCreated(grainId, _state.State.SchemaName);
+            _logger.LogEntityDefinitionCreated(grainId, _state.State.SchemaName);
 
-        return EntityDefinitionGrainResult.Success(ToDto());
+            return EntityDefinitionGrainResult.Success(ToDto());
+        }
+        catch (ArgumentException ex)
+        {
+            return EntityDefinitionGrainResult.Validation(ex.Message);
+        }
     }
 
     public Task<EntityDefinitionGrainDto?> GetAsync()
@@ -107,31 +116,38 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                 $"ETag mismatch for entity definition '{grainId}'. Expected {_state.State.ETag}, got {command.ETag}.");
         }
 
-        var newFields = FieldSchemaProcessor.MergeWithExisting(command.Fields, _state.State.Fields);
+        try
+        {
+            var newFields = FieldSchemaProcessor.MergeWithExisting(command.Fields, _state.State.Fields);
 
-        var fieldError = EntityDefinitionValidator.ValidateFields(newFields)
-            ?? FieldSchemaProcessor.ValidateSchemaNames(newFields, _state.State.SchemaName);
+            var fieldError = EntityDefinitionValidator.ValidateFields(newFields)
+                ?? FieldSchemaProcessor.ValidateSchemaNames(newFields, _state.State.SchemaName);
 
-        if (fieldError is not null)
-            return EntityDefinitionGrainResult.Validation(fieldError);
+            if (fieldError is not null)
+                return EntityDefinitionGrainResult.Validation(fieldError);
 
-        LastFieldChanges = FieldSchemaProcessor.ComputeChanges(_state.State.Fields, newFields);
+            LastFieldChanges = FieldSchemaProcessor.ComputeChanges(_state.State.Fields, newFields);
 
-        if (!string.IsNullOrEmpty(command.DisplayName))
-            _state.State.DisplayName = command.DisplayName;
+            if (!string.IsNullOrEmpty(command.DisplayName))
+                _state.State.DisplayName = command.DisplayName;
 
-        _state.State.Description = command.Description;
-        _state.State.IsAbstract = command.IsAbstract;
-        _state.State.Fields = newFields;
-        _state.State.Tags = command.Tags.ToList();
-        _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+            _state.State.Description = command.Description;
+            _state.State.IsAbstract = command.IsAbstract;
+            _state.State.Fields = newFields;
+            _state.State.Tags = command.Tags.ToList();
+            _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
 
-        await _state.WriteStateAsync();
+            await _state.WriteStateAsync();
 
-        _logger.LogEntityDefinitionUpdated(grainId, _state.State.SchemaName);
+            _logger.LogEntityDefinitionUpdated(grainId, _state.State.SchemaName);
 
-        return EntityDefinitionGrainResult.Success(
-            ToDto(), LastFieldChanges.Added, LastFieldChanges.Removed);
+            return EntityDefinitionGrainResult.Success(
+                ToDto(), LastFieldChanges.Added, LastFieldChanges.Removed);
+        }
+        catch (ArgumentException ex)
+        {
+            return EntityDefinitionGrainResult.Validation(ex.Message);
+        }
     }
 
     public async Task<EntityDefinitionGrainResult> DeleteAsync()
