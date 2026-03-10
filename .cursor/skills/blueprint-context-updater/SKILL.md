@@ -9,7 +9,7 @@ Analyzes `src/Blueprints` and keeps the Blueprint agent context files in `.curso
 
 ## Context Files Layout
 
-```
+```text
 .cursor/skills/blueprint-agent/
 ├── SKILL.md              # Skill entry point (never modify directly)
 ├── common.md             # Shared context — business purpose, design principles, domain parts registry
@@ -44,7 +44,7 @@ This list is not exhaustive. Any new domain part found in the codebase that does
 
 ## Workflow
 
-```
+```text
 Task Progress:
 - [ ] Step 1: Scan the Blueprints module for all domain parts
 - [ ] Step 2: Read existing context files and build a diff

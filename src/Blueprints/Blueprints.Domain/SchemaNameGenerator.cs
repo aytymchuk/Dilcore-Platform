@@ -25,7 +25,7 @@ public static partial class SchemaNameGenerator
 
         if (words.Length == 0)
         {
-            return string.Empty;
+            throw new ArgumentException("Display name must contain at least one alphanumeric character.", nameof(displayName));
         }
 
         var sb = new StringBuilder();

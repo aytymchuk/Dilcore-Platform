@@ -145,21 +145,17 @@ internal static class FieldSchemaProcessor
         FieldDefinitionGrainDto field,
         Dictionary<string, FieldDefinitionGrainDto> existingBySchema)
     {
-        if (!string.IsNullOrEmpty(field.SchemaName))
-        {
-            if (existingBySchema.TryGetValue(field.SchemaName, out var existingField))
-                return existingField.SchemaName;
+        if (string.IsNullOrWhiteSpace(field.SchemaName))
+            return SchemaNameGenerator.Generate(field.DisplayName);
 
-            var normalized = SchemaNameGenerator.Generate(field.SchemaName);
-            if (existingBySchema.TryGetValue(normalized, out var existingByNormalized))
-                return existingByNormalized.SchemaName;
+        if (existingBySchema.TryGetValue(field.SchemaName, out var existingField))
+            return existingField.SchemaName;
 
-            return SchemaNameGenerator.IsValid(field.SchemaName)
-                ? field.SchemaName
-                : normalized;
-        }
+        var normalized = SchemaNameGenerator.Generate(field.SchemaName);
+        if (existingBySchema.TryGetValue(normalized, out var existingByNormalized))
+            return existingByNormalized.SchemaName;
 
-        return SchemaNameGenerator.Generate(field.DisplayName);
+        return normalized;
     }
 
     private static FieldDefinitionGrainDto[] GetNestedExisting(

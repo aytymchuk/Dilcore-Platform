@@ -6,6 +6,12 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
 {
     public CreateEntityDefinitionDtoValidator()
     {
+        RuleFor(x => x.SchemaName)
+            .Must(schemaName => string.IsNullOrWhiteSpace(schemaName) ||
+                !ValidationConstants.GetReservedSchemaNames().Contains(schemaName, StringComparer.OrdinalIgnoreCase))
+            .WithMessage(x => $"SchemaName '{x.SchemaName}' is reserved.")
+            .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
+
         RuleFor(x => x.DisplayName)
             .NotEmpty()
             .WithMessage("DisplayName is required.")

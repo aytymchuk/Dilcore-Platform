@@ -181,7 +181,7 @@ public class EntityDefinitionGrainTests
     }
 
     [Test]
-    public async Task CreateAsync_ShouldPreserveExplicitSchemaName()
+    public async Task CreateAsync_ShouldNormalizeExplicitSchemaName()
     {
         var grain = GetGrain();
         var command = CreateCommand(displayName: "Ignore Me") with { SchemaName = "explicitName" };
@@ -189,11 +189,11 @@ public class EntityDefinitionGrainTests
         var result = await grain.CreateAsync(command);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Entity!.SchemaName.ShouldBe("explicitName");
+        result.Entity!.SchemaName.ShouldBe("explicitname");
     }
 
     [Test]
-    public async Task CreateAsync_ShouldPreserveExplicitFieldSchemaNames()
+    public async Task CreateAsync_ShouldNormalizeExplicitFieldSchemaNames()
     {
         var grain = GetGrain();
         var result = await grain.CreateAsync(CreateCommand(
@@ -204,7 +204,7 @@ public class EntityDefinitionGrainTests
             ]));
 
         result.IsSuccess.ShouldBeTrue();
-        result.Entity!.Fields[0].SchemaName.ShouldBe("customField");
+        result.Entity!.Fields[0].SchemaName.ShouldBe("customfield");
     }
 
     [Test]

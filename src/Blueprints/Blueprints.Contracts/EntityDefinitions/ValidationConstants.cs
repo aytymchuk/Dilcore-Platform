@@ -19,8 +19,10 @@ public static class ValidationConstants
     public const string TagFormatPattern = @"^[a-zA-Z0-9_-]+$";
     public const string SchemaNameFormatPattern = @"^[a-z][a-zA-Z0-9]*$";
 
-    public static readonly HashSet<string> ReservedSchemaNames = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> ReservedSchemaNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
     };
+
+    public static IReadOnlyCollection<string> GetReservedSchemaNames() => [..ReservedSchemaNames];
 }
