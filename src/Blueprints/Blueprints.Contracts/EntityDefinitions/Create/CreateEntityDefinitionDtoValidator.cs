@@ -7,7 +7,7 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
     public CreateEntityDefinitionDtoValidator()
     {
         RuleFor(x => x.SchemaName)
-            .Must(schemaName => !ValidationConstants.GetReservedSchemaNames().Contains(schemaName, StringComparer.OrdinalIgnoreCase))
+            .Must(schemaName => !ValidationConstants.IsReservedSchemaName(schemaName))
             .WithMessage(x => $"SchemaName '{x.SchemaName}' is reserved.")
             .When(x => !string.IsNullOrWhiteSpace(x.SchemaName))
             .MaximumLength(ValidationConstants.SchemaNameMaxLength)
