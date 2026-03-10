@@ -7,7 +7,7 @@ description: Describes the Dilcore Platform project structure, layer dependencie
 
 ## Project Structure
 
-```
+```text
 src/
 ├── Common/           # Shared infrastructure (Auth, Domain, MediatR, MultiTenant, etc.)
 ├── Identity/         # Identity module
@@ -116,13 +116,13 @@ Shared across modules — not subject to the per-module layer rules:
 
 ## Request Flow
 
-```
+```text
 HTTP → WebApi → Core (MediatR) → Actors (Orleans Grain) → Store (MongoDB)
 ```
 
 ## When Adding New Code
 
-1. **New module**: Create all 7 layers + Contracts. Add architecture tests mirroring the existing pattern.
+1. **New module**: Create all 7 layers, including Contracts. Add architecture tests mirroring the existing pattern.
 2. **New validation in Contracts**: Use self-contained helpers. Never add `ProjectReference` to Domain.
 3. **New domain logic**: Put it in Domain. Core/Actors/Store reference Domain — not the other way.
 4. **New API endpoint**: WebApi maps to Core command/query; Contracts define request/response DTOs.

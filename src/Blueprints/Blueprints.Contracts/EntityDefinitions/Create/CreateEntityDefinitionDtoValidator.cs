@@ -12,6 +12,13 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
             .WithMessage(x => $"SchemaName '{x.SchemaName}' is reserved.")
             .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
 
+        RuleFor(x => x.SchemaName)
+            .MaximumLength(ValidationConstants.SchemaNameMaxLength)
+            .WithMessage($"SchemaName must not exceed {ValidationConstants.SchemaNameMaxLength} characters.")
+            .Matches(ValidationConstants.SchemaNameFormatPattern)
+            .WithMessage("SchemaName must start with a lowercase letter and contain only alphanumeric characters.")
+            .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
+
         RuleFor(x => x.DisplayName)
             .NotEmpty()
             .WithMessage("DisplayName is required.")

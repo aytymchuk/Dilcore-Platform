@@ -181,7 +181,7 @@ public class EntityDefinitionGrainTests
     }
 
     [Test]
-    public async Task CreateAsync_ShouldNormalizeExplicitSchemaName()
+    public async Task CreateAsync_ShouldPreserveExplicitSchemaName()
     {
         var grain = GetGrain();
         var command = CreateCommand(displayName: "Ignore Me") with { SchemaName = "explicitName" };
@@ -189,11 +189,11 @@ public class EntityDefinitionGrainTests
         var result = await grain.CreateAsync(command);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Entity!.SchemaName.ShouldBe("explicitname");
+        result.Entity!.SchemaName.ShouldBe("explicitName");
     }
 
     [Test]
-    public async Task CreateAsync_ShouldNormalizeExplicitFieldSchemaNames()
+    public async Task CreateAsync_ShouldPreserveExplicitFieldSchemaNames()
     {
         var grain = GetGrain();
         var result = await grain.CreateAsync(CreateCommand(
@@ -204,7 +204,7 @@ public class EntityDefinitionGrainTests
             ]));
 
         result.IsSuccess.ShouldBeTrue();
-        result.Entity!.Fields[0].SchemaName.ShouldBe("customfield");
+        result.Entity!.Fields[0].SchemaName.ShouldBe("customField");
     }
 
     [Test]
@@ -604,16 +604,16 @@ public class EntityDefinitionGrainTests
             [
                 new()
                 {
-                    SchemaName = "Root",
+                    SchemaName = "root",
                     DisplayName = "Root",
                     Type = "Object",
-                    Fields = [new() { SchemaName = "Root", DisplayName = "Sub Root", Type = "String" }]
+                    Fields = [new() { SchemaName = "root", DisplayName = "Sub Root", Type = "String" }]
                 }
             ]
         });
 
         result.IsSuccess.ShouldBeFalse();
-        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'Root'");
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'root'");
     }
 
     #endregion

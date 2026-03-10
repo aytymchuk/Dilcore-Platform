@@ -32,9 +32,9 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterEntityDefinitionBehaviors(this MediatRServiceConfiguration cfg)
     {
-        cfg.AddBehavior<UniqueSchemaNameBehavior>();
-        cfg.AddBehavior<ValidateExtendsEntityBehavior>();
         cfg.AddBehavior<ValidateFieldSchemaNamesBehavior<CreateEntityDefinitionCommand>>();
         cfg.AddBehavior<ValidateFieldSchemaNamesBehavior<UpdateEntityDefinitionCommand>>();
+        cfg.AddBehavior<UniqueSchemaNameBehavior>();
+        cfg.AddBehavior<ValidateExtendsEntityBehavior>();
     }
 }

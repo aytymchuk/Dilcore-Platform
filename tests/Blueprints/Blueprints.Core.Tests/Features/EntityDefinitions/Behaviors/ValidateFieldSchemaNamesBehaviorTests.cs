@@ -2,6 +2,7 @@ using Dilcore.Blueprints.Core.Features.EntityDefinitions;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Behaviors;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Update;
+using Dilcore.Blueprints.Domain;
 using Dilcore.Blueprints.Domain.Entities;
 using FluentAssertions;
 using FluentResults;
@@ -85,7 +86,7 @@ public class ValidateFieldSchemaNamesBehaviorTests
     [Test]
     public async Task Handle_WhenFieldSchemaNameExceedsMaxLength_ShouldReturnValidationError()
     {
-        var schemaName = "a" + new string('a', 64);
+        var schemaName = "a" + new string('a', EntityDefinitionLimits.SchemaNameMaxLength);
         var command = new CreateEntityDefinitionCommand
         {
             DisplayName = "Test",
