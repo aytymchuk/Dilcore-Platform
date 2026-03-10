@@ -47,6 +47,22 @@ public static partial class SchemaNameGenerator
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Resolves a canonical schema name from the given <paramref name="name"/>,
+    /// falling back to <paramref name="fallbackName"/> when <paramref name="name"/> is null or whitespace.
+    /// Already-valid names are returned as-is; otherwise the input is normalized via <see cref="Generate"/>.
+    /// </summary>
+    public static string Resolve(string? name, string fallbackName)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return Generate(fallbackName);
+
+        if (IsValid(name))
+            return name;
+
+        return Generate(name);
+    }
+
     public static bool IsValid(string schemaName) =>
         !string.IsNullOrWhiteSpace(schemaName) &&
         schemaName.Length <= EntityDefinitionLimits.SchemaNameMaxLength &&

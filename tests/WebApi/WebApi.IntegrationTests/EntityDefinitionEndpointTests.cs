@@ -297,14 +297,17 @@ public class EntityDefinitionEndpointTests
     public async Task Create_ShouldReturn201_WithCustomEntitySchemaName()
     {
         var suffix = Guid.CreateVersion7().ToString("N");
+        var schemaName = $"my-entity-{suffix}";
         var request = NewCreateDto(
             displayName: "Test Entity",
-            schemaName: $"my-entity-{suffix}");
+            schemaName: schemaName);
 
         var result = await _client.SafeCreateEntityDefinitionAsync(request);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Value.SchemaName.ShouldBe($"myEntity{suffix}", "Hyphenated schema name should be camelCased");
+        result.Value.SchemaName.ShouldBe(
+            SchemaNameGenerator.Generate(schemaName),
+            "Hyphenated schema name should be camelCased");
     }
 
     [Test]

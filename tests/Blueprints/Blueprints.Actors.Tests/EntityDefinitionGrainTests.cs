@@ -200,11 +200,11 @@ public class EntityDefinitionGrainTests
             displayName: "FieldPreserveTest",
             fields:
             [
-                new() { SchemaName = "CustomField", DisplayName = "Some Display", Type = "String" }
+                new() { SchemaName = "customField", DisplayName = "Some Display", Type = "String" }
             ]));
 
         result.IsSuccess.ShouldBeTrue();
-        result.Entity!.Fields[0].SchemaName.ShouldBe("CustomField");
+        result.Entity!.Fields[0].SchemaName.ShouldBe("customField");
     }
 
     [Test]

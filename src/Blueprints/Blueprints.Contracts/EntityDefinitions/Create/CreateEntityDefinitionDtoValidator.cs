@@ -16,15 +16,6 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
             .Matches(ValidationConstants.AlphanumericRequiredPattern)
             .WithMessage("DisplayName must contain at least one alphanumeric character.");
 
-        RuleFor(x => x.SchemaName)
-            .MaximumLength(ValidationConstants.SchemaNameMaxLength)
-            .WithMessage($"SchemaName must not exceed {ValidationConstants.SchemaNameMaxLength} characters.")
-            .Matches(ValidationConstants.SchemaNameFormatPattern)
-            .WithMessage("SchemaName must be camelCase and contain only latin characters and numbers.")
-            .Must(name => name == null || !ValidationConstants.ReservedSchemaNames.Contains(name))
-            .WithMessage(x => $"SchemaName '{x.SchemaName}' is reserved.")
-            .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
-
         RuleFor(x => x.Description)
             .MaximumLength(ValidationConstants.DescriptionMaxLength)
             .WithMessage($"Description must not exceed {ValidationConstants.DescriptionMaxLength} characters.");

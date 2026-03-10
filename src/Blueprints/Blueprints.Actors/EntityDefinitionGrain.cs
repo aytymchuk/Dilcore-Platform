@@ -47,9 +47,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         var fields = FieldSchemaProcessor.GenerateSchemaNames(command.Fields);
 
-        var entitySchemaName = !string.IsNullOrWhiteSpace(command.SchemaName)
-            ? command.SchemaName
-            : SchemaNameGenerator.Generate(command.DisplayName);
+        var entitySchemaName = SchemaNameGenerator.Resolve(command.SchemaName, command.DisplayName);
 
         if (string.IsNullOrEmpty(entitySchemaName))
             return EntityDefinitionGrainResult.Validation("Schema name could not be generated.");

@@ -3,7 +3,7 @@ using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.Blueprints.Core.Features.EntityDefinitions.Update;
 
-public record UpdateEntityDefinitionCommand : ICommand<EntityDefinition>
+public record UpdateEntityDefinitionCommand : ICommand<EntityDefinition>, IEntityDefinitionFieldsCommand
 {
     public required Guid Id { get; init; }
     public required long ETag { get; init; }

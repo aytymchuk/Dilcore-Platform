@@ -1,4 +1,3 @@
-using Dilcore.Blueprints.Contracts.EntityDefinitions;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 using FluentValidation.TestHelper;
 
@@ -12,93 +11,5 @@ public class CreateEntityDefinitionDtoValidatorTests
     public void Setup()
     {
         _validator = new CreateEntityDefinitionDtoValidator();
-    }
-
-    [Test]
-    public void GivenValidation_WhenSchemaNameIsNull_ThenShouldNotHaveError()
-    {
-        // Arrange
-        var dto = new CreateEntityDefinitionDto { SchemaName = null };
-
-        // Act
-        var result = _validator.TestValidate(dto);
-
-        // Assert
-        result.ShouldNotHaveValidationErrorFor(x => x.SchemaName);
-    }
-
-    [Test]
-    public void GivenValidation_WhenSchemaNameIsEmpty_ThenShouldNotHaveError()
-    {
-        // Arrange
-        var dto = new CreateEntityDefinitionDto { SchemaName = "" };
-
-        // Act
-        var result = _validator.TestValidate(dto);
-
-        // Assert
-        result.ShouldNotHaveValidationErrorFor(x => x.SchemaName);
-    }
-
-    [Test]
-    public void GivenValidation_WhenSchemaNameIsWhitespace_ThenShouldNotHaveError()
-    {
-        // Arrange
-        var dto = new CreateEntityDefinitionDto { SchemaName = "   " };
-
-        // Act
-        var result = _validator.TestValidate(dto);
-
-        // Assert
-        result.ShouldNotHaveValidationErrorFor(x => x.SchemaName);
-    }
-
-    [TestCase("camelCase")]
-    [TestCase("camelCase012")]
-    public void GivenValidation_WhenSchemaNameIsValid_ThenShouldNotHaveError(string schemaName)
-    {
-        // Arrange
-        var dto = new CreateEntityDefinitionDto { SchemaName = schemaName };
-
-        // Act
-        var result = _validator.TestValidate(dto);
-
-        // Assert
-        result.ShouldNotHaveValidationErrorFor(x => x.SchemaName);
-    }
-
-    [TestCase("InvalidName", "SchemaName must be camelCase and contain only latin characters and numbers.")]
-    [TestCase("PascalCase", "SchemaName must be camelCase and contain only latin characters and numbers.")]
-    [TestCase("schema_name", "SchemaName must be camelCase and contain only latin characters and numbers.")]
-    [TestCase("123schemaName", "SchemaName must be camelCase and contain only latin characters and numbers.")]
-    [TestCase("-schemaName", "SchemaName must be camelCase and contain only latin characters and numbers.")]
-    [TestCase("schemaName!", "SchemaName must be camelCase and contain only latin characters and numbers.")]
-    [TestCase("schema-Name$", "SchemaName must be camelCase and contain only latin characters and numbers.")]
-    public void GivenValidation_WhenSchemaNameIsInvalidFormat_ThenShouldHaveValidationError(string schemaName, string expectedErrorMessage)
-    {
-        // Arrange
-        var dto = new CreateEntityDefinitionDto { SchemaName = schemaName };
-
-        // Act
-        var result = _validator.TestValidate(dto);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.SchemaName)
-              .WithErrorMessage(expectedErrorMessage);
-    }
-
-    [Test]
-    public void GivenValidation_WhenSchemaNameExceedsMaxLength_ThenShouldHaveValidationError()
-    {
-        // Arrange
-        var schemaName = "a" + new string('a', 64); // 65 chars
-        var dto = new CreateEntityDefinitionDto { SchemaName = schemaName };
-
-        // Act
-        var result = _validator.TestValidate(dto);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.SchemaName)
-              .WithErrorMessage("SchemaName must not exceed 64 characters.");
     }
 }

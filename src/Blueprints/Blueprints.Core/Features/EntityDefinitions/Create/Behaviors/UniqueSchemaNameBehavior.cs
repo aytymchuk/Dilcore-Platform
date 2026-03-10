@@ -22,11 +22,12 @@ public sealed class UniqueSchemaNameBehavior
         RequestHandlerDelegate<Result<EntityDefinition>> next,
         CancellationToken cancellationToken)
     {
-        var schemaInput = !string.IsNullOrWhiteSpace(request.SchemaName)
-            ? request.SchemaName
-            : request.DisplayName;
-            
-        var schemaName = SchemaNameGenerator.Generate(schemaInput);
+        var schemaName = SchemaNameGenerator.Resolve(request.SchemaName, request.DisplayName);
+
+        if (!string.IsNullOrWhiteSpace(request.SchemaName) && !SchemaNameGenerator.IsValid(schemaName))
+            return Result.Fail<EntityDefinition>(
+                new ValidationError(
+                    $"SchemaName '{request.SchemaName}' cannot be normalized to a valid camelCase schema name."));
 
         var existsResult = await _repository.ExistsBySchemaNameAsync(schemaName, cancellationToken);
         if (existsResult.IsFailed)
