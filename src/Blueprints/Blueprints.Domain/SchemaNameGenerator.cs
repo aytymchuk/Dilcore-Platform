@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using Dilcore.Results.Abstractions;
+using FluentResults;
 
 namespace Dilcore.Blueprints.Domain;
 
@@ -61,6 +63,24 @@ public static partial class SchemaNameGenerator
             return name;
 
         return Generate(name);
+    }
+
+    /// <summary>
+    /// Resolves a canonical schema name from the given <paramref name="name"/>,
+    /// falling back to <paramref name="fallbackName"/> when <paramref name="name"/> is null or whitespace.
+    /// Returns a validation error if the input cannot be normalized (e.g., no alphanumeric characters).
+    /// Use when the input may not have passed prior validation (e.g., direct command dispatch).
+    /// </summary>
+    public static Result<string> SafeResolve(string? name, string fallbackName)
+    {
+        try
+        {
+            return Result.Ok(Resolve(name, fallbackName));
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Fail<string>(new ValidationError(ex.Message));
+        }
     }
 
     public static bool IsValid(string schemaName) =>

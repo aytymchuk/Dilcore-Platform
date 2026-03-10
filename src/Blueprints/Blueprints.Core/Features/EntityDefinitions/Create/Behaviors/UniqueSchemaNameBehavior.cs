@@ -22,7 +22,11 @@ public sealed class UniqueSchemaNameBehavior
         RequestHandlerDelegate<Result<EntityDefinition>> next,
         CancellationToken cancellationToken)
     {
-        var schemaName = SchemaNameGenerator.Resolve(request.SchemaName, request.DisplayName);
+        var schemaNameResult = SchemaNameGenerator.SafeResolve(request.SchemaName, request.DisplayName);
+        if (schemaNameResult.IsFailed)
+            return Result.Fail<EntityDefinition>(schemaNameResult.Errors);
+
+        var schemaName = schemaNameResult.Value;
 
         if (!string.IsNullOrWhiteSpace(request.SchemaName) && !SchemaNameGenerator.IsValid(schemaName))
             return Result.Fail<EntityDefinition>(
