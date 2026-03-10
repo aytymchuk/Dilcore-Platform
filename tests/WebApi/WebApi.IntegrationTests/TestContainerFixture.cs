@@ -62,7 +62,7 @@ public class TestContainerFixture
             {
                 await MongoDb.DisposeAsync();
             }
-            catch
+            catch when (!IsDockerAvailable)
             {
                 // Swallow disposal errors when Docker was unavailable during setup
             }

@@ -4,6 +4,7 @@ using FluentValidation.TestHelper;
 
 namespace Dilcore.Blueprints.Contracts.Tests.EntityDefinitions.Create;
 
+[TestFixture]
 public class CreateEntityDefinitionDtoValidatorTests
 {
     private CreateEntityDefinitionDtoValidator _validator = null!;
@@ -35,6 +36,8 @@ public class CreateEntityDefinitionDtoValidatorTests
 
     [TestCase("myEntity")]
     [TestCase("validSchemaName")]
+    [TestCase("phone-number")]
+    [TestCase("my-entity-suffix")]
     public void GivenValidation_WhenSchemaNameFormatIsValid_ThenShouldPass(string schemaName)
     {
         var dto = new CreateEntityDefinitionDto
@@ -50,10 +53,10 @@ public class CreateEntityDefinitionDtoValidatorTests
         result.ShouldNotHaveValidationErrorFor(x => x.SchemaName);
     }
 
-    [TestCase("123invalid")]
-    [TestCase("InvalidCaps")]
-    [TestCase("phone-number")]
-    public void GivenValidation_WhenSchemaNameFormatIsInvalid_ThenShouldHaveValidationError(string schemaName)
+    [TestCase("---")]
+    [TestCase("  -  ")]
+    [TestCase(".")]
+    public void GivenValidation_WhenSchemaNameHasNoAlphanumeric_ThenShouldHaveValidationError(string schemaName)
     {
         var dto = new CreateEntityDefinitionDto
         {

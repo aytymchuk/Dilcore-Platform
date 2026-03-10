@@ -24,5 +24,5 @@ public static class ValidationConstants
         "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
     };
 
-    public static IReadOnlyCollection<string> GetReservedSchemaNames() => [..ReservedSchemaNames];
+    public static IReadOnlyCollection<string> GetReservedSchemaNames() => ReservedSchemaNames;
 }

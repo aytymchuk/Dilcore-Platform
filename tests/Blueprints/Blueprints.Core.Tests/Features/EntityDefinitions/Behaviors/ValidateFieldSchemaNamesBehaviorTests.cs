@@ -67,6 +67,7 @@ public class ValidateFieldSchemaNamesBehaviorTests
 
     [TestCase("123schemaName")]
     [TestCase("123")]
+    [TestCase("!!!")]
     public async Task Handle_WhenFieldSchemaNameNormalizesToInvalid_ShouldReturnValidationError(string schemaName)
     {
         var command = new CreateEntityDefinitionCommand

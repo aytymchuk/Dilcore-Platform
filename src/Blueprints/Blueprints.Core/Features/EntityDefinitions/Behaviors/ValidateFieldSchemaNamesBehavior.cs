@@ -49,7 +49,14 @@ public sealed class ValidateFieldSchemaNamesBehavior<TRequest>
         if (SchemaNameGenerator.IsValid(schemaName))
             return true;
 
-        var normalized = SchemaNameGenerator.Generate(schemaName);
-        return SchemaNameGenerator.IsValid(normalized);
+        try
+        {
+            var normalized = SchemaNameGenerator.Generate(schemaName);
+            return SchemaNameGenerator.IsValid(normalized);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
     }
 }
