@@ -28,10 +28,10 @@ public sealed class UniqueSchemaNameBehavior
 
         var schemaName = schemaNameResult.Value;
 
-        if (!string.IsNullOrWhiteSpace(request.SchemaName) && !SchemaNameGenerator.IsValid(schemaName))
+        if (!SchemaNameGenerator.IsValid(schemaName))
             return Result.Fail<EntityDefinition>(
                 new ValidationError(
-                    $"SchemaName '{request.SchemaName}' cannot be normalized to a valid camelCase schema name."));
+                    $"Schema name '{schemaName}' is not valid. Entity schema names must be camelCase starting with a lowercase letter and cannot use reserved names."));
 
         var existsResult = await _repository.ExistsBySchemaNameAsync(schemaName, cancellationToken);
         if (existsResult.IsFailed)

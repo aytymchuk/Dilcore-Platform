@@ -56,6 +56,10 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
             var entitySchemaName = schemaNameResult.Value;
 
+            if (!SchemaNameGenerator.IsValid(entitySchemaName))
+                return EntityDefinitionGrainResult.Validation(
+                    $"Schema name '{entitySchemaName}' is not valid. Entity schema names must be camelCase starting with a lowercase letter and cannot use reserved names.");
+
             var fieldError = EntityDefinitionValidator.ValidateFields(fields)
                 ?? FieldSchemaProcessor.ValidateSchemaNames(fields, entitySchemaName);
 

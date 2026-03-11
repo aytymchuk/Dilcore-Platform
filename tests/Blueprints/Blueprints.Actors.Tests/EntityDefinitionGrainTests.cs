@@ -123,6 +123,32 @@ public class EntityDefinitionGrainTests
     }
 
     [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenDisplayNameProducesReservedSchemaName()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "Type"));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("is not valid");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenDisplayNameProducesInvalidFormatSchemaName()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "123 Entity"));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("is not valid");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
     public async Task CreateAsync_ShouldGenerateSchemaName_FromDisplayName()
     {
         var grain = GetGrain();

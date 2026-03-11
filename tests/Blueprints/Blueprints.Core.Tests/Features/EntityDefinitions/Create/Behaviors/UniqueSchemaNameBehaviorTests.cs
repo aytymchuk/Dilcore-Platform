@@ -115,7 +115,41 @@ public class UniqueSchemaNameBehaviorTests
 
         result.IsFailed.Should().BeTrue();
         result.Errors.Should().ContainSingle()
-            .Which.Message.Should().Contain("cannot be normalized");
+            .Which.Message.Should().Contain("is not valid");
+        _repositoryMock.Verify(x => x.ExistsBySchemaNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_WhenDisplayNameProducesReservedSchemaName_ShouldReturnValidationErrorWithoutCallingRepository()
+    {
+        var command = new CreateEntityDefinitionCommand
+        {
+            DisplayName = "Type",
+            Fields = []
+        };
+
+        var result = await _sut.Handle(command, Next, CancellationToken.None);
+
+        result.IsFailed.Should().BeTrue();
+        result.Errors.Should().ContainSingle()
+            .Which.Message.Should().Contain("is not valid");
+        _repositoryMock.Verify(x => x.ExistsBySchemaNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_WhenDisplayNameProducesInvalidFormatSchemaName_ShouldReturnValidationErrorWithoutCallingRepository()
+    {
+        var command = new CreateEntityDefinitionCommand
+        {
+            DisplayName = "123 Entity",
+            Fields = []
+        };
+
+        var result = await _sut.Handle(command, Next, CancellationToken.None);
+
+        result.IsFailed.Should().BeTrue();
+        result.Errors.Should().ContainSingle()
+            .Which.Message.Should().Contain("is not valid");
         _repositoryMock.Verify(x => x.ExistsBySchemaNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
