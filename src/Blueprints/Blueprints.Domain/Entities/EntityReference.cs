@@ -6,4 +6,5 @@ public record EntityReference
     public required EntityReferenceType ReferenceType { get; init; }
     public required Guid RelatedEntityDefinitionId { get; init; }
     public required string RelatedEntitySchemaName { get; init; }
+    public string? ReverseSchemaName { get; init; }
 }

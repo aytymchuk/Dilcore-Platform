@@ -58,12 +58,14 @@ public static class EntityReferenceCommandExtensions
 
     public static EntityReferenceGrainDto ToEntityReferenceGrainDto(
         string schemaName,
-        AddEntityReferenceGrainCommand command) =>
+        AddEntityReferenceGrainCommand command,
+        string? reverseSchemaName = null) =>
         new()
         {
             SchemaName = schemaName,
             ReferenceType = command.ReferenceType,
             RelatedEntityDefinitionId = command.RelatedEntityDefinitionId,
-            RelatedEntitySchemaName = command.RelatedEntitySchemaName
+            RelatedEntitySchemaName = command.RelatedEntitySchemaName,
+            ReverseSchemaName = reverseSchemaName
         };
 }

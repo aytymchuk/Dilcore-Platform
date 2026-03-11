@@ -46,9 +46,10 @@ public class GetEntityDefinitionsHandlerTests
     {
         var items = new List<EntityDefinition>();
         var tags = new List<string> { "crm" };
+        var ct = CancellationToken.None;
 
         _repositoryMock
-            .Setup(x => x.GetPagedAsync(10, 5, "search", true, tags, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetPagedAsync(10, 5, "search", true, It.Is<IReadOnlyList<string>?>(t => t != null && t.SequenceEqual(tags)), ct))
             .ReturnsAsync(Result.Ok<(IReadOnlyList<EntityDefinition>, long)>((items, 0)));
 
         var query = new GetEntityDefinitionsQuery
@@ -60,11 +61,11 @@ public class GetEntityDefinitionsHandlerTests
             Tags = tags
         };
 
-        var result = await _sut.Handle(query, CancellationToken.None);
+        var result = await _sut.Handle(query, ct);
 
         result.IsSuccess.Should().BeTrue();
         _repositoryMock.Verify(
-            x => x.GetPagedAsync(10, 5, "search", true, tags, It.IsAny<CancellationToken>()),
+            x => x.GetPagedAsync(10, 5, "search", true, It.Is<IReadOnlyList<string>?>(t => t != null && t.SequenceEqual(tags)), ct),
             Times.Once);
     }
 

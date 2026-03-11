@@ -22,7 +22,7 @@ public static partial class EntityDefinitionLimits
 
     private static readonly HashSet<string> ReservedSchemaNamesBacking = new(StringComparer.OrdinalIgnoreCase)
     {
-        "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
+        "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName"
     };
 
     /// <summary>

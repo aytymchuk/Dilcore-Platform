@@ -80,4 +80,27 @@ public class RemoveEntityReferenceHandlerTests
             .Which.Should().BeOfType<NotFoundError>()
             .Which.Message.Should().Contain("does not exist");
     }
+
+    [Test]
+    public async Task Handle_WhenGrainReturnsValidation_ShouldMapToValidationError()
+    {
+        var entityId = Guid.CreateVersion7();
+
+        _grainFactoryMock
+            .Setup(x => x.GetGrain<IEntityDefinitionGrain>(entityId))
+            .Returns(_grainMock.Object);
+
+        _grainMock
+            .Setup(x => x.RemoveReferenceAsync(It.IsAny<RemoveEntityReferenceGrainCommand>()))
+            .ReturnsAsync(EntityDefinitionGrainResult.Validation("Reverse reference removal failed."));
+
+        var command = new RemoveEntityReferenceCommand(entityId, "customer");
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsFailed.Should().BeTrue();
+        result.Errors.Should().ContainSingle()
+            .Which.Should().BeOfType<ValidationError>()
+            .Which.Message.Should().Contain("Reverse reference removal failed");
+    }
 }

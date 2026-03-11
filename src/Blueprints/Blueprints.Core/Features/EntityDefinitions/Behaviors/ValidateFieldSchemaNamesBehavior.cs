@@ -20,8 +20,7 @@ public sealed class ValidateFieldSchemaNamesBehavior<TRequest>
         if (invalidName is not null)
             return Task.FromResult(
                 Result.Fail<EntityDefinition>(
-                    new ValidationError(
-                        $"Field schema name '{invalidName}' cannot be normalized to a valid camelCase schema name.")));
+                    new ValidationError(GetValidationMessage(invalidName))));
 
         return next(cancellationToken);
     }
@@ -58,5 +57,24 @@ public sealed class ValidateFieldSchemaNamesBehavior<TRequest>
         {
             return false;
         }
+    }
+
+    private static string GetValidationMessage(string invalidName)
+    {
+        if (SchemaNameGenerator.IsReserved(invalidName))
+            return $"Field schema name '{invalidName}' is reserved and cannot be used.";
+
+        try
+        {
+            var normalized = SchemaNameGenerator.Generate(invalidName);
+            if (SchemaNameGenerator.IsReserved(normalized))
+                return $"Field schema name '{invalidName}' normalizes to reserved name '{normalized}' and cannot be used.";
+        }
+        catch (ArgumentException)
+        {
+            // Fall through to generic message
+        }
+
+        return $"Field schema name '{invalidName}' cannot be normalized to a valid camelCase schema name.";
     }
 }

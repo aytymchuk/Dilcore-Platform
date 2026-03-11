@@ -21,16 +21,21 @@ public static class EntityReferenceSchemaNameExtensions
         var targetEntityPascalCase = char.ToUpperInvariant(targetBase[0]) + targetBase[1..];
         var combined = $"{sourceBase}{targetEntityPascalCase}";
 
+        string finalName;
         if (combined.Length <= EntityDefinitionLimits.SchemaNameMaxLength)
         {
-            return combined;
+            finalName = combined;
+        }
+        else
+        {
+            var maxSourceLength = Math.Max(1, EntityDefinitionLimits.SchemaNameMaxLength / 2);
+            var truncatedSource = sourceBase[..Math.Min(sourceBase.Length, maxSourceLength)];
+            var remainingForTarget = EntityDefinitionLimits.SchemaNameMaxLength - truncatedSource.Length;
+            var truncatedTarget = targetEntityPascalCase[..Math.Min(targetEntityPascalCase.Length, remainingForTarget)];
+            finalName = $"{truncatedSource}{truncatedTarget}";
         }
 
-        var maxSourceLength = Math.Max(1, EntityDefinitionLimits.SchemaNameMaxLength / 2);
-        var truncatedSource = sourceBase[..Math.Min(sourceBase.Length, maxSourceLength)];
-        var remainingForTarget = EntityDefinitionLimits.SchemaNameMaxLength - truncatedSource.Length;
-        var truncatedTarget = targetEntityPascalCase[..Math.Min(targetEntityPascalCase.Length, remainingForTarget)];
-        return $"{truncatedSource}{truncatedTarget}";
+        return SchemaNameGenerator.Resolve(finalName, finalName);
     }
 
     public static string CompactSchemaName(string schemaName)

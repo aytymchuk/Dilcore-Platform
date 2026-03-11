@@ -62,3 +62,7 @@ Business logic belongs in the grain (actor), not in handlers or infrastructure. 
 - Validate preconditions and enforce invariants inside the grain
 - Handlers call the grain and map results — no business rules in handlers
 - State mutations happen only through grain methods
+
+## Exception Handling
+
+Do not wrap grain calls in try/catch for infrastructure exceptions. `LoggingBehavior` (an `IPipelineBehavior<TRequest, TResponse>` registered in the MediatR pipeline) centralizes logging and rethrows. Business failures should be returned via `Result` or `Result<T>` from handlers and grain methods. Keep handlers minimal: map and return `Result` values only.

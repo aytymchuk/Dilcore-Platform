@@ -19,12 +19,13 @@ public class EntityDefinitionStoreMappingProfile : Profile
 
         CreateMap<EntityDefinitionDocument, EntityDefinition>()
             .ForCtorParam("fields", opt => opt.MapFrom(src => src.Fields))
-            .ForCtorParam("references", opt => opt.MapFrom(src => src.References ?? (IEnumerable<EntityReferenceDocument>)new List<EntityReferenceDocument>()))
+            .ForCtorParam("references", opt => opt.MapFrom(src => src.References ?? new List<EntityReferenceDocument>()))
             .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src =>
                 new EntityMetadata { Tags = src.Metadata.Tags }))
             .ForMember(dest => dest.Fields, opt => opt.Ignore());
 
-        CreateMap<EntityReference, EntityReferenceDocument>();
+        CreateMap<EntityReference, EntityReferenceDocument>()
+            .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src => src.ReferenceType.ToString()));
         CreateMap<EntityReferenceDocument, EntityReference>()
             .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src =>
                 Enum.Parse<EntityReferenceType>(src.ReferenceType, ignoreCase: true)));

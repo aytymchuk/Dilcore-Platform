@@ -20,6 +20,8 @@ All endpoints require authentication and the `x-tenant` header.
 | Update | `PUT` | `/blueprints/entity-definitions/{id}` | Modify an existing entity type (requires eTag) |
 | Delete | `DELETE` | `/blueprints/entity-definitions/{id}` | Permanently remove an entity type |
 
+Relationship-specific operations under `/references` are documented in [relationships.md](relationships.md).
+
 ---
 
 ## Entity Definition Structure
@@ -70,6 +72,14 @@ An Entity Definition is the complete description of a business object type. It c
       ]
     }
   ],
+  "references": [
+    {
+      "schemaName": "orderCustomer",
+      "referenceType": "ManyToOne",
+      "relatedEntityDefinitionId": "2f4e1e5a-0c9c-4a3d-bfbe-1348fbe66984",
+      "relatedEntitySchemaName": "customer"
+    }
+  ],
   "tags": ["orders", "crm"],
   "createdAt": "2026-03-01T12:00:00Z",
   "updatedAt": "2026-03-01T12:00:00Z"
@@ -88,6 +98,7 @@ An Entity Definition is the complete description of a business object type. It c
 | `isAbstract` | boolean | When `true`, this entity serves as a base type meant to be extended, not used directly. Abstract entities define shared field structures (e.g., `BaseContact` with common fields like name and email). |
 | `extendsEntityId` | GUID or null | Points to a parent entity definition within the same tenant. The child entity inherits the parent's field structure. Enables type hierarchies like `Person` and `Organization` both extending `BaseContact`. |
 | `fields` | array | The ordered list of field definitions that describe the data shape of this entity. Fields form a recursive tree — complex types contain nested fields. See [Field Definition Structure](#field-definition-structure). |
+| `references` | array | Outbound relationships from this entity definition to other entity definitions. Each item defines cardinality and target identity. See [relationships.md](relationships.md). |
 | `tags` | array of strings | Free-form labels for categorizing and filtering entity definitions. Used to organize schemas by business domain (e.g., `crm`, `billing`, `hr`). Useful for discovery when a tenant has many entity types. |
 | `createdAt` | datetime | UTC timestamp of when this entity definition was first created. |
 | `updatedAt` | datetime | UTC timestamp of the most recent modification. |
@@ -174,7 +185,7 @@ Schema names exist to give every entity and field a stable, machine-readable ide
 
 These names are used by the platform internally and cannot be used as field schema names at any nesting depth:
 
-`id`, `eTag`, `createdAt`, `updatedAt`, `isDeleted`, `tenantId`, `schemaName`, `type`
+`id`, `eTag`, `createdAt`, `updatedAt`, `isDeleted`, `tenantId`, `schemaName`
 
 ---
 
@@ -188,6 +199,7 @@ These names are used by the platform internally and cannot be used as field sche
 | Display name content | Must contain at least one alphanumeric character | Prevents empty or symbol-only names |
 | Description length | Max 200 characters | Keeps descriptions brief and scannable |
 | Top-level fields per entity | Max 100 | Prevents excessively wide schemas that degrade performance |
+| References per entity | Max 50 | Prevents relationship explosion on a single entity type |
 | Tags per entity | Max 20 | Encourages focused categorization |
 | Tag length | Max 64 characters | Keeps tags concise |
 | Tag format | `^[a-zA-Z0-9_-]+$` | Ensures tags are URL-safe and queryable |
@@ -245,6 +257,12 @@ Defines a new type of business object within the tenant. The schema name is auto
       ]
     }
   ],
+  "references": [
+    {
+      "referenceType": "ManyToOne",
+      "relatedEntityDefinitionId": "2f4e1e5a-0c9c-4a3d-bfbe-1348fbe66984"
+    }
+  ],
   "tags": ["orders", "crm"]
 }
 ```
@@ -259,6 +277,7 @@ Defines a new type of business object within the tenant. The schema name is auto
 | `extendsEntityId` | GUID | No | ID of parent entity definition to inherit from. Must exist in the same tenant. |
 | `schemaName` | string | No | Custom override for the auto-generated schema name. Use only when you need a specific identifier. |
 | `fields` | array | No | Field definitions describing the entity's data shape. Defaults to empty array. |
+| `references` | array | No | Optional relationships to other entity definitions created as part of the same operation. See [relationships.md](relationships.md). |
 | `tags` | array | No | Classification labels. Defaults to empty array. |
 
 ### Responses
@@ -272,6 +291,8 @@ Defines a new type of business object within the tenant. The schema name is auto
 Before creation, the system enforces:
 1. **Schema name uniqueness**: The generated (or provided) schema name must not already exist in the tenant. Rejected with 409 if duplicate.
 2. **Parent entity validation**: If `extendsEntityId` is provided, the referenced entity must exist in the same tenant.
+3. **Reference target validation**: If `references` are provided, each `relatedEntityDefinitionId` must exist in the same tenant.
+4. **Bidirectional relationship consistency**: Creating references during entity creation also creates inverse references on target entities.
 
 ---
 

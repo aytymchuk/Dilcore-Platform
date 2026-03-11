@@ -44,7 +44,8 @@ public class EntityDefinitionStateMappingProfile : Profile
             SchemaName = dto.SchemaName,
             ReferenceType = Enum.Parse<EntityReferenceType>(dto.ReferenceType, ignoreCase: true),
             RelatedEntityDefinitionId = dto.RelatedEntityDefinitionId,
-            RelatedEntitySchemaName = dto.RelatedEntitySchemaName
+            RelatedEntitySchemaName = dto.RelatedEntitySchemaName,
+            ReverseSchemaName = dto.ReverseSchemaName
         }).ToList();
 
     private static List<EntityReferenceGrainDto> MapReferences(IReadOnlyList<EntityReference> references) =>
@@ -53,7 +54,8 @@ public class EntityDefinitionStateMappingProfile : Profile
             SchemaName = r.SchemaName,
             ReferenceType = r.ReferenceType.ToString(),
             RelatedEntityDefinitionId = r.RelatedEntityDefinitionId,
-            RelatedEntitySchemaName = r.RelatedEntitySchemaName
+            RelatedEntitySchemaName = r.RelatedEntitySchemaName,
+            ReverseSchemaName = r.ReverseSchemaName
         }).ToList();
 
     private static List<FieldDefinition> MapFieldDtos(List<FieldDefinitionGrainDto> dtos) =>

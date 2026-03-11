@@ -15,4 +15,7 @@ public sealed record EntityReferenceGrainDto
 
     [Id(3)]
     public required string RelatedEntitySchemaName { get; init; }
+
+    [Id(4)]
+    public string? ReverseSchemaName { get; init; }
 }

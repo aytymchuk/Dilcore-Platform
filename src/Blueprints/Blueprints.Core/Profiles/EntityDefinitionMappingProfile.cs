@@ -7,6 +7,7 @@ using Dilcore.Blueprints.Core.Features.EntityDefinitions;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.AddReference;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Update;
+using Dilcore.Blueprints.Domain;
 using Dilcore.Blueprints.Domain.Entities;
 using Dilcore.Blueprints.Domain.Entities.Fields;
 using ContractFieldDto = Dilcore.Blueprints.Contracts.EntityDefinitions.FieldDefinitionDto;
@@ -22,12 +23,14 @@ public class EntityDefinitionMappingProfile : Profile
             .ForCtorParam("references", opt => opt.MapFrom(src => src.References.Select(r => new EntityReference
             {
                 SchemaName = r.SchemaName,
-                ReferenceType = Enum.Parse<EntityReferenceType>(r.ReferenceType, ignoreCase: true),
+                ReferenceType = Enum.Parse<EntityReferenceType>(r.ReferenceType, true),
                 RelatedEntityDefinitionId = r.RelatedEntityDefinitionId,
-                RelatedEntitySchemaName = r.RelatedEntitySchemaName
+                RelatedEntitySchemaName = r.RelatedEntitySchemaName,
+                ReverseSchemaName = r.ReverseSchemaName
             }).ToList()))
             .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => new EntityMetadata { Tags = src.Tags.ToList() }))
-            .ForMember(dest => dest.Fields, opt => opt.Ignore());
+            .ForMember(dest => dest.Fields, opt => opt.Ignore())
+            .ForMember(dest => dest.References, opt => opt.Ignore());
 
         CreateMap<CreateEntityDefinitionCommand, CreateEntityDefinitionGrainCommand>();
         CreateMap<UpdateEntityDefinitionCommand, UpdateEntityDefinitionGrainCommand>();
@@ -35,10 +38,14 @@ public class EntityDefinitionMappingProfile : Profile
 
         CreateMap<CreateEntityDefinitionDto, CreateEntityDefinitionCommand>();
         CreateMap<CreateEntityReferenceDto, EntityReferenceParameters>()
+            .ForMember(dest => dest.SchemaName, opt => opt.MapFrom(src =>
+                string.IsNullOrWhiteSpace(src.SchemaName) ? src.SchemaName : SchemaNameGenerator.Resolve(src.SchemaName, src.SchemaName)))
             .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src =>
-                Enum.Parse<EntityReferenceType>(src.ReferenceType, ignoreCase: true)));
-        
+                Enum.Parse<EntityReferenceType>(src.ReferenceType, true)));
+
         CreateMap<EntityReferenceParameters, EntityReferenceGrainParameter>()
+            .ForMember(dest => dest.SchemaName, opt => opt.MapFrom(src =>
+                string.IsNullOrWhiteSpace(src.SchemaName) ? src.SchemaName : SchemaNameGenerator.Resolve(src.SchemaName, src.SchemaName)))
             .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src => src.ReferenceType.ToString()));
             
         CreateMap<UpdateEntityDefinitionDto, UpdateEntityDefinitionCommand>();
@@ -54,8 +61,10 @@ public class EntityDefinitionMappingProfile : Profile
 
         CreateMap<CreateEntityReferenceDto, AddEntityReferenceCommand>()
             .ForMember(dest => dest.EntityDefinitionId, opt => opt.Ignore())
+            .ForMember(dest => dest.SchemaName, opt => opt.MapFrom(src =>
+                string.IsNullOrWhiteSpace(src.SchemaName) ? src.SchemaName : SchemaNameGenerator.Resolve(src.SchemaName, src.SchemaName)))
             .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src =>
-                Enum.Parse<EntityReferenceType>(src.ReferenceType, ignoreCase: true)))
+                Enum.Parse<EntityReferenceType>(src.ReferenceType, true)))
             .ForMember(dest => dest.RelatedEntityDefinitionId, opt => opt.MapFrom(src => src.RelatedEntityDefinitionId));
 
         CreateMap<FieldDefinition, ContractFieldDto>()

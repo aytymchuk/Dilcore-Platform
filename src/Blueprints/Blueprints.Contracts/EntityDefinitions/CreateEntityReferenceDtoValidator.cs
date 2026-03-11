@@ -4,8 +4,10 @@ namespace Dilcore.Blueprints.Contracts.EntityDefinitions;
 
 public class CreateEntityReferenceDtoValidator : AbstractValidator<CreateEntityReferenceDto>
 {
-    private static readonly HashSet<string> ValidReferenceTypes =
-        ["OneToOne", "OneToMany", "ManyToOne"];
+    private static readonly HashSet<string> ValidReferenceTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "OneToOne", "OneToMany", "ManyToOne"
+    };
 
     public CreateEntityReferenceDtoValidator()
     {
@@ -17,7 +19,7 @@ public class CreateEntityReferenceDtoValidator : AbstractValidator<CreateEntityR
         RuleFor(x => x.ReferenceType)
             .NotEmpty()
             .WithMessage("ReferenceType is required.")
-            .Must(type => ValidReferenceTypes.Contains(type, StringComparer.OrdinalIgnoreCase))
+            .Must(type => ValidReferenceTypes.Contains(type))
             .WithMessage("ReferenceType must be OneToOne, OneToMany, or ManyToOne.");
 
         RuleFor(x => x.RelatedEntityDefinitionId)

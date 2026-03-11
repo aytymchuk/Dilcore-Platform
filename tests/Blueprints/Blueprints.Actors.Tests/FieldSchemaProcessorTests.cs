@@ -34,13 +34,13 @@ public class FieldSchemaProcessorTests
     }
 
     [Test]
-    public void GenerateSchemaNames_WhenExplicitSchemaNameProvided_ShouldPreserveIt()
+    public void GenerateSchemaNames_WhenExplicitSchemaNameNeedsNormalization_ShouldNormalize()
     {
         var fields = new[]
         {
             new FieldDefinitionGrainDto
             {
-                SchemaName = "customName",
+                SchemaName = "Custom_Name",
                 DisplayName = "Display Name",
                 Type = "String"
             }
@@ -206,6 +206,29 @@ public class FieldSchemaProcessorTests
         var result = FieldSchemaProcessor.FindDuplicate(fields);
 
         result.ShouldBe("myfield");
+    }
+
+    [Test]
+    public void FindDuplicate_WhenDuplicateInNestedFields_ShouldReturnDuplicateName()
+    {
+        var fields = new[]
+        {
+            new FieldDefinitionGrainDto
+            {
+                SchemaName = "parent",
+                DisplayName = "Parent",
+                Type = "Object",
+                Fields =
+                [
+                    new FieldDefinitionGrainDto { SchemaName = "a", DisplayName = "A", Type = "String" },
+                    new FieldDefinitionGrainDto { SchemaName = "a", DisplayName = "A2", Type = "String" }
+                ]
+            }
+        };
+
+        var result = FieldSchemaProcessor.FindDuplicate(fields);
+
+        result.ShouldBe("a");
     }
 
     [Test]

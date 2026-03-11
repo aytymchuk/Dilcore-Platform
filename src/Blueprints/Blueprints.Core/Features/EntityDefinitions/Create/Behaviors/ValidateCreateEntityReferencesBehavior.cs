@@ -24,15 +24,16 @@ public sealed class ValidateCreateEntityReferencesBehavior
         if (request.References is null || !request.References.Any())
             return await next(cancellationToken);
 
-        foreach (var reference in request.References)
-        {
-            var targetGrain = _grainFactory.GetGrain<IEntityDefinitionGrain>(reference.RelatedEntityDefinitionId);
-            var targetDto = await targetGrain.GetAsync();
+        var tasks = request.References.Select(reference =>
+            _grainFactory.GetGrain<IEntityDefinitionGrain>(reference.RelatedEntityDefinitionId).GetAsync()).ToList();
+        var results = await Task.WhenAll(tasks);
 
-            if (targetDto is null)
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i] is null)
             {
                 return Result.Fail<EntityDefinition>(
-                    new ValidationError($"Referenced entity definition '{reference.RelatedEntityDefinitionId}' does not exist."));
+                    new ValidationError($"Referenced entity definition '{request.References[i].RelatedEntityDefinitionId}' does not exist."));
             }
         }
 

@@ -36,6 +36,24 @@ public static partial class LoggerExtensions
     [LoggerMessage(LogLevel.Information, "Entity definition reference removed: {GrainId}, SchemaName: {SchemaName}")]
     public static partial void LogEntityDefinitionReferenceRemoved(this ILogger logger, Guid grainId, string schemaName);
 
+    [LoggerMessage(LogLevel.Warning, "Entity definition create failed while adding reverse references: SourceGrainId={GrainId}, SchemaName={SchemaName}, Error={ErrorMessage}")]
+    public static partial void LogEntityDefinitionCreateReverseReferenceFailed(this ILogger logger, Guid grainId, string schemaName, string errorMessage);
+
+    [LoggerMessage(LogLevel.Critical, "Entity definition reverse-reference compensation failed: SourceGrainId={SourceGrainId}, TargetGrainId={TargetGrainId}, ReverseSchemaName={ReverseSchemaName}")]
+    public static partial void LogEntityDefinitionReverseReferenceCompensationFailed(
+        this ILogger logger,
+        Exception? ex,
+        Guid sourceGrainId,
+        Guid targetGrainId,
+        string reverseSchemaName);
+
+    [LoggerMessage(LogLevel.Critical, "Entity definition create compensation failed while rolling back staged state: GrainId={GrainId}, SchemaName={SchemaName}")]
+    public static partial void LogEntityDefinitionCreateRollbackFailed(
+        this ILogger logger,
+        Exception? ex,
+        Guid grainId,
+        string schemaName);
+
     // Blueprint Definition Storage (generic)
     [LoggerMessage(LogLevel.Debug, "Reading {StateType} state: {Id}")]
     public static partial void LogReadingState(this ILogger logger, string stateType, Guid id);
