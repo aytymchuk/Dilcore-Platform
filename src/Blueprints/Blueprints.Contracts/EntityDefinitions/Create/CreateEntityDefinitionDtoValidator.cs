@@ -4,6 +4,8 @@ namespace Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 
 public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntityDefinitionDto>
 {
+    private static readonly CreateEntityReferenceDtoValidator ReferenceValidator = new();
+
     public CreateEntityDefinitionDtoValidator()
     {
         RuleFor(x => x.SchemaName)
@@ -43,5 +45,11 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
             .WithMessage($"Each tag must not exceed {ValidationConstants.MaxTagLength} characters.")
             .Matches(ValidationConstants.TagFormatPattern)
             .WithMessage("Tags must only contain alphanumeric characters, hyphens, or underscores.");
+
+        When(x => x.References.Count > 0, () =>
+        {
+            RuleForEach(x => x.References)
+                .SetValidator(ReferenceValidator);
+        });
     }
 }

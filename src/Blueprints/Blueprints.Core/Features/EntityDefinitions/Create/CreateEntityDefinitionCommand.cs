@@ -11,5 +11,13 @@ public record CreateEntityDefinitionCommand : ICommand<EntityDefinition>, IEntit
     public bool IsAbstract { get; init; }
     public Guid? ExtendsEntityId { get; init; }
     public IReadOnlyList<FieldDefinitionParameters> Fields { get; init; } = [];
+    public IReadOnlyList<EntityReferenceParameters> References { get; init; } = [];
     public IReadOnlyList<string> Tags { get; init; } = [];
+}
+
+public record EntityReferenceParameters
+{
+    public string? SchemaName { get; init; }
+    public required EntityReferenceType ReferenceType { get; init; }
+    public required Guid RelatedEntityDefinitionId { get; init; }
 }

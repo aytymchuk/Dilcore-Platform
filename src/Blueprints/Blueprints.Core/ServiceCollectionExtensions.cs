@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
         cfg.AddBehavior<ValidateFieldSchemaNamesBehavior<UpdateEntityDefinitionCommand>>();
         cfg.AddBehavior<UniqueSchemaNameBehavior>();
         cfg.AddBehavior<ValidateExtendsEntityBehavior>();
+        cfg.AddBehavior<ValidateCreateEntityReferencesBehavior>();
         cfg.AddBehavior<ValidateReferencedEntityBehavior>();
     }
 }

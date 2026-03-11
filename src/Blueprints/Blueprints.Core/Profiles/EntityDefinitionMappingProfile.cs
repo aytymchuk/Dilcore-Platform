@@ -34,6 +34,13 @@ public class EntityDefinitionMappingProfile : Profile
         CreateMap<FieldDefinitionParameters, FieldDefinitionGrainDto>();
 
         CreateMap<CreateEntityDefinitionDto, CreateEntityDefinitionCommand>();
+        CreateMap<CreateEntityReferenceDto, EntityReferenceParameters>()
+            .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src =>
+                Enum.Parse<EntityReferenceType>(src.ReferenceType, ignoreCase: true)));
+        
+        CreateMap<EntityReferenceParameters, EntityReferenceGrainParameter>()
+            .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src => src.ReferenceType.ToString()));
+            
         CreateMap<UpdateEntityDefinitionDto, UpdateEntityDefinitionCommand>();
         CreateMap<ContractFieldDto, FieldDefinitionParameters>();
 

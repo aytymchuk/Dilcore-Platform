@@ -80,16 +80,89 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             _state.State.UpdatedAt = now;
             _state.State.IsCreated = true;
 
+            var addRefsResult = await AddForwardReferencesToStateAsync(command.References, entitySchemaName, grainId);
+            if (!addRefsResult.IsSuccess)
+                return addRefsResult;
+
             await _state.WriteStateAsync();
 
             _logger.LogEntityDefinitionCreated(grainId, _state.State.SchemaName);
 
-            return EntityDefinitionGrainResult.Success(ToDto());
+            return await AddReverseReferencesFromCreateAsync(command.References, entitySchemaName, grainId);
         }
         catch (ArgumentException ex)
         {
             return EntityDefinitionGrainResult.Validation(ex.Message);
         }
+    }
+
+    private async Task<EntityDefinitionGrainResult> AddForwardReferencesToStateAsync(
+        EntityReferenceGrainParameter[] references,
+        string entitySchemaName,
+        Guid grainId)
+    {
+        if (references is null or { Length: 0 })
+            return EntityDefinitionGrainResult.Success(ToDto());
+
+        foreach (var reference in references)
+        {
+            var targetGrain = GrainFactory.GetGrain<IEntityDefinitionGrain>(reference.RelatedEntityDefinitionId);
+            var targetDto = await targetGrain.GetAsync();
+
+            if (targetDto is null)
+            {
+                return EntityDefinitionGrainResult.Validation(
+                    $"Referenced entity definition '{reference.RelatedEntityDefinitionId}' does not exist.");
+            }
+
+            var addRefCommand = reference.ToAddReferenceCommand(targetDto.SchemaName);
+
+            var (validationError, refDto) = ValidateAndCreateReferenceDto(addRefCommand);
+            if (validationError is not null)
+                return validationError;
+
+            _state.State.References.Add(refDto!);
+
+            if (reference.RelatedEntityDefinitionId == grainId)
+            {
+                var reverseCommand = reference.ToReverseCommand(entitySchemaName, grainId, skipReverseReference: false);
+                _state.State.References.Add(EntityReferenceCommandExtensions.ToEntityReferenceGrainDto(entitySchemaName, reverseCommand));
+            }
+        }
+
+        _state.State.TouchUpdatedAt(_timeProvider);
+        return EntityDefinitionGrainResult.Success(ToDto());
+    }
+
+    private async Task<EntityDefinitionGrainResult> AddReverseReferencesFromCreateAsync(
+        EntityReferenceGrainParameter[] references,
+        string entitySchemaName,
+        Guid grainId)
+    {
+        if (references is null or { Length: 0 })
+            return EntityDefinitionGrainResult.Success(ToDto());
+
+        var errors = new List<string>();
+
+        foreach (var reference in references)
+        {
+            if (reference.RelatedEntityDefinitionId == grainId)
+                continue;
+
+            var reverseCommand = reference.ToReverseCommand(entitySchemaName, grainId);
+
+            var targetGrain = GrainFactory.GetGrain<IEntityDefinitionGrain>(reference.RelatedEntityDefinitionId);
+            var reverseResult = await targetGrain.AddReferenceAsync(reverseCommand);
+
+            if (!reverseResult.IsSuccess)
+            {
+                errors.Add($"'{reference.RelatedEntityDefinitionId}': {reverseResult.ErrorMessage ?? "Failed to add reverse reference."}");
+            }
+        }
+
+        return errors.Count > 0
+            ? EntityDefinitionGrainResult.Validation(string.Join("; ", errors))
+            : EntityDefinitionGrainResult.Success(ToDto());
     }
 
     public Task<EntityDefinitionGrainDto?> GetAsync()
@@ -186,35 +259,16 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return EntityDefinitionGrainResult.NotFound($"Entity definition '{grainId}' does not exist.");
         }
 
-        var schemaNameResult = SchemaNameGenerator.SafeResolve(
-            command.SchemaName, command.RelatedEntitySchemaName);
-            
-        if (schemaNameResult.IsFailed)
-            return EntityDefinitionGrainResult.Validation(schemaNameResult.Errors.First().Message);
+        var (validationError, reference) = ValidateAndCreateReferenceDto(command);
+        if (validationError is not null)
+            return validationError;
 
-        var referenceSchemaName = schemaNameResult.Value;
-
-        if (!SchemaNameGenerator.IsValid(referenceSchemaName))
-            return EntityDefinitionGrainResult.Validation(
-                $"Reference schema name '{referenceSchemaName}' is not valid. Schema names must be camelCase starting with a lowercase letter and cannot use reserved names.");
-
-        if (_state.State.References.Count >= EntityDefinitionLimits.MaxReferencesPerEntity)
-            return EntityDefinitionGrainResult.Validation(
-                $"Entity definition cannot have more than {EntityDefinitionLimits.MaxReferencesPerEntity} references.");
-
-        if (_state.State.References.Exists(r =>
-                r.SchemaName.Equals(referenceSchemaName, StringComparison.OrdinalIgnoreCase)))
-            return EntityDefinitionGrainResult.Validation(
-                $"A reference with schema name '{referenceSchemaName}' already exists on this entity.");
-
-        var reference = CreateEntityReferenceGrainDto(referenceSchemaName, command);
-
-        _state.State.References.Add(reference);
+        _state.State.References.Add(reference!);
         _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
 
         await _state.WriteStateAsync();
 
-        _logger.LogEntityDefinitionReferenceAdded(grainId, referenceSchemaName);
+        _logger.LogEntityDefinitionReferenceAdded(grainId, reference!.SchemaName);
 
         if (!command.SkipReverseReference)
             return await AddReverseReferenceAsync(command, grainId);
@@ -300,6 +354,110 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             ? EntityDefinitionGrainResult.Success(ToDto())
             : EntityDefinitionGrainResult.Validation(
                 reverseResult.ErrorMessage ?? "Failed to add reverse reference.");
+    }
+
+    private (EntityDefinitionGrainResult? Error, EntityReferenceGrainDto? Dto) ValidateAndCreateReferenceDto(
+        AddEntityReferenceGrainCommand command)
+    {
+        if (_state.State.References.Count >= EntityDefinitionLimits.MaxReferencesPerEntity)
+            return (EntityDefinitionGrainResult.Validation(
+                $"Entity definition cannot have more than {EntityDefinitionLimits.MaxReferencesPerEntity} references."), null);
+
+        var (schemaNameError, referenceSchemaName) = ResolveReferenceSchemaName(command);
+        if (schemaNameError is not null)
+            return (schemaNameError, null);
+
+        return (null, CreateEntityReferenceGrainDto(referenceSchemaName!, command));
+    }
+
+    private (EntityDefinitionGrainResult? Error, string? SchemaName) ResolveReferenceSchemaName(AddEntityReferenceGrainCommand command)
+    {
+        if (string.IsNullOrWhiteSpace(command.SchemaName))
+        {
+            var generatedSchemaName = GenerateReferenceSchemaName(
+                _state.State.SchemaName,
+                command.RelatedEntitySchemaName);
+
+            return FindUniqueReferenceSchemaName(generatedSchemaName);
+        }
+
+        var schemaNameResult = SchemaNameGenerator.SafeResolve(command.SchemaName, command.RelatedEntitySchemaName);
+        if (schemaNameResult.IsFailed)
+            return (EntityDefinitionGrainResult.Validation(schemaNameResult.Errors.First().Message), null);
+
+        return FindUniqueReferenceSchemaName(schemaNameResult.Value);
+    }
+
+    private (EntityDefinitionGrainResult? Error, string? SchemaName) FindUniqueReferenceSchemaName(string baseSchemaName)
+    {
+        if (!SchemaNameGenerator.IsValid(baseSchemaName))
+        {
+            return (EntityDefinitionGrainResult.Validation(
+                $"Reference schema name '{baseSchemaName}' is not valid. Schema names must be camelCase starting with a lowercase letter and cannot use reserved names."), null);
+        }
+
+        if (!_state.State.References.Exists(r =>
+                r.SchemaName.Equals(baseSchemaName, StringComparison.OrdinalIgnoreCase)))
+        {
+            return (null, baseSchemaName);
+        }
+
+        for (var suffix = 2; suffix <= EntityDefinitionLimits.MaxReferencesPerEntity; suffix++)
+        {
+            var candidate = $"{baseSchemaName}{suffix}";
+
+            if (!SchemaNameGenerator.IsValid(candidate))
+                continue;
+
+            if (!_state.State.References.Exists(r =>
+                    r.SchemaName.Equals(candidate, StringComparison.OrdinalIgnoreCase)))
+            {
+                return (null, candidate);
+            }
+        }
+
+        return (EntityDefinitionGrainResult.Validation(
+            $"Unable to generate a unique schema name for reference '{baseSchemaName}'."), null);
+    }
+
+    private static string GenerateReferenceSchemaName(string sourceEntitySchemaName, string targetEntitySchemaName)
+    {
+        if (string.IsNullOrWhiteSpace(sourceEntitySchemaName))
+            return CompactSchemaName(targetEntitySchemaName);
+
+        if (string.IsNullOrWhiteSpace(targetEntitySchemaName))
+            return CompactSchemaName(sourceEntitySchemaName);
+
+        var sourceBase = CompactSchemaName(sourceEntitySchemaName);
+        var targetBase = CompactSchemaName(targetEntitySchemaName);
+        var targetEntityPascalCase = char.ToUpperInvariant(targetBase[0]) + targetBase[1..];
+        var combined = $"{sourceBase}{targetEntityPascalCase}";
+
+        if (combined.Length <= EntityDefinitionLimits.SchemaNameMaxLength)
+            return combined;
+
+        var maxSourceLength = Math.Max(1, EntityDefinitionLimits.SchemaNameMaxLength / 2);
+        var truncatedSource = sourceBase[..Math.Min(sourceBase.Length, maxSourceLength)];
+        var remainingForTarget = EntityDefinitionLimits.SchemaNameMaxLength - truncatedSource.Length;
+        var truncatedTarget = targetEntityPascalCase[..Math.Min(targetEntityPascalCase.Length, remainingForTarget)];
+        return $"{truncatedSource}{truncatedTarget}";
+    }
+
+    private static string CompactSchemaName(string schemaName)
+    {
+        if (string.IsNullOrWhiteSpace(schemaName))
+            return "relation";
+
+        var firstDigitIndex = schemaName.IndexOfAny("0123456789".ToCharArray());
+        var compact = firstDigitIndex > 0 ? schemaName[..firstDigitIndex] : schemaName;
+
+        if (string.IsNullOrWhiteSpace(compact))
+            compact = "relation";
+
+        if (compact.Length > EntityDefinitionLimits.SchemaNameMaxLength)
+            compact = compact[..EntityDefinitionLimits.SchemaNameMaxLength];
+
+        return compact;
     }
 
     private static EntityReferenceGrainDto CreateEntityReferenceGrainDto(

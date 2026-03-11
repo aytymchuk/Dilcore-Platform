@@ -69,4 +69,18 @@ public static class BlueprintsClientExtensions
     public static Task<Result> SafeDeleteEntityDefinitionAsync(
         this IBlueprintsClient client, Guid id, CancellationToken ct = default)
         => SafeApiInvoker.InvokeAsync(() => client.DeleteEntityDefinitionAsync(id, ct));
+
+    /// <summary>
+    /// Safely adds a reference from an entity definition to another, returning a Result instead of throwing exceptions.
+    /// </summary>
+    public static Task<Result<EntityDefinitionDto>> SafeAddEntityReferenceAsync(
+        this IBlueprintsClient client, Guid id, CreateEntityReferenceDto request, CancellationToken ct = default)
+        => SafeApiInvoker.InvokeAsync(() => client.AddEntityReferenceAsync(id, request, ct));
+
+    /// <summary>
+    /// Safely removes a reference from an entity definition by schema name, returning a Result instead of throwing exceptions.
+    /// </summary>
+    public static Task<Result> SafeRemoveEntityReferenceAsync(
+        this IBlueprintsClient client, Guid id, string schemaName, CancellationToken ct = default)
+        => SafeApiInvoker.InvokeAsync(() => client.RemoveEntityReferenceAsync(id, schemaName, ct));
 }
