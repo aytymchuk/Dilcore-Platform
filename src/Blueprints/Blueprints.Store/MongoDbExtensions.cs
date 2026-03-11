@@ -17,9 +17,9 @@ public static class MongoDbExtensions
     public const string DatabaseName = "Blueprints";
 
     /// <summary>
-    /// Collection name for Blueprints.
+    /// Collection name for entity definitions.
     /// </summary>
-    public const string BlueprintsCollectionName = "blueprints";
+    public const string EntityDefinitionsCollectionName = "entity_definitions";
 
     /// <summary>
     /// Adds Blueprints MongoDB configuration to the service collection.
@@ -43,7 +43,7 @@ public static class MongoDbExtensions
                     {
                         var indexes = CreateIndexes().ToArray();
 
-                        options.WithCollectionName(BlueprintsCollectionName);
+                        options.WithCollectionName(EntityDefinitionsCollectionName);
                         options.WithDatabaseName(DatabaseName);
                         options.WithIndexes(indexes);
                     });

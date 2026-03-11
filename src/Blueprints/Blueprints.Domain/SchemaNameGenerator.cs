@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using Dilcore.Results.Abstractions;
+using FluentResults;
 
 namespace Dilcore.Blueprints.Domain;
 
@@ -10,35 +12,83 @@ namespace Dilcore.Blueprints.Domain;
 /// </summary>
 public static partial class SchemaNameGenerator
 {
-    private static readonly HashSet<string> ReservedNames = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "id", "eTag", "createdAt", "updatedAt", "isDeleted", "tenantId", "schemaName", "type"
-    };
+    private static readonly Regex FormatRegex = EntityDefinitionLimits.SchemaNameFormatRegex();
 
     public static string Generate(string displayName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(displayName);
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            throw new ArgumentException("Display name cannot be null or empty.", nameof(displayName));
+        }
 
-        var words = WordSplitRegex().Split(displayName.Trim())
-            .Where(w => w.Length > 0)
-            .ToArray();
+        var words = EntityDefinitionLimits.NonAlphanumericRegex()
+            .Replace(displayName, " ")
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         if (words.Length == 0)
-            return string.Empty;
+        {
+            throw new ArgumentException("Display name must contain at least one alphanumeric character.", nameof(displayName));
+        }
 
-        var sb = new StringBuilder(words[0].ToLowerInvariant());
+        var sb = new StringBuilder();
+        sb.Append(words[0].ToLowerInvariant());
+
         for (var i = 1; i < words.Length; i++)
         {
-            sb.Append(char.ToUpperInvariant(words[i][0]));
-            sb.Append(words[i][1..].ToLowerInvariant());
+            var word = words[i];
+            if (word.Length > 0)
+            {
+                sb.Append(char.ToUpperInvariant(word[0]));
+                if (word.Length > 1)
+                {
+                    sb.Append(word[1..].ToLowerInvariant());
+                }
+            }
         }
 
         return sb.ToString();
     }
 
-    public static bool IsReserved(string schemaName) =>
-        ReservedNames.Contains(schemaName);
+    /// <summary>
+    /// Resolves a canonical schema name from the given <paramref name="name"/>,
+    /// falling back to <paramref name="fallbackName"/> when <paramref name="name"/> is null or whitespace.
+    /// Already-valid names are returned as-is; otherwise the input is normalized via <see cref="Generate"/>.
+    /// </summary>
+    public static string Resolve(string? name, string fallbackName)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return Generate(fallbackName);
 
-    [GeneratedRegex(@"[^a-zA-Z0-9]+")]
-    private static partial Regex WordSplitRegex();
+        if (IsValid(name))
+            return name;
+
+        return Generate(name);
+    }
+
+    /// <summary>
+    /// Resolves a canonical schema name from the given <paramref name="name"/>,
+    /// falling back to <paramref name="fallbackName"/> when <paramref name="name"/> is null or whitespace.
+    /// Returns a validation error if the input cannot be normalized (e.g., no alphanumeric characters).
+    /// Use when the input may not have passed prior validation (e.g., direct command dispatch).
+    /// </summary>
+    public static Result<string> SafeResolve(string? name, string fallbackName)
+    {
+        try
+        {
+            return Result.Ok(Resolve(name, fallbackName));
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Fail<string>(new ValidationError(ex.Message));
+        }
+    }
+
+    public static bool IsValid(string schemaName) =>
+        !string.IsNullOrWhiteSpace(schemaName) &&
+        schemaName.Length <= EntityDefinitionLimits.SchemaNameMaxLength &&
+        FormatRegex.IsMatch(schemaName) &&
+        !IsReserved(schemaName);
+
+    public static bool IsReserved(string schemaName) =>
+        EntityDefinitionLimits.ReservedSchemaNames.Contains(schemaName);
 }

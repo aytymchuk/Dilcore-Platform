@@ -125,10 +125,34 @@ public class EntityDefinitionEndpointTests
         result.IsSuccess.ShouldBeTrue();
         result.Value.Fields.Count.ShouldBe(2);
         result.Value.Fields[0].SchemaName.ShouldBe("emailAddress");
+        result.Value.Fields[0].DisplayName.ShouldBe("Email Address");
         result.Value.Fields[1].SchemaName.ShouldBe("address");
+        result.Value.Fields[1].DisplayName.ShouldBe("Address");
         result.Value.Fields[1].Fields.ShouldNotBeNull();
         result.Value.Fields[1].Fields!.Count.ShouldBe(1);
         result.Value.Fields[1].Fields![0].SchemaName.ShouldBe("city");
+        result.Value.Fields[1].Fields![0].DisplayName.ShouldBe("City");
+    }
+
+    [Test]
+    public async Task Create_ShouldReturn201_WithCustomFieldSchemaNames()
+    {
+        var request = NewCreateDto(fields:
+        [
+            new FieldDefinitionDto
+            {
+                DisplayName = "User Phone",
+                SchemaName = "phone-number",
+                Type = "String"
+            }
+        ]);
+
+        var result = await _client.SafeCreateEntityDefinitionAsync(request);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.Fields.Count.ShouldBe(1);
+        result.Value.Fields[0].SchemaName.ShouldBe("phoneNumber", "Hyphenated schema name should be camelCased");
+        result.Value.Fields[0].DisplayName.ShouldBe("User Phone");
     }
 
     [Test]
@@ -267,6 +291,23 @@ public class EntityDefinitionEndpointTests
 
         result.IsFailed.ShouldBeTrue();
         GetStatusCode(result).ShouldBe(409);
+    }
+
+    [Test]
+    public async Task Create_ShouldReturn201_WithCustomEntitySchemaName()
+    {
+        var suffix = Guid.CreateVersion7().ToString("N");
+        var schemaName = $"my-entity-{suffix}";
+        var request = NewCreateDto(
+            displayName: "Test Entity",
+            schemaName: schemaName);
+
+        var result = await _client.SafeCreateEntityDefinitionAsync(request);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.SchemaName.ShouldBe(
+            SchemaNameGenerator.Generate(schemaName),
+            "Hyphenated schema name should be camelCased");
     }
 
     [Test]

@@ -6,6 +6,11 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
 {
     public CreateEntityDefinitionDtoValidator()
     {
+        RuleFor(x => x.SchemaName)
+            .MaximumLength(ValidationConstants.SchemaNameMaxLength)
+            .WithMessage($"SchemaName must not exceed {ValidationConstants.SchemaNameMaxLength} characters.")
+            .When(x => !string.IsNullOrWhiteSpace(x.SchemaName));
+
         RuleFor(x => x.DisplayName)
             .NotEmpty()
             .WithMessage("DisplayName is required.")
