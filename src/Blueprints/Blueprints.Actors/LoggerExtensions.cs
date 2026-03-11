@@ -30,6 +30,12 @@ public static partial class LoggerExtensions
     [LoggerMessage(LogLevel.Information, "Entity definition deleted: {GrainId}, SchemaName: {SchemaName}")]
     public static partial void LogEntityDefinitionDeleted(this ILogger logger, Guid grainId, string schemaName);
 
+    [LoggerMessage(LogLevel.Information, "Entity definition reference added: {GrainId}, SchemaName: {SchemaName}")]
+    public static partial void LogEntityDefinitionReferenceAdded(this ILogger logger, Guid grainId, string schemaName);
+
+    [LoggerMessage(LogLevel.Information, "Entity definition reference removed: {GrainId}, SchemaName: {SchemaName}")]
+    public static partial void LogEntityDefinitionReferenceRemoved(this ILogger logger, Guid grainId, string schemaName);
+
     // Blueprint Definition Storage (generic)
     [LoggerMessage(LogLevel.Debug, "Reading {StateType} state: {Id}")]
     public static partial void LogReadingState(this ILogger logger, string stateType, Guid id);

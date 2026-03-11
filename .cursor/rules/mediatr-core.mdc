@@ -1,0 +1,64 @@
+---
+description: MediatR patterns and Common packages for Core projects
+globs: src/**/*.Core/**
+alwaysApply: false
+---
+# MediatR in Core Projects
+
+Core projects (`*.Core`) use MediatR for CQRS. Use the shared packages in `src/Common/MediatR/` and follow these patterns.
+
+## Common MediatR Packages
+
+| Package | Path | Purpose |
+|---------|------|---------|
+| **MediatR** | NuGet | MediatR core (IRequest, IRequestHandler, IPipelineBehavior) |
+| **MediatR.Abstractions** | `src/Common/MediatR/MediatR.Abstractions/` | `ICommand`, `ICommand<TResponse>`, `IQuery<TResponse>`, `ICommandHandler<>`, `IQueryHandler<>` — all return `Result` / `Result<T>` from FluentResults |
+| **MediatR.Extensions** | `src/Common/MediatR/MediatR.Extensions/` | `AddMediatRInfrastructure()`, `TracingBehavior`, `LoggingBehavior`, FluentValidation registration |
+
+### Usage
+
+- **Commands**: Implement `ICommand` (void) or `ICommand<TResponse>`; handlers implement `ICommandHandler<TCommand>` or `ICommandHandler<TCommand, TResponse>`
+- **Queries**: Implement `IQuery<TResponse>`; handlers implement `IQueryHandler<TQuery, TResponse>`
+- **Registration**: Call `services.AddMediatRInfrastructure(assembly)` — this registers handlers, TracingBehavior, LoggingBehavior, and validators
+
+## Behaviors Over Handler Logic
+
+Extend commands and queries with MediatR pipeline behaviors instead of adding logic directly to handlers. Handlers should only call the grain and return the result.
+
+- Cross-cutting concerns (validation, authorization, logging, existence checks) belong in behaviors
+- Register behaviors on the specific command/query type they target via `IPipelineBehavior<TRequest, TResponse>`
+- If two behaviors share the same logic, make the behavior generic and reuse it across commands
+
+**Bad:**
+```csharp
+public async Task<Result> Handle(AddReferenceCommand command, CancellationToken ct)
+{
+    var entity = await _grain.GetAsync();
+    if (entity is null) { return Result.Failure("not found"); }  // ← guard belongs in a behavior
+
+    return await _grain.AddReferenceAsync(command);
+}
+```
+
+**Good:**
+```csharp
+// Behavior handles the guard
+public class ValidateEntityExistsBehavior<TRequest, TResponse>(IGrainFactory grains)
+    : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : IEntityCommand
+{ ... }
+
+// Handler stays minimal
+public async Task<Result> Handle(AddReferenceCommand command, CancellationToken ct)
+{
+    return await _grain.AddReferenceAsync(command);
+}
+```
+
+## Actor-Level Logic
+
+Business logic belongs in the grain (actor), not in handlers or infrastructure. Handlers orchestrate; actors decide.
+
+- Validate preconditions and enforce invariants inside the grain
+- Handlers call the grain and map results — no business rules in handlers
+- State mutations happen only through grain methods

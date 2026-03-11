@@ -760,4 +760,149 @@ public class EntityDefinitionGrainTests
     }
 
     #endregion
+
+    #region AddReferenceAsync
+
+    [Test]
+    public async Task AddReferenceAsync_ShouldFail_WhenNotExists()
+    {
+        var grain = GetGrain();
+        var relatedId = Guid.CreateVersion7();
+
+        var result = await grain.AddReferenceAsync(new AddEntityReferenceGrainCommand
+        {
+            ReferenceType = "OneToOne",
+            RelatedEntityDefinitionId = relatedId,
+            RelatedEntitySchemaName = "customer"
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.NotFoundCode);
+    }
+
+    [Test]
+    public async Task AddReferenceAsync_ShouldSucceed_WhenEntityExists()
+    {
+        var sourceId = Guid.CreateVersion7();
+        var targetId = Guid.CreateVersion7();
+        var sourceGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(sourceId);
+        var targetGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(targetId);
+        await sourceGrain.CreateAsync(CreateCommand(displayName: "Order"));
+        await targetGrain.CreateAsync(CreateCommand(displayName: "Customer"));
+
+        var result = await sourceGrain.AddReferenceAsync(new AddEntityReferenceGrainCommand
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = targetId,
+            RelatedEntitySchemaName = "customer"
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.References.Length.ShouldBe(1);
+        result.Entity.References[0].SchemaName.ShouldBe("customer");
+        result.Entity.References[0].ReferenceType.ShouldBe("OneToMany");
+        result.Entity.References[0].RelatedEntityDefinitionId.ShouldBe(targetId);
+    }
+
+    [Test]
+    public async Task AddReferenceAsync_ShouldSucceed_WhenSelfReference()
+    {
+        var grainId = Guid.CreateVersion7();
+        var grain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(grainId);
+        await grain.CreateAsync(CreateCommand(displayName: "Employee"));
+
+        var result = await grain.AddReferenceAsync(new AddEntityReferenceGrainCommand
+        {
+            SchemaName = "manager",
+            ReferenceType = "ManyToOne",
+            RelatedEntityDefinitionId = grainId,
+            RelatedEntitySchemaName = "employee"
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.References.Length.ShouldBe(2);
+        result.Entity.References.ShouldContain(r => r.SchemaName == "manager");
+        result.Entity.References.ShouldContain(r => r.SchemaName == "employee");
+    }
+
+    [Test]
+    public async Task AddReferenceAsync_ShouldFail_WhenDuplicateSchemaName()
+    {
+        var sourceId = Guid.CreateVersion7();
+        var targetId = Guid.CreateVersion7();
+        var sourceGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(sourceId);
+        var targetGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(targetId);
+        await sourceGrain.CreateAsync(CreateCommand(displayName: "Order"));
+        await targetGrain.CreateAsync(CreateCommand(displayName: "Customer"));
+
+        await sourceGrain.AddReferenceAsync(new AddEntityReferenceGrainCommand
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = targetId,
+            RelatedEntitySchemaName = "customer"
+        });
+
+        var result = await sourceGrain.AddReferenceAsync(new AddEntityReferenceGrainCommand
+        {
+            SchemaName = "customer",
+            ReferenceType = "OneToOne",
+            RelatedEntityDefinitionId = Guid.CreateVersion7(),
+            RelatedEntitySchemaName = "other"
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("already exists");
+    }
+
+    #endregion
+
+    #region RemoveReferenceAsync
+
+    [Test]
+    public async Task RemoveReferenceAsync_ShouldFail_WhenNotExists()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.RemoveReferenceAsync(new RemoveEntityReferenceGrainCommand { SchemaName = "customer" });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.NotFoundCode);
+    }
+
+    [Test]
+    public async Task RemoveReferenceAsync_ShouldFail_WhenEntityExistsButReferenceNotFound()
+    {
+        var grain = GetGrain();
+        await grain.CreateAsync(CreateCommand(displayName: "Order"));
+
+        var result = await grain.RemoveReferenceAsync(new RemoveEntityReferenceGrainCommand { SchemaName = "nonexistent" });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.NotFoundCode);
+    }
+
+    [Test]
+    public async Task RemoveReferenceAsync_ShouldSucceed_WhenReferenceExists()
+    {
+        var sourceId = Guid.CreateVersion7();
+        var targetId = Guid.CreateVersion7();
+        var sourceGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(sourceId);
+        var targetGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(targetId);
+        await sourceGrain.CreateAsync(CreateCommand(displayName: "Order"));
+        await targetGrain.CreateAsync(CreateCommand(displayName: "Customer"));
+
+        await sourceGrain.AddReferenceAsync(new AddEntityReferenceGrainCommand
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = targetId,
+            RelatedEntitySchemaName = "customer"
+        });
+
+        var result = await sourceGrain.RemoveReferenceAsync(new RemoveEntityReferenceGrainCommand { SchemaName = "customer" });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.References.ShouldBeEmpty();
+    }
+
+    #endregion
 }

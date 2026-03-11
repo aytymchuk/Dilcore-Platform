@@ -5,7 +5,6 @@ using Dilcore.Blueprints.Domain.Entities;
 using FluentAssertions;
 using FluentResults;
 using Moq;
-using MediatR;
 
 namespace Dilcore.Blueprints.Core.Tests.Features.EntityDefinitions.Create.Behaviors;
 

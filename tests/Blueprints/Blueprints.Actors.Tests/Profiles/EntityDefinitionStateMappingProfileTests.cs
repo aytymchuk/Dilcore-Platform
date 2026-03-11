@@ -293,5 +293,63 @@ public class EntityDefinitionStateMappingProfileTests
         roundTripped.IsCreated.ShouldBeTrue();
     }
 
+    [Test]
+    public void StateToDomain_ShouldMapReferences()
+    {
+        var relatedId = Guid.CreateVersion7();
+        var state = new EntityDefinitionState
+        {
+            Id = Guid.CreateVersion7(),
+            DisplayName = "Order",
+            References =
+            [
+                new EntityReferenceGrainDto
+                {
+                    SchemaName = "customer",
+                    ReferenceType = "OneToMany",
+                    RelatedEntityDefinitionId = relatedId,
+                    RelatedEntitySchemaName = "customer"
+                }
+            ],
+            IsCreated = true
+        };
+
+        var domain = _mapper.Map<EntityDefinition>(state);
+
+        domain.References.Count.ShouldBe(1);
+        domain.References[0].SchemaName.ShouldBe("customer");
+        domain.References[0].ReferenceType.ShouldBe(EntityReferenceType.OneToMany);
+        domain.References[0].RelatedEntityDefinitionId.ShouldBe(relatedId);
+        domain.References[0].RelatedEntitySchemaName.ShouldBe("customer");
+    }
+
+    [Test]
+    public void DomainToState_ShouldMapReferences()
+    {
+        var relatedId = Guid.CreateVersion7();
+        var domain = new EntityDefinition(fields: null, references:
+        [
+            new EntityReference
+            {
+                SchemaName = "order",
+                ReferenceType = EntityReferenceType.ManyToOne,
+                RelatedEntityDefinitionId = relatedId,
+                RelatedEntitySchemaName = "order"
+            }
+        ])
+        {
+            Id = Guid.CreateVersion7(),
+            DisplayName = "LineItem"
+        };
+
+        var state = _mapper.Map<EntityDefinitionState>(domain);
+
+        state.References.Count.ShouldBe(1);
+        state.References[0].SchemaName.ShouldBe("order");
+        state.References[0].ReferenceType.ShouldBe("ManyToOne");
+        state.References[0].RelatedEntityDefinitionId.ShouldBe(relatedId);
+        state.References[0].RelatedEntitySchemaName.ShouldBe("order");
+    }
+
     #endregion
 }

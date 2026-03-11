@@ -12,15 +12,22 @@ public class EntityDefinitionStoreMappingProfile : Profile
     {
         CreateMap<EntityDefinition, EntityDefinitionDocument>()
             .ForMember(dest => dest.Fields, opt => opt.MapFrom(src => src.Fields))
+            .ForMember(dest => dest.References, opt => opt.MapFrom(src => src.References))
             .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src =>
                 new EntityMetadataDocument { Tags = src.Metadata.Tags.ToList() }))
             .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
         CreateMap<EntityDefinitionDocument, EntityDefinition>()
             .ForCtorParam("fields", opt => opt.MapFrom(src => src.Fields))
+            .ForCtorParam("references", opt => opt.MapFrom(src => src.References ?? (IEnumerable<EntityReferenceDocument>)new List<EntityReferenceDocument>()))
             .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src =>
                 new EntityMetadata { Tags = src.Metadata.Tags }))
             .ForMember(dest => dest.Fields, opt => opt.Ignore());
+
+        CreateMap<EntityReference, EntityReferenceDocument>();
+        CreateMap<EntityReferenceDocument, EntityReference>()
+            .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src =>
+                Enum.Parse<EntityReferenceType>(src.ReferenceType, ignoreCase: true)));
 
         CreateMap<FieldDefinition, FieldDefinitionDocument>()
             .Include<ComplexFieldDefinition, ComplexFieldDefinitionDocument>()

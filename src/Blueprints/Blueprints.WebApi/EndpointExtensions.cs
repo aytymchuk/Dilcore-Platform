@@ -3,10 +3,12 @@ using Dilcore.Blueprints.Contracts;
 using Dilcore.Blueprints.Contracts.EntityDefinitions;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Create;
 using Dilcore.Blueprints.Contracts.EntityDefinitions.Update;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.AddReference;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Delete;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.GetById;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.GetList;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.RemoveReference;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Update;
 using Dilcore.FluentValidation.Extensions.MinimalApi;
 using Dilcore.Results.Extensions.Api;
@@ -145,6 +147,41 @@ public static class EndpointExtensions
             return result.ToMinimalApiResult();
         })
         .WithName("DeleteEntityDefinition")
+        .Produces(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        entities.MapPost("/{id:guid}/references", async (
+            Guid id,
+            CreateEntityReferenceDto request,
+            IMediator mediator,
+            IMapper mapper,
+            CancellationToken ct) =>
+        {
+            var command = mapper.Map<AddEntityReferenceCommand>(request) with { EntityDefinitionId = id };
+            var result = await mediator.Send(command, ct);
+            return result
+                .Map(mapper.Map<EntityDefinitionDto>)
+                .ToMinimalApiResult(dto =>
+                    Microsoft.AspNetCore.Http.Results.Created($"/blueprints/entity-definitions/{dto.Id}", dto));
+        })
+        .WithName("AddEntityDefinitionReference")
+        .Produces<EntityDefinitionDto>(StatusCodes.Status201Created)
+        .AddValidationFilter<CreateEntityReferenceDto>()
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        entities.MapDelete("/{id:guid}/references/{schemaName}", async (
+            Guid id,
+            string schemaName,
+            IMediator mediator,
+            CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new RemoveEntityReferenceCommand(id, schemaName), ct);
+            return result.ToMinimalApiResult();
+        })
+        .WithName("RemoveEntityDefinitionReference")
         .Produces(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status401Unauthorized);

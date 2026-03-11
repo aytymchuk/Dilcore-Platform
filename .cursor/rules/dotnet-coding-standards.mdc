@@ -1,0 +1,87 @@
+---
+description: .NET coding standards for the Dilcore Platform
+globs: **/*.cs
+alwaysApply: false
+---
+
+# .NET Coding Standards
+
+## Early Returns Over Nesting
+
+Prefer guard clauses and early returns to minimize nesting depth. The "happy path" should be at the lowest indentation level.
+
+**Bad:**
+```csharp
+public Result Process(Command command)
+{
+    if (command != null)
+    {
+        if (command.IsValid)
+        {
+            // ... main logic
+        }
+    }
+}
+```
+
+**Good:**
+```csharp
+public Result Process(Command command)
+{
+    if (command is null)
+    {
+        return Result.Failure("null");
+    }
+
+    if (!command.IsValid)
+    {
+        return Result.Failure("invalid");
+    }
+
+    // ... main logic
+}
+```
+
+## Always Use Braces
+
+Use `{ }` for all `if`/`else`/`for`/`foreach`/`while` blocks, even single-line ones.
+
+**Bad:**
+```csharp
+if (x > 0) return x;
+// or
+if (x > 0) { return x; }
+```
+
+**Good:**
+```csharp
+if (x > 0)
+{
+    return x;
+}
+```
+
+## DRY — Don't Repeat Yourself
+
+Before writing new code, look for existing methods, extensions, helpers, or behaviors at the same layer that already solve the problem. Reuse them.
+
+- Extract duplicated logic into a shared method, extension, or behavior
+- Do not copy-paste validation, mapping, or query logic — find where it already lives
+- In behaviors/pipelines, reuse existing behaviors rather than duplicating checks inline
+
+## Small, Single-Concern Methods
+
+Each method should do exactly one thing. If you find yourself writing "and" to describe what a method does, split it.
+
+- Aim for methods under ~20 lines
+- Extract named private helpers for sub-steps
+- Avoid mixing validation, mapping, and persistence in the same method
+
+## Test Coverage
+
+Every feature must have tests:
+
+- **Unit tests**: test domain logic, validators, behaviors, mapping profiles, and handlers in isolation
+- **Integration tests**: test the full HTTP endpoint flow via `WebApi.IntegrationTests`
+- Follow the existing test naming convention: `MethodName_Scenario_ExpectedResult`
+- Use FluentAssertions for all assertions
