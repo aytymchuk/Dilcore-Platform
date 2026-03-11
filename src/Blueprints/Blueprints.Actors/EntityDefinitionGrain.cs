@@ -1,6 +1,5 @@
 using Dilcore.Blueprints.Actors.Abstractions;
 using Dilcore.Blueprints.Domain;
-using Dilcore.Blueprints.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Dilcore.Blueprints.Actors;
@@ -102,7 +101,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         Guid grainId)
     {
         if (references is null or { Length: 0 })
-            return EntityDefinitionGrainResult.Success(ToDto());
+            return EntityDefinitionGrainResult.Success(_state.State.ToGrainDto());
 
         foreach (var reference in references)
         {
@@ -131,7 +130,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         }
 
         _state.State.TouchUpdatedAt(_timeProvider);
-        return EntityDefinitionGrainResult.Success(ToDto());
+        return EntityDefinitionGrainResult.Success(_state.State.ToGrainDto());
     }
 
     private async Task<EntityDefinitionGrainResult> AddReverseReferencesFromCreateAsync(
@@ -140,7 +139,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         Guid grainId)
     {
         if (references is null or { Length: 0 })
-            return EntityDefinitionGrainResult.Success(ToDto());
+            return EntityDefinitionGrainResult.Success(_state.State.ToGrainDto());
 
         var errors = new List<string>();
 
@@ -162,7 +161,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         return errors.Count > 0
             ? EntityDefinitionGrainResult.Validation(string.Join("; ", errors))
-            : EntityDefinitionGrainResult.Success(ToDto());
+            : EntityDefinitionGrainResult.Success(_state.State.ToGrainDto());
     }
 
     public Task<EntityDefinitionGrainDto?> GetAsync()
@@ -173,7 +172,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return Task.FromResult<EntityDefinitionGrainDto?>(null);
         }
 
-        return Task.FromResult<EntityDefinitionGrainDto?>(ToDto());
+        return Task.FromResult<EntityDefinitionGrainDto?>(_state.State.ToGrainDto());
     }
 
     public async Task<EntityDefinitionGrainResult> UpdateAsync(UpdateEntityDefinitionGrainCommand command)
@@ -212,14 +211,14 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             _state.State.IsAbstract = command.IsAbstract;
             _state.State.Fields = newFields;
             _state.State.Tags = command.Tags.ToList();
-            _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+            _state.State.TouchUpdatedAt(_timeProvider);
 
             await _state.WriteStateAsync();
 
             _logger.LogEntityDefinitionUpdated(grainId, _state.State.SchemaName);
 
             return EntityDefinitionGrainResult.Success(
-                ToDto(), LastFieldChanges.Added, LastFieldChanges.Removed);
+                _state.State.ToGrainDto(), LastFieldChanges.Added, LastFieldChanges.Removed);
         }
         catch (ArgumentException ex)
         {
@@ -237,7 +236,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return EntityDefinitionGrainResult.NotFound($"Entity definition '{grainId}' does not exist.");
         }
 
-        var dto = ToDto();
+        var dto = _state.State.ToGrainDto();
 
         _state.State.IsCreated = false;
         await _state.ClearStateAsync();
@@ -264,7 +263,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return validationError;
 
         _state.State.References.Add(reference!);
-        _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+        _state.State.TouchUpdatedAt(_timeProvider);
 
         await _state.WriteStateAsync();
 
@@ -273,7 +272,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         if (!command.SkipReverseReference)
             return await AddReverseReferenceAsync(command, grainId);
 
-        return EntityDefinitionGrainResult.Success(ToDto());
+        return EntityDefinitionGrainResult.Success(_state.State.ToGrainDto());
     }
 
     public async Task<EntityDefinitionGrainResult> RemoveReferenceAsync(RemoveEntityReferenceGrainCommand command)
@@ -286,8 +285,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return EntityDefinitionGrainResult.NotFound($"Entity definition '{grainId}' does not exist.");
         }
 
-        var index = _state.State.References.FindIndex(r =>
-            r.SchemaName.Equals(command.SchemaName, StringComparison.OrdinalIgnoreCase));
+        var index = _state.State.References.FindIndexBySchemaName(command.SchemaName);
 
         if (index < 0)
             return EntityDefinitionGrainResult.NotFound(
@@ -295,7 +293,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         var removedReference = _state.State.References[index];
         _state.State.References.RemoveAt(index);
-        _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+        _state.State.TouchUpdatedAt(_timeProvider);
 
         await _state.WriteStateAsync();
 
@@ -305,12 +303,11 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         {
             if (removedReference.RelatedEntityDefinitionId == grainId)
             {
-                var reverseIndex = _state.State.References.FindIndex(r =>
-                    r.SchemaName.Equals(_state.State.SchemaName, StringComparison.OrdinalIgnoreCase));
+                var reverseIndex = _state.State.References.FindIndexBySchemaName(_state.State.SchemaName);
                 if (reverseIndex >= 0)
                 {
                     _state.State.References.RemoveAt(reverseIndex);
-                    _state.State.UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime;
+                    _state.State.TouchUpdatedAt(_timeProvider);
                     await _state.WriteStateAsync();
                     _logger.LogEntityDefinitionReferenceRemoved(grainId, _state.State.SchemaName);
                 }
@@ -327,21 +324,13 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             }
         }
 
-        return EntityDefinitionGrainResult.Success(ToDto(), removedReference);
+        return EntityDefinitionGrainResult.Success(_state.State.ToGrainDto(), removedReference);
     }
 
     private async Task<EntityDefinitionGrainResult> AddReverseReferenceAsync(
         AddEntityReferenceGrainCommand command, Guid grainId)
     {
-        var inverseType = Enum.Parse<EntityReferenceType>(command.ReferenceType, ignoreCase: true).GetInverse();
-        var reverseCommand = new AddEntityReferenceGrainCommand
-        {
-            SchemaName = _state.State.SchemaName,
-            ReferenceType = inverseType.ToString(),
-            RelatedEntityDefinitionId = grainId,
-            RelatedEntitySchemaName = _state.State.SchemaName,
-            SkipReverseReference = true
-        };
+        var reverseCommand = command.ToReverseCommand(_state.State.SchemaName, grainId);
 
         if (command.RelatedEntityDefinitionId == grainId)
         {
@@ -351,7 +340,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         var targetGrain = GrainFactory.GetGrain<IEntityDefinitionGrain>(command.RelatedEntityDefinitionId);
         var reverseResult = await targetGrain.AddReferenceAsync(reverseCommand);
         return reverseResult.IsSuccess
-            ? EntityDefinitionGrainResult.Success(ToDto())
+            ? EntityDefinitionGrainResult.Success(_state.State.ToGrainDto())
             : EntityDefinitionGrainResult.Validation(
                 reverseResult.ErrorMessage ?? "Failed to add reverse reference.");
     }
@@ -367,14 +356,14 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         if (schemaNameError is not null)
             return (schemaNameError, null);
 
-        return (null, CreateEntityReferenceGrainDto(referenceSchemaName!, command));
+        return (null, EntityReferenceCommandExtensions.ToEntityReferenceGrainDto(referenceSchemaName!, command));
     }
 
     private (EntityDefinitionGrainResult? Error, string? SchemaName) ResolveReferenceSchemaName(AddEntityReferenceGrainCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.SchemaName))
         {
-            var generatedSchemaName = GenerateReferenceSchemaName(
+            var generatedSchemaName = EntityReferenceSchemaNameExtensions.GenerateReferenceSchemaName(
                 _state.State.SchemaName,
                 command.RelatedEntitySchemaName);
 
@@ -396,8 +385,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                 $"Reference schema name '{baseSchemaName}' is not valid. Schema names must be camelCase starting with a lowercase letter and cannot use reserved names."), null);
         }
 
-        if (!_state.State.References.Exists(r =>
-                r.SchemaName.Equals(baseSchemaName, StringComparison.OrdinalIgnoreCase)))
+        if (!_state.State.References.ContainsSchemaName(baseSchemaName))
         {
             return (null, baseSchemaName);
         }
@@ -409,8 +397,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             if (!SchemaNameGenerator.IsValid(candidate))
                 continue;
 
-            if (!_state.State.References.Exists(r =>
-                    r.SchemaName.Equals(candidate, StringComparison.OrdinalIgnoreCase)))
+            if (!_state.State.References.ContainsSchemaName(candidate))
             {
                 return (null, candidate);
             }
@@ -419,73 +406,6 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         return (EntityDefinitionGrainResult.Validation(
             $"Unable to generate a unique schema name for reference '{baseSchemaName}'."), null);
     }
-
-    private static string GenerateReferenceSchemaName(string sourceEntitySchemaName, string targetEntitySchemaName)
-    {
-        if (string.IsNullOrWhiteSpace(sourceEntitySchemaName))
-            return CompactSchemaName(targetEntitySchemaName);
-
-        if (string.IsNullOrWhiteSpace(targetEntitySchemaName))
-            return CompactSchemaName(sourceEntitySchemaName);
-
-        var sourceBase = CompactSchemaName(sourceEntitySchemaName);
-        var targetBase = CompactSchemaName(targetEntitySchemaName);
-        var targetEntityPascalCase = char.ToUpperInvariant(targetBase[0]) + targetBase[1..];
-        var combined = $"{sourceBase}{targetEntityPascalCase}";
-
-        if (combined.Length <= EntityDefinitionLimits.SchemaNameMaxLength)
-            return combined;
-
-        var maxSourceLength = Math.Max(1, EntityDefinitionLimits.SchemaNameMaxLength / 2);
-        var truncatedSource = sourceBase[..Math.Min(sourceBase.Length, maxSourceLength)];
-        var remainingForTarget = EntityDefinitionLimits.SchemaNameMaxLength - truncatedSource.Length;
-        var truncatedTarget = targetEntityPascalCase[..Math.Min(targetEntityPascalCase.Length, remainingForTarget)];
-        return $"{truncatedSource}{truncatedTarget}";
-    }
-
-    private static string CompactSchemaName(string schemaName)
-    {
-        if (string.IsNullOrWhiteSpace(schemaName))
-            return "relation";
-
-        var firstDigitIndex = schemaName.IndexOfAny("0123456789".ToCharArray());
-        var compact = firstDigitIndex > 0 ? schemaName[..firstDigitIndex] : schemaName;
-
-        if (string.IsNullOrWhiteSpace(compact))
-            compact = "relation";
-
-        if (compact.Length > EntityDefinitionLimits.SchemaNameMaxLength)
-            compact = compact[..EntityDefinitionLimits.SchemaNameMaxLength];
-
-        return compact;
-    }
-
-    private static EntityReferenceGrainDto CreateEntityReferenceGrainDto(
-        string schemaName,
-        AddEntityReferenceGrainCommand command) =>
-        new()
-        {
-            SchemaName = schemaName,
-            ReferenceType = command.ReferenceType,
-            RelatedEntityDefinitionId = command.RelatedEntityDefinitionId,
-            RelatedEntitySchemaName = command.RelatedEntitySchemaName
-        };
-
-    private EntityDefinitionGrainDto ToDto() => new()
-    {
-        Id = _state.State.Id,
-        SchemaName = _state.State.SchemaName,
-        DisplayName = _state.State.DisplayName,
-        Description = _state.State.Description,
-        IsAbstract = _state.State.IsAbstract,
-        ExtendsEntityId = _state.State.ExtendsEntityId,
-        Fields = _state.State.Fields.ToArray(),
-        References = _state.State.References.ToArray(),
-        Tags = _state.State.Tags.ToArray(),
-        CreatedAt = _state.State.CreatedAt,
-        UpdatedAt = _state.State.UpdatedAt,
-        ETag = _state.State.ETag
-    };
 }
 
 internal record FieldChanges(IReadOnlyList<string> Added, IReadOnlyList<string> Removed);
