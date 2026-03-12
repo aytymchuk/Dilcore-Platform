@@ -29,39 +29,6 @@ public class AddEntityReferenceHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenTargetEntityDoesNotExist_ShouldReturnValidationError()
-    {
-        var entityId = Guid.CreateVersion7();
-        var relatedId = Guid.CreateVersion7();
-
-        _grainFactoryMock
-            .Setup(x => x.GetGrain<IEntityDefinitionGrain>(entityId))
-            .Returns(_sourceGrainMock.Object);
-        _grainFactoryMock
-            .Setup(x => x.GetGrain<IEntityDefinitionGrain>(relatedId))
-            .Returns(_targetGrainMock.Object);
-
-        _targetGrainMock
-            .Setup(x => x.GetAsync())
-            .ReturnsAsync((EntityDefinitionGrainDto?)null);
-
-        var command = new AddEntityReferenceCommand
-        {
-            EntityDefinitionId = entityId,
-            RelatedEntityDefinitionId = relatedId,
-            ReferenceType = EntityReferenceType.OneToOne
-        };
-
-        var result = await _sut.Handle(command, CancellationToken.None);
-
-        result.IsFailed.Should().BeTrue();
-        result.Errors.Should().ContainSingle()
-            .Which.Should().BeOfType<ValidationError>()
-            .Which.Message.Should().Contain("does not exist");
-        _sourceGrainMock.Verify(x => x.AddReferenceAsync(It.IsAny<AddEntityReferenceGrainCommand>()), Times.Never);
-    }
-
-    [Test]
     public async Task Handle_WhenGrainSucceeds_ShouldReturnMappedEntity()
     {
         var entityId = Guid.CreateVersion7();

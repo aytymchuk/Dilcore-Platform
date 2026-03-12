@@ -386,17 +386,10 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                 $"Reference with schema name '{command.SchemaName}' does not exist on this entity.");
 
         var removedReference = _state.State.References[index];
-        _state.State.References.RemoveAt(index);
 
         if (!command.SkipReverseReference)
         {
-            if (removedReference.RelatedEntityDefinitionId == grainId)
-            {
-                var reverseIndex = _state.State.References.FindIndexByRelatedEntityId(grainId);
-                if (reverseIndex >= 0)
-                    _state.State.References.RemoveAt(reverseIndex);
-            }
-            else
+            if (removedReference.RelatedEntityDefinitionId != grainId)
             {
                 var reverseSchemaName = removedReference.ReverseSchemaName ?? _state.State.SchemaName;
                 var targetGrain = GrainFactory.GetGrain<IEntityDefinitionGrain>(removedReference.RelatedEntityDefinitionId);
@@ -409,11 +402,25 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             }
         }
 
+        _state.State.References.RemoveAt(index);
+
+        if (!command.SkipReverseReference && removedReference.RelatedEntityDefinitionId == grainId)
+        {
+            var reverseSchemaName = removedReference.ReverseSchemaName ?? _state.State.SchemaName;
+            var reverseIndex = _state.State.References.FindIndexBySchemaName(reverseSchemaName);
+            if (reverseIndex >= 0)
+            {
+                _state.State.References.RemoveAt(reverseIndex);
+            }
+        }
+
         _state.State.TouchUpdatedAt(_timeProvider);
         await _state.WriteStateAsync();
         _logger.LogEntityDefinitionReferenceRemoved(grainId, command.SchemaName);
         if (!command.SkipReverseReference && removedReference.RelatedEntityDefinitionId == grainId)
+        {
             _logger.LogEntityDefinitionReferenceRemoved(grainId, removedReference.ReverseSchemaName ?? _state.State.SchemaName);
+        }
 
         return EntityDefinitionGrainResult.Success(_state.State.ToGrainDto(), removedReference);
     }

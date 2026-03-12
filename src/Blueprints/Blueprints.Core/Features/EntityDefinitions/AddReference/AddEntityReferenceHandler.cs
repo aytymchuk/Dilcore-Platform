@@ -25,17 +25,15 @@ public class AddEntityReferenceHandler
         var sourceGrain = _grainFactory.GetGrain<IEntityDefinitionGrain>(request.EntityDefinitionId);
         var targetGrain = _grainFactory.GetGrain<IEntityDefinitionGrain>(request.RelatedEntityDefinitionId);
 
+        // Existence is validated by ValidateReferencedEntityBehavior.
         var targetDto = await targetGrain.GetAsync();
-        if (targetDto is null)
-            return Result.Fail<EntityDefinition>(
-                new ValidationError($"Referenced entity definition '{request.RelatedEntityDefinitionId}' does not exist."));
 
         var grainCommand = new AddEntityReferenceGrainCommand
         {
             SchemaName = request.SchemaName,
             ReferenceType = request.ReferenceType.ToString(),
             RelatedEntityDefinitionId = request.RelatedEntityDefinitionId,
-            RelatedEntitySchemaName = targetDto.SchemaName
+            RelatedEntitySchemaName = targetDto!.SchemaName
         };
 
         var result = await sourceGrain.AddReferenceAsync(grainCommand);
