@@ -81,7 +81,10 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
             var addRefsResult = await AddForwardReferencesToStateAsync(command.References, entitySchemaName, grainId);
             if (!addRefsResult.IsSuccess)
+            {
+                RollbackCreateStateAfterReferenceFailure(grainId, entitySchemaName);
                 return addRefsResult;
+            }
 
             var (reverseResult, _) = await AddReverseReferencesFromCreateAsync(command.References, entitySchemaName, grainId);
             if (!reverseResult.IsSuccess)
@@ -125,34 +128,53 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
             var addRefCommand = reference.ToAddReferenceCommand(targetDto.SchemaName);
 
-            var (validationError, refDto) = ValidateAndCreateReferenceDto(addRefCommand);
-            if (validationError is not null)
-                return validationError;
-
             if (reference.RelatedEntityDefinitionId == grainId)
             {
+                var capacityError = EnsureCanAddReferences(2);
+                if (capacityError is not null)
+                {
+                    return capacityError;
+                }
+
+                var (validationError, refDto) = ValidateAndCreateReferenceDto(addRefCommand);
+                if (validationError is not null || refDto is null)
+                {
+                    return validationError ?? EntityDefinitionGrainResult.Validation("Failed to create reference.");
+                }
+
                 var reverseCommand = reference.ToReverseCommand(entitySchemaName, grainId, skipReverseReference: false);
                 var (reverseError, reverseRefDto) = ValidateAndCreateReferenceDto(reverseCommand);
                 if (reverseError is not null || reverseRefDto is null)
+                {
                     return reverseError ?? EntityDefinitionGrainResult.Validation("Failed to create self-reference.");
+                }
+
                 var forwardRefDto = EntityReferenceCommandExtensions.ToEntityReferenceGrainDto(
-                    refDto!.SchemaName,
+                    refDto.SchemaName,
                     addRefCommand,
                     reverseRefDto.SchemaName);
+
                 reverseRefDto = reverseRefDto with { ReverseSchemaName = forwardRefDto.SchemaName };
+
                 _state.State.References.Add(forwardRefDto);
                 _state.State.References.Add(reverseRefDto);
             }
             else
             {
-                _state.State.References.Add(refDto!);
+                var (validationError, refDto) = ValidateAndCreateReferenceDto(addRefCommand);
+                if (validationError is not null || refDto is null)
+                {
+                    return validationError ?? EntityDefinitionGrainResult.Validation("Failed to create reference.");
+                }
+
+                _state.State.References.Add(refDto);
             }
         }
 
         return EntityDefinitionGrainResult.Success(_state.State.ToGrainDto());
     }
 
-    private async Task<(EntityDefinitionGrainResult Result, List<(Guid TargetGrainId, string SchemaName)>? AddedReverseRefs)> AddReverseReferencesFromCreateAsync(
+    private async Task<(EntityDefinitionGrainResult Result, List<(int ForwardReferenceIndex, Guid TargetGrainId, string SchemaName)>? AddedReverseRefs)> AddReverseReferencesFromCreateAsync(
         EntityReferenceGrainParameter[] references,
         string entitySchemaName,
         Guid grainId)
@@ -161,7 +183,8 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return (EntityDefinitionGrainResult.Success(_state.State.ToGrainDto()), null);
 
         var errors = new List<string>();
-        var addedReverseRefs = new List<(Guid TargetGrainId, string SchemaName)>();
+        var addedReverseRefs = new List<(int ForwardReferenceIndex, Guid TargetGrainId, string SchemaName)>();
+        var consumedForwardReferenceIndexes = new HashSet<int>();
 
         foreach (var reference in references)
         {
@@ -180,8 +203,18 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                     continue;
                 }
 
+                var forwardReferenceIndex = FindUnconsumedForwardReferenceIndex(
+                    reference.RelatedEntityDefinitionId,
+                    consumedForwardReferenceIndexes);
+                if (forwardReferenceIndex < 0)
+                {
+                    errors.Add($"'{reference.RelatedEntityDefinitionId}': Failed to match forward reference for reverse schema update.");
+                    continue;
+                }
+
                 var reverseSchemaName = ResolveReverseSchemaName(reverseResult.Entity, grainId, entitySchemaName);
-                addedReverseRefs.Add((reference.RelatedEntityDefinitionId, reverseSchemaName));
+                consumedForwardReferenceIndexes.Add(forwardReferenceIndex);
+                addedReverseRefs.Add((forwardReferenceIndex, reference.RelatedEntityDefinitionId, reverseSchemaName));
             }
             catch (Exception ex)
             {
@@ -191,7 +224,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         if (errors.Count > 0)
         {
-            foreach (var (targetGrainId, schemaName) in addedReverseRefs)
+            foreach (var (_, targetGrainId, schemaName) in addedReverseRefs)
             {
                 try
                 {
@@ -211,14 +244,13 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return (EntityDefinitionGrainResult.Validation(string.Join("; ", errors)), null);
         }
 
-        foreach (var (targetGrainId, schemaName) in addedReverseRefs)
+        foreach (var (forwardReferenceIndex, _, schemaName) in addedReverseRefs)
         {
-            var idx = _state.State.References.FindIndex(r => r.RelatedEntityDefinitionId == targetGrainId);
-            if (idx >= 0)
+            if (forwardReferenceIndex >= 0 && forwardReferenceIndex < _state.State.References.Count)
             {
-                var existing = _state.State.References[idx];
-                _state.State.References.RemoveAt(idx);
-                _state.State.References.Insert(idx, existing with { ReverseSchemaName = schemaName });
+                var existing = _state.State.References[forwardReferenceIndex];
+                _state.State.References.RemoveAt(forwardReferenceIndex);
+                _state.State.References.Insert(forwardReferenceIndex, existing with { ReverseSchemaName = schemaName });
             }
         }
 
@@ -312,6 +344,10 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         }
 
         var dto = _state.State.ToGrainDto();
+        if (dto.References is { Length: > 0 })
+        {
+            return EntityDefinitionGrainResult.Validation("Cannot delete entity definition while references exist.");
+        }
 
         _state.State.IsCreated = false;
         await _state.ClearStateAsync();
@@ -333,38 +369,61 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             return EntityDefinitionGrainResult.NotFound($"Entity definition '{grainId}' does not exist.");
         }
 
-        var (validationError, reference) = ValidateAndCreateReferenceDto(command);
-        if (validationError is not null)
-            return validationError;
+        EntityReferenceGrainDto? reference;
 
         if (!command.SkipReverseReference)
         {
             if (command.RelatedEntityDefinitionId == grainId)
             {
+                var capacityError = EnsureCanAddReferences(2);
+                if (capacityError is not null)
+                {
+                    return capacityError;
+                }
+
+                var (validationError, forwardRefDto) = ValidateAndCreateReferenceDto(command);
+                if (validationError is not null || forwardRefDto is null)
+                {
+                    return validationError ?? EntityDefinitionGrainResult.Validation("Failed to create reference.");
+                }
+
                 var reverseCommand = command.ToReverseCommand(_state.State.SchemaName, grainId, skipReverseReference: false);
                 var (reverseError, reverseRefDto) = ValidateAndCreateReferenceDto(reverseCommand);
                 if (reverseError is not null || reverseRefDto is null)
                     return reverseError ?? EntityDefinitionGrainResult.Validation("Failed to create self-reference.");
-                reference = reference! with { ReverseSchemaName = reverseRefDto.SchemaName };
+
+                reference = forwardRefDto with { ReverseSchemaName = reverseRefDto.SchemaName };
                 reverseRefDto = reverseRefDto with { ReverseSchemaName = reference.SchemaName };
                 _state.State.References.Add(reference);
                 _state.State.References.Add(reverseRefDto);
             }
             else
             {
+                var (validationError, forwardRefDto) = ValidateAndCreateReferenceDto(command);
+                if (validationError is not null || forwardRefDto is null)
+                {
+                    return validationError ?? EntityDefinitionGrainResult.Validation("Failed to create reference.");
+                }
+
                 var reverseResult = await AddReverseReferenceAsync(command, grainId);
                 if (!reverseResult.IsSuccess)
                     return reverseResult;
 
-                var reverseSchemaName = reverseResult.Entity?.References
-                    .FirstOrDefault(r => r.RelatedEntityDefinitionId == grainId)?.SchemaName;
-                reference = reference! with { ReverseSchemaName = reverseSchemaName };
+                var reverseSchemaName = ResolveReverseSchemaName(reverseResult.Entity, grainId, _state.State.SchemaName);
+                reference = forwardRefDto with { ReverseSchemaName = reverseSchemaName };
                 _state.State.References.Add(reference);
             }
         }
         else
         {
-            _state.State.References.Add(reference!);
+            var (validationError, forwardRefDto) = ValidateAndCreateReferenceDto(command);
+            if (validationError is not null || forwardRefDto is null)
+            {
+                return validationError ?? EntityDefinitionGrainResult.Validation("Failed to create reference.");
+            }
+
+            reference = forwardRefDto;
+            _state.State.References.Add(reference);
         }
 
         _state.State.TouchUpdatedAt(_timeProvider);
@@ -445,10 +504,18 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
 
         var targetGrain = GrainFactory.GetGrain<IEntityDefinitionGrain>(command.RelatedEntityDefinitionId);
         var reverseResult = await targetGrain.AddReferenceAsync(reverseCommand);
-        return reverseResult.IsSuccess
-            ? EntityDefinitionGrainResult.Success(reverseResult.Entity!)
-            : EntityDefinitionGrainResult.Validation(
+        if (!reverseResult.IsSuccess)
+        {
+            return EntityDefinitionGrainResult.Validation(
                 reverseResult.ErrorMessage ?? "Failed to add reverse reference.");
+        }
+
+        if (reverseResult.Entity is null)
+        {
+            return EntityDefinitionGrainResult.Validation("Failed to add reverse reference.");
+        }
+
+        return EntityDefinitionGrainResult.Success(reverseResult.Entity);
     }
 
     private static string ResolveReverseSchemaName(
@@ -469,6 +536,40 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             .Where(r => r.RelatedEntityDefinitionId == grainId)
             .LastOrDefault();
         return fallback?.SchemaName ?? entitySchemaName;
+    }
+
+    private int FindUnconsumedForwardReferenceIndex(
+        Guid targetGrainId,
+        HashSet<int> consumedForwardReferenceIndexes)
+    {
+        for (var i = 0; i < _state.State.References.Count; i++)
+        {
+            var current = _state.State.References[i];
+            var hasNoReverseSchemaName = string.IsNullOrEmpty(current.ReverseSchemaName);
+            if (!hasNoReverseSchemaName)
+            {
+                continue;
+            }
+
+            if (current.RelatedEntityDefinitionId == targetGrainId
+                && !consumedForwardReferenceIndexes.Contains(i))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private EntityDefinitionGrainResult? EnsureCanAddReferences(int additionsNeeded)
+    {
+        if (_state.State.References.Count + additionsNeeded > EntityDefinitionLimits.MaxReferencesPerEntity)
+        {
+            return EntityDefinitionGrainResult.Validation(
+                $"Entity definition cannot have more than {EntityDefinitionLimits.MaxReferencesPerEntity} references.");
+        }
+
+        return null;
     }
 
     private (EntityDefinitionGrainResult? Error, EntityReferenceGrainDto? Dto) ValidateAndCreateReferenceDto(

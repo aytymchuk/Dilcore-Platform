@@ -28,13 +28,18 @@ public class AddEntityReferenceHandler
 
         // Existence is validated by ValidateReferencedEntityBehavior.
         var targetDto = await targetGrain.GetAsync();
+        if (targetDto is null)
+        {
+            return Result.Fail<EntityDefinition>(
+                new NotFoundError("Referenced entity definition not found."));
+        }
 
         var grainCommand = new AddEntityReferenceGrainCommand
         {
             SchemaName = request.SchemaName,
             ReferenceType = request.ReferenceType.ToString(),
             RelatedEntityDefinitionId = request.RelatedEntityDefinitionId,
-            RelatedEntitySchemaName = targetDto!.SchemaName
+            RelatedEntitySchemaName = targetDto.SchemaName
         };
 
         var result = await sourceGrain.AddReferenceAsync(grainCommand);

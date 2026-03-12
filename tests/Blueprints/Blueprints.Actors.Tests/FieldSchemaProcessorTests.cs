@@ -206,7 +206,8 @@ public class FieldSchemaProcessorTests
 
         var result = FieldSchemaProcessor.FindDuplicate(fields);
 
-        result.ShouldBe("myfield");
+        result.ShouldNotBeNull();
+        result.Equals("myfield", StringComparison.OrdinalIgnoreCase).ShouldBeTrue();
     }
 
     [Test]

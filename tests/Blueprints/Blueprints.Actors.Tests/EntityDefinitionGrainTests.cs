@@ -660,6 +660,52 @@ public class EntityDefinitionGrainTests
     }
 
     [Test]
+    public async Task UpdateAsync_ShouldRunMergeValidateAndCompute_ForNestedFields()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(
+            displayName: "Tracked",
+            fields:
+            [
+                new()
+                {
+                    SchemaName = "",
+                    DisplayName = "Address",
+                    Type = "Object",
+                    Fields =
+                    [
+                        new() { SchemaName = "", DisplayName = "Street", Type = "String" },
+                        new() { SchemaName = "", DisplayName = "ZIP Code", Type = "String" }
+                    ]
+                }
+            ]));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new()
+                {
+                    SchemaName = "address",
+                    DisplayName = "Address",
+                    Type = "Object",
+                    Fields =
+                    [
+                        new() { SchemaName = "street", DisplayName = "Street", Type = "String" },
+                        new() { SchemaName = "", DisplayName = "City", Type = "String" }
+                    ]
+                }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeTrue();
+        result.ErrorMessage.ShouldBeNull();
+        result.AddedFields!.ShouldContain("city");
+        result.RemovedFields!.ShouldContain("zipCode");
+    }
+
+    [Test]
     public async Task UpdateAsync_ShouldRejectDuplicateFieldSchemaNames()
     {
         var grain = GetGrain();
@@ -769,6 +815,32 @@ public class EntityDefinitionGrainTests
         result.Entity.ShouldNotBeNull();
         result.Entity.Id.ShouldBe(createResult.Entity!.Id);
         result.Entity.DisplayName.ShouldBe("ToDelete");
+    }
+
+    [Test]
+    public async Task DeleteAsync_ShouldFail_WhenReferencesExist()
+    {
+        var sourceId = Guid.CreateVersion7();
+        var targetId = Guid.CreateVersion7();
+        var sourceGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(sourceId);
+        var targetGrain = Cluster.GrainFactory.GetGrain<IEntityDefinitionGrain>(targetId);
+        await sourceGrain.CreateAsync(CreateCommand(displayName: "Order"));
+        await targetGrain.CreateAsync(CreateCommand(displayName: "Customer"));
+
+        var addReferenceResult = await sourceGrain.AddReferenceAsync(new AddEntityReferenceGrainCommand
+        {
+            SchemaName = "customer",
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = targetId,
+            RelatedEntitySchemaName = "customer"
+        });
+        addReferenceResult.IsSuccess.ShouldBeTrue();
+
+        var deleteResult = await sourceGrain.DeleteAsync();
+
+        deleteResult.IsSuccess.ShouldBeFalse();
+        deleteResult.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        deleteResult.ErrorMessage.ShouldContain("references exist");
     }
 
     [Test]

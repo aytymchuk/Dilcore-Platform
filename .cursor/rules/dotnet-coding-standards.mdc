@@ -1,7 +1,7 @@
 ---
 description: .NET coding standards for the Dilcore Platform
 globs: **/*.cs
-alwaysApply: false
+alwaysApply: true
 ---
 
 # .NET Coding Standards
@@ -62,6 +62,59 @@ if (x > 0)
 {
     return x;
 }
+```
+
+## Keep Conditions Readable
+
+Avoid complex compound `if` conditions that mix multiple concerns and inline method calls. Compute helper booleans first, then use straightforward guard clauses.
+
+**Bad:**
+```csharp
+if (item.IsActive && string.IsNullOrEmpty(item.SchemaName) && !seen.Contains(item.Id))
+{
+    return item.Id;
+}
+```
+
+**Good:**
+```csharp
+var hasNoSchemaName = string.IsNullOrEmpty(item.SchemaName);
+if (!hasNoSchemaName)
+{
+    return null;
+}
+
+if (item.IsActive && !seen.Contains(item.Id))
+{
+    return item.Id;
+}
+```
+
+## Use Logical Spacing
+
+Use blank lines to separate logical steps in a method: validation/guards, command or DTO construction, transformation/mapping, and state mutation/persistence.
+
+**Bad:**
+```csharp
+var (error, dto) = Validate(input);
+if (error is not null) { return error; }
+var command = BuildCommand(dto);
+var mapped = Map(command);
+Save(mapped);
+```
+
+**Good:**
+```csharp
+var (error, dto) = Validate(input);
+if (error is not null)
+{
+    return error;
+}
+
+var command = BuildCommand(dto);
+var mapped = Map(command);
+
+Save(mapped);
 ```
 
 ## DRY — Don't Repeat Yourself
