@@ -1,9 +1,8 @@
-using Dilcore.Tenancy.Contracts.Tenants.Create;
 using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Validation;
-using Dilcore.WebApi.Client.Clients;
 using Dilcore.WebApp.Extensions;
+using MediatR;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -18,13 +17,13 @@ public partial class CreateTenantDialog : AsyncComponentBase
     private bool _isFormValid;
 
     [Inject]
-    private ITenancyClient TenancyClient { get; set; } = default!;
+    private ISender Sender { get; set; } = null!;
 
     [Inject]
-    private ISnackbar Snackbar { get; set; } = default!;
+    private ISnackbar Snackbar { get; set; } = null!;
 
     [Inject]
-    private ILogger<CreateTenantDialog> Logger { get; set; } = default!;
+    private ILogger<CreateTenantDialog> Logger { get; set; } = null!;
 
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = default!;
@@ -56,15 +55,12 @@ public partial class CreateTenantDialog : AsyncComponentBase
 
     private async Task HandleSubmitAsync()
     {
-        var dto = new CreateTenantDto
+        var result = await Sender.Send(new CreateTenantCommand(_model));
+
+        if (result.IsSuccess)
         {
-            Name = _model.Name,
-            Description = _model.Description
-        };
-
-        var result = await TenancyClient.CreateTenantAsync(dto);
-
-        Snackbar.Add("Tenant created successfully", Severity.Success);
-        MudDialog.Close(DialogResult.Ok(result));
+            Snackbar.Add("Tenant created successfully", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(result.Value));
+        }
     }
 }
