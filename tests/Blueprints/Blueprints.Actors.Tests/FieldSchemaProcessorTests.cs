@@ -1,5 +1,6 @@
 using Dilcore.Blueprints.Actors;
 using Dilcore.Blueprints.Actors.Abstractions;
+using Dilcore.Blueprints.Domain;
 using Shouldly;
 
 namespace Dilcore.Blueprints.Actors.Tests;
@@ -231,12 +232,15 @@ public class FieldSchemaProcessorTests
         result.ShouldBe("a");
     }
 
-    [Test]
-    public void ValidateSchemaNames_WhenReservedName_ShouldReturnError()
+    public static IEnumerable<string> ReservedSchemaNames =>
+        EntityDefinitionLimits.ReservedSchemaNames;
+
+    [TestCaseSource(nameof(ReservedSchemaNames))]
+    public void ValidateSchemaNames_ReservedNames_ShouldReturnError(string reserved)
     {
         var fields = new[]
         {
-            new FieldDefinitionGrainDto { SchemaName = "id", DisplayName = "Id", Type = "String" }
+            new FieldDefinitionGrainDto { SchemaName = reserved, DisplayName = reserved, Type = "String" }
         };
 
         var result = FieldSchemaProcessor.ValidateSchemaNames(fields);
@@ -352,5 +356,49 @@ public class FieldSchemaProcessorTests
         var result = FieldSchemaProcessor.ComputeChanges(oldFields, newFields);
 
         result.Removed.ShouldContain("child");
+    }
+
+    [Test]
+    public void MergeValidateAndComputeChanges_WithNestedFields_ShouldTrackNestedSchemaNameChanges()
+    {
+        var existing = new[]
+        {
+            new FieldDefinitionGrainDto
+            {
+                SchemaName = "address",
+                DisplayName = "Address",
+                Type = "Object",
+                Fields =
+                [
+                    new FieldDefinitionGrainDto { SchemaName = "street", DisplayName = "Street", Type = "String" },
+                    new FieldDefinitionGrainDto { SchemaName = "zipCode", DisplayName = "ZIP Code", Type = "String" }
+                ]
+            }
+        };
+
+        var incoming = new[]
+        {
+            new FieldDefinitionGrainDto
+            {
+                SchemaName = "",
+                DisplayName = "Address",
+                Type = "Object",
+                Fields =
+                [
+                    new FieldDefinitionGrainDto { SchemaName = "street", DisplayName = "Street", Type = "String" },
+                    new FieldDefinitionGrainDto { SchemaName = "", DisplayName = "City", Type = "String" }
+                ]
+            }
+        };
+
+        var merged = FieldSchemaProcessor.MergeWithExisting(incoming, existing);
+
+        var validationError = FieldSchemaProcessor.ValidateSchemaNames(merged, "customer");
+        validationError.ShouldBeNull();
+
+        var changes = FieldSchemaProcessor.ComputeChanges(existing, merged);
+
+        changes.Added.ShouldContain("city");
+        changes.Removed.ShouldContain("zipCode");
     }
 }

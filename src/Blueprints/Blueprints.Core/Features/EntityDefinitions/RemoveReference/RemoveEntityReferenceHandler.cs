@@ -1,5 +1,6 @@
 using Dilcore.Blueprints.Actors.Abstractions;
 using Dilcore.Blueprints.Domain;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions;
 using Dilcore.MediatR.Abstractions;
 using Dilcore.Results.Abstractions;
 using FluentResults;
@@ -26,15 +27,10 @@ public class RemoveEntityReferenceHandler : ICommandHandler<RemoveEntityReferenc
         var result = await sourceGrain.RemoveReferenceAsync(new RemoveEntityReferenceGrainCommand { SchemaName = normalizedSchemaName });
         if (!result.IsSuccess)
         {
-            FluentResults.IError error = result.ErrorCode switch
-            {
-                EntityDefinitionGrainResult.NotFoundCode =>
-                    new NotFoundError(result.ErrorMessage ?? "Entity definition not found."),
-                EntityDefinitionGrainResult.ValidationErrorCode =>
-                    new ValidationError(result.ErrorMessage ?? "Validation failed."),
-                _ => new ValidationError(result.ErrorMessage ?? "Failed to remove reference.")
-            };
-
+            var error = result.ToFluentError(
+                "Entity definition not found.",
+                "Validation failed.",
+                "Failed to remove reference.");
             return Result.Fail(error);
         }
 

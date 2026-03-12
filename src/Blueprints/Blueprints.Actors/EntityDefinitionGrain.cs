@@ -446,7 +446,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         var targetGrain = GrainFactory.GetGrain<IEntityDefinitionGrain>(command.RelatedEntityDefinitionId);
         var reverseResult = await targetGrain.AddReferenceAsync(reverseCommand);
         return reverseResult.IsSuccess
-            ? EntityDefinitionGrainResult.Success(_state.State.ToGrainDto())
+            ? EntityDefinitionGrainResult.Success(reverseResult.Entity!)
             : EntityDefinitionGrainResult.Validation(
                 reverseResult.ErrorMessage ?? "Failed to add reverse reference.");
     }

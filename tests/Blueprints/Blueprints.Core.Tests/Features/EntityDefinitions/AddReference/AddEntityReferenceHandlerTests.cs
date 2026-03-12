@@ -70,10 +70,6 @@ public class AddEntityReferenceHandlerTests
             .Setup(x => x.AddReferenceAsync(It.IsAny<AddEntityReferenceGrainCommand>()))
             .ReturnsAsync(EntityDefinitionGrainResult.Success(updatedDto));
 
-        _sourceGrainMock
-            .Setup(x => x.GetAsync())
-            .ReturnsAsync(updatedDto);
-
         _mapperMock
             .Setup(x => x.Map<EntityDefinition>(updatedDto))
             .Returns(expectedEntity);
@@ -181,5 +177,54 @@ public class AddEntityReferenceHandlerTests
         result.Errors.Should().ContainSingle()
             .Which.Should().BeOfType<ValidationError>()
             .Which.Message.Should().Be("Reference limit exceeded.");
+    }
+
+    [Test]
+    public async Task Handle_WhenGrainReturnsSuccessWithoutEntity_ShouldReturnUnexpectedError()
+    {
+        var entityId = Guid.CreateVersion7();
+        var relatedId = Guid.CreateVersion7();
+        var targetDto = new EntityDefinitionGrainDto
+        {
+            Id = relatedId,
+            SchemaName = "customer",
+            DisplayName = "Customer",
+            ETag = 1,
+            Fields = [],
+            References = [],
+            Tags = []
+        };
+
+        _grainFactoryMock
+            .Setup(x => x.GetGrain<IEntityDefinitionGrain>(entityId))
+            .Returns(_sourceGrainMock.Object);
+        _grainFactoryMock
+            .Setup(x => x.GetGrain<IEntityDefinitionGrain>(relatedId))
+            .Returns(_targetGrainMock.Object);
+
+        _targetGrainMock
+            .Setup(x => x.GetAsync())
+            .ReturnsAsync(targetDto);
+
+        _sourceGrainMock
+            .Setup(x => x.AddReferenceAsync(It.IsAny<AddEntityReferenceGrainCommand>()))
+            .ReturnsAsync(new EntityDefinitionGrainResult
+            {
+                IsSuccess = true
+            });
+
+        var command = new AddEntityReferenceCommand
+        {
+            EntityDefinitionId = entityId,
+            RelatedEntityDefinitionId = relatedId,
+            ReferenceType = EntityReferenceType.OneToOne
+        };
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsFailed.Should().BeTrue();
+        result.Errors.Should().ContainSingle()
+            .Which.Should().BeOfType<UnexpectedError>()
+            .Which.Message.Should().Contain("without entity");
     }
 }

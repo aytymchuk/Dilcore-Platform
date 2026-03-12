@@ -142,4 +142,32 @@ public class RemoveEntityReferenceHandlerTests
             .Which.Should().BeOfType<ValidationError>()
             .Which.Message.Should().Contain("Reverse reference removal failed");
     }
+
+    [Test]
+    public async Task Handle_WhenGrainReturnsUnknownErrorCode_ShouldMapToUnexpectedError()
+    {
+        var entityId = Guid.CreateVersion7();
+
+        _grainFactoryMock
+            .Setup(x => x.GetGrain<IEntityDefinitionGrain>(entityId))
+            .Returns(_grainMock.Object);
+
+        _grainMock
+            .Setup(x => x.RemoveReferenceAsync(It.IsAny<RemoveEntityReferenceGrainCommand>()))
+            .ReturnsAsync(new EntityDefinitionGrainResult
+            {
+                IsSuccess = false,
+                ErrorCode = "SOME_UNKNOWN_CODE",
+                ErrorMessage = "Unexpected failure."
+            });
+
+        var command = new RemoveEntityReferenceCommand(entityId, "customer");
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsFailed.Should().BeTrue();
+        result.Errors.Should().ContainSingle()
+            .Which.Should().BeOfType<UnexpectedError>()
+            .Which.Message.Should().Contain("Unexpected failure.");
+    }
 }

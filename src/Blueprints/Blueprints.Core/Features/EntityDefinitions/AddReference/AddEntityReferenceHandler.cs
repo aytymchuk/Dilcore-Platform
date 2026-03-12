@@ -1,6 +1,7 @@
 using AutoMapper;
 using Dilcore.Blueprints.Actors.Abstractions;
 using Dilcore.Blueprints.Domain.Entities;
+using Dilcore.Blueprints.Core.Features.EntityDefinitions;
 using Dilcore.MediatR.Abstractions;
 using Dilcore.Results.Abstractions;
 using FluentResults;
@@ -39,18 +40,19 @@ public class AddEntityReferenceHandler
         var result = await sourceGrain.AddReferenceAsync(grainCommand);
         if (!result.IsSuccess)
         {
-            FluentResults.IError error = result.ErrorCode switch
-            {
-                EntityDefinitionGrainResult.NotFoundCode =>
-                    new NotFoundError(result.ErrorMessage ?? "Entity definition not found."),
-                EntityDefinitionGrainResult.ValidationErrorCode =>
-                    new ValidationError(result.ErrorMessage ?? "Validation failed."),
-                _ => new ValidationError(result.ErrorMessage ?? "Failed to add reference.")
-            };
+            var error = result.ToFluentError(
+                "Entity definition not found.",
+                "Validation failed.",
+                "Failed to add reference.");
             return Result.Fail<EntityDefinition>(error);
         }
 
-        var updatedDto = await sourceGrain.GetAsync();
-        return Result.Ok(_mapper.Map<EntityDefinition>(updatedDto!));
+        if (result.Entity is null)
+        {
+            return Result.Fail<EntityDefinition>(
+                new UnexpectedError("Grain returned success without entity for added reference."));
+        }
+
+        return Result.Ok(_mapper.Map<EntityDefinition>(result.Entity));
     }
 }
