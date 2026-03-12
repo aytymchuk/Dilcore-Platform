@@ -22,10 +22,16 @@ public sealed class UniqueSchemaNameBehavior
         RequestHandlerDelegate<Result<EntityDefinition>> next,
         CancellationToken cancellationToken)
     {
-        var schemaInput = !string.IsNullOrWhiteSpace(request.SchemaName)
-            ? request.SchemaName
-            : request.DisplayName;
-        var schemaName = SchemaNameGenerator.Generate(schemaInput);
+        var schemaNameResult = SchemaNameGenerator.SafeResolve(request.SchemaName, request.DisplayName);
+        if (schemaNameResult.IsFailed)
+            return Result.Fail<EntityDefinition>(schemaNameResult.Errors);
+
+        var schemaName = schemaNameResult.Value;
+
+        if (!SchemaNameGenerator.IsValid(schemaName))
+            return Result.Fail<EntityDefinition>(
+                new ValidationError(
+                    $"Schema name '{schemaName}' is not valid. Entity schema names must be camelCase starting with a lowercase letter and cannot use reserved names."));
 
         var existsResult = await _repository.ExistsBySchemaNameAsync(schemaName, cancellationToken);
         if (existsResult.IsFailed)
@@ -35,6 +41,6 @@ public sealed class UniqueSchemaNameBehavior
             return Result.Fail<EntityDefinition>(
                 new ConflictError($"An entity definition with schema name '{schemaName}' already exists."));
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

@@ -3,7 +3,7 @@ using Dilcore.MediatR.Abstractions;
 
 namespace Dilcore.Blueprints.Core.Features.EntityDefinitions.Create;
 
-public record CreateEntityDefinitionCommand : ICommand<EntityDefinition>
+public record CreateEntityDefinitionCommand : ICommand<EntityDefinition>, IEntityDefinitionFieldsCommand
 {
     public string? SchemaName { get; init; }
     public required string DisplayName { get; init; }

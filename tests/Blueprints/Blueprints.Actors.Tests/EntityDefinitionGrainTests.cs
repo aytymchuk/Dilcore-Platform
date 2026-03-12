@@ -81,6 +81,74 @@ public class EntityDefinitionGrainTests
     }
 
     [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenDisplayNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "!!!"));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage!.ShouldContain("alphanumeric");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenEntitySchemaNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "Valid Name") with { SchemaName = "---" });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("alphanumeric");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenFieldSchemaNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "Valid Entity",
+            fields: [new() { SchemaName = "---", DisplayName = "Some Field", Type = "String" }]));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("alphanumeric");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenDisplayNameProducesReservedSchemaName()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "Type"));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("is not valid");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldReturnValidation_WhenDisplayNameProducesInvalidFormatSchemaName()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(displayName: "123 Entity"));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("is not valid");
+        result.Entity.ShouldBeNull();
+    }
+
+    [Test]
     public async Task CreateAsync_ShouldGenerateSchemaName_FromDisplayName()
     {
         var grain = GetGrain();
@@ -161,6 +229,63 @@ public class EntityDefinitionGrainTests
         result.IsSuccess.ShouldBeFalse();
         result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
         result.ErrorMessage!.ShouldContain("Duplicate field schema name");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldRejectDuplicateFieldSchemaNames_CaseInsensitive()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "CaseInsensitiveDupTest",
+            fields:
+            [
+                new() { SchemaName = "fieldA", DisplayName = "Field A", Type = "String" },
+                new() { SchemaName = "FIELDA", DisplayName = "Field A Again", Type = "Number" }
+            ]));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'FIELDA'");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldPreserveExplicitSchemaName()
+    {
+        var grain = GetGrain();
+        var command = CreateCommand(displayName: "Ignore Me") with { SchemaName = "explicitName" };
+
+        var result = await grain.CreateAsync(command);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.SchemaName.ShouldBe("explicitName");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldPreserveExplicitFieldSchemaNames()
+    {
+        var grain = GetGrain();
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "FieldPreserveTest",
+            fields:
+            [
+                new() { SchemaName = "customField", DisplayName = "Some Display", Type = "String" }
+            ]));
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Entity!.Fields[0].SchemaName.ShouldBe("customField");
+    }
+
+    [Test]
+    public async Task CreateAsync_ShouldRejectReservedFieldSchemaNames()
+    {
+        var grain = GetGrain();
+
+        var result = await grain.CreateAsync(CreateCommand(
+            displayName: "ReservedTest",
+            fields: [new() { SchemaName = "createdAt", DisplayName = "Created At", Type = "DateTime" }]));
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Field schema name 'createdAt' is reserved.");
     }
 
     #endregion
@@ -512,6 +637,68 @@ public class EntityDefinitionGrainTests
         result.IsSuccess.ShouldBeFalse();
         result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
         result.ErrorMessage!.ShouldContain("Duplicate field schema name");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldRejectDuplicateFieldSchemaNames_CaseInsensitive()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "CaseDupUpdate"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new() { SchemaName = "fieldX", DisplayName = "Field X", Type = "String" },
+                new() { SchemaName = "FIELDX", DisplayName = "Field X Again", Type = "Number" }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'FIELDX'");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldRejectNestedDuplicateFieldSchemaNames()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "NestedDupUpdate"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields =
+            [
+                new()
+                {
+                    SchemaName = "root",
+                    DisplayName = "Root",
+                    Type = "Object",
+                    Fields = [new() { SchemaName = "root", DisplayName = "Sub Root", Type = "String" }]
+                }
+            ]
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorMessage!.ShouldContain("Duplicate field schema name 'root'");
+    }
+
+    [Test]
+    public async Task UpdateAsync_ShouldReturnValidation_WhenFieldSchemaNameHasNoAlphanumeric()
+    {
+        var grain = GetGrain();
+        var createResult = await grain.CreateAsync(CreateCommand(displayName: "UpdateSchemaTest"));
+
+        var result = await grain.UpdateAsync(new UpdateEntityDefinitionGrainCommand
+        {
+            ETag = createResult.Entity!.ETag,
+            Fields = [new() { SchemaName = "---", DisplayName = "Invalid Schema", Type = "String" }]
+        });
+
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(EntityDefinitionGrainResult.ValidationErrorCode);
+        result.ErrorMessage!.ShouldContain("alphanumeric");
     }
 
     #endregion
