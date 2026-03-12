@@ -21,7 +21,7 @@ public sealed class ValidateCreateEntityReferencesBehavior
         RequestHandlerDelegate<Result<EntityDefinition>> next,
         CancellationToken cancellationToken)
     {
-        if (request.References is null || !request.References.Any())
+        if (request.References is not { Count: > 0 })
             return await next(cancellationToken);
 
         var tasks = request.References.Select(reference =>

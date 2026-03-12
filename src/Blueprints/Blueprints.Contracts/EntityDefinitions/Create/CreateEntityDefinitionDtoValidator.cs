@@ -46,12 +46,11 @@ public class CreateEntityDefinitionDtoValidator : AbstractValidator<CreateEntity
             .Matches(ValidationConstants.TagFormatPattern)
             .WithMessage("Tags must only contain alphanumeric characters, hyphens, or underscores.");
 
-        RuleFor(x => x.References.Count)
-            .LessThanOrEqualTo(ValidationConstants.MaxReferencesPerEntity)
-            .WithMessage($"An entity must not have more than {ValidationConstants.MaxReferencesPerEntity} references.")
-            .When(x => x.References.Count > 0);
+        RuleFor(x => x.References)
+            .Must(references => references is null || references.Count <= ValidationConstants.MaxReferencesPerEntity)
+            .WithMessage($"An entity must not have more than {ValidationConstants.MaxReferencesPerEntity} references.");
 
-        When(x => x.References.Count > 0, () =>
+        When(x => x.References is { Count: > 0 }, () =>
         {
             RuleForEach(x => x.References)
                 .SetValidator(ReferenceValidator);

@@ -59,6 +59,45 @@ public class RemoveEntityReferenceHandlerTests
     }
 
     [Test]
+    public async Task Handle_WhenGivenNonCanonicalSchema_ShouldNormalizeAndReturnSuccess()
+    {
+        var entityId = Guid.CreateVersion7();
+        var dto = new EntityDefinitionGrainDto
+        {
+            Id = entityId,
+            SchemaName = "myEntity",
+            DisplayName = "My Entity",
+            ETag = 1,
+            Fields = [],
+            References = [],
+            Tags = []
+        };
+
+        _grainFactoryMock
+            .Setup(x => x.GetGrain<IEntityDefinitionGrain>(entityId))
+            .Returns(_grainMock.Object);
+
+        _grainMock
+            .Setup(x => x.RemoveReferenceAsync(It.Is<RemoveEntityReferenceGrainCommand>(c => c.SchemaName == "customer")))
+            .ReturnsAsync(EntityDefinitionGrainResult.Success(dto, new EntityReferenceGrainDto
+            {
+                SchemaName = "customer",
+                ReferenceType = "OneToOne",
+                RelatedEntityDefinitionId = Guid.CreateVersion7(),
+                RelatedEntitySchemaName = "customer"
+            }));
+
+        var command = new RemoveEntityReferenceCommand(entityId, "Customer ");
+
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        _grainMock.Verify(
+            x => x.RemoveReferenceAsync(It.Is<RemoveEntityReferenceGrainCommand>(c => c.SchemaName == "customer")),
+            Times.Once);
+    }
+
+    [Test]
     public async Task Handle_WhenGrainReturnsNotFound_ShouldMapToNotFoundError()
     {
         var entityId = Guid.CreateVersion7();

@@ -258,6 +258,20 @@ public class FieldSchemaProcessorTests
     }
 
     [Test]
+    public void ValidateSchemaNames_WhenDuplicateSchemaNamesDifferByCase_ShouldReturnError()
+    {
+        var fields = new[]
+        {
+            new FieldDefinitionGrainDto { SchemaName = "dup", DisplayName = "Duplicate", Type = "String" },
+            new FieldDefinitionGrainDto { SchemaName = "DUP", DisplayName = "Duplicate Again", Type = "String" }
+        };
+
+        var result = FieldSchemaProcessor.ValidateSchemaNames(fields);
+
+        result.ShouldContain("Duplicate field schema name");
+    }
+
+    [Test]
     public void ValidateSchemaNames_WhenValid_ShouldReturnNull()
     {
         var fields = new[]

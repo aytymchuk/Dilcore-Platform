@@ -135,7 +135,12 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                 var (reverseError, reverseRefDto) = ValidateAndCreateReferenceDto(reverseCommand);
                 if (reverseError is not null || reverseRefDto is null)
                     return reverseError ?? EntityDefinitionGrainResult.Validation("Failed to create self-reference.");
-                _state.State.References.Add(EntityReferenceCommandExtensions.ToEntityReferenceGrainDto(refDto!.SchemaName, addRefCommand, reverseRefDto.SchemaName));
+                var forwardRefDto = EntityReferenceCommandExtensions.ToEntityReferenceGrainDto(
+                    refDto!.SchemaName,
+                    addRefCommand,
+                    reverseRefDto.SchemaName);
+                reverseRefDto = reverseRefDto with { ReverseSchemaName = forwardRefDto.SchemaName };
+                _state.State.References.Add(forwardRefDto);
                 _state.State.References.Add(reverseRefDto);
             }
             else
@@ -175,8 +180,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                     continue;
                 }
 
-                var reverseSchemaName = reverseResult.Entity?.References
-                    .FirstOrDefault(r => r.RelatedEntityDefinitionId == grainId)?.SchemaName ?? entitySchemaName;
+                var reverseSchemaName = ResolveReverseSchemaName(reverseResult.Entity, grainId, entitySchemaName);
                 addedReverseRefs.Add((reference.RelatedEntityDefinitionId, reverseSchemaName));
             }
             catch (Exception ex)
@@ -342,6 +346,7 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
                 if (reverseError is not null || reverseRefDto is null)
                     return reverseError ?? EntityDefinitionGrainResult.Validation("Failed to create self-reference.");
                 reference = reference! with { ReverseSchemaName = reverseRefDto.SchemaName };
+                reverseRefDto = reverseRefDto with { ReverseSchemaName = reference.SchemaName };
                 _state.State.References.Add(reference);
                 _state.State.References.Add(reverseRefDto);
             }
@@ -407,7 +412,10 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
         if (!command.SkipReverseReference && removedReference.RelatedEntityDefinitionId == grainId)
         {
             var reverseSchemaName = removedReference.ReverseSchemaName ?? _state.State.SchemaName;
-            var reverseIndex = _state.State.References.FindIndexBySchemaName(reverseSchemaName);
+            var reverseIndex = _state.State.References.FindIndex(r =>
+                r.RelatedEntityDefinitionId == grainId
+                && r.SchemaName.Equals(reverseSchemaName, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(r.ReverseSchemaName, removedReference.SchemaName, StringComparison.OrdinalIgnoreCase));
             if (reverseIndex >= 0)
             {
                 _state.State.References.RemoveAt(reverseIndex);
@@ -441,6 +449,26 @@ public class EntityDefinitionGrain : Grain, IEntityDefinitionGrain
             ? EntityDefinitionGrainResult.Success(_state.State.ToGrainDto())
             : EntityDefinitionGrainResult.Validation(
                 reverseResult.ErrorMessage ?? "Failed to add reverse reference.");
+    }
+
+    private static string ResolveReverseSchemaName(
+        EntityDefinitionGrainDto? entity,
+        Guid grainId,
+        string entitySchemaName)
+    {
+        if (entity?.References is not { Length: > 0 })
+            return entitySchemaName;
+
+        var match = entity.References
+            .Where(r => r.RelatedEntityDefinitionId == grainId && r.RelatedEntitySchemaName == entitySchemaName)
+            .LastOrDefault();
+        if (match is not null)
+            return match.SchemaName;
+
+        var fallback = entity.References
+            .Where(r => r.RelatedEntityDefinitionId == grainId)
+            .LastOrDefault();
+        return fallback?.SchemaName ?? entitySchemaName;
     }
 
     private (EntityDefinitionGrainResult? Error, EntityReferenceGrainDto? Dto) ValidateAndCreateReferenceDto(
