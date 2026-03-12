@@ -22,5 +22,13 @@ public static class RouteConstants
         public const string RouteParameter = "tenant";
 
         public static string ForTenant(string systemName) => $"/workspaces/{systemName}";
+
+        public static class Admin
+        {
+            public const string Prefix = "admin";
+            public const string TenantAdminRoot = "/workspaces/{tenant}/admin";
+
+            public static string ForTenant(string systemName) => $"/workspaces/{systemName}/admin";
+        }
     }
 }

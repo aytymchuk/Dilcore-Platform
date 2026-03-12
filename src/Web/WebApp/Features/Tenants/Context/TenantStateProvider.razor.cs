@@ -3,6 +3,7 @@ using Dilcore.WebApp.Features.Tenants.Get;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Services;
 using Dilcore.WebApp.Constants;
+using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -13,6 +14,9 @@ namespace Dilcore.WebApp.Features.Tenants.Context;
 /// </summary>
 public partial class TenantStateProvider : AsyncComponentBase, IDisposable
 {
+    private string? _currentSystemName;
+    private CancellationTokenSource? _reloadCts;
+
     [Inject]
     private ISender Sender { get; set; } = null!;
 
@@ -31,59 +35,42 @@ public partial class TenantStateProvider : AsyncComponentBase, IDisposable
 
     protected override async Task OnParametersSetAsync()
     {
-        if (string.IsNullOrEmpty(SystemName))
+        if (string.IsNullOrEmpty(SystemName) || SystemName == _currentSystemName)
         {
             return;
         }
-        
+
+        _currentSystemName = SystemName;
+
         await LoadTenantAsync();
     }
 
-    private CancellationTokenSource? _reloadCts;
+    public void Dispose()
+    {
+        _reloadCts?.Cancel();
+        _reloadCts?.Dispose();
+    }
 
     private async Task LoadTenantAsync()
     {
-        // Cancel previous load if any
-        _reloadCts?.Cancel();
-        _reloadCts?.Dispose();
-        _reloadCts = new CancellationTokenSource();
-        var token = _reloadCts.Token;
+        ResetCts();
 
-        try 
+        var token = _reloadCts!.Token;
+
+        try
         {
             await ExecuteAsync(async () =>
             {
-                // Redundant check removed as OnParametersSetAsync handles it
-                
                 TenantAccessor.TenantName = SystemName;
 
                 var result = await Sender.Send(new GetCurrentTenantQuery(), token);
 
-                if (token.IsCancellationRequested) return;
-
-                if (result.IsFailed)
+                if (token.IsCancellationRequested)
                 {
-                    CurrentTenantState = null;
-                    ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
                     return;
                 }
 
-                if (result.ValueOrDefault is null)
-                {
-                    CurrentTenantState = null;
-                    ErrorMessage = "Tenant not found.";
-                    return;
-                }
-
-                if (!result.Value.SystemName.Equals(SystemName, StringComparison.OrdinalIgnoreCase))
-                {
-                    ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
-                    CurrentTenantState = null;
-                    return;
-                }
-
-                CurrentTenantState = new TenantState(result.Value.SystemName, result.Value.Name);
-                ErrorMessage = null;
+                HandleQueryResult(result);
             }, LoadingConstants.WorkspaceData);
         }
         catch (OperationCanceledException)
@@ -92,9 +79,38 @@ public partial class TenantStateProvider : AsyncComponentBase, IDisposable
         }
     }
 
-    public void Dispose()
+    private void ResetCts()
     {
         _reloadCts?.Cancel();
         _reloadCts?.Dispose();
+        _reloadCts = new CancellationTokenSource();
+    }
+
+    private void HandleQueryResult(Result<Tenant> result)
+    {
+        if (result.IsFailed)
+        {
+            CurrentTenantState = null;
+            ErrorMessage = result.Errors.FirstOrDefault()?.Message ?? "Unspecified error occurred.";
+            return;
+        }
+
+        var tenant = result.ValueOrDefault;
+        if (tenant is null)
+        {
+            CurrentTenantState = null;
+            ErrorMessage = "Tenant not found.";
+            return;
+        }
+
+        if (!tenant.SystemName.Equals(SystemName, StringComparison.OrdinalIgnoreCase))
+        {
+            CurrentTenantState = null;
+            ErrorMessage = $"Tenant '{SystemName}' not found or you don't have access to it.";
+            return;
+        }
+
+        CurrentTenantState = new TenantState(tenant.SystemName, tenant.Name);
+        ErrorMessage = null;
     }
 }

@@ -5,8 +5,8 @@ namespace Dilcore.WebApp.Services.Loading;
 
 public class LoadingService : ILoadingService
 {
-    private volatile ImmutableList<string> _loadingMessages = ImmutableList<string>.Empty;
     private readonly ILogger<LoadingService> _logger;
+    private volatile ImmutableList<string> _loadingMessages = ImmutableList<string>.Empty;
 
     public LoadingService(ILogger<LoadingService> logger)
     {
@@ -18,9 +18,13 @@ public class LoadingService : ILoadingService
     public bool IsLoading => !_loadingMessages.IsEmpty;
 
     public string? CurrentMessage => _loadingMessages.LastOrDefault();
+
     public void Show(string message)
     {
-        if (string.IsNullOrEmpty(message)) return;
+        if (string.IsNullOrEmpty(message))
+        {
+            return;
+        }
 
 #pragma warning disable CS0420
         ImmutableInterlocked.Update(ref _loadingMessages, list => list.Add(message));
@@ -32,13 +36,17 @@ public class LoadingService : ILoadingService
     {
         // Optimistic concurrency loop to detect if removal actually happened
         var spinWait = new SpinWait();
+
         while (true)
         {
             var oldList = _loadingMessages;
             var newList = oldList.Remove(message);
 
             // If the list is unchanged (item not found), no update needed
-            if (oldList == newList) return;
+            if (oldList == newList)
+            {
+                return;
+            }
 
             // Attempt to atomically update the list
 #pragma warning disable CS0420
@@ -58,7 +66,8 @@ public class LoadingService : ILoadingService
     private void NotifyStateChanged()
     {
         var delegates = OnChange?.GetInvocationList();
-        if (delegates == null) 
+
+        if (delegates == null)
         {
             return;
         }

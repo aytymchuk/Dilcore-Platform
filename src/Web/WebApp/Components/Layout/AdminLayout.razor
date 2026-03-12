@@ -1,9 +1,9 @@
 @inherits TenantLayoutBase
 
 <TenantWorkspaceShell Breadcrumbs="@_breadcrumbs"
-                      UserMenuSubtitle="@(TenantName ?? "Workspace")"
-                      SearchPlaceholder="Search..."
-                      CurrentPart="Workspace"
+                      UserMenuSubtitle="Admin Workspace"
+                      SearchPlaceholder="Global search..."
+                      CurrentPart="Admin"
                       Tenant="@Tenant"
                       @bind-DrawerOpen="@_drawerOpen"
                       @bind-SearchText="@_searchText"
@@ -11,7 +11,7 @@
                       ThemeProvider="@_mudThemeProvider"
                       OnThemeToggle="@(() => _isDarkMode = !_isDarkMode)">
     <NavMenu>
-        <WorkspaceNavMenu Tenant="@Tenant" />
+        <AdminNavMenu Tenant="@Tenant" />
     </NavMenu>
     <ChildContent>
         @Body

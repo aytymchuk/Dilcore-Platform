@@ -1,0 +1,21 @@
+@using Dilcore.WebApp.Constants
+
+<MudNavMenu>
+    <MudNavGroup Title="System" Icon="@Icons.Material.Filled.Settings" Expanded="true">
+        <MudNavLink Href="@(_adminRoot + "/agent")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.SmartToy">AI Agent</MudNavLink>
+        <MudNavLink Href="@_adminRoot" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+        <MudNavLink Href="@(_adminRoot + "/history")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.History">History</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Blueprints" Icon="@Icons.Material.Filled.AccountTree" Expanded="true">
+        <MudNavLink Href="@(_adminRoot + "/entities")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Storage">Entities</MudNavLink>
+        <MudNavLink Href="@(_adminRoot + "/projections")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountTree">Projections</MudNavLink>
+        <MudNavLink Href="@(_adminRoot + "/forms")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DynamicForm">Forms</MudNavLink>
+        <MudNavLink Href="@(_adminRoot + "/views")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ViewQuilt">Views</MudNavLink>
+        <MudNavLink Href="@(_adminRoot + "/workflows")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountTree">Workflows</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Workspace" Icon="@Icons.Material.Filled.Folder" Expanded="true">
+        <MudNavLink Href="@(_adminRoot + "/settings")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
+        <MudNavLink Href="@(_adminRoot + "/integrations")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.IntegrationInstructions">Integrations</MudNavLink>
+        <MudNavLink Href="@(_adminRoot + "/team")" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Group">Team</MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>

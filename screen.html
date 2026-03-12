@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Layout - Blueprint Management</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5e6ad2",
+                        "primary-hover": "#4f58b0",
+                        "background-dark": "#09090B",
+                        "surface-dark": "#121212",
+                        "border-dark": "#27272A",
+                        "text-main": "#FAFAFA",
+                        "text-muted": "#A1A1AA",
+                        "placeholder": "#52525B",
+                        "tag-bg": "#18181B",
+                        "tag-border": "#27272A",
+                        "background-light": "#f6f6f8", 
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "4px",
+                        "lg": "6px",
+                        "xl": "8px",
+                        "full": "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-display bg-background-dark text-text-main antialiased selection:bg-primary/30 selection:text-white;
+            }
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090B;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272A;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3F3F46;
+        }
+        .toggle-checkbox:checked {
+            @apply right-0 border-primary;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            @apply bg-primary;
+        }.sidebar-link {
+            @apply flex items-center gap-3 px-3 py-2 rounded text-sm font-medium text-text-muted transition-colors hover:bg-surface-dark hover:text-text-main;
+        }
+        .sidebar-link.active {
+            @apply bg-surface-dark text-text-main;
+        }
+        .sidebar-section-title {
+            @apply px-3 text-[11px] font-bold text-text-muted/60 uppercase tracking-wider mb-2 mt-6 first:mt-2;
+        }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden bg-background-dark">
+<aside class="w-64 border-r border-border-dark flex flex-col bg-background-dark/50 backdrop-blur-sm z-20 flex-shrink-0">
+<div class="h-16 flex items-center px-6 border-b border-border-dark">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[16px]">grid_view</span>
+</div>
+<span class="font-bold text-text-main tracking-tight">Nucleus<span class="text-primary">AI</span></span>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4 px-3">
+<div class="sidebar-section-title">System</div>
+<a class="sidebar-link group text-primary hover:text-primary-hover" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:animate-pulse">smart_toy</span>
+                AI Agent
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+                History
+            </a>
+<div class="sidebar-section-title">Blueprints</div>
+<a class="sidebar-link active" href="#">
+<span class="material-symbols-outlined text-[20px]">dataset</span>
+                Entities
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">account_tree</span>
+                Projections
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">dynamic_form</span>
+                Forms
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">view_quilt</span>
+                Views
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">workflow</span>
+                Workflows
+            </a>
+<div class="sidebar-section-title">Workspace</div>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">integration_instructions</span>
+                Integrations
+            </a>
+<a class="sidebar-link" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                Team
+            </a>
+</nav>
+<div class="p-4 border-t border-border-dark">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-dark border border-border-dark flex items-center justify-center text-text-muted">
+<span class="text-xs font-bold">JD</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-text-main">John Doe</span>
+<span class="text-[10px] text-text-muted">Admin Workspace</span>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col h-full overflow-hidden">
+<header class="h-16 border-b border-border-dark flex items-center justify-between px-6 bg-background-dark/80 backdrop-blur z-10">
+<nav class="flex items-center text-sm text-text-muted">
+<span class="hover:text-text-main cursor-pointer">Administration</span>
+<span class="mx-2 text-border-dark">/</span>
+<span class="hover:text-text-main cursor-pointer">Blueprints</span>
+<span class="mx-2 text-border-dark">/</span>
+<span class="text-text-main font-medium">Entities</span>
+</nav>
+<div class="flex items-center gap-4">
+<div class="relative group w-64">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="w-full bg-surface-dark border border-border-dark text-text-main text-sm rounded pl-9 pr-4 py-1.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-placeholder transition-all" placeholder="Global search..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+<span class="text-[10px] text-text-muted border border-border-dark rounded px-1.5 py-0.5 bg-background-dark">⌘K</span>
+</div>
+</div>
+<div class="h-4 w-px bg-border-dark mx-1"></div>
+<button class="flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-main transition-colors">
+<span>Admin</span>
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto bg-background-dark p-8">
+<div class="w-full max-w-[1200px] mx-auto flex flex-col gap-6">
+<header class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div>
+<h1 class="text-xl font-bold text-text-main tracking-tight">Entity Definitions</h1>
+<p class="text-sm text-text-muted mt-1">Manage schemas and data models.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-muted hover:text-text-main hover:bg-surface-dark border border-transparent hover:border-border-dark rounded transition-all">
+<span class="material-symbols-outlined text-[18px]">history</span>
+                                History
+                            </button>
+<button class="flex items-center gap-2 px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                New Definition
+                            </button>
+</div>
+</div>
+<div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between pt-2">
+<div class="flex flex-1 items-center gap-3 w-full md:w-auto">
+<div class="relative group w-full md:w-64">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="w-full bg-surface-dark border border-border-dark text-text-main text-sm rounded pl-10 pr-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-placeholder transition-all" placeholder="Search definitions..." type="text"/>
+</div>
+<div class="hidden md:flex items-center gap-2 border-l border-border-dark pl-3 ml-1">
+<span class="text-xs text-text-muted uppercase tracking-wider font-bold mr-1">Filter:</span>
+<button class="px-2.5 py-1 text-xs font-medium bg-tag-bg border border-tag-border text-text-muted hover:text-text-main rounded hover:border-primary/50 transition-colors">
+                                    Core
+                                </button>
+<button class="px-2.5 py-1 text-xs font-medium bg-tag-bg border border-tag-border text-text-muted hover:text-text-main rounded hover:border-primary/50 transition-colors">
+                                    Extensions
+                                </button>
+<button class="flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-transparent border border-dashed border-border-dark text-text-muted hover:text-text-main rounded hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-[14px]">add</span>
+                                    Add Tag
+                                </button>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<label class="flex items-center cursor-pointer select-none" for="abstract-toggle">
+<div class="relative">
+<input class="sr-only peer" id="abstract-toggle" type="checkbox"/>
+<div class="w-9 h-5 bg-border-dark rounded-full peer peer-focus:ring-2 peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+<div class="ml-3 text-sm font-medium text-text-muted peer-checked:text-text-main">
+                                    Abstract Only
+                                </div>
+</label>
+</div>
+</div>
+</header>
+<div class="border border-border-dark rounded-lg overflow-hidden bg-surface-dark/50 mb-10">
+<div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-border-dark bg-surface-dark items-center">
+<div class="col-span-5 text-xs font-semibold text-text-muted uppercase tracking-wider">Entity Name &amp; Schema</div>
+<div class="col-span-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Type</div>
+<div class="col-span-1 text-xs font-semibold text-text-muted uppercase tracking-wider text-right">Fields</div>
+<div class="col-span-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Tags</div>
+<div class="col-span-1 text-xs font-semibold text-text-muted uppercase tracking-wider text-right">Actions</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-6 py-4 border-b border-border-dark items-center hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="col-span-5 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-text-main">User Account</span>
+<span class="material-symbols-outlined text-[14px] text-green-500" title="Active">check_circle</span>
+</div>
+<span class="text-xs font-mono text-text-muted">identity.UserAccount</span>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1e293b] text-blue-300 border border-[#334155]">
+                                Primary Entity
+                            </span>
+</div>
+<div class="col-span-1 text-right">
+<span class="text-sm text-text-muted font-mono">24</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Auth</span>
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Core</span>
+</div>
+<div class="col-span-1 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-muted hover:text-text-main p-1 rounded hover:bg-background-dark">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-6 py-4 border-b border-border-dark items-center hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="col-span-5 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-text-main">Subscription Plan</span>
+</div>
+<span class="text-xs font-mono text-text-muted">billing.SubscriptionPlan</span>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1e293b] text-text-muted border border-border-dark">
+                                Reference
+                            </span>
+</div>
+<div class="col-span-1 text-right">
+<span class="text-sm text-text-muted font-mono">12</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Billing</span>
+</div>
+<div class="col-span-1 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-muted hover:text-text-main p-1 rounded hover:bg-background-dark">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-6 py-4 border-b border-border-dark items-center hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="col-span-5 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-text-main">Audit Log</span>
+<span class="material-symbols-outlined text-[14px] text-yellow-500" title="Warning">warning</span>
+</div>
+<span class="text-xs font-mono text-text-muted">system.AuditLog</span>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1e293b] text-text-muted border border-border-dark">
+                                Log Stream
+                            </span>
+</div>
+<div class="col-span-1 text-right">
+<span class="text-sm text-text-muted font-mono">8</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">System</span>
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Compliance</span>
+</div>
+<div class="col-span-1 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-muted hover:text-text-main p-1 rounded hover:bg-background-dark">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-6 py-4 border-b border-border-dark items-center hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="col-span-5 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-text-main">Product Item</span>
+</div>
+<span class="text-xs font-mono text-text-muted">inventory.ProductItem</span>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1e293b] text-blue-300 border border-[#334155]">
+                                Primary Entity
+                            </span>
+</div>
+<div class="col-span-1 text-right">
+<span class="text-sm text-text-muted font-mono">36</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Inventory</span>
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Public</span>
+</div>
+<div class="col-span-1 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-muted hover:text-text-main p-1 rounded hover:bg-background-dark">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-6 py-4 border-b border-border-dark items-center hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="col-span-5 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-text-main">Abstract Base</span>
+<span class="px-1.5 py-0.5 text-[10px] font-mono bg-border-dark text-text-muted rounded">ABS</span>
+</div>
+<span class="text-xs font-mono text-text-muted">common.AbstractBase</span>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#27272a] text-purple-300 border border-purple-900/50">
+                                Abstract
+                            </span>
+</div>
+<div class="col-span-1 text-right">
+<span class="text-sm text-text-muted font-mono">4</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Internal</span>
+</div>
+<div class="col-span-1 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-muted hover:text-text-main p-1 rounded hover:bg-background-dark">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-6 py-4 border-b border-border-dark items-center hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="col-span-5 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-text-main">Feature Flag</span>
+</div>
+<span class="text-xs font-mono text-text-muted">config.FeatureFlag</span>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1e293b] text-text-muted border border-border-dark">
+                                Configuration
+                            </span>
+</div>
+<div class="col-span-1 text-right">
+<span class="text-sm text-text-muted font-mono">6</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">DevOps</span>
+</div>
+<div class="col-span-1 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-muted hover:text-text-main p-1 rounded hover:bg-background-dark">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-6 py-4 border-border-dark items-center hover:bg-surface-dark transition-colors cursor-pointer">
+<div class="col-span-5 flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-text-main">API Token</span>
+</div>
+<span class="text-xs font-mono text-text-muted">security.ApiToken</span>
+</div>
+<div class="col-span-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1e293b] text-text-muted border border-border-dark">
+                                Security
+                            </span>
+</div>
+<div class="col-span-1 text-right">
+<span class="text-sm text-text-muted font-mono">9</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded text-[11px] bg-tag-bg border border-tag-border text-text-muted">Auth</span>
+</div>
+<div class="col-span-1 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-muted hover:text-text-main p-1 rounded hover:bg-background-dark">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between px-6 py-3 bg-surface-dark border-t border-border-dark">
+<div class="text-xs text-text-muted">
+                            Showing <span class="text-text-main font-medium">1</span> to <span class="text-text-main font-medium">7</span> of <span class="text-text-main font-medium">124</span> results
+                        </div>
+<div class="flex gap-1">
+<button class="px-3 py-1 text-xs text-text-muted hover:text-text-main hover:bg-background-dark rounded border border-transparent hover:border-border-dark disabled:opacity-50 transition-all">Previous</button>
+<button class="px-3 py-1 text-xs text-text-main bg-background-dark rounded border border-border-dark transition-all">1</button>
+<button class="px-3 py-1 text-xs text-text-muted hover:text-text-main hover:bg-background-dark rounded border border-transparent hover:border-border-dark transition-all">2</button>
+<button class="px-3 py-1 text-xs text-text-muted hover:text-text-main hover:bg-background-dark rounded border border-transparent hover:border-border-dark transition-all">3</button>
+<span class="px-2 py-1 text-xs text-text-muted">...</span>
+<button class="px-3 py-1 text-xs text-text-muted hover:text-text-main hover:bg-background-dark rounded border border-transparent hover:border-border-dark transition-all">Next</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

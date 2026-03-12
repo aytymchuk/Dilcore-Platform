@@ -56,17 +56,22 @@ public abstract class AsyncComponentBase : ComponentBase
     /// </summary>
     protected async Task ExecuteAsync(Func<Task> action, string? loadingText = null)
     {
-        if (IsBusy) return;
+        if (IsBusy)
+        {
+            return;
+        }
 
         var message = loadingText ?? "Loading...";
 
         try
         {
             IsBusy = true;
+
             if (LoadingService != null)
             {
                 LoadingService.Show(message);
             }
+
             await action();
         }
         finally
@@ -75,6 +80,7 @@ public abstract class AsyncComponentBase : ComponentBase
             {
                 LoadingService.Hide(message);
             }
+
             IsBusy = false;
         }
     }

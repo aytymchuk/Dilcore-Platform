@@ -5,7 +5,7 @@ namespace Dilcore.WebApp.Models.Users;
 /// <summary>
 /// Domain model representing the current user.
 /// </summary>
-public sealed record UserModel(
+public record UserModel(
     Guid Id,
     string Email,
     string FirstName,

@@ -116,6 +116,7 @@ public static class ServiceCollectionExtensions
                         var identity = context.Principal?.Identity as System.Security.Claims.ClaimsIdentity;
                         identity?.AddClaim(new System.Security.Claims.Claim(AuthConstants.AccessTokenClaim, accessToken));
                     }
+
                     return Task.CompletedTask;
                 }
             };
@@ -137,7 +138,11 @@ public static class ServiceCollectionExtensions
             async Task OnMissingToken(HttpContext context)
             {
                 await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                var authenticationProperties = new LoginAuthenticationPropertiesBuilder().WithRedirectUri("/").Build();
+
+                var authenticationProperties = new LoginAuthenticationPropertiesBuilder()
+                    .WithRedirectUri("/")
+                    .Build();
+
                 await context.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
             }
         });

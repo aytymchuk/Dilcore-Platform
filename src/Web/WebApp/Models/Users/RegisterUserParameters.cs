@@ -3,7 +3,7 @@ namespace Dilcore.WebApp.Models.Users;
 /// <summary>
 /// Parameters for user registration form.
 /// </summary>
-public sealed class RegisterUserParameters
+public class RegisterUserParameters
 {
     /// <summary>
     /// User's email address.

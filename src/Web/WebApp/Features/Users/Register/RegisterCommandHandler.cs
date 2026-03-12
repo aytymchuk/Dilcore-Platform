@@ -10,7 +10,7 @@ namespace Dilcore.WebApp.Features.Users.Register;
 /// <summary>
 /// Handler for registering the current user via the Platform API.
 /// </summary>
-internal sealed class RegisterCommandHandler : ICommandHandler<RegisterCommand, UserModel>
+internal class RegisterCommandHandler : ICommandHandler<RegisterCommand, UserModel>
 {
     private readonly IIdentityClient _identityClient;
 

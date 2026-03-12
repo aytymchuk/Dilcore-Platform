@@ -10,7 +10,7 @@ namespace Dilcore.WebApp.Features.Users.CurrentUser;
 /// <summary>
 /// Handler for getting the current user via the Platform API.
 /// </summary>
-internal sealed class GetCurrentUserQueryHandler(IIdentityClient identityClient)
+internal class GetCurrentUserQueryHandler(IIdentityClient identityClient)
     : IQueryHandler<GetCurrentUserQuery, UserModel?>
 {
     private readonly IIdentityClient _identityClient = identityClient ?? throw new ArgumentNullException(nameof(identityClient));

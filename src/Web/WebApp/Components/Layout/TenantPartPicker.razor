@@ -1,0 +1,19 @@
+@using Dilcore.WebApp.Constants
+
+<MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" LockScroll="true" PopoverClass="mt-2">
+    <ActivatorContent>
+        <MudButton EndIcon="@Icons.Material.Filled.ExpandMore" Color="Color.Inherit" Class="text-transform-none" DropShadow="false">
+            @CurrentPart
+        </MudButton>
+    </ActivatorContent>
+    <ChildContent>
+        @if (CurrentPart != "Workspace")
+        {
+            <MudMenuItem Href="@RouteConstants.Workspace.ForTenant(Tenant)" Icon="@Icons.Material.Filled.Dashboard">Workspace</MudMenuItem>
+        }
+        @if (CurrentPart != "Admin")
+        {
+            <MudMenuItem Href="@RouteConstants.Workspace.Admin.ForTenant(Tenant)" Icon="@Icons.Material.Filled.AdminPanelSettings">Admin</MudMenuItem>
+        }
+    </ChildContent>
+</MudMenu>

@@ -5,7 +5,7 @@ namespace Dilcore.WebApp.Models.Users;
 /// <summary>
 /// FluentValidation validator for RegisterUserParameters.
 /// </summary>
-public sealed class RegisterUserParametersValidator : AbstractValidator<RegisterUserParameters>
+public class RegisterUserParametersValidator : AbstractValidator<RegisterUserParameters>
 {
     /// <summary>
     /// Maximum length for email address.

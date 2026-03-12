@@ -4,6 +4,8 @@ using Dilcore.WebApp.Models.Users;
 using Dilcore.WebApp.Validation;
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor;
 
 namespace Dilcore.WebApp.Features.Users.Register;
 
@@ -12,6 +14,12 @@ namespace Dilcore.WebApp.Features.Users.Register;
 /// </summary>
 public partial class Register : AsyncComponentBase
 {
+    private readonly RegisterUserParameters _model = new();
+    private readonly FluentValidationAdapter<RegisterUserParameters> _validationAdapter = new(new RegisterUserParametersValidator());
+
+    private MudForm _form = null!;
+    private bool _isFormValid;
+
     [Inject]
     private ISender Sender { get; set; } = null!;
 
@@ -19,19 +27,11 @@ public partial class Register : AsyncComponentBase
     private Services.IAppNavigator AppNavigator { get; set; } = null!;
 
     [Inject]
-    private MudBlazor.ISnackbar Snackbar { get; set; } = null!;
+    private ISnackbar Snackbar { get; set; } = null!;
 
     [Inject]
-    private Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
 
-    private MudBlazor.MudForm _form = null!;
-    private readonly RegisterUserParameters _model = new();
-    private readonly FluentValidationAdapter<RegisterUserParameters> _validationAdapter = new(new RegisterUserParametersValidator());
-    private bool _isFormValid;
-
-    /// <summary>
-    /// FluentValidation wrapper for MudBlazor form validation.
-    /// </summary>
     private Func<object, string, Task<IEnumerable<string>>> ValidateValue => _validationAdapter.ValidateValue;
 
     protected override async Task OnInitializedAsync()
@@ -49,12 +49,10 @@ public partial class Register : AsyncComponentBase
         });
     }
 
-    /// <summary>
-    /// If the current user already exists in the system, redirects to home and returns true; otherwise returns false.
-    /// </summary>
     private async Task<bool> CheckExistingUserAndRedirectAsync()
     {
         var result = await Sender.Send(new GetCurrentUserQuery());
+
         if (result.IsSuccess && result.ValueOrDefault is not null)
         {
             AppNavigator.ToHome(forceLoad: true);
@@ -98,15 +96,19 @@ public partial class Register : AsyncComponentBase
 
         await ExecuteBusyAsync(async () =>
         {
-            var command = new RegisterCommand(_model);
-            var result = await Sender.Send(command);
-
-            if (result.IsSuccess)
-            {
-                Snackbar.Add("Registration successful! Welcome to the platform.", MudBlazor.Severity.Success);
-                AppNavigator.ToHome(forceLoad: true);
-            }
-            // Note: Errors are handled by SnackbarResultBehavior
+            await HandleSubmitAsync();
         });
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        var command = new RegisterCommand(_model);
+        var result = await Sender.Send(command);
+
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Registration successful! Welcome to the platform.", Severity.Success);
+            AppNavigator.ToHome(forceLoad: true);
+        }
     }
 }

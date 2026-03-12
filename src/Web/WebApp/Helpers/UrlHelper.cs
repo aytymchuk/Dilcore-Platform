@@ -9,42 +9,40 @@ public static class UrlHelper
             return false;
         }
 
-        // Allows "/" or "/foo" but not "//" or "/\"
         if (url[0] == '/')
         {
-            // url is exactly "/"
-            if (url.Length == 1)
-            {
-                return true;
-            }
-
-            // url is "/foo" (not "//" and not "/\")
-            if (url[1] != '/' && url[1] != '\\')
-            {
-                return true;
-            }
-
-            return false;
+            return IsRootedUrl(url);
         }
 
-        // Allows "~/" or "~/foo"
         if (url[0] == '~' && url.Length > 1 && url[1] == '/')
         {
-            // url is exactly "~/"
-            if (url.Length == 2)
-            {
-                return true;
-            }
-
-            // url is "~/foo" (not "~//" and not "~/\")
-            if (url[2] != '/' && url[2] != '\\')
-            {
-                return true;
-            }
-
-            return false;
+            return IsAppRelativeUrl(url);
         }
 
         return false;
+    }
+
+    private static bool IsRootedUrl(string url)
+    {
+        // url is exactly "/"
+        if (url.Length == 1)
+        {
+            return true;
+        }
+
+        // url is "/foo" (not "//" and not "/\")
+        return url[1] != '/' && url[1] != '\\';
+    }
+
+    private static bool IsAppRelativeUrl(string url)
+    {
+        // url is exactly "~/"
+        if (url.Length == 2)
+        {
+            return true;
+        }
+
+        // url is "~/foo" (not "~//" and not "~/\")
+        return url[2] != '/' && url[2] != '\\';
     }
 }

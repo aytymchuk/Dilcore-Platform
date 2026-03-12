@@ -52,26 +52,26 @@ public partial class UserStateProvider : AsyncComponentBase
     private async Task LoadCurrentUserAsync()
     {
         await ExecuteAsync(async () =>
+        {
+            var result = await Sender.Send(new GetCurrentUserQuery());
+
+            if (result.IsSuccess && result.Value is not null)
             {
-                var result = await Sender.Send(new GetCurrentUserQuery());
+                CurrentUser = result.Value;
+                IsUserNotFound = false;
+                return;
+            }
 
-                if (result.IsSuccess && result.Value is not null)
-                {
-                    CurrentUser = result.Value;
-                    IsUserNotFound = false;
-                    return;
-                }
+            if ((result.IsSuccess && result.Value is null) || result.Errors.OfType<UserNotFoundError>().Any())
+            {
+                IsUserNotFound = true;
+                CurrentUser = null;
 
-                if ((result.IsSuccess && result.Value is null) || result.Errors.OfType<UserNotFoundError>().Any())
-                {
-                    IsUserNotFound = true;
-                    CurrentUser = null;
-
-                    // Navigate to registration page and return to suppress the error from snackbar behavior
-                    NavigationManager.NavigateTo(RouteConstants.Users.Register, forceLoad: false);
-                    return;
-                }
-                // Other errors are handled by SnackbarResultBehavior
-            }, LoadingConstants.UserProfile);
+                // Navigate to registration page and return to suppress the error from snackbar behavior
+                NavigationManager.NavigateTo(RouteConstants.Users.Register, forceLoad: false);
+                return;
+            }
+            // Other errors are handled by SnackbarResultBehavior
+        }, LoadingConstants.UserProfile);
     }
 }

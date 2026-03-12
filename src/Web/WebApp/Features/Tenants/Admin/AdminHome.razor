@@ -1,0 +1,31 @@
+@page "/workspaces/{tenant}/admin"
+@attribute [Authorize]
+@using Dilcore.WebApp.Features.Tenants.Context
+@using Dilcore.WebApp.Models.Tenants
+@using Dilcore.WebApp.Components.Layout
+@inherits AsyncTenantComponentBase
+@layout AdminLayout
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="pa-4" Elevation="0">
+            <MudText Typo="Typo.h4" Class="mb-4">Administration</MudText>
+            <MudText Typo="Typo.body1" Class="mb-4">Manage @TenantContext?.Name workspace settings and blueprints.</MudText>
+
+            <MudDivider Class="my-4" />
+
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2" Style="font-weight: 600;">Tenant</MudText>
+                    <MudText Typo="Typo.body2" Class="mb-1"><strong>Name:</strong> @TenantContext?.Name</MudText>
+                    <MudText Typo="Typo.body2"><strong>System Name:</strong> @TenantContext?.SystemName</MudText>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [CascadingParameter]
+    public TenantState? TenantContext { get; set; }
+}

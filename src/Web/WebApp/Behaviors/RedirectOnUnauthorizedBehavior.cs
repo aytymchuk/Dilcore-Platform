@@ -11,7 +11,7 @@ namespace Dilcore.WebApp.Behaviors;
 /// </summary>
 /// <typeparam name="TRequest">The request type.</typeparam>
 /// <typeparam name="TResponse">The response type (must be ResultBase).</typeparam>
-internal sealed class RedirectOnUnauthorizedBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+internal class RedirectOnUnauthorizedBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
     where TResponse : ResultBase
 {

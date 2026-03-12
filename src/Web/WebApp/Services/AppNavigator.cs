@@ -21,13 +21,25 @@ public class AppNavigator : IAppNavigator
         _navigationManager = navigationManager;
     }
 
-    public void ToHome(bool forceLoad = false) => _navigationManager.NavigateTo(RouteConstants.Home, forceLoad);
+    public void ToHome(bool forceLoad = false)
+    {
+        _navigationManager.NavigateTo(RouteConstants.Home, forceLoad);
+    }
 
-    public void ToLogin() => _navigationManager.NavigateTo(RouteConstants.Identity.Login, forceLoad: true);
+    public void ToLogin()
+    {
+        _navigationManager.NavigateTo(RouteConstants.Identity.Login, forceLoad: true);
+    }
 
-    public void ToLogout() => _navigationManager.NavigateTo(RouteConstants.Identity.Logout, forceLoad: true);
+    public void ToLogout()
+    {
+        _navigationManager.NavigateTo(RouteConstants.Identity.Logout, forceLoad: true);
+    }
 
-    public void ToRegister() => _navigationManager.NavigateTo(RouteConstants.Users.Register);
+    public void ToRegister()
+    {
+        _navigationManager.NavigateTo(RouteConstants.Users.Register);
+    }
 
     public void ToTenantWorkspace(string tenantSystemName)
     {

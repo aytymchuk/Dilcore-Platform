@@ -2,6 +2,7 @@ using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Models.Tenants;
 using Dilcore.WebApp.Services;
 using Dilcore.WebApp.Constants;
+using Dilcore.WebApp.Features.Tenants.Create;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MediatR;
@@ -10,11 +11,19 @@ namespace Dilcore.WebApp.Features.Tenants.List;
 
 public partial class TenantList : AsyncComponentBase
 {
-    [Inject] private ISender Mediator { get; set; } = default!;
-    [Inject] private IDialogService DialogService { get; set; } = default!;
-    [Inject] private IAppNavigator AppNavigator { get; set; } = default!;
-
     private List<Tenant>? _tenants;
+
+    [Inject]
+    private ISender Mediator { get; set; } = default!;
+
+    [Inject]
+    private IDialogService DialogService { get; set; } = default!;
+
+    [Inject]
+    private IAppNavigator AppNavigator { get; set; } = default!;
+
+    [CascadingParameter]
+    public TenantState? CurrentTenantState { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -26,6 +35,7 @@ public partial class TenantList : AsyncComponentBase
         await ExecuteAsync(async () =>
         {
             var result = await Mediator.Send(new GetTenantListQuery());
+
             if (result.IsSuccess)
             {
                 _tenants = result.Value;
@@ -33,15 +43,15 @@ public partial class TenantList : AsyncComponentBase
             else
             {
                 // Error handled in Behavior
-                 _tenants = new List<Tenant>();
+                _tenants = new List<Tenant>();
             }
         }, LoadingConstants.Tenants);
     }
 
     private async Task OpenCreateDialog()
     {
-        var options = new DialogOptions 
-        { 
+        var options = new DialogOptions
+        {
             NoHeader = true,
             BackgroundClass = "backdrop-blur-sm",
             CloseOnEscapeKey = true,
@@ -49,7 +59,7 @@ public partial class TenantList : AsyncComponentBase
             BackdropClick = true
         };
 
-        var dialog = await DialogService.ShowAsync<Features.Tenants.Create.CreateTenantDialog>("", options);
+        var dialog = await DialogService.ShowAsync<CreateTenantDialog>("", options);
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled && result.Data != null)
@@ -57,9 +67,6 @@ public partial class TenantList : AsyncComponentBase
             await OnInitializedAsync();
         }
     }
-
-    [CascadingParameter]
-    public TenantState? CurrentTenantState { get; set; }
 
     private bool IsActive(Tenant tenant)
     {

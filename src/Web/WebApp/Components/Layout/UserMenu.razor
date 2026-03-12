@@ -4,9 +4,24 @@
     <Authorized>
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" LockScroll="true" PopoverClass="mt-2">
             <ActivatorContent>
-                <MudAvatar Color="Color.Primary" Variant="Variant.Filled">
-                    @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
-                </MudAvatar>
+                @if (InSidebar)
+                {
+                    <div class="d-flex align-center gap-3 pa-3" style="cursor: pointer;">
+                        <MudAvatar Color="Color.Default" Variant="Variant.Filled" Size="Size.Small" Class="rounded-circle">
+                            @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                        </MudAvatar>
+                        <div class="flex-grow-1 min-w-0">
+                            <MudText Typo="Typo.body2" Class="font-weight-medium text-truncate">@(UserState?.CurrentUser?.FullName ?? context.User.Identity?.Name ?? "User")</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-truncate d-block">@Subtitle</MudText>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <MudAvatar Color="Color.Primary" Variant="Variant.Filled">
+                        @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                    </MudAvatar>
+                }
             </ActivatorContent>
             <ChildContent>
                 <div class="px-4 py-3">

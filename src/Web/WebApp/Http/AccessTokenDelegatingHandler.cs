@@ -31,14 +31,7 @@ internal class AccessTokenDelegatingHandler : DelegatingHandler
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        var user = _httpContextAccessor.HttpContext?.User;
-
-        // Fallback to AuthenticationStateProvider for Blazor Server interactive components
-        if (user?.Identity?.IsAuthenticated != true)
-        {
-            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-            user = authState.User;
-        }
+        var user = await GetAuthenticatedUserAsync();
 
         if (user?.Identity?.IsAuthenticated == true)
         {
@@ -49,23 +42,40 @@ internal class AccessTokenDelegatingHandler : DelegatingHandler
         return await base.SendAsync(request, cancellationToken);
     }
 
-    private static void AddAccessToken(ClaimsPrincipal user, HttpRequestMessage request)
+    private async Task<ClaimsPrincipal?> GetAuthenticatedUserAsync()
     {
-        var accessToken = user.FindFirst(AuthConstants.AccessTokenClaim)?.Value;
+        var user = _httpContextAccessor.HttpContext?.User;
 
-        if (!string.IsNullOrEmpty(accessToken) && request.Headers.Authorization == null)
+        if (user?.Identity?.IsAuthenticated == true)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            return user;
         }
+
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        return authState.User;
     }
 
     private void AddTenantHeader(HttpRequestMessage request)
     {
         var tenantSystemName = _tenantAccessor.TenantName;
 
-        if (!string.IsNullOrEmpty(tenantSystemName) && !request.Headers.Contains(TenantConstants.HeaderName))
+        if (string.IsNullOrEmpty(tenantSystemName) || request.Headers.Contains(TenantConstants.HeaderName))
         {
-            request.Headers.Add(TenantConstants.HeaderName, tenantSystemName);
+            return;
         }
+
+        request.Headers.Add(TenantConstants.HeaderName, tenantSystemName);
+    }
+
+    private static void AddAccessToken(ClaimsPrincipal user, HttpRequestMessage request)
+    {
+        var accessToken = user.FindFirst(AuthConstants.AccessTokenClaim)?.Value;
+
+        if (string.IsNullOrEmpty(accessToken) || request.Headers.Authorization != null)
+        {
+            return;
+        }
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }
 }
