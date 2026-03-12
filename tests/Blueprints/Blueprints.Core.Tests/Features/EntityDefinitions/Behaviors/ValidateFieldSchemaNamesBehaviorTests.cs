@@ -6,7 +6,6 @@ using Dilcore.Blueprints.Domain;
 using Dilcore.Blueprints.Domain.Entities;
 using FluentAssertions;
 using FluentResults;
-using MediatR;
 
 namespace Dilcore.Blueprints.Core.Tests.Features.EntityDefinitions.Behaviors;
 
@@ -63,6 +62,25 @@ public class ValidateFieldSchemaNamesBehaviorTests
 
         result.IsSuccess.Should().BeTrue();
         _nextCalled.Should().BeTrue();
+    }
+
+    [TestCase("type")]
+    [TestCase("id")]
+    [TestCase("eTag")]
+    public async Task Handle_WhenFieldSchemaNameIsReserved_ShouldReturnReservedErrorMessage(string schemaName)
+    {
+        var command = new CreateEntityDefinitionCommand
+        {
+            DisplayName = "Test",
+            Fields = [new FieldDefinitionParameters { DisplayName = "Field", Type = "string", SchemaName = schemaName }]
+        };
+
+        var result = await _createBehavior.Handle(command, Next, CancellationToken.None);
+
+        result.IsFailed.Should().BeTrue();
+        result.Errors.Should().ContainSingle()
+            .Which.Message.Should().Be($"Field schema name '{schemaName}' is reserved and cannot be used.");
+        _nextCalled.Should().BeFalse();
     }
 
     [TestCase("123schemaName")]

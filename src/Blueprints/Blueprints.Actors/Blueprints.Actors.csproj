@@ -11,6 +11,6 @@
     <ProjectReference Include="..\..\Common\Authentication\Authentication.Abstractions\Authentication.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="Dilcore.Blueprints.Actors.Tests" />
+    <InternalsVisibleTo Include="Blueprints.Actors.Tests" />
   </ItemGroup>
 </Project>

@@ -40,4 +40,7 @@ public sealed class EntityDefinitionState
 
     [Id(11)]
     public bool IsCreated { get; set; }
+
+    [Id(12)]
+    public List<EntityReferenceGrainDto> References { get; set; } = [];
 }

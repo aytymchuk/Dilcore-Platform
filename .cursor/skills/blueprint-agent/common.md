@@ -33,6 +33,7 @@ Blueprints is organized around **domain parts** — distinct business resource t
 | Domain Part | Context File | What It Is | Status |
 |---|---|---|---|
 | **Entity Definitions** | [entities.md](entities.md) | Schema definitions for business objects — names, fields, nesting, tags, inheritance | Implemented |
+| **Relationships** | [relationships.md](relationships.md) | Entity-to-entity links that define cardinality, navigation names, and bidirectional consistency | Implemented |
 
 When new domain parts are added, they must be registered here with a link to their context file.
 

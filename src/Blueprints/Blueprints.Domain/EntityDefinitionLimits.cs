@@ -11,6 +11,7 @@ public static partial class EntityDefinitionLimits
     public const int MaxTopLevelFields = 100;
     public const int MaxFieldsPerLevel = 50;
     public const int MaxNestingDepth = 5;
+    public const int MaxReferencesPerEntity = 50;
 
     public const int MaxTags = 20;
     public const int MaxTagLength = 64;

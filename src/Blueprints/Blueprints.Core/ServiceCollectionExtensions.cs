@@ -1,3 +1,4 @@
+using Dilcore.Blueprints.Core.Features.EntityDefinitions.AddReference.Behaviors;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Behaviors;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create;
 using Dilcore.Blueprints.Core.Features.EntityDefinitions.Create.Behaviors;
@@ -36,5 +37,7 @@ public static class ServiceCollectionExtensions
         cfg.AddBehavior<ValidateFieldSchemaNamesBehavior<UpdateEntityDefinitionCommand>>();
         cfg.AddBehavior<UniqueSchemaNameBehavior>();
         cfg.AddBehavior<ValidateExtendsEntityBehavior>();
+        cfg.AddBehavior<ValidateCreateEntityReferencesBehavior>();
+        cfg.AddBehavior<ValidateReferencedEntityBehavior>();
     }
 }

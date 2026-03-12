@@ -8,5 +8,6 @@ public class CreateEntityDefinitionDto
     public bool IsAbstract { get; set; }
     public Guid? ExtendsEntityId { get; set; }
     public List<FieldDefinitionDto> Fields { get; set; } = [];
+    public List<CreateEntityReferenceDto> References { get; set; } = [];
     public List<string> Tags { get; set; } = [];
 }

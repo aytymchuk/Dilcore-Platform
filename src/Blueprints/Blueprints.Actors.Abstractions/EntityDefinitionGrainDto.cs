@@ -30,11 +30,14 @@ public sealed record EntityDefinitionGrainDto
     public FieldDefinitionGrainDto[] Fields { get; init; } = [];
 
     [Id(8)]
-    public string[] Tags { get; init; } = [];
+    public EntityReferenceGrainDto[] References { get; init; } = [];
 
     [Id(9)]
-    public DateTime CreatedAt { get; init; }
+    public string[] Tags { get; init; } = [];
 
     [Id(10)]
+    public DateTime CreatedAt { get; init; }
+
+    [Id(11)]
     public DateTime UpdatedAt { get; init; }
 }

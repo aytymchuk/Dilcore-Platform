@@ -21,5 +21,6 @@ public sealed class EntityDefinitionDocument : IDocumentEntity
     public Guid? ExtendsEntityId { get; set; }
 
     public List<FieldDefinitionDocument> Fields { get; set; } = [];
+    public List<EntityReferenceDocument> References { get; set; } = [];
     public EntityMetadataDocument Metadata { get; set; } = new();
 }

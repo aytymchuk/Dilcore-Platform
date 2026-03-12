@@ -27,6 +27,9 @@ public sealed record EntityDefinitionGrainResult
     [Id(5)]
     public IReadOnlyList<string>? RemovedFields { get; init; }
 
+    [Id(6)]
+    public EntityReferenceGrainDto? RemovedReference { get; init; }
+
     public static EntityDefinitionGrainResult Success(EntityDefinitionGrainDto entity) =>
         new() { IsSuccess = true, Entity = entity };
 
@@ -35,6 +38,11 @@ public sealed record EntityDefinitionGrainResult
         IReadOnlyList<string> addedFields,
         IReadOnlyList<string> removedFields) =>
         new() { IsSuccess = true, Entity = entity, AddedFields = addedFields, RemovedFields = removedFields };
+
+    public static EntityDefinitionGrainResult Success(
+        EntityDefinitionGrainDto entity,
+        EntityReferenceGrainDto removedReference) =>
+        new() { IsSuccess = true, Entity = entity, RemovedReference = removedReference };
 
     public static EntityDefinitionGrainResult NotFound(string error) =>
         new() { IsSuccess = false, ErrorMessage = error, ErrorCode = NotFoundCode };
