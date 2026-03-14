@@ -1,16 +1,10 @@
+using Dilcore.WebApp.Routing;
 using MudBlazor;
 
 namespace Dilcore.WebApp.Components.Layout;
 
 public partial class AdminLayout : TenantLayoutBase
 {
-    private readonly List<BreadcrumbItem> _breadcrumbs = new()
-    {
-        new BreadcrumbItem("Administration", href: "#"),
-        new BreadcrumbItem("Blueprints", href: "#"),
-        new BreadcrumbItem("Entities", href: null, disabled: true)
-    };
-
     private string _searchText = string.Empty;
     private bool _drawerOpen = true;
 
@@ -18,4 +12,7 @@ public partial class AdminLayout : TenantLayoutBase
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    private List<BreadcrumbItem> GetBreadcrumbs() =>
+        BreadcrumbBuilder.Build(NavigationManager.Uri, Tenant, isAdmin: true);
 }

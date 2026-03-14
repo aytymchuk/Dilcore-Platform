@@ -1,6 +1,6 @@
 @inherits TenantLayoutBase
 
-<TenantWorkspaceShell Breadcrumbs="@_breadcrumbs"
+<TenantWorkspaceShell Breadcrumbs="@GetBreadcrumbs()"
                       UserMenuSubtitle="@(TenantName ?? "Workspace")"
                       SearchPlaceholder="Search..."
                       CurrentPart="Workspace"
