@@ -12,7 +12,7 @@ namespace Dilcore.WebApp.Features.Tenants.Context;
 /// <summary>
 /// Cascading state provider for tenant context that resolves tenant from URL and provides it to child components.
 /// </summary>
-public partial class TenantStateProvider : AsyncComponentBase, IDisposable
+public partial class TenantStateProvider : AsyncComponentBase
 {
     private string? _currentSystemName;
     private CancellationTokenSource? _reloadCts;
@@ -45,30 +45,23 @@ public partial class TenantStateProvider : AsyncComponentBase, IDisposable
         await LoadTenantAsync();
     }
 
-    public void Dispose()
+    public override ValueTask DisposeAsync()
     {
         _reloadCts?.Cancel();
         _reloadCts?.Dispose();
+
+        return base.DisposeAsync();
     }
 
     private async Task LoadTenantAsync()
     {
-        ResetCts();
-
-        var token = _reloadCts!.Token;
-
         try
         {
             await ExecuteAsync(async () =>
             {
                 TenantAccessor.TenantName = SystemName;
 
-                var result = await Sender.Send(new GetCurrentTenantQuery(), token);
-
-                if (token.IsCancellationRequested)
-                {
-                    return;
-                }
+                var result = await Sender.Send(new GetCurrentTenantQuery());
 
                 HandleQueryResult(result);
             }, LoadingConstants.WorkspaceData);

@@ -8,7 +8,6 @@
                       @bind-DrawerOpen="@_drawerOpen"
                       @bind-SearchText="@_searchText"
                       @bind-IsDarkMode="@_isDarkMode"
-                      ThemeProvider="@_mudThemeProvider"
                       OnThemeToggle="@(() => _isDarkMode = !_isDarkMode)">
     <NavMenu>
         <WorkspaceNavMenu Tenant="@Tenant" />

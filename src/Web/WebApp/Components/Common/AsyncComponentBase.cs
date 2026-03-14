@@ -6,9 +6,10 @@ namespace Dilcore.WebApp.Components.Common;
 /// <summary>
 /// Base component that provides thread-safe loading state management.
 /// </summary>
-public abstract class AsyncComponentBase : ComponentBase
+public abstract class AsyncComponentBase : ComponentBase, IAsyncDisposable
 {
     private int _busyCount;
+    private string? _activeLoadingMessage;
 
     /// <summary>
     /// Indicates whether any async operation is currently in progress.
@@ -61,27 +62,35 @@ public abstract class AsyncComponentBase : ComponentBase
             return;
         }
 
-        var message = loadingText ?? "Loading...";
+        var message = loadingText ?? AsyncComponentConstants.DefaultLoadingMessage;
 
         try
         {
             IsBusy = true;
+            _activeLoadingMessage = message;
 
-            if (LoadingService != null)
-            {
-                LoadingService.Show(message);
-            }
+            LoadingService?.Show(message);
 
             await action();
         }
         finally
         {
-            if (LoadingService != null)
-            {
-                LoadingService.Hide(message);
-            }
+            LoadingService?.Hide(message);
 
             IsBusy = false;
+            _activeLoadingMessage = null;
+            StateHasChanged();
         }
+    }
+
+    public virtual ValueTask DisposeAsync()
+    {
+        if (_activeLoadingMessage is not null)
+        {
+            LoadingService?.Hide(_activeLoadingMessage);
+            _activeLoadingMessage = null;
+        }
+
+        return ValueTask.CompletedTask;
     }
 }
