@@ -1,0 +1,158 @@
+@using Microsoft.AspNetCore.Components.Web
+@using System.Net
+
+<MudPaper Class="chat-panel flex-grow-1 d-flex flex-column" Outlined="true" Elevation="0">
+    <div class="chat-header d-flex align-center justify-space-between px-6 py-4 border-b mud-border-lines-default">
+        <div class="d-flex align-center gap-3">
+            <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="rounded">
+                <MudIcon Icon="@Icons.Material.Filled.SmartToy" Size="Size.Small" />
+            </MudAvatar>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold">Blueprint Architect</MudText>
+                <div class="d-flex align-center gap-1">
+                    <MudIcon Icon="@Icons.Material.Filled.Circle" Size="Size.Small" Color="Color.Success" Style="font-size: 8px;" />
+                    <MudText Typo="Typo.caption" Class="text-success text-uppercase">Active &amp; Ready</MudText>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-1">
+            <MudIconButton Icon="@Icons.Material.Filled.History" Color="Color.Inherit" title="History" />
+            <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Inherit" title="Settings" />
+        </div>
+    </div>
+
+    <div class="chat-messages flex-grow-1 overflow-auto pa-6">
+        @foreach (var message in Messages)
+        {
+            if (message.IsUser)
+            {
+                <div class="d-flex flex-column align-end gap-1 mb-8">
+                    <MudPaper Class="user-message pa-4 rounded-lg" Elevation="0">
+                        <MudText Class="user-message-text">@message.Content</MudText>
+                    </MudPaper>
+                    <MudText Typo="Typo.caption" Class="text-secondary mr-1">@FormatTimestamp(message.Timestamp)</MudText>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2 mb-8" style="max-width: 48rem;">
+                    <div class="d-flex align-center gap-2">
+                        <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Size="Size.Small" Class="text-secondary" />
+                        <MudText Typo="Typo.caption" Class="font-weight-bold text-secondary text-uppercase">AI Assistant</MudText>
+                    </div>
+                    <div class="mud-typography mud-typography-body2">@((MarkupString)RenderAiMessageContent(message.Content))</div>
+                </div>
+            }
+        }
+        @if (IsTyping)
+        {
+            <div class="d-flex flex-column gap-2 mb-8">
+                <div class="d-flex align-center gap-2">
+                    <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Size="Size.Small" Class="text-secondary" />
+                    <MudText Typo="Typo.caption" Class="font-weight-bold text-secondary text-uppercase">AI Assistant</MudText>
+                </div>
+                <div class="typing-dots d-flex gap-1 align-center py-2">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot" style="animation-delay: 0.2s;"></span>
+                    <span class="typing-dot" style="animation-delay: 0.4s;"></span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="chat-input-area pa-6 border-t">
+        <div class="d-flex align-center gap-2">
+            <MudTextField Value="UserInput"
+                          ValueChanged="@(EventCallback.Factory.Create<string>(this, NotifyUserInputChanged))"
+                          Placeholder="Describe changes to your data model..."
+                          Variant="Variant.Outlined"
+                          Lines="1"
+                          Class="flex-grow-1"
+                          Style="flex: 1;"
+                          Immediate="true"
+                          OnKeyDown="HandleKeyDown" />
+            <MudIconButton Icon="@Icons.Material.Filled.Send"
+                           Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           OnClick="HandleSendClick"
+                           title="Send" />
+        </div>
+        <div class="d-flex align-center justify-space-between mt-3">
+            <div class="d-flex gap-3">
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Inherit"
+                           Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.AttachFile"
+                           Class="text-caption text-secondary">Attach Context</MudButton>
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Inherit"
+                           Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.Tune"
+                           Class="text-caption text-secondary">Parameters</MudButton>
+            </div>
+            <MudText Typo="Typo.caption" Class="text-secondary">
+                Press <kbd class="px-1 rounded" style="border: 1px solid var(--mud-palette-lines-default); font-size: 0.7rem;">Enter</kbd> to send
+            </MudText>
+        </div>
+    </div>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<ChatMessage> Messages { get; set; } = Array.Empty<ChatMessage>();
+
+    [Parameter]
+    public bool IsTyping { get; set; }
+
+    [Parameter]
+    public string UserInput { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> UserInputChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnSend { get; set; }
+
+    [Parameter]
+    public EventCallback<KeyboardEventArgs> OnInputKeyDown { get; set; }
+
+    [Parameter]
+    public Func<DateTime, string> FormatTimestamp { get; set; } = static _ => string.Empty;
+
+    private async Task HandleSendClick()
+    {
+        await OnSend.InvokeAsync();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        await OnInputKeyDown.InvokeAsync(e);
+    }
+
+    private Task NotifyUserInputChanged(string value) => UserInputChanged.InvokeAsync(value);
+
+    private static MarkupString RenderAiMessageContent(string content)
+    {
+        if (string.IsNullOrEmpty(content))
+        {
+            return default;
+        }
+
+        var parts = content.Split('`');
+        var sb = new System.Text.StringBuilder();
+        for (var i = 0; i < parts.Length; i++)
+        {
+            var escaped = WebUtility.HtmlEncode(parts[i]);
+            if (i % 2 == 1)
+            {
+                sb.Append("<code class=\"ai-message-code\">").Append(escaped).Append("</code>");
+            }
+            else
+            {
+                sb.Append(escaped);
+            }
+        }
+
+        return new MarkupString(sb.ToString());
+    }
+}

@@ -1,0 +1,18 @@
+@page "/workspaces/{tenant}/admin/agent"
+@attribute [Authorize]
+@using Dilcore.WebApp.Features.Tenants.Context
+@using Dilcore.WebApp.Components.Layout
+@inherits AsyncTenantComponentBase
+@layout AdminLayout
+
+<div class="admin-agent-layout d-flex" style="height: calc(100vh - 130px); gap: 1.5rem;">
+    <SchemaPreviewPanel FileName="@SchemaFileName"
+                        Content="@SchemaPreviewContent"
+                        OnCopy="CopySchemaToClipboardAsync" />
+    <ChatPanel Messages="_messages"
+               IsTyping="_isTyping"
+               @bind-UserInput="_userInput"
+               OnSend="SendMessageAsync"
+               OnInputKeyDown="HandleInputKeyDownAsync"
+               FormatTimestamp="FormatTimestamp" />
+</div>

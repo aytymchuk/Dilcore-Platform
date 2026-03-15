@@ -36,8 +36,9 @@ public abstract class TenantLayoutBase : ThemeAwareLayoutBase, IDisposable
         if (_tenant != newTenant)
         {
             _tenant = newTenant;
-            StateHasChanged();
         }
+
+        StateHasChanged();
     }
 
     protected string ExtractTenant()

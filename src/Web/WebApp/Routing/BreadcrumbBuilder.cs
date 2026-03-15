@@ -24,6 +24,16 @@ public static class BreadcrumbBuilder
         ["team"] = "Team"
     };
 
+    private static readonly HashSet<string> BlueprintSegments = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "agent",
+        "entities",
+        "projections",
+        "forms",
+        "views",
+        "workflows"
+    };
+
     private const string RootLabel = "Dashboard";
     private const string WorkspaceRootLabel = "Workspace";
     private const string AdminRootLabel = "Administration";
@@ -80,6 +90,12 @@ public static class BreadcrumbBuilder
         }
 
         var result = new List<BreadcrumbItem> { new BreadcrumbItem(rootLabel, href: rootHref) };
+
+        if (isAdmin && trailLength > 0 && BlueprintSegments.Contains(segments[trailStart]))
+        {
+            result.Add(new BreadcrumbItem("Blueprints", href: null));
+        }
+
         var pathBuilder = new StringBuilder(rootHref.TrimEnd('/'));
 
         for (var i = 0; i < trailLength; i++)
