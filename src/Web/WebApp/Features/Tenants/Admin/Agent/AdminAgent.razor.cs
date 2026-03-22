@@ -1,106 +1,76 @@
+using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Features.Tenants.Context;
-using Microsoft.AspNetCore.Components;
+using Dilcore.WebApp.Models.Agent;
+
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
+
+using MudBlazor;
 
 namespace Dilcore.WebApp.Features.Tenants.Admin.Agent;
 
-public record ChatMessage(string Content, bool IsUser, DateTime Timestamp);
-
-public partial class AdminAgent
+public partial class AdminAgent : AsyncTenantComponentBase
 {
-    [Inject]
-    private IJSRuntime JSRuntime { get; set; } = default!;
+    private readonly List<AgentQuickAction> _quickActions = BuildQuickActions();
 
-    private readonly List<ChatMessage> _messages = new()
-    {
-        new ChatMessage(
-            "I've updated the schema based on your request. I added a new `status` field with enum constraints and linked the `Customer` entity as a mandatory reference. Would you like me to generate the corresponding Projections as well?",
-            IsUser: false,
-            Timestamp: DateTime.UtcNow.AddMinutes(-2)),
-        new ChatMessage(
-            "Looks good. Please also add an 'AuditLog' trait to this entity so we can track changes to the order status automatically.",
-            IsUser: true,
-            Timestamp: DateTime.UtcNow.AddMinutes(-1))
-    };
+    private string _inputText = string.Empty;
 
-    private string _userInput = string.Empty;
-    private bool _isTyping;
-    private const string SchemaFileName = "OrderSystem.json";
-    private const string SchemaPreviewContent = @"{
-  ""entity"": ""Order"",
-  ""fields"": [
+    public async Task HandleKeyDownAsync(KeyboardEventArgs e)
     {
-      ""name"": ""id"",
-      ""type"": ""UUID"",
-      ""primary"": true
-    },
-    {
-      ""name"": ""status"",
-      ""type"": ""Enum"",
-      ""options"": [""PENDING"", ""PAID""]
-    }
-  ]
-}";
-
-    private async Task SendMessageAsync()
-    {
-        if (string.IsNullOrWhiteSpace(_userInput))
+        if (e.Key != "Enter" || e.ShiftKey)
         {
             return;
         }
 
-        var userMessage = new ChatMessage(_userInput.Trim(), IsUser: true, Timestamp: DateTime.UtcNow);
-        _messages.Add(userMessage);
-        _userInput = string.Empty;
+        await HandleSendAsync();
+    }
+
+    public Task HandleSendAsync()
+    {
+        var text = _inputText.Trim();
+        if (string.IsNullOrEmpty(text))
+        {
+            return Task.CompletedTask;
+        }
+
+        _inputText = string.Empty;
         StateHasChanged();
 
-        _isTyping = true;
-        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
-        await Task.Delay(1500);
-
-        _isTyping = false;
-        _messages.Add(new ChatMessage(
-            "I've added the `AuditLog` trait to the `Order` entity. Changes to order `status` will now be tracked automatically. Would you like me to show the updated schema or configure retention for the audit entries?",
-            IsUser: false,
-            Timestamp: DateTime.UtcNow));
+    private void HandleQuickActionClick(AgentQuickAction action)
+    {
+        _inputText = action.Prompt;
         StateHasChanged();
     }
 
-    private async Task CopySchemaToClipboardAsync()
+    private static List<AgentQuickAction> BuildQuickActions()
     {
-        try
-        {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", SchemaPreviewContent);
-        }
-        catch
-        {
-            // Clipboard may be unavailable; no-op for this iteration
-        }
-    }
+        return
+        [
+            new AgentQuickAction(
+                Icons.Material.Filled.Schema,
+                AgentConstants.QuickActions.BuildDataSchemaTitle,
+                AgentConstants.QuickActions.BuildDataSchemaDescription,
+                AgentConstants.QuickActions.BuildDataSchemaPrompt),
 
-    private async Task HandleInputKeyDownAsync(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter" && !e.ShiftKey)
-        {
-            await SendMessageAsync();
-        }
-    }
+            new AgentQuickAction(
+                Icons.Material.Filled.AutoFixHigh,
+                AgentConstants.QuickActions.AutomateLogicTitle,
+                AgentConstants.QuickActions.AutomateLogicDescription,
+                AgentConstants.QuickActions.AutomateLogicPrompt),
 
-    private string FormatTimestamp(DateTime timestamp)
-    {
-        var diff = DateTime.UtcNow - timestamp;
-        if (diff.TotalSeconds < 60)
-        {
-            return "Sent just now";
-        }
+            new AgentQuickAction(
+                Icons.Material.Filled.Speed,
+                AgentConstants.QuickActions.PerformanceAuditTitle,
+                AgentConstants.QuickActions.PerformanceAuditDescription,
+                AgentConstants.QuickActions.PerformanceAuditPrompt),
 
-        if (diff.TotalMinutes < 60)
-        {
-            return $"{(int)diff.TotalMinutes} min ago";
-        }
-
-        return timestamp.ToString("g");
+            new AgentQuickAction(
+                Icons.Material.Filled.MenuBook,
+                AgentConstants.QuickActions.SystemGuideTitle,
+                AgentConstants.QuickActions.SystemGuideDescription,
+                AgentConstants.QuickActions.SystemGuidePrompt)
+        ];
     }
 }

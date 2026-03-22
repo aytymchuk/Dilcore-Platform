@@ -16,7 +16,7 @@ public static class FutureSlateTheme
             },
             PaletteLight = new PaletteLight()
             {
-                Primary = "#5E6AD2",
+                Primary = "#5565dd",
                 Secondary = "#414141",
                 Background = "#FFFFFF",
                 Surface = "#F9FAFB",
@@ -44,7 +44,7 @@ public static class FutureSlateTheme
             },
             PaletteDark = new PaletteDark()
             {
-                Primary = "#5E6AD2",
+                Primary = "#5565dd",
                 PrimaryContrastText = "#FFFFFF",
                 Secondary = "#414141",
                 Background = "#09090B",

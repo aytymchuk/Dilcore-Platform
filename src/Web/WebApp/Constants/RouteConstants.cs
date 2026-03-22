@@ -29,6 +29,14 @@ public static class RouteConstants
             public const string TenantAdminRoot = "/workspaces/{tenant}/admin";
 
             public static string ForTenant(string systemName) => $"/workspaces/{systemName}/admin";
+
+            public static class Agent
+            {
+                public const string Prefix = "agent";
+                public const string Route = "/workspaces/{tenant}/admin/agent";
+
+                public static string ForTenant(string systemName) => $"/workspaces/{systemName}/admin/agent";
+            }
         }
     }
 }
