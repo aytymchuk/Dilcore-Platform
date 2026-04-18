@@ -27,6 +27,8 @@ public partial class ChatMessageBubble : ComponentBase
 
     private bool _reasoningExpanded;
 
+    private AgentReasoningDisplay _reasoningDisplay;
+
     private string? ReasoningDisplayText =>
         Reasoning ?? Message.Reasoning;
 
@@ -39,6 +41,8 @@ public partial class ChatMessageBubble : ComponentBase
         MarkdownHtml = Message.Author == ChatAuthor.Assistant
             ? Markdown.ToHtml(Message.Content)
             : default;
+
+        _reasoningDisplay = AgentReasoningPayload.Parse(ReasoningDisplayText);
 
         if (IsStreaming && !string.IsNullOrEmpty(ReasoningDisplayText))
         {

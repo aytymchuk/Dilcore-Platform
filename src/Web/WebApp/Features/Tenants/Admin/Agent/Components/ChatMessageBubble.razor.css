@@ -37,10 +37,44 @@
     font-weight: 600;
 }
 
-.agent-msg__reasoning-text {
+.agent-msg__reasoning-narrative {
     white-space: pre-wrap;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-style: italic;
+    line-height: 1.55;
+    font-size: 0.9rem;
+}
+
+.agent-msg__reasoning-fallback {
+    white-space: pre-wrap;
     font-size: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    line-height: 1.45;
+}
+
+.agent-msg__decision {
+    margin-top: 10px;
+}
+
+.agent-msg__decision-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background-color: color-mix(in srgb, var(--mud-palette-primary) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--mud-palette-primary) 32%, transparent);
+}
+
+.agent-msg__decision-caption {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.9;
+}
+
+.agent-msg__decision-chip {
+    font-weight: 600;
 }
 
 .agent-msg__body {

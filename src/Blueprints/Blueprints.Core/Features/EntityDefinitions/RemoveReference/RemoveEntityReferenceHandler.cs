@@ -1,8 +1,6 @@
 using Dilcore.Blueprints.Actors.Abstractions;
 using Dilcore.Blueprints.Domain;
-using Dilcore.Blueprints.Core.Features.EntityDefinitions;
 using Dilcore.MediatR.Abstractions;
-using Dilcore.Results.Abstractions;
 using FluentResults;
 
 namespace Dilcore.Blueprints.Core.Features.EntityDefinitions.RemoveReference;
