@@ -1,7 +1,7 @@
 using Dilcore.WebApp.Components.Common;
 using Dilcore.WebApp.Features.Tenants.Get;
 using Dilcore.WebApp.Models.Tenants;
-using Dilcore.WebApp.Services;
+using Dilcore.WebApp.Services.Tenancy;
 using Dilcore.WebApp.Constants;
 using FluentResults;
 using MediatR;
@@ -21,7 +21,7 @@ public partial class TenantStateProvider : AsyncComponentBase
     private ISender Sender { get; set; } = null!;
 
     [Inject]
-    private IBlazorTenantAccessor TenantAccessor { get; set; } = null!;
+    private IBlazorTenantContext TenantContext { get; set; } = null!;
 
     [Parameter, EditorRequired]
     public string SystemName { get; set; } = string.Empty;
@@ -41,6 +41,7 @@ public partial class TenantStateProvider : AsyncComponentBase
         }
 
         _currentSystemName = SystemName;
+        TenantContext.Set(SystemName);
 
         await LoadTenantAsync();
     }
@@ -59,8 +60,6 @@ public partial class TenantStateProvider : AsyncComponentBase
         {
             await ExecuteAsync(async () =>
             {
-                TenantAccessor.TenantName = SystemName;
-
                 var result = await Sender.Send(new GetCurrentTenantQuery());
 
                 HandleQueryResult(result);

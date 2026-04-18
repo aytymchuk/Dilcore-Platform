@@ -1,5 +1,8 @@
 using Dilcore.WebApp.Extensions;
 using Dilcore.WebApp.Http.AiAgent;
+using Dilcore.WebApp.Services.Agent;
+using Dilcore.WebApp.Services.Tenancy;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +54,11 @@ public class DependencyInjectionTests
         snackbarProvider.ShouldNotBeNull();
 
         scope.ServiceProvider.GetService<IBlueprintsAgentService>().ShouldNotBeNull();
+        scope.ServiceProvider.GetService<IConversationTitleFactory>().ShouldNotBeNull();
+        scope.ServiceProvider.GetService<IMarkdownRenderer>().ShouldNotBeNull();
+        scope.ServiceProvider.GetService<CircuitServicesAccessor>().ShouldNotBeNull();
+        scope.ServiceProvider.GetService<IBlazorTenantContext>().ShouldNotBeNull();
+        scope.ServiceProvider.GetServices<CircuitHandler>().ShouldContain(h => h is ServicesAccessorCircuitHandler);
 
         // Check for other expected services
         scope.ServiceProvider.GetService<Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider>().ShouldNotBeNull();

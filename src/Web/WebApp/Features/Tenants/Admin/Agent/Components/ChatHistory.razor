@@ -1,0 +1,50 @@
+@using Dilcore.WebApp.Constants
+@using Dilcore.WebApp.Models.Agent
+
+<section class="chat-history" data-testid="@AgentConstants.TestIds.ChatHistory">
+    @if (!string.IsNullOrEmpty(ThreadTitle))
+    {
+        <div class="chat-history__header">
+            <div class="chat-history__header-titles">
+                <MudText Typo="Typo.subtitle1" Class="chat-history__title">@ThreadTitle</MudText>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Default">
+                    @AgentConstants.ActiveThreadBadge
+                </MudChip>
+            </div>
+        </div>
+    }
+    <div @ref="_scrollRegion" class="chat-history__scroll custom-scrollbar">
+        @if (Messages.Count == 0 && string.IsNullOrEmpty(PendingAssistantMarkdown) && string.IsNullOrEmpty(PendingReasoning) && !IsStreaming)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="pa-4">
+                @AgentConstants.EmptyHistoryCaption
+            </MudText>
+        }
+        else
+        {
+            <div class="chat-history__messages">
+                @foreach (var message in Messages)
+                {
+                    <ChatMessageBubble Message="message" />
+                }
+                @if (IsStreaming || !string.IsNullOrEmpty(PendingAssistantMarkdown) || !string.IsNullOrEmpty(PendingReasoning))
+                {
+                    var streamingMessage = new ChatMessage(
+                        Guid.Empty,
+                        ChatAuthor.Assistant,
+                        PendingAssistantMarkdown ?? string.Empty,
+                        DateTime.UtcNow);
+                    <ChatMessageBubble Message="streamingMessage"
+                                       IsStreaming="IsStreaming"
+                                       Reasoning="PendingReasoning" />
+                }
+                @if (!string.IsNullOrEmpty(Status))
+                {
+                    <div class="chat-history__status">
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@Status</MudText>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

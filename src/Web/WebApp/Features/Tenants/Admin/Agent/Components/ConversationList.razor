@@ -1,0 +1,40 @@
+@using Dilcore.WebApp.Constants
+
+<aside class="agent-convo" data-testid="@AgentConstants.TestIds.ConversationList">
+    <div class="agent-convo__header">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   FullWidth="true"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="@NotifyNewChatAsync">
+            @AgentConstants.NewChatLabel
+        </MudButton>
+        <MudTextField @bind-Value="_filter"
+                      Placeholder="@AgentConstants.ConversationSearchPlaceholder"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Class="agent-convo__search mt-3"
+                      Immediate="true" />
+    </div>
+    <div class="agent-convo__list custom-scrollbar">
+        @foreach (var item in FilteredItems)
+        {
+            var isActive = string.Equals(item.Id, ActiveThreadId, StringComparison.Ordinal);
+            <div class="@GetItemClass(isActive)"
+                 data-testid="@AgentConstants.TestIds.ConversationItem"
+                 @onclick="() => OnSelect.InvokeAsync(item.Id)">
+                <div class="agent-convo__item-main">
+                    <MudIcon Icon="@Icons.Material.Filled.ChatBubbleOutline"
+                             Size="Size.Small"
+                             Class="@(isActive ? "agent-convo__item-icon--active" : "agent-convo__item-icon")" />
+                    <MudText Typo="Typo.body2" Class="agent-convo__item-title" title="@item.Title">
+                        @item.Title
+                    </MudText>
+                </div>
+            </div>
+        }
+    </div>
+</aside>

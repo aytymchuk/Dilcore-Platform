@@ -1,10 +1,7 @@
-using Dilcore.WebApp.Models.Tenants;
-using Microsoft.AspNetCore.Components;
+using Dilcore.WebApp.Components.Common;
 
 namespace Dilcore.WebApp.Features.Tenants.Workspace;
 
-public partial class WorkspaceHome
+public partial class WorkspaceHome : TenantComponentBase
 {
-    [CascadingParameter]
-    public TenantState? TenantContext { get; set; }
 }

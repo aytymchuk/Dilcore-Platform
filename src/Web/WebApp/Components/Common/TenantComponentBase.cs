@@ -15,6 +15,12 @@ public abstract class TenantComponentBase : AsyncComponentBase
     public TenantState? TenantState { get; set; }
 
     /// <summary>
+    /// Route segment bound from <c>/workspaces/{tenant}/...</c> (same value as <see cref="TenantState.SystemName"/> when loaded).
+    /// </summary>
+    [Parameter]
+    public string Tenant { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets the system name of the current tenant, or null if no tenant is set.
     /// </summary>
     protected string? TenantSystemName => TenantState?.SystemName;

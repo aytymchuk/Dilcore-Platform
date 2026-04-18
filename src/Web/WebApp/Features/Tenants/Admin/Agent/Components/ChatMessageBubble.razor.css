@@ -1,0 +1,141 @@
+.agent-msg {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.agent-msg--status {
+    padding-left: 48px;
+}
+
+.agent-msg__avatar {
+    flex-shrink: 0;
+}
+
+.agent-msg__assistant-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-color: color-mix(in srgb, var(--mud-palette-primary) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--mud-palette-primary) 35%, transparent);
+}
+
+.agent-msg__assistant-icon {
+    color: var(--mud-palette-primary);
+    font-size: 18px !important;
+}
+
+.agent-msg__reasoning-panels {
+    width: 100%;
+}
+
+.agent-msg__reasoning-panel :deep(.mud-expand-panel-text) {
+    font-weight: 600;
+}
+
+.agent-msg__reasoning-text {
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+}
+
+.agent-msg__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.agent-msg__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.agent-msg__name {
+    font-weight: 600;
+}
+
+.agent-msg__user-card {
+    border-radius: 12px !important;
+    background-color: var(--mud-palette-surface) !important;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.agent-msg__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-top: 4px;
+}
+
+.agent-msg__streaming-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--mud-palette-primary);
+    animation: agent-pulse 1s ease-in-out infinite;
+}
+
+@keyframes agent-pulse {
+    0%, 100% {
+        opacity: 0.35;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.agent-prose :deep(p) {
+    margin: 0 0 12px;
+    line-height: 1.55;
+}
+
+.agent-prose :deep(p:last-child) {
+    margin-bottom: 0;
+}
+
+.agent-prose :deep(h1),
+.agent-prose :deep(h2),
+.agent-prose :deep(h3),
+.agent-prose :deep(h4) {
+    margin: 16px 0 8px;
+    font-weight: 600;
+}
+
+.agent-prose :deep(ul),
+.agent-prose :deep(ol) {
+    margin: 8px 0;
+    padding-left: 1.25rem;
+}
+
+.agent-prose :deep(li) {
+    margin: 4px 0;
+}
+
+.agent-prose :deep(pre) {
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    background-color: var(--mud-palette-surface);
+    border: 1px solid var(--mud-palette-lines-default);
+    margin: 12px 0;
+}
+
+.agent-prose :deep(code) {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
+}
+
+.agent-prose :deep(pre code) {
+    background: none;
+    padding: 0;
+    border: none;
+}

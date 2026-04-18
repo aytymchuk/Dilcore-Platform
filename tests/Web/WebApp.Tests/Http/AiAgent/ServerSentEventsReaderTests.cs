@@ -30,7 +30,7 @@ public class ServerSentEventsReaderTests
     public async Task ReadAsync_Should_Yield_One_Event_Per_Sse_Message()
     {
         const string sse = """
-            data: {"category":"delta","text":"a"}
+            data: {"category":"delta","content":"a"}
 
             """;
 
@@ -38,7 +38,7 @@ public class ServerSentEventsReaderTests
 
         events.Count.ShouldBe(1);
         events[0].ShouldBeOfType<DeltaStreamEvent>();
-        ((DeltaStreamEvent)events[0]).Text.ShouldBe("a");
+        ((DeltaStreamEvent)events[0]).Content.ShouldBe("a");
     }
 
     [Test]
@@ -47,7 +47,7 @@ public class ServerSentEventsReaderTests
         // Per SSE, multiple `data:` lines for one event are joined with '\n'. Whitespace (including newlines) is allowed between JSON tokens.
         const string sse = """
             data: {
-            data: "category":"delta","text":"joined"
+            data: "category":"delta","content":"joined"
             data: }
 
             """;
@@ -56,7 +56,7 @@ public class ServerSentEventsReaderTests
 
         events.Count.ShouldBe(1);
         events[0].ShouldBeOfType<DeltaStreamEvent>();
-        ((DeltaStreamEvent)events[0]).Text.ShouldBe("joined");
+        ((DeltaStreamEvent)events[0]).Content.ShouldBe("joined");
     }
 
     [Test]
@@ -65,31 +65,31 @@ public class ServerSentEventsReaderTests
         const string sse = """
             event: message
             id: 1
-            data: {"category":"delta","text":"x"}
+            data: {"category":"delta","content":"x"}
 
             """;
 
         var events = await CollectAsync<BlueprintsAgentStreamEvent>(sse);
 
         events.Count.ShouldBe(1);
-        ((DeltaStreamEvent)events[0]).Text.ShouldBe("x");
+        ((DeltaStreamEvent)events[0]).Content.ShouldBe("x");
     }
 
     [Test]
     public async Task ReadAsync_Should_Emit_Multiple_Events_Separated_By_Blank_Line()
     {
         const string sse = """
-            data: {"category":"status","step":"one"}
+            data: {"category":"status","message":"one"}
 
-            data: {"category":"status","step":"two"}
+            data: {"category":"status","message":"two"}
 
             """;
 
         var events = await CollectAsync<BlueprintsAgentStreamEvent>(sse);
 
         events.Count.ShouldBe(2);
-        ((StatusStreamEvent)events[0]).Step.ShouldBe("one");
-        ((StatusStreamEvent)events[1]).Step.ShouldBe("two");
+        ((StatusStreamEvent)events[0]).Message.ShouldBe("one");
+        ((StatusStreamEvent)events[1]).Message.ShouldBe("two");
     }
 
     [Test]
@@ -124,11 +124,52 @@ public class ServerSentEventsReaderTests
     [Test]
     public async Task ReadAsync_Should_Flush_Last_Event_When_Stream_Ends_Without_Trailing_Blank_Line()
     {
-        const string sse = """data: {"category":"delta","text":"end"}""";
+        const string sse = """data: {"category":"delta","content":"end"}""";
 
         var events = await CollectAsync<BlueprintsAgentStreamEvent>(sse);
 
         events.Count.ShouldBe(1);
-        ((DeltaStreamEvent)events[0]).Text.ShouldBe("end");
+        ((DeltaStreamEvent)events[0]).Content.ShouldBe("end");
+    }
+
+    [Test]
+    public async Task ReadAsync_Should_Deserialize_Data_Event_With_Thread_And_Messages()
+    {
+        const string sse = """
+            data: {"category":"data","thread_id":"tid-1","messages":[{"type":"human","content":"hi"},{"type":"ai","content":"hello","agent_type":"design"}]}
+
+            """;
+
+        var events = await CollectAsync<BlueprintsAgentStreamEvent>(sse);
+
+        events.Count.ShouldBe(1);
+        events[0].ShouldBeOfType<DataStreamEvent>();
+        var data = (DataStreamEvent)events[0];
+        data.ThreadId.ShouldBe("tid-1");
+        data.Messages.ShouldNotBeNull();
+        data.Messages!.Count.ShouldBe(2);
+        data.Messages[0].Type.ShouldBe("human");
+        data.Messages[0].Content.ShouldBe("hi");
+        data.Messages[1].Type.ShouldBe("ai");
+        data.Messages[1].Content.ShouldBe("hello");
+        data.Messages[1].AgentType.ShouldBe("design");
+    }
+
+    [Test]
+    public async Task ReadAsync_Should_Deserialize_Agent_Type_On_Status_Event()
+    {
+        const string sse = """
+            data: {"category":"status","message":"Working…","phase":"design","agent_type":"design"}
+
+            """;
+
+        var events = await CollectAsync<BlueprintsAgentStreamEvent>(sse);
+
+        events.Count.ShouldBe(1);
+        events[0].ShouldBeOfType<StatusStreamEvent>();
+        var s = (StatusStreamEvent)events[0];
+        s.AgentType.ShouldBe("design");
+        s.Message.ShouldBe("Working…");
+        s.Phase.ShouldBe("design");
     }
 }

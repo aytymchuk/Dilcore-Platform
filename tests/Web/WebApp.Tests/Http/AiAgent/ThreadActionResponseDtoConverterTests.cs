@@ -1,4 +1,3 @@
-using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Dilcore.WebApp.Http.AiAgent.Dtos;
@@ -71,7 +70,7 @@ public class ThreadActionResponseDtoConverterTests
     {
         var dto = (ThreadActionResponseDto)new ThreadContinuationResponseDto
         {
-            Thread = new ThreadResponseDto
+            Thread = new ThreadStateDto
             {
                 Id = "a",
                 Messages = [new MessageDto { Type = "ai", Content = "ok", AgentType = "supervisor" }]

@@ -1,4 +1,3 @@
-using Dilcore.Blueprints.Actors;
 using Dilcore.Blueprints.Actors.Abstractions;
 using Dilcore.Blueprints.Domain;
 using Shouldly;

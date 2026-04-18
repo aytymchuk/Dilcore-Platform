@@ -10,4 +10,8 @@
     <ProjectReference Include="..\..\..\src\Web\WebApp\WebApp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Http\AiAgent\AgentStreamSample.sse" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

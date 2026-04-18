@@ -4,7 +4,6 @@ using Dilcore.Blueprints.Core.Features.EntityDefinitions.Update;
 using Dilcore.Blueprints.Domain.Entities;
 using Dilcore.Results.Abstractions;
 using FluentAssertions;
-using FluentResults;
 using Moq;
 
 namespace Dilcore.Blueprints.Core.Tests.Features.EntityDefinitions.Update;

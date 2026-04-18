@@ -1,0 +1,75 @@
+@using Dilcore.WebApp.Constants
+@using Dilcore.WebApp.Models.Agent
+
+@if (Message.Author == ChatAuthor.Status)
+{
+    <div class="agent-msg agent-msg--status" data-testid="@AgentConstants.TestIds.StreamingIndicator">
+        <MudText Typo="Typo.caption" Color="Color.Secondary">
+            @Message.Content
+        </MudText>
+    </div>
+}
+else if (Message.Author == ChatAuthor.User)
+{
+    <div class="agent-msg agent-msg--user" data-testid="@AgentConstants.TestIds.UserBubble">
+        <MudAvatar Size="Size.Small" Class="agent-msg__avatar">
+            <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
+        </MudAvatar>
+        <div class="agent-msg__body">
+            <div class="agent-msg__meta">
+                <MudText Typo="Typo.body2" Class="agent-msg__name">You</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@FormatTime(Message.Timestamp)</MudText>
+            </div>
+            <MudPaper Class="agent-msg__user-card pa-3" Elevation="0" Outlined="true">
+                <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">@Message.Content</MudText>
+            </MudPaper>
+        </div>
+    </div>
+}
+else
+{
+    <div class="agent-msg agent-msg--assistant" data-testid="@AgentConstants.TestIds.AssistantBubble">
+        <div class="agent-msg__assistant-avatar">
+            <MudIcon Icon="@Icons.Material.Filled.SmartToy" Class="agent-msg__assistant-icon" />
+        </div>
+        <div class="agent-msg__body agent-msg__body--assistant">
+            <div class="agent-msg__meta">
+                <MudText Typo="Typo.body2" Color="Color.Primary" Class="agent-msg__name">Dilcore Agent</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@FormatTime(Message.Timestamp)</MudText>
+                @if (IsStreaming)
+                {
+                    <span class="agent-msg__streaming-dot" aria-hidden="true"></span>
+                }
+            </div>
+            @if (ShowReasoningSection)
+            {
+                <MudExpansionPanels Elevation="0" Class="agent-msg__reasoning-panels">
+                    <MudExpansionPanel @bind-Expanded="_reasoningExpanded"
+                                       Text="@AgentConstants.ReasoningLabel"
+                                       Class="agent-msg__reasoning-panel">
+                        <MudText Typo="Typo.body2" Class="agent-msg__reasoning-text">@ReasoningDisplayText</MudText>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            }
+            <div class="agent-prose mud-typography-body2">
+                @MarkdownHtml
+            </div>
+            @if (!IsStreaming && Message.Id != Guid.Empty)
+            {
+                <div class="agent-msg__actions">
+                    <MudIconButton Icon="@Icons.Material.Filled.ThumbUp"
+                                   Size="Size.Small"
+                                   aria-label="Helpful" />
+                    <MudIconButton Icon="@Icons.Material.Filled.ThumbDown"
+                                   Size="Size.Small"
+                                   aria-label="Not helpful" />
+                    <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                   Size="Size.Small"
+                                   Class="ml-auto"
+                                   OnClick="@CopyAsync"
+                                   aria-label="Copy" />
+                </div>
+            }
+        </div>
+    </div>
+}

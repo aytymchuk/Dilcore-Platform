@@ -88,7 +88,7 @@ internal sealed class BlueprintsAgentService : IBlueprintsAgentService
         return await _client.GetThreadsAsync(cts.Token);
     }
 
-    public async Task<ThreadResponseDto> GetThreadAsync(string threadId, CancellationToken cancellationToken = default)
+    public async Task<ThreadStateDto> GetThreadAsync(string threadId, CancellationToken cancellationToken = default)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(_settings.Timeout);

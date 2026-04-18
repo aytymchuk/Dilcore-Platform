@@ -6,11 +6,13 @@
     <Authors>Dilcore</Authors>
     <PackageTags>dilcore;webapi;client;refit</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <UserSecretsId>42409307-7f68-413f-8fd3-03ec49889793</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="WebApi.Client.Tests" />
     <InternalsVisibleTo Include="WebApi.Client.Architecture.Tests" />
+    <InternalsVisibleTo Include="WebApp" />
   </ItemGroup>
   
   <ItemGroup>

@@ -1,4 +1,3 @@
-using System.Net.Http;
 using Dilcore.WebApp.Http.AiAgent.Dtos;
 using Refit;
 
@@ -34,5 +33,5 @@ public interface IBlueprintsAgentClient
     Task<IReadOnlyList<ThreadResponseDto>> GetThreadsAsync(CancellationToken cancellationToken = default);
 
     [Get("/api/v1/blueprints/threads/{threadId}")]
-    Task<ThreadResponseDto> GetThreadAsync(string threadId, CancellationToken cancellationToken = default);
+    Task<ThreadStateDto> GetThreadAsync(string threadId, CancellationToken cancellationToken = default);
 }

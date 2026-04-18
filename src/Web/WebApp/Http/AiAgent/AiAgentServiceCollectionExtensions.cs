@@ -2,8 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Dilcore.Configuration.Extensions;
 using Dilcore.WebApp.Http.AiAgent.Dtos;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Refit;
 
 namespace Dilcore.WebApp.Http.AiAgent;

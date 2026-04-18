@@ -2,7 +2,6 @@ using Dilcore.MediatR.Abstractions;
 using Dilcore.Tenancy.Contracts.Tenants;
 using Dilcore.Tenancy.Contracts.Tenants.Create;
 using Dilcore.WebApi.Client.Clients;
-using Dilcore.WebApp.Models.Tenants;
 using FluentResults;
 
 namespace Dilcore.WebApp.Features.Tenants.Create;

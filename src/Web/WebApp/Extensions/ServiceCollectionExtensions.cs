@@ -6,6 +6,9 @@ using Dilcore.WebApp.Behaviors;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Http;
 using Dilcore.WebApp.Http.AiAgent;
+using Dilcore.WebApp.Services.Agent;
+using Dilcore.WebApp.Services.Tenancy;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Dilcore.WebApp.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -26,8 +29,13 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
 
         services.AddScoped<Services.IAppNavigator, Services.AppNavigator>();
-        services.AddScoped<Services.IBlazorTenantAccessor, Services.BlazorTenantAccessor>();
+        services.AddScoped<CircuitServicesAccessor>();
+        services.AddScoped<CircuitHandler, ServicesAccessorCircuitHandler>();
+        services.AddScoped<IBlazorTenantContext, BlazorTenantContext>();
         services.AddScoped<Services.Loading.ILoadingService, Services.Loading.LoadingService>();
+
+        services.AddSingleton<IConversationTitleFactory, ConversationTitleFactory>();
+        services.AddSingleton<IMarkdownRenderer, MarkdownRenderer>();
 
         services.AddMudServices();
         services.AddMediatRInfrastructure();

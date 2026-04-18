@@ -11,6 +11,14 @@ public static class AgentConstants
     public const string SelectToolsLabel = "Select Tools (MCP)";
     public const string FooterEncryption = "End-to-end encrypted";
     public const string FooterPowered = "Powered by Enterprise LLM";
+    public const string NewChatLabel = "New chat";
+    public const string ConversationSearchPlaceholder = "Search history…";
+    public const string StreamingStatusThinking = "Thinking…";
+    public const string ReasoningLabel = "Reasoning";
+    public const string EmptyHistoryCaption = "Messages will appear here.";
+    public const string InterruptNotice = "The agent is waiting for your input.";
+    public const string ActiveThreadBadge = "Active";
+    public const string SendErrorMessage = "Could not send your message. Please try again.";
 
     public static class QuickActions
     {
@@ -39,5 +47,11 @@ public static class AgentConstants
         public const string MessageInput = "agent-message-input";
         public const string SendButton = "agent-send-button";
         public const string SelectToolsButton = "agent-select-tools-button";
+        public const string ConversationList = "agent-conversation-list";
+        public const string ConversationItem = "agent-conversation-item";
+        public const string ChatHistory = "agent-chat-history";
+        public const string AssistantBubble = "agent-assistant-bubble";
+        public const string UserBubble = "agent-user-bubble";
+        public const string StreamingIndicator = "agent-streaming-indicator";
     }
 }

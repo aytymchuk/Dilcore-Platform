@@ -1,0 +1,20 @@
+data: {"category": "delta", "content": "{", "agent_type": null}
+
+data: {"category": "delta", "content": "\n  \"", "agent_type": null}
+
+data: {"category": "delta", "content": "reasoning\": \"The user is asking to 'Design for me structure of the home financial", "agent_type": null}
+
+data: {"category": "delta", "content": " tracking. Income / Outcome, per person'. This clearly indicates an intent to start", "agent_type": null}
+
+data: {"category": "delta", "content": " designing a new blueprint. The current phase is empty, and the user is describing what they want to build, which aligns with the 'design' route.\",\n  \"decision", "agent_type": null}
+
+data: {"category": "delta", "content": "\": {\n    \"next_route\": \"design\"\n  }\n}", "agent_type": null}
+
+data: {"category": "status", "message": "Analyzing your request...", "phase": "routing"}
+
+data: {"category": "delta", "content": "This sounds like a great project! A home financial tracker can be very useful.\n\nTo start, let's think about the main \"things\" we need to track. Based on your request, I see a few key entities:\n\n1.  **Transactions:** This would be the core of the system, recording each instance of income or outcome.\n2.  **People:** To track income/outcome \"per person,\" we'll need to know who is associated with each transaction.\n3.  **Categories:** To make the tracking meaningful, we'll likely want to categorize transactions (e.g., Groceries, Salary, Utilities, Entertainment).\n\nDoes this initial breakdown sound about right to you? We can then dive into what information (fields) each of these entities should hold.", "agent_type": "design"}
+
+data: {"category": "status", "message": "Working on the design...", "phase": "design"}
+
+data: {"category": "data", "thread_id": "b68a59eb-ae38-478f-aeba-acacb3a1bff6", "messages": [{"type": "human", "content": "Design for me structure of the home financial tracking. Income / Outcome, per person", "agent_type": null}, {"type": "ai", "content": "This sounds like a great project! A home financial tracker can be very useful.\n\nTo start, let's think about the main \"things\" we need to track. Based on your request, I see a few key entities:\n\n1.  **Transactions:** This would be the core of the system, recording each instance of income or outcome.\n2.  **People:** To track income/outcome \"per person,\" we'll need to know who is associated with each transaction.\n3.  **Categories:** To make the tracking meaningful, we'll likely want to categorize transactions (e.g., Groceries, Salary, Utilities, Entertainment).\n\nDoes this initial breakdown sound about right to you? We can then dive into what information (fields) each of these entities should hold.", "agent_type": "design"}]}
+

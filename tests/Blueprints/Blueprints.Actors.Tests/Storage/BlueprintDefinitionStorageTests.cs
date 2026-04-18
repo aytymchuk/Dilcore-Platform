@@ -1,5 +1,4 @@
 using AutoMapper;
-using Dilcore.Blueprints.Actors;
 using Dilcore.Blueprints.Actors.Abstractions;
 using Dilcore.Blueprints.Actors.Storage;
 using Dilcore.Blueprints.Core.Abstractions;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Orleans;
 using Shouldly;
 
 namespace Dilcore.Blueprints.Actors.Tests.Storage;

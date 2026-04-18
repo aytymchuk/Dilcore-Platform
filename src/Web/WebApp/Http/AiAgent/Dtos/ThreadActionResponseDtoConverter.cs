@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Dilcore.WebApp.Http.AiAgent.Dtos;
 
 /// <summary>
-/// Deserializes <c>anyOf[ThreadResponseDto, InterruptResponseDto]</c> from the agent API.
+/// Deserializes <c>anyOf[ThreadStateDto, InterruptResponseDto]</c> from the agent API.
 /// </summary>
 public sealed class ThreadActionResponseDtoConverter : JsonConverter<ThreadActionResponseDto>
 {
@@ -15,8 +15,8 @@ public sealed class ThreadActionResponseDtoConverter : JsonConverter<ThreadActio
 
         if (root.TryGetProperty("messages", out var messages) && messages.ValueKind == JsonValueKind.Array)
         {
-            var thread = root.Deserialize<ThreadResponseDto>(options)
-                ?? throw new JsonException("Failed to deserialize ThreadResponseDto.");
+            var thread = root.Deserialize<ThreadStateDto>(options)
+                ?? throw new JsonException("Failed to deserialize ThreadStateDto.");
             return new ThreadContinuationResponseDto { Thread = thread };
         }
 

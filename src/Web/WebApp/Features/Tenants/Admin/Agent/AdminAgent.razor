@@ -1,89 +1,55 @@
 @page "/workspaces/{tenant}/admin/agent"
+@page "/workspaces/{tenant}/admin/agent/{ThreadId}"
 @attribute [Authorize]
-@using Dilcore.WebApp.Features.Tenants.Context
+@using Dilcore.WebApp.Components.Common
 @using Dilcore.WebApp.Components.Layout
 @using Dilcore.WebApp.Constants
-@inherits AsyncTenantComponentBase
+@inherits TenantComponentBase
 @layout AdminLayout
 
 <PageTitle>@AgentConstants.PageTitle</PageTitle>
 
-<div class="agent-hub">
-    <div class="agent-hub__content">
-        @* Hero Section *@
-        <div class="agent-hub__hero" data-testid="@AgentConstants.TestIds.HeroSection">
-            <MudText Typo="Typo.h3" Class="agent-hub__hero-title">
-                @AgentConstants.HeroPrefix
-                <span class="agent-hub__hero-highlight">@AgentConstants.HeroHighlight</span>
-                @AgentConstants.HeroSuffix
-            </MudText>
-            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="agent-hub__hero-subtitle">
-                @AgentConstants.HeroSubtitle
-            </MudText>
+<div class="@GetRootClass()">
+    @if (_summaries.Count > 0)
+    {
+        <div class="agent-hub__layout">
+            <ConversationList Items="_summaries"
+                              ActiveThreadId="@ThreadId"
+                              OnSelect="SelectThreadAsync"
+                              OnNewChat="NewChatAsync" />
+            <div class="agent-hub__main">
+                <div class="agent-hub__content agent-hub__content--split">
+                    @if (ShowQuickActions)
+                    {
+                        <AgentQuickActionsPanel QuickActions="_quickActions"
+                                                OnActionSelected="OnQuickAction" />
+                    }
+                    else
+                    {
+                        <ChatHistory ThreadTitle="@CurrentThreadTitle"
+                                     Messages="_messages"
+                                     PendingAssistantMarkdown="@_pendingAssistant"
+                                     PendingReasoning="@_pendingReasoning"
+                                     IsStreaming="_isStreaming"
+                                     Status="@_status" />
+                    }
+                </div>
+                <ChatMessageInput @bind-Value="_inputText"
+                                  Placeholder="@AgentConstants.InputPlaceholder"
+                                  IsStreaming="_isStreaming"
+                                  OnSend="SendAsync" />
+            </div>
         </div>
-
-        @* Quick Actions Grid *@
-        <MudGrid Spacing="3" Class="agent-hub__actions" data-testid="@AgentConstants.TestIds.QuickActionsGrid">
-            @foreach (var action in _quickActions)
-            {
-                <MudItem xs="12" sm="6">
-                    <MudCard Elevation="0"
-                             Class="agent-hub__action-card"
-                             data-testid="@AgentConstants.TestIds.QuickActionCard"
-                             @onclick="() => HandleQuickActionClick(action)">
-                        <MudCardContent Class="d-flex align-start gap-3">
-                            <MudIcon Icon="@action.Icon"
-                                     Size="Size.Medium"
-                                     Class="agent-hub__action-icon" />
-                            <div>
-                                <MudText Typo="Typo.subtitle1" Class="agent-hub__action-title">
-                                    @action.Title
-                                </MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                    @action.Description
-                                </MudText>
-                            </div>
-                        </MudCardContent>
-                    </MudCard>
-                </MudItem>
-            }
-        </MudGrid>
-    </div>
-
-    @* Bottom Input Bar *@
-    <div class="agent-hub__input-bar">
-        <MudChip T="string"
-                 Icon="@Icons.Material.Filled.Build"
-                 Variant="Variant.Outlined"
-                 Size="Size.Small"
-                 Color="Color.Default"
-                 Class="agent-hub__tools-chip"
-                 data-testid="@AgentConstants.TestIds.SelectToolsButton">
-            @AgentConstants.SelectToolsLabel
-        </MudChip>
-        <MudTextField @bind-Value="_inputText"
-                      Placeholder="@AgentConstants.InputPlaceholder"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Dense"
-                      FullWidth="true"
-                      Immediate="true"
-                      data-testid="@AgentConstants.TestIds.MessageInput"
-                      OnKeyDown="@HandleKeyDownAsync"
-                      Class="agent-hub__input" />
-        <MudIconButton Icon="@Icons.Material.Filled.Send"
-                       Color="Color.Primary"
-                       data-testid="@AgentConstants.TestIds.SendButton"
-                       Disabled="@string.IsNullOrWhiteSpace(_inputText)"
-                       OnClick="@HandleSendAsync" />
-    </div>
-
-    @* Footer *@
-    <div class="agent-hub__footer">
-        <MudIcon Icon="@Icons.Material.Filled.Lock"
-                 Size="Size.Small"
-                 Color="Color.Secondary" />
-        <MudText Typo="Typo.caption" Color="Color.Secondary">
-            @AgentConstants.FooterEncryption &bull; @AgentConstants.FooterPowered
-        </MudText>
-    </div>
+    }
+    else
+    {
+        <div class="agent-hub__content">
+            <AgentQuickActionsPanel QuickActions="_quickActions"
+                                    OnActionSelected="OnQuickAction" />
+        </div>
+        <ChatMessageInput @bind-Value="_inputText"
+                          Placeholder="@AgentConstants.InputPlaceholder"
+                          IsStreaming="_isStreaming"
+                          OnSend="SendAsync" />
+    }
 </div>

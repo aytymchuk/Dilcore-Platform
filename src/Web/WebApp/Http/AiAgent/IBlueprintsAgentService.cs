@@ -22,5 +22,5 @@ public interface IBlueprintsAgentService
 
     Task<IReadOnlyList<ThreadResponseDto>> GetThreadsAsync(CancellationToken cancellationToken = default);
 
-    Task<ThreadResponseDto> GetThreadAsync(string threadId, CancellationToken cancellationToken = default);
+    Task<ThreadStateDto> GetThreadAsync(string threadId, CancellationToken cancellationToken = default);
 }

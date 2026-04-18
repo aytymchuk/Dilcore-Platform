@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace Dilcore.WebApp.Http.AiAgent.Dtos;
 
 /// <summary>
-/// Union of <see cref="ThreadResponseDto"/> and <see cref="InterruptResponseDto"/> returned by non-streaming agent actions.
+/// Union of <see cref="ThreadStateDto"/> and <see cref="InterruptResponseDto"/> returned by non-streaming agent actions.
 /// </summary>
 [JsonConverter(typeof(ThreadActionResponseDtoConverter))]
 public abstract class ThreadActionResponseDto
@@ -11,7 +11,7 @@ public abstract class ThreadActionResponseDto
     /// <summary>
     /// Gets the response as a normal thread continuation, if applicable.
     /// </summary>
-    public ThreadResponseDto? AsThread() => this is ThreadContinuationResponseDto c ? c.Thread : null;
+    public ThreadStateDto? AsThread() => this is ThreadContinuationResponseDto c ? c.Thread : null;
 
     /// <summary>
     /// Gets the response as an interrupt, if applicable.
@@ -27,7 +27,7 @@ public sealed class ThreadContinuationResponseDto : ThreadActionResponseDto
     /// <summary>
     /// Thread payload.
     /// </summary>
-    public required ThreadResponseDto Thread { get; init; }
+    public required ThreadStateDto Thread { get; init; }
 }
 
 /// <summary>

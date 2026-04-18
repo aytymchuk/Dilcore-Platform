@@ -1,7 +1,7 @@
 namespace Dilcore.WebApp.Http.AiAgent.Dtos;
 
 /// <summary>
-/// Successful thread state returned by the blueprint agent API.
+/// Thread summary row returned by <c>GET /api/v1/blueprints/threads</c> (identifier and display name only).
 /// </summary>
 public sealed class ThreadResponseDto
 {
@@ -11,7 +11,7 @@ public sealed class ThreadResponseDto
     public required string Id { get; init; }
 
     /// <summary>
-    /// Ordered messages from the thread state.
+    /// Display name for the thread.
     /// </summary>
-    public required IReadOnlyList<MessageDto> Messages { get; init; }
+    public string? Name { get; init; }
 }

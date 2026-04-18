@@ -1,9 +1,10 @@
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using Dilcore.MultiTenant.Abstractions;
 using Dilcore.WebApp.Constants;
-using Dilcore.WebApp.Services;
+using Dilcore.WebApp.Services.Tenancy;
 using Microsoft.AspNetCore.Components.Authorization;
-using System.Security.Claims;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.WebApp.Http;
 
@@ -15,16 +16,16 @@ internal class AccessTokenDelegatingHandler : DelegatingHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly AuthenticationStateProvider _authenticationStateProvider;
-    private readonly IBlazorTenantAccessor _tenantAccessor;
+    private readonly CircuitServicesAccessor _circuitServicesAccessor;
 
     public AccessTokenDelegatingHandler(
         IHttpContextAccessor httpContextAccessor,
         AuthenticationStateProvider authenticationStateProvider,
-        IBlazorTenantAccessor tenantAccessor)
+        CircuitServicesAccessor circuitServicesAccessor)
     {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _authenticationStateProvider = authenticationStateProvider ?? throw new ArgumentNullException(nameof(authenticationStateProvider));
-        _tenantAccessor = tenantAccessor ?? throw new ArgumentNullException(nameof(tenantAccessor));
+        _circuitServicesAccessor = circuitServicesAccessor ?? throw new ArgumentNullException(nameof(circuitServicesAccessor));
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -57,9 +58,19 @@ internal class AccessTokenDelegatingHandler : DelegatingHandler
 
     private void AddTenantHeader(HttpRequestMessage request)
     {
-        var tenantSystemName = _tenantAccessor.TenantName;
+        if (request.Headers.Contains(TenantConstants.HeaderName))
+        {
+            return;
+        }
 
-        if (string.IsNullOrEmpty(tenantSystemName) || request.Headers.Contains(TenantConstants.HeaderName))
+        var circuitServices = _circuitServicesAccessor.Services;
+        if (circuitServices is null)
+        {
+            return;
+        }
+
+        var tenantSystemName = circuitServices.GetService<IBlazorTenantContext>()?.SystemName;
+        if (string.IsNullOrEmpty(tenantSystemName))
         {
             return;
         }

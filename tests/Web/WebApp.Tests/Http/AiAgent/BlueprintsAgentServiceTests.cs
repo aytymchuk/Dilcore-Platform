@@ -36,7 +36,7 @@ public class BlueprintsAgentServiceTests
     {
         var expected = new ThreadContinuationResponseDto
         {
-            Thread = new ThreadResponseDto { Id = "t1", Messages = [] }
+            Thread = new ThreadStateDto { Id = "t1", Messages = [] }
         };
         var client = new Mock<IBlueprintsAgentClient>();
         client
@@ -56,7 +56,7 @@ public class BlueprintsAgentServiceTests
     public async Task StartStreamAsync_Should_Parse_Sse_From_Response_Stream()
     {
         const string sse = """
-            data: {"category":"delta","text":"chunk"}
+            data: {"category":"delta","content":"chunk"}
 
             """;
         var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -81,7 +81,44 @@ public class BlueprintsAgentServiceTests
 
         events.Count.ShouldBe(1);
         events[0].ShouldBeOfType<DeltaStreamEvent>();
-        ((DeltaStreamEvent)events[0]).Text.ShouldBe("chunk");
+        ((DeltaStreamEvent)events[0]).Content.ShouldBe("chunk");
+    }
+
+    [Test]
+    public async Task StartStreamAsync_Should_Parse_Data_Event_With_Messages()
+    {
+        const string sse = """
+            data: {"category":"data","thread_id":"t-data","messages":[{"type":"ai","content":"final"}]}
+
+            """;
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new ByteArrayContent(Encoding.UTF8.GetBytes(sse))
+        };
+        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/event-stream");
+
+        var client = new Mock<IBlueprintsAgentClient>();
+        client
+            .Setup(c => c.StartStreamAsync(It.IsAny<ThreadMessageInputDto>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        var sut = new BlueprintsAgentService(client.Object, CreateJsonOptions(), CreateSettings());
+        var request = new ThreadMessageInputDto { Message = "go" };
+
+        var events = new List<BlueprintsAgentStreamEvent>();
+        await foreach (var e in sut.StartStreamAsync(request, CancellationToken.None))
+        {
+            events.Add(e);
+        }
+
+        events.Count.ShouldBe(1);
+        events[0].ShouldBeOfType<DataStreamEvent>();
+        var data = (DataStreamEvent)events[0];
+        data.ThreadId.ShouldBe("t-data");
+        data.Messages.ShouldNotBeNull();
+        data.Messages!.Count.ShouldBe(1);
+        data.Messages[0].Type.ShouldBe("ai");
+        data.Messages[0].Content.ShouldBe("final");
     }
 
     [Test]
@@ -110,7 +147,7 @@ public class BlueprintsAgentServiceTests
     [Test]
     public async Task GetThreadAsync_Should_Return_Client_Result()
     {
-        var expected = new ThreadResponseDto { Id = "t2", Messages = [] };
+        var expected = new ThreadStateDto { Id = "t2", Messages = [] };
         var client = new Mock<IBlueprintsAgentClient>();
         client
             .Setup(c => c.GetThreadAsync("t2", It.IsAny<CancellationToken>()))

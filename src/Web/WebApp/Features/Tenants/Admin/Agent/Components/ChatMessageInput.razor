@@ -1,0 +1,39 @@
+@using Dilcore.WebApp.Constants
+
+<div class="agent-hub__input-bar">
+    <MudChip T="string"
+             Icon="@Icons.Material.Filled.Build"
+             Variant="Variant.Outlined"
+             Size="Size.Small"
+             Color="Color.Default"
+             Class="agent-hub__tools-chip"
+             data-testid="@AgentConstants.TestIds.SelectToolsButton">
+        @AgentConstants.SelectToolsLabel
+    </MudChip>
+    <MudTextField T="string"
+                  Value="@Value"
+                  ValueChanged="HandleValueChangedAsync"
+                  Placeholder="@Placeholder"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  FullWidth="true"
+                  Immediate="true"
+                  Disabled="@(Disabled || IsStreaming)"
+                  data-testid="@AgentConstants.TestIds.MessageInput"
+                  OnKeyDown="@HandleKeyDownAsync"
+                  Class="agent-hub__input" />
+    <MudIconButton Icon="@Icons.Material.Filled.Send"
+                   Color="Color.Primary"
+                   data-testid="@AgentConstants.TestIds.SendButton"
+                   Disabled="@(Disabled || IsStreaming || string.IsNullOrWhiteSpace(Value))"
+                   OnClick="@SendAsync" />
+</div>
+
+<div class="agent-hub__footer">
+    <MudIcon Icon="@Icons.Material.Filled.Lock"
+             Size="Size.Small"
+             Color="Color.Secondary" />
+    <MudText Typo="Typo.caption" Color="Color.Secondary">
+        @AgentConstants.FooterEncryption &bull; @AgentConstants.FooterPowered
+    </MudText>
+</div>
