@@ -1,4 +1,5 @@
 using Dilcore.WebApp.Extensions;
+using Dilcore.WebApp.Http.AiAgent;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,8 @@ public class DependencyInjectionTests
                 {"TelemetrySettings:ApplicationInsightsConnectionString", "InstrumentationKey=test-key;"},
                 {"ApplicationSettings:Name", "TestApp"},
                 {"ApiSettings:BaseUrl", "http://localhost"},
-                {"ApiSettings:Retries", "3"}
+                {"ApiSettings:Retries", "3"},
+                {"AgentApiSettings:BaseUrl", "http://localhost:8000"}
             })
             .Build();
 
@@ -47,6 +49,8 @@ public class DependencyInjectionTests
         using var scope = provider.CreateScope();
         var snackbarProvider = scope.ServiceProvider.GetService<MudBlazor.ISnackbar>();
         snackbarProvider.ShouldNotBeNull();
+
+        scope.ServiceProvider.GetService<IBlueprintsAgentService>().ShouldNotBeNull();
 
         // Check for other expected services
         scope.ServiceProvider.GetService<Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider>().ShouldNotBeNull();

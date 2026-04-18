@@ -18,6 +18,8 @@
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="MudBlazor" />
     <PackageReference Include="MediatR" />
+    <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
   </ItemGroup>
 
   <ItemGroup>

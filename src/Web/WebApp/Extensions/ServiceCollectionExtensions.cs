@@ -5,6 +5,7 @@ using Dilcore.WebApi.Client;
 using Dilcore.WebApp.Behaviors;
 using Dilcore.WebApp.Constants;
 using Dilcore.WebApp.Http;
+using Dilcore.WebApp.Http.AiAgent;
 using Dilcore.WebApp.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -31,6 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddMudServices();
         services.AddMediatRInfrastructure();
         services.AddPlatformApiServices(configuration);
+        services.AddAiAgentServices(configuration);
 
         services.AddObservability(configuration, environment);
         services.AddAuthenticationServices(configuration);
