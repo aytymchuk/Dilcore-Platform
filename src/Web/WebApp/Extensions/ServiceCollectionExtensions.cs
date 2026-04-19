@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
+using MudBlazor;
 using MudBlazor.Services;
 
 namespace Dilcore.WebApp.Extensions;
@@ -35,9 +36,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Services.Loading.ILoadingService, Services.Loading.LoadingService>();
 
         services.AddSingleton<IConversationTitleFactory, ConversationTitleFactory>();
-        services.AddSingleton<IMarkdownRenderer, MarkdownRenderer>();
 
         services.AddMudServices();
+        services.AddMudMarkdownServices();
         services.AddMediatRInfrastructure();
         services.AddPlatformApiServices(configuration);
         services.AddAiAgentServices(configuration);

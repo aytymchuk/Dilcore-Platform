@@ -55,7 +55,6 @@ public class DependencyInjectionTests
 
         scope.ServiceProvider.GetService<IBlueprintsAgentService>().ShouldNotBeNull();
         scope.ServiceProvider.GetService<IConversationTitleFactory>().ShouldNotBeNull();
-        scope.ServiceProvider.GetService<IMarkdownRenderer>().ShouldNotBeNull();
         scope.ServiceProvider.GetService<CircuitServicesAccessor>().ShouldNotBeNull();
         scope.ServiceProvider.GetService<IBlazorTenantContext>().ShouldNotBeNull();
         scope.ServiceProvider.GetServices<CircuitHandler>().ShouldContain(h => h is ServicesAccessorCircuitHandler);

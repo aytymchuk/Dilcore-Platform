@@ -42,6 +42,8 @@ public partial class AdminAgent : TenantComponentBase
     private string? _loadedThreadsTenant;
     private string? _previousRouteThreadId;
     private string? _loadedMessagesForThread;
+    private bool _isLoadingThreads;
+    private bool _isLoadingMessages;
     private string _inputText = string.Empty;
     private string? _pendingAssistant;
     private string? _pendingReasoning;
@@ -70,7 +72,10 @@ public partial class AdminAgent : TenantComponentBase
             _previousRouteThreadId = null;
             _messages.Clear();
             _summaries.Clear();
+            _isLoadingThreads = true;
             await ExecuteBusyAsync(LoadThreadsAsync);
+            _isLoadingThreads = false;
+            StateHasChanged();
         }
 
         if (string.IsNullOrEmpty(ThreadId))
@@ -88,7 +93,10 @@ public partial class AdminAgent : TenantComponentBase
             if (_loadedMessagesForThread != ThreadId)
             {
                 _loadedMessagesForThread = ThreadId;
+                _isLoadingMessages = true;
                 await ExecuteBusyAsync(() => LoadThreadMessagesAsync(ThreadId));
+                _isLoadingMessages = false;
+                StateHasChanged();
             }
 
             _previousRouteThreadId = ThreadId;
@@ -109,7 +117,7 @@ public partial class AdminAgent : TenantComponentBase
     }
 
     private string GetRootClass() =>
-        _summaries.Count == 0 ? "agent-hub agent-hub--empty" : "agent-hub";
+        _summaries.Count == 0 && !_isLoadingThreads ? "agent-hub agent-hub--empty" : "agent-hub";
 
     private async Task LoadThreadsAsync()
     {
@@ -137,15 +145,15 @@ public partial class AdminAgent : TenantComponentBase
 
     private static List<ChatMessage> MapThreadToMessages(ThreadStateDto thread)
     {
-        var list = new List<ChatMessage>();
-        var i = 0;
-        foreach (var m in thread.Messages)
+        var visible = thread.Messages.Where(m => !IsToolMessageType(m.Type)).ToList();
+        var list = new List<ChatMessage>(visible.Count);
+        for (var i = 0; i < visible.Count; i++)
         {
+            var m = visible[i];
             var author = IsUserMessageType(m.Type)
                 ? ChatAuthor.User
                 : ChatAuthor.Assistant;
-            var ts = DateTime.UtcNow.AddSeconds(-(thread.Messages.Count - i));
-            i++;
+            var ts = DateTime.UtcNow.AddSeconds(-(visible.Count - i));
             list.Add(new ChatMessage(Guid.NewGuid(), author, m.Content, ts));
         }
 
@@ -155,6 +163,9 @@ public partial class AdminAgent : TenantComponentBase
     private static bool IsUserMessageType(string type) =>
         string.Equals(type, "user", StringComparison.OrdinalIgnoreCase)
         || string.Equals(type, "human", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsToolMessageType(string type) =>
+        string.Equals(type, "tool", StringComparison.OrdinalIgnoreCase);
 
     private static MessageDto? FindLastAiMessage(IReadOnlyList<MessageDto>? messages)
     {

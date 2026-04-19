@@ -1,8 +1,12 @@
 @using Dilcore.WebApp.Constants
 
 <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" LockScroll="true" PopoverClass="mt-2">
-    <ActivatorContent>
-        <MudButton EndIcon="@Icons.Material.Filled.ExpandMore" Color="Color.Inherit" Class="text-transform-none" DropShadow="false">
+    <ActivatorContent Context="menu">
+        <MudButton EndIcon="@Icons.Material.Filled.ExpandMore"
+                   Color="Color.Inherit"
+                   Class="text-transform-none"
+                   DropShadow="false"
+                   OnClick="@menu.ToggleAsync">
             @CurrentPart
         </MudButton>
     </ActivatorContent>

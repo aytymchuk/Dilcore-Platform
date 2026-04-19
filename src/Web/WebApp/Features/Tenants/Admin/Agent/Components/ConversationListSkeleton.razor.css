@@ -1,0 +1,32 @@
+.agent-convo-skeleton {
+    display: flex;
+    flex-direction: column;
+    width: 288px;
+    flex-shrink: 0;
+    align-self: stretch;
+    min-height: 0;
+    border-right: 1px solid var(--mud-palette-lines-default);
+    background-color: var(--mud-palette-drawer-background);
+}
+
+.agent-convo-skeleton__header {
+    padding: 16px;
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+    flex-shrink: 0;
+}
+
+.agent-convo-skeleton__list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: 8px;
+    background-color: inherit;
+}
+
+.agent-convo-skeleton__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+}

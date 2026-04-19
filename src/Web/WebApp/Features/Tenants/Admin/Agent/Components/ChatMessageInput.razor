@@ -1,15 +1,6 @@
 @using Dilcore.WebApp.Constants
 
 <div class="agent-hub__input-bar">
-    <MudChip T="string"
-             Icon="@Icons.Material.Filled.Build"
-             Variant="Variant.Outlined"
-             Size="Size.Small"
-             Color="Color.Default"
-             Class="agent-hub__tools-chip"
-             data-testid="@AgentConstants.TestIds.SelectToolsButton">
-        @AgentConstants.SelectToolsLabel
-    </MudChip>
     <MudTextField T="string"
                   Value="@Value"
                   ValueChanged="HandleValueChangedAsync"
@@ -30,10 +21,7 @@
 </div>
 
 <div class="agent-hub__footer">
-    <MudIcon Icon="@Icons.Material.Filled.Lock"
-             Size="Size.Small"
-             Color="Color.Secondary" />
-    <MudText Typo="Typo.caption" Color="Color.Secondary">
-        @AgentConstants.FooterEncryption &bull; @AgentConstants.FooterPowered
+    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="agent-hub__footer-text">
+        @AgentConstants.FooterDisclaimer
     </MudText>
 </div>

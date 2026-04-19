@@ -8,9 +8,8 @@ public static class AgentConstants
     public const string HeroSuffix = "today?";
     public const string HeroSubtitle = "Select a quick action or start typing below to initialize a new agent workflow.";
     public const string InputPlaceholder = "Message AI Agent...";
-    public const string SelectToolsLabel = "Select Tools (MCP)";
-    public const string FooterEncryption = "End-to-end encrypted";
-    public const string FooterPowered = "Powered by Enterprise LLM";
+    public const string FooterDisclaimer =
+        "LLMs can make mistakes. Double-check important results.";
     public const string NewChatLabel = "New chat";
     public const string ConversationSearchPlaceholder = "Search history…";
     public const string StreamingStatusThinking = "Thinking…";
@@ -47,7 +46,6 @@ public static class AgentConstants
         public const string QuickActionCard = "agent-quick-action-card";
         public const string MessageInput = "agent-message-input";
         public const string SendButton = "agent-send-button";
-        public const string SelectToolsButton = "agent-select-tools-button";
         public const string ConversationList = "agent-conversation-list";
         public const string ConversationItem = "agent-conversation-item";
         public const string ChatHistory = "agent-chat-history";

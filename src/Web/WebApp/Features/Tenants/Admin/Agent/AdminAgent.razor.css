@@ -1,7 +1,11 @@
 .agent-hub {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 120px);
+    min-height: 0;
+    /* App bar 64px + shell vertical padding; keeps hub inside viewport without document scroll */
+    height: calc(100dvh - 64px - 2rem);
+    max-height: calc(100dvh - 64px - 2rem);
+    overflow: hidden;
     padding: 0 16px;
 }
 
@@ -18,6 +22,7 @@
 
 .agent-hub__layout {
     display: flex;
+    align-items: stretch;
     flex: 1;
     min-height: 0;
     overflow: hidden;

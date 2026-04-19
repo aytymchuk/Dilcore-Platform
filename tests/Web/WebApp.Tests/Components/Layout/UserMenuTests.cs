@@ -113,9 +113,8 @@ public class UserMenuTests
         // Act
         var cut = RenderWithCascadingUserState(userState);
         
-        // Open menu popover
-        var activator = cut.Find(".mud-menu-activator");
-        activator.Click();
+        // Open menu — outer .mud-menu-activator may only wire keydown; MudButton inside handles click
+        cut.Find(".mud-menu-activator button").Click();
 
         // Assert — Check if user details are present in the markup (popover content)
         // Note: MudPopover might render in a separate portal/root component, so we check the MudPopoverProvider.

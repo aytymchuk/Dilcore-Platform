@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Auth0.AspNetCore.Authentication" />
     <PackageReference Include="FluentValidation" />
-    <PackageReference Include="Markdig" />
+    <PackageReference Include="MudBlazor.Markdown" />
     <PackageReference Include="MudBlazor" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Refit" />

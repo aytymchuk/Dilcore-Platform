@@ -1,3 +1,13 @@
 .shell-content {
     padding: 1rem;
 }
+
+/* Match left drawer surface; inner toolbar must not paint its own opaque layer */
+:deep(.tenant-shell-appbar.mud-appbar) {
+    background-color: color-mix(in srgb, var(--mud-palette-drawer-background) 92%, transparent);
+    backdrop-filter: blur(8px);
+}
+
+:deep(.tenant-shell-appbar .mud-toolbar) {
+    background-color: transparent;
+}

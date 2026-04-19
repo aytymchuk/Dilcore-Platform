@@ -1,31 +1,43 @@
 @using Dilcore.WebApp.Constants
 
-<AuthorizeView>
+<AuthorizeView Context="auth">
     <Authorized>
         <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" LockScroll="true" PopoverClass="mt-2">
-            <ActivatorContent>
+            <ActivatorContent Context="menu">
                 @if (InSidebar)
                 {
-                    <div class="d-flex align-center gap-3 pa-3" style="cursor: pointer;">
-                        <MudAvatar Color="Color.Default" Variant="Variant.Filled" Size="Size.Small" Class="rounded-circle">
-                            @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
-                        </MudAvatar>
-                        <div class="flex-grow-1 min-w-0">
-                            <MudText Typo="Typo.body2" Class="font-weight-medium text-truncate">@(UserState?.CurrentUser?.FullName ?? context.User.Identity?.Name ?? "User")</MudText>
-                            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-truncate d-block">@Subtitle</MudText>
+                    <MudButton Variant="Variant.Text"
+                               Color="Color.Inherit"
+                               Class="text-transform-none pa-3 w-100"
+                               Style="justify-content: flex-start; text-align: start;"
+                               FullWidth="true"
+                               OnClick="@menu.ToggleAsync">
+                        <div class="d-flex align-center gap-3">
+                            <MudAvatar Color="Color.Default" Variant="Variant.Filled" Size="Size.Small" Class="rounded-circle">
+                                @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? auth.User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                            </MudAvatar>
+                            <div class="flex-grow-1 min-w-0">
+                                <MudText Typo="Typo.body2" Class="font-weight-medium text-truncate">@(UserState?.CurrentUser?.FullName ?? auth.User.Identity?.Name ?? "User")</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="text-truncate d-block">@Subtitle</MudText>
+                            </div>
                         </div>
-                    </div>
+                    </MudButton>
                 }
                 else
                 {
-                    <MudAvatar Color="Color.Primary" Variant="Variant.Filled">
-                        @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? context.User.Identity?.Name?.FirstOrDefault() ?? 'U')
-                    </MudAvatar>
+                    <MudButton Variant="Variant.Text"
+                               Color="Color.Inherit"
+                               Class="pa-0 min-width-auto"
+                               OnClick="@menu.ToggleAsync">
+                        <MudAvatar Color="Color.Primary" Variant="Variant.Filled">
+                            @(UserState?.CurrentUser?.FullName?.FirstOrDefault() ?? auth.User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                        </MudAvatar>
+                    </MudButton>
                 }
             </ActivatorContent>
             <ChildContent>
                 <div class="px-4 py-3">
-                    <MudText Typo="Typo.body2" Class="font-bold">@(UserState?.CurrentUser?.FullName ?? context.User.Identity?.Name)</MudText>
+                    <MudText Typo="Typo.body2" Class="font-bold">@(UserState?.CurrentUser?.FullName ?? auth.User.Identity?.Name)</MudText>
                     <MudText Typo="Typo.caption" Color="Color.Secondary">@(UserState?.CurrentUser?.Email ?? "No Email")</MudText>
                 </div>
                 <MudDivider />

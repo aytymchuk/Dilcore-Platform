@@ -10,7 +10,18 @@
 <PageTitle>@AgentConstants.PageTitle</PageTitle>
 
 <div class="@GetRootClass()">
-    @if (_summaries.Count > 0)
+    @if (_isLoadingThreads)
+    {
+        <div class="agent-hub__layout">
+            <ConversationListSkeleton />
+            <div class="agent-hub__main">
+                <div class="agent-hub__content agent-hub__content--split">
+                    <ChatHistorySkeleton />
+                </div>
+            </div>
+        </div>
+    }
+    else if (_summaries.Count > 0)
     {
         <div class="agent-hub__layout">
             <ConversationList Items="_summaries"
@@ -19,7 +30,11 @@
                               OnNewChat="NewChatAsync" />
             <div class="agent-hub__main">
                 <div class="agent-hub__content agent-hub__content--split">
-                    @if (ShowQuickActions)
+                    @if (_isLoadingMessages)
+                    {
+                        <ChatHistorySkeleton />
+                    }
+                    else if (ShowQuickActions)
                     {
                         <AgentQuickActionsPanel QuickActions="_quickActions"
                                                 OnActionSelected="OnQuickAction" />

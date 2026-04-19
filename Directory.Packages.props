@@ -77,8 +77,8 @@
     <PackageVersion Include="Refit.HttpClientFactory" Version="10.0.1" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
     <!-- Blazor UI -->
-    <PackageVersion Include="Markdig" Version="0.41.3" />
-    <PackageVersion Include="MudBlazor" Version="8.15.0" />
+    <PackageVersion Include="MudBlazor.Markdown" Version="9.0.0" />
+    <PackageVersion Include="MudBlazor" Version="9.3.0" />
     <PackageVersion Include="bunit.web" Version="1.40.0" />
   </ItemGroup>
 </Project>

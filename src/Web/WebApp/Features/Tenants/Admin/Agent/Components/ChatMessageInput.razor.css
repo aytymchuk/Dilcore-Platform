@@ -10,15 +10,15 @@
     border-radius: 24px;
 }
 
-::deep .agent-hub__tools-chip {
-    flex-shrink: 0;
-}
-
 .agent-hub__footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 8px 0 12px;
-    opacity: 0.6;
+    padding: 2px 0 6px;
+    opacity: 0.75;
+}
+
+.agent-hub__footer-text {
+    text-align: center;
+    line-height: 1.35;
 }

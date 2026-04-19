@@ -103,13 +103,6 @@
     max-width: 100%;
 }
 
-.agent-msg__actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding-top: 4px;
-}
-
 .agent-msg__streaming-dot {
     width: 6px;
     height: 6px;
@@ -127,21 +120,44 @@
     }
 }
 
+/* MudMarkdown renders paragraphs as MudText Typo.body1; align with body2 for assistant prose */
+.agent-prose :deep(.mud-markdown-body .mud-typography-body1) {
+    font-size: var(--mud-typography-body2-size, 0.875rem);
+    font-weight: var(--mud-typography-body2-weight, 400);
+    letter-spacing: var(--mud-typography-body2-letterspacing, 0.0178571429em);
+    line-height: var(--mud-typography-body2-lineheight, 1.43);
+}
+
 .agent-prose :deep(p) {
     margin: 0 0 12px;
-    line-height: 1.55;
 }
 
 .agent-prose :deep(p:last-child) {
     margin-bottom: 0;
 }
 
-.agent-prose :deep(h1),
-.agent-prose :deep(h2),
-.agent-prose :deep(h3),
-.agent-prose :deep(h4) {
-    margin: 16px 0 8px;
+.agent-prose :deep(.mud-typography-h5) {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 14px 0 6px;
+}
+
+.agent-prose :deep(.mud-typography-h6):not(.mud-typography-subtitle1):not(.mud-typography-subtitle2) {
+    font-size: 0.975rem;
+    font-weight: 700;
+    margin: 12px 0 4px;
+}
+
+.agent-prose :deep(.mud-typography-subtitle1) {
+    font-size: 0.925rem;
     font-weight: 600;
+    margin: 10px 0 4px;
+}
+
+.agent-prose :deep(.mud-typography-subtitle2) {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 8px 0 4px;
 }
 
 .agent-prose :deep(ul),
