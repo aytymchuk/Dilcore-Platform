@@ -1,13 +1,19 @@
 .agent-hub__input-bar {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: 8px;
     padding: 12px 0;
     border-top: 1px solid var(--mud-palette-lines-default);
 }
 
 ::deep .agent-hub__input .mud-input-outlined {
-    border-radius: 24px;
+    border-radius: 12px;
+}
+
+::deep .agent-hub__input textarea {
+    overflow-y: auto;
+    resize: none;
+    line-height: 1.5;
 }
 
 .agent-hub__footer {

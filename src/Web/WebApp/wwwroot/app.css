@@ -28,6 +28,14 @@ body {
     box-sizing: border-box;
 }
 
+/* MudMarkdown hardcodes Typo.body1 for paragraphs; downscale to body2 inside agent prose */
+.agent-prose .mud-typography-body1 {
+    font-size: var(--mud-typography-body2-size, 0.875rem);
+    font-weight: var(--mud-typography-body2-weight, 400);
+    letter-spacing: var(--mud-typography-body2-letterspacing, 0.0178571429em);
+    line-height: var(--mud-typography-body2-lineheight, 1.43);
+}
+
 .mud-container.shell-content {
     padding: 0 !important;
     flex: 1 1 auto !important;

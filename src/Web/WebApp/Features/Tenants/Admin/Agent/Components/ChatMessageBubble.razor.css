@@ -120,13 +120,6 @@
     }
 }
 
-/* MudMarkdown renders paragraphs as MudText Typo.body1; align with body2 for assistant prose */
-.agent-prose :deep(.mud-markdown-body .mud-typography-body1) {
-    font-size: var(--mud-typography-body2-size, 0.875rem);
-    font-weight: var(--mud-typography-body2-weight, 400);
-    letter-spacing: var(--mud-typography-body2-letterspacing, 0.0178571429em);
-    line-height: var(--mud-typography-body2-lineheight, 1.43);
-}
 
 .agent-prose :deep(p) {
     margin: 0 0 12px;

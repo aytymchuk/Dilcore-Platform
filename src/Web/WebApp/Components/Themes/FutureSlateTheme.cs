@@ -48,7 +48,7 @@ public static class FutureSlateTheme
                 PrimaryContrastText = "#FFFFFF",
                 Secondary = "#414141",
                 Background = "#09090B",
-                AppbarBackground = "#18181B",
+                AppbarBackground = "#09090B",
                 AppbarText = "#FFFFFF",
                 DrawerBackground = "#09090B",
                 DrawerText = "#A1A1AA",

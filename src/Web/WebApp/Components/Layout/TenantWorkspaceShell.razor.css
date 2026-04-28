@@ -56,9 +56,9 @@
     box-sizing: border-box;
 }
 
-/* Match left drawer surface; inner toolbar must not paint its own opaque layer */
+/* AppBar background comes from AppbarBackground palette token (= DrawerBackground).
+   Keep the subtle blur so content scrolling beneath it looks polished. */
 ::deep .tenant-shell-appbar.mud-appbar {
-    background-color: color-mix(in srgb, var(--mud-palette-drawer-background) 92%, transparent);
     backdrop-filter: blur(8px);
 }
 
