@@ -15,8 +15,17 @@
         <div class="agent-hub__layout">
             <ConversationListSkeleton />
             <div class="agent-hub__main">
-                <div class="agent-hub__content agent-hub__content--split">
-                    <ChatHistorySkeleton />
+                <div class="agent-hub__scroll agent-hub__scroll--landing">
+                    <div class="agent-hub__content agent-hub__content--split">
+                        <ChatHistorySkeleton />
+                    </div>
+                </div>
+                <div class="agent-hub__input-dock">
+                    <ChatMessageInput @bind-Value="_inputText"
+                                      Placeholder="@AgentConstants.InputPlaceholder"
+                                      Disabled="true"
+                                      IsStreaming="false"
+                                      OnSend="SendAsync" />
                 </div>
             </div>
         </div>
@@ -29,42 +38,50 @@
                               OnSelect="SelectThreadAsync"
                               OnNewChat="NewChatAsync" />
             <div class="agent-hub__main">
-                <div class="agent-hub__content agent-hub__content--split">
-                    @if (_isLoadingMessages)
-                    {
-                        <ChatHistorySkeleton />
-                    }
-                    else if (ShowQuickActions)
-                    {
-                        <AgentQuickActionsPanel QuickActions="_quickActions"
-                                                OnActionSelected="OnQuickAction" />
-                    }
-                    else
-                    {
-                        <ChatHistory ThreadTitle="@CurrentThreadTitle"
-                                     Messages="_messages"
-                                     PendingAssistantMarkdown="@_pendingAssistant"
-                                     PendingReasoning="@_pendingReasoning"
-                                     IsStreaming="_isStreaming"
-                                     Status="@_status" />
-                    }
+                <div class="agent-hub__scroll @(ShowQuickActions ? "agent-hub__scroll--landing" : null)">
+                    <div class="agent-hub__content agent-hub__content--split">
+                        @if (_isLoadingMessages)
+                        {
+                            <ChatHistorySkeleton />
+                        }
+                        else if (ShowQuickActions)
+                        {
+                            <AgentQuickActionsPanel QuickActions="_quickActions"
+                                                    OnActionSelected="OnQuickAction" />
+                        }
+                        else
+                        {
+                            <ChatHistory ThreadTitle="@CurrentThreadTitle"
+                                         Messages="_messages"
+                                         PendingAssistantMarkdown="@_pendingAssistant"
+                                         PendingReasoning="@_pendingReasoning"
+                                         IsStreaming="_isStreaming"
+                                         Status="@_status" />
+                        }
+                    </div>
                 </div>
-                <ChatMessageInput @bind-Value="_inputText"
-                                  Placeholder="@AgentConstants.InputPlaceholder"
-                                  IsStreaming="_isStreaming"
-                                  OnSend="SendAsync" />
+                <div class="agent-hub__input-dock">
+                    <ChatMessageInput @bind-Value="_inputText"
+                                      Placeholder="@AgentConstants.InputPlaceholder"
+                                      IsStreaming="_isStreaming"
+                                      OnSend="SendAsync" />
+                </div>
             </div>
         </div>
     }
     else
     {
-        <div class="agent-hub__content">
-            <AgentQuickActionsPanel QuickActions="_quickActions"
-                                    OnActionSelected="OnQuickAction" />
+        <div class="agent-hub__scroll agent-hub__scroll--landing">
+            <div class="agent-hub__content">
+                <AgentQuickActionsPanel QuickActions="_quickActions"
+                                        OnActionSelected="OnQuickAction" />
+            </div>
         </div>
-        <ChatMessageInput @bind-Value="_inputText"
-                          Placeholder="@AgentConstants.InputPlaceholder"
-                          IsStreaming="_isStreaming"
-                          OnSend="SendAsync" />
+        <div class="agent-hub__input-dock">
+            <ChatMessageInput @bind-Value="_inputText"
+                              Placeholder="@AgentConstants.InputPlaceholder"
+                              IsStreaming="_isStreaming"
+                              OnSend="SendAsync" />
+        </div>
     }
 </div>

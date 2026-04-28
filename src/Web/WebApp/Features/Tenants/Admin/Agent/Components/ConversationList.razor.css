@@ -1,8 +1,8 @@
 .agent-convo {
     display: flex;
     flex-direction: column;
-    width: 288px;
-    flex-shrink: 0;
+    flex: 0 0 288px;
+    height: 100%;
     align-self: stretch;
     min-height: 0;
     border-right: 1px solid var(--mud-palette-lines-default);
@@ -19,6 +19,7 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 8px;
     background-color: inherit;
 }

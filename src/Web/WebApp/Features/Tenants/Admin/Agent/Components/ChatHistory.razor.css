@@ -1,8 +1,10 @@
 .chat-history {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    height: 100%;
+    overflow: hidden;
     background-color: color-mix(in srgb, var(--mud-palette-background) 92%, var(--mud-palette-surface));
 }
 
@@ -29,7 +31,9 @@
 
 .chat-history__scroll {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 24px 24px 16px;
 }
 

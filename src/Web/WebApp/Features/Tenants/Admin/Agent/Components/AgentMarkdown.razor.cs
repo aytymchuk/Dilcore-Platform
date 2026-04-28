@@ -17,7 +17,7 @@ public partial class AgentMarkdown : ComponentBase
                 Typo.h1 => Typo.h5,
                 Typo.h2 => Typo.h6,
                 Typo.h3 => Typo.subtitle1,
-                _ => Typo.subtitle2,
+                _ => Typo.body2,
             },
         },
     };

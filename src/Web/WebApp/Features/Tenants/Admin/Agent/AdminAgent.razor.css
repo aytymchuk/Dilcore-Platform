@@ -1,30 +1,41 @@
 .agent-hub {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
     min-height: 0;
-    /* App bar 64px + shell vertical padding; keeps hub inside viewport without document scroll */
-    height: calc(100dvh - 64px - 2rem);
-    max-height: calc(100dvh - 64px - 2rem);
+    height: 100%;
+    max-height: 100%;
     overflow: hidden;
-    padding: 0 16px;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .agent-hub--empty {
     max-width: 900px;
     margin: 0 auto;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.agent-hub--empty .agent-hub__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .agent-hub:not(.agent-hub--empty) {
     max-width: none;
     margin: 0;
-    padding: 0 16px 0 0;
 }
 
 .agent-hub__layout {
     display: flex;
     align-items: stretch;
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    height: 100%;
+    max-height: 100%;
     overflow: hidden;
 }
 
@@ -34,27 +45,49 @@
     flex-direction: column;
     min-height: 0;
     min-width: 0;
-    padding: 0 24px 16px;
+    height: 100%;
+    padding: 0;
+}
+
+/* Scrollable main area above the docked composer */
+.agent-hub__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Landing / quick actions: whole column scrolls */
+.agent-hub__scroll--landing {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Empty state: center hero in the scroll region */
+.agent-hub--empty .agent-hub__scroll--landing {
+    justify-content: center;
 }
 
 .agent-hub__content {
-    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 40px;
-    overflow-y: auto;
-    padding: 32px 0;
+    padding: 32px 16px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .agent-hub__content--split {
-    justify-content: flex-start;
-    align-items: stretch;
     flex: 1;
     min-height: 0;
+    justify-content: flex-start;
+    align-items: stretch;
     overflow: hidden;
     padding: 0;
+    gap: 0;
 }
 
 .agent-hub__content--split > ::deep .agent-hub__hero {
@@ -66,3 +99,36 @@
     align-self: center;
 }
 
+/* Pinned to bottom of main column (flex sibling below .agent-hub__scroll) */
+.agent-hub__input-dock {
+    flex-shrink: 0;
+    display: grid;
+    grid-auto-flow: row;
+    row-gap: 0;
+    position: sticky;
+    bottom: 0;
+    background-color: var(--mud-palette-background);
+    border-top: 1px solid var(--mud-palette-lines-default);
+    padding: 0 12px 10px;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .agent-hub__layout {
+        flex-direction: column;
+    }
+
+    .agent-hub__layout > ::deep .agent-convo {
+        flex: 0 0 auto;
+        width: 100%;
+        height: auto;
+        max-height: 40dvh;
+        border-right: none;
+        border-bottom: 1px solid var(--mud-palette-lines-default);
+    }
+}
+
+.agent-hub__input-dock ::deep .agent-hub__input-bar {
+    border-top: none;
+    padding-top: 8px;
+}

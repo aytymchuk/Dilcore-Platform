@@ -10,7 +10,7 @@
 
 <UserStateProvider>
     <TenantStateProvider SystemName="@Tenant">
-        <MudLayout>
+        <MudLayout Class="tenant-shell-layout">
             <MudDrawer @bind-Open="@DrawerOpen" Variant="DrawerVariant.Persistent" ClipMode="DrawerClipMode.Never" Elevation="0" Class="border-r mud-border-lines-default">
                 <MudDrawerHeader Class="px-6 py-4 border-b mud-border-lines-default">
                     <div class="d-flex align-center gap-2">
@@ -52,10 +52,14 @@
                 </div>
             </MudAppBar>
             
-            <MudMainContent>
-                <MudContainer MaxWidth="MaxWidth.False" Class="shell-content" Style="padding-left: 0; padding-right: 0;">
-                    @ChildContent
-                </MudContainer>
+            <MudMainContent Class="tenant-shell-main">
+                <div class="tenant-shell-content-root">
+                    <MudContainer MaxWidth="MaxWidth.False"
+                                  Class="shell-content"
+                                  Style="padding: 0;">
+                        @ChildContent
+                    </MudContainer>
+                </div>
             </MudMainContent>
         </MudLayout>
     </TenantStateProvider>

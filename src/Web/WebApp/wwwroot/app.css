@@ -1,3 +1,46 @@
+/* Full viewport height chain for flex layouts (e.g. agent shell flush) */
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+}
+
+/* Shell layout height constraints — global so they win over MudBlazor's own stylesheet
+   regardless of Blazor CSS isolation scoping. */
+.mud-layout.tenant-shell-layout {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+.mud-main-content.tenant-shell-main {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    /* Use full dvh so MudBlazor's own padding-top (= appbar height) handles AppBar clearance.
+       calc(100dvh - appbar) would make the element only 607px tall starting at y=0,
+       leaving a 64px dead zone below it. */
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+.mud-container.shell-content {
+    padding: 0 !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
