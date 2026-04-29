@@ -39,7 +39,7 @@
                               OnNewChat="NewChatAsync" />
             <div class="agent-hub__main">
                 <div class="agent-hub__scroll @(ShowQuickActions ? "agent-hub__scroll--landing" : null)">
-                    <div class="agent-hub__content agent-hub__content--split">
+                    <div class="agent-hub__content agent-hub__content--split @(ShowQuickActions ? "agent-hub__content--landing" : null)">
                         @if (_isLoadingMessages)
                         {
                             <ChatHistorySkeleton />

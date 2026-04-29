@@ -1,38 +1,40 @@
 @using Dilcore.WebApp.Constants
 
-<div class="agent-hub__hero" data-testid="@AgentConstants.TestIds.HeroSection">
-    <MudText Typo="Typo.h3" Class="agent-hub__hero-title">
-        @AgentConstants.HeroPrefix
-        <span class="agent-hub__hero-highlight">@AgentConstants.HeroHighlight</span>
-        @AgentConstants.HeroSuffix
-    </MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="agent-hub__hero-subtitle">
-        @AgentConstants.HeroSubtitle
-    </MudText>
-</div>
+<div class="agent-hub__quick-actions-panel">
+    <div class="agent-hub__hero" data-testid="@AgentConstants.TestIds.HeroSection">
+        <MudText Typo="Typo.h4" Class="agent-hub__hero-title">
+            @AgentConstants.HeroPrefix
+            <span class="agent-hub__hero-highlight">@AgentConstants.HeroHighlight</span>
+            @AgentConstants.HeroSuffix
+        </MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="agent-hub__hero-subtitle">
+            @AgentConstants.HeroSubtitle
+        </MudText>
+    </div>
 
-<MudGrid Spacing="3" Class="agent-hub__actions" data-testid="@AgentConstants.TestIds.QuickActionsGrid">
-    @foreach (var action in QuickActions)
-    {
-        <MudItem xs="12" sm="6">
-            <MudCard Elevation="0"
-                     Class="agent-hub__action-card"
-                     data-testid="@AgentConstants.TestIds.QuickActionCard"
-                     @onclick="() => OnActionSelected.InvokeAsync(action)">
-                <MudCardContent Class="d-flex align-start gap-3">
-                    <MudIcon Icon="@action.Icon"
-                             Size="Size.Medium"
-                             Class="agent-hub__action-icon" />
-                    <div>
-                        <MudText Typo="Typo.subtitle1" Class="agent-hub__action-title">
-                            @action.Title
-                        </MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">
-                            @action.Description
-                        </MudText>
-                    </div>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    }
-</MudGrid>
+    <MudGrid Spacing="3" Class="agent-hub__actions" data-testid="@AgentConstants.TestIds.QuickActionsGrid">
+        @foreach (var action in QuickActions)
+        {
+            <MudItem xs="12" sm="6">
+                <MudCard Elevation="0"
+                         Class="agent-hub__action-card"
+                         data-testid="@AgentConstants.TestIds.QuickActionCard"
+                         @onclick="() => OnActionSelected.InvokeAsync(action)">
+                    <MudCardContent Class="d-flex align-start gap-3">
+                        <MudIcon Icon="@action.Icon"
+                                 Size="Size.Medium"
+                                 Class="agent-hub__action-icon" />
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="agent-hub__action-title">
+                                @action.Title
+                            </MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                @action.Description
+                            </MudText>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+</div>

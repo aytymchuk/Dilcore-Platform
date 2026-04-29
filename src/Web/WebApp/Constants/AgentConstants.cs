@@ -22,21 +22,21 @@ public static class AgentConstants
 
     public static class QuickActions
     {
-        public const string BuildDataSchemaTitle = "Build Data Schema";
-        public const string BuildDataSchemaDescription = "Map out complex database architectures with automated relationship detection.";
-        public const string BuildDataSchemaPrompt = "Help me build a data schema for my project";
+        public const string AgentGuideTitle = "Agent Guide";
+        public const string AgentGuideDescription = "See what the agent can design, generate, and refine inside your workspace.";
+        public const string AgentGuidePrompt = "Explain what functions this agent provides and how I can use it in this workspace.";
 
-        public const string AutomateLogicTitle = "Automate Logic";
-        public const string AutomateLogicDescription = "Generate Python or Node.js scripts to handle repetitive backend tasks.";
-        public const string AutomateLogicPrompt = "Help me automate a business logic workflow";
+        public const string PersonalAccountingTitle = "Design Personal Accounting System";
+        public const string PersonalAccountingDescription = "Model accounts, transactions, budgets, categories, and reporting flows.";
+        public const string PersonalAccountingPrompt = "Help me design a personal accounting system for tracking accounts, budgets, expenses, and reports.";
 
-        public const string PerformanceAuditTitle = "Performance Audit";
-        public const string PerformanceAuditDescription = "Run deep diagnostic reports on current infrastructure performance.";
-        public const string PerformanceAuditPrompt = "Run a performance audit on my workspace";
+        public const string CustomerCrmTitle = "Design Customer CRM";
+        public const string CustomerCrmDescription = "Plan contacts, companies, deals, activity history, and sales pipeline stages.";
+        public const string CustomerCrmPrompt = "Help me design a CRM system with customers, companies, deals, activities, and pipeline stages.";
 
-        public const string SystemGuideTitle = "System Guide";
-        public const string SystemGuideDescription = "Generate documentation and API references for your system.";
-        public const string SystemGuidePrompt = "Generate a system guide for my workspace";
+        public const string InventoryWorkflowTitle = "Design Inventory Workflow";
+        public const string InventoryWorkflowDescription = "Shape products, stock movements, purchase orders, suppliers, and alerts.";
+        public const string InventoryWorkflowPrompt = "Help me design an inventory management workflow with products, suppliers, stock movements, and reorder alerts.";
     }
 
     public static class TestIds

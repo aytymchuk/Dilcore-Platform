@@ -358,28 +358,28 @@ public partial class AdminAgent : TenantComponentBase
         return
         [
             new AgentQuickAction(
-                Icons.Material.Filled.Schema,
-                AgentConstants.QuickActions.BuildDataSchemaTitle,
-                AgentConstants.QuickActions.BuildDataSchemaDescription,
-                AgentConstants.QuickActions.BuildDataSchemaPrompt),
+                Icons.Material.Filled.Explore,
+                AgentConstants.QuickActions.AgentGuideTitle,
+                AgentConstants.QuickActions.AgentGuideDescription,
+                AgentConstants.QuickActions.AgentGuidePrompt),
 
             new AgentQuickAction(
-                Icons.Material.Filled.AutoFixHigh,
-                AgentConstants.QuickActions.AutomateLogicTitle,
-                AgentConstants.QuickActions.AutomateLogicDescription,
-                AgentConstants.QuickActions.AutomateLogicPrompt),
+                Icons.Material.Filled.AccountBalanceWallet,
+                AgentConstants.QuickActions.PersonalAccountingTitle,
+                AgentConstants.QuickActions.PersonalAccountingDescription,
+                AgentConstants.QuickActions.PersonalAccountingPrompt),
 
             new AgentQuickAction(
-                Icons.Material.Filled.Speed,
-                AgentConstants.QuickActions.PerformanceAuditTitle,
-                AgentConstants.QuickActions.PerformanceAuditDescription,
-                AgentConstants.QuickActions.PerformanceAuditPrompt),
+                Icons.Material.Filled.Groups,
+                AgentConstants.QuickActions.CustomerCrmTitle,
+                AgentConstants.QuickActions.CustomerCrmDescription,
+                AgentConstants.QuickActions.CustomerCrmPrompt),
 
             new AgentQuickAction(
-                Icons.Material.Filled.MenuBook,
-                AgentConstants.QuickActions.SystemGuideTitle,
-                AgentConstants.QuickActions.SystemGuideDescription,
-                AgentConstants.QuickActions.SystemGuidePrompt)
+                Icons.Material.Filled.Inventory2,
+                AgentConstants.QuickActions.InventoryWorkflowTitle,
+                AgentConstants.QuickActions.InventoryWorkflowDescription,
+                AgentConstants.QuickActions.InventoryWorkflowPrompt)
         ];
     }
 }

@@ -27,7 +27,8 @@ public partial class ChatMessageInput
 
     private async Task HandleKeyDownAsync(KeyboardEventArgs e)
     {
-        if (e.Key != "Enter" || e.ShiftKey)
+        var shouldInsertNewLine = e.ShiftKey || e.AltKey || e.CtrlKey || e.MetaKey;
+        if (e.Key != "Enter" || shouldInsertNewLine)
         {
             return;
         }
