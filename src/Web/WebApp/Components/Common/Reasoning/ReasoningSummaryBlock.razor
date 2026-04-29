@@ -1,0 +1,22 @@
+@namespace Dilcore.WebApp.Components.Common.Reasoning
+@using Dilcore.WebApp.Components.Common.Markdown
+@using Dilcore.WebApp.Models.Agent
+
+<MudPaper Class="reasoning-summary" Elevation="0" Outlined="true">
+    <div class="reasoning-summary__header">
+        <MudText Typo="Typo.caption" Class="reasoning-summary__label">
+            @(string.IsNullOrWhiteSpace(Step.Header) ? "Summary:" : Step.Header)
+        </MudText>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Step.Content))
+    {
+        <div class="reasoning-markdown reasoning-summary__body mud-typography-body2">
+            <MudMarkdownContent Value="@Step.Content" />
+        </div>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public AgentReasoningStep Step { get; set; } = null!;
+}

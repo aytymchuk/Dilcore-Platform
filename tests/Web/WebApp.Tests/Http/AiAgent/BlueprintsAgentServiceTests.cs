@@ -147,7 +147,10 @@ public class BlueprintsAgentServiceTests
     [Test]
     public async Task GetThreadAsync_Should_Return_Client_Result()
     {
-        var expected = new ThreadStateDto { Id = "t2", Messages = [] };
+        var expected = (ThreadActionResponseDto)new ThreadContinuationResponseDto
+        {
+            Thread = new ThreadStateDto { Id = "t2", Messages = [] }
+        };
         var client = new Mock<IBlueprintsAgentClient>();
         client
             .Setup(c => c.GetThreadAsync("t2", It.IsAny<CancellationToken>()))

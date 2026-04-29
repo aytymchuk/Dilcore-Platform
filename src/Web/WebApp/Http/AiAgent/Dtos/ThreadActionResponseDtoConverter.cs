@@ -13,16 +13,16 @@ public sealed class ThreadActionResponseDtoConverter : JsonConverter<ThreadActio
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
 
-        if (root.TryGetProperty("messages", out var messages) && messages.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("interrupts", out var interrupts) && interrupts.ValueKind == JsonValueKind.Array)
         {
-            var thread = root.Deserialize<ThreadStateDto>(options)
-                ?? throw new JsonException("Failed to deserialize ThreadStateDto.");
-            return new ThreadContinuationResponseDto { Thread = thread };
+            var dto = root.Deserialize<InterruptResponseDto>(options)
+                ?? throw new JsonException("Failed to deserialize InterruptResponseDto.");
+            return new ThreadInterruptResponseDto { Interrupt = dto };
         }
 
-        var interrupt = root.Deserialize<InterruptResponseDto>(options)
-            ?? throw new JsonException("Failed to deserialize InterruptResponseDto.");
-        return new ThreadInterruptResponseDto { Interrupt = interrupt };
+        var thread = root.Deserialize<ThreadStateDto>(options)
+            ?? throw new JsonException("Failed to deserialize ThreadStateDto.");
+        return new ThreadContinuationResponseDto { Thread = thread };
     }
 
     public override void Write(Utf8JsonWriter writer, ThreadActionResponseDto value, JsonSerializerOptions options)

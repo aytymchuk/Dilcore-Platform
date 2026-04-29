@@ -19,7 +19,7 @@ public partial class ChatHistory : ComponentBase
     public string? PendingAssistantMarkdown { get; set; }
 
     [Parameter]
-    public string? PendingReasoning { get; set; }
+    public AgentReasoningProcess? PendingReasoningProcess { get; set; }
 
     [Parameter]
     public bool IsStreaming { get; set; }
@@ -31,7 +31,7 @@ public partial class ChatHistory : ComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Messages.Count == 0 && string.IsNullOrEmpty(PendingAssistantMarkdown) && string.IsNullOrEmpty(PendingReasoning) && !IsStreaming)
+        if (Messages.Count == 0 && string.IsNullOrEmpty(PendingAssistantMarkdown) && PendingReasoningProcess is null && !IsStreaming)
         {
             return;
         }

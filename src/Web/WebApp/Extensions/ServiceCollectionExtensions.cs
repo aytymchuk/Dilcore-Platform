@@ -57,6 +57,9 @@ public static class ServiceCollectionExtensions
             cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
         });
 
+        // Register operation logging behavior (load/save + exceptions)
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviors.OperationLoggingBehavior<,>));
+
         // Register the redirect behavior for 401 Unauthorized responses
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RedirectOnUnauthorizedBehavior<,>));
 

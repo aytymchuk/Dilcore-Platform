@@ -97,7 +97,7 @@ public class ServerSentEventsReaderTests
     {
         const string sse = """
             : ping
-            data: {"category":"interrupt","thread_id":"t1"}
+            data: {"category":"interrupt","id":"t1","interrupts":[{"action_request":{},"config":{}}]}
 
             """;
 
@@ -105,7 +105,7 @@ public class ServerSentEventsReaderTests
 
         events.Count.ShouldBe(1);
         events[0].ShouldBeOfType<InterruptStreamEvent>();
-        ((InterruptStreamEvent)events[0]).ThreadId.ShouldBe("t1");
+        ((InterruptStreamEvent)events[0]).Id.ShouldBe("t1");
     }
 
     [Test]

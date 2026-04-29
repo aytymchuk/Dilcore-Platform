@@ -15,6 +15,7 @@ public static class AgentConstants
     public const string StreamingStatusThinking = "Thinking…";
     public const string ReasoningLabel = "Reasoning";
     public const string ReasoningDecisionLabel = "Decision";
+    public const string ReasoningNextStepsLabel = "Next steps";
     public const string EmptyHistoryCaption = "Messages will appear here.";
     public const string InterruptNotice = "The agent is waiting for your input.";
     public const string ActiveThreadBadge = "Active";

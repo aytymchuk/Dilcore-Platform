@@ -36,6 +36,49 @@ body {
     line-height: var(--mud-typography-body2-lineheight, 1.43);
 }
 
+/* Dense markdown inside reasoning panels / summary (smallest practical body text) */
+.reasoning-markdown .mud-typography-body1 {
+    font-size: var(--mud-typography-caption-size, 0.75rem);
+    font-weight: var(--mud-typography-caption-weight, 400);
+    letter-spacing: var(--mud-typography-caption-letterspacing, 0.0333333333em);
+    line-height: 1.35;
+}
+
+.reasoning-markdown .mud-typography-body2 {
+    font-size: var(--mud-typography-caption-size, 0.75rem);
+    line-height: 1.35;
+}
+
+.reasoning-markdown p {
+    margin: 0 0 4px;
+}
+
+.reasoning-markdown p:last-child {
+    margin-bottom: 0;
+}
+
+.reasoning-markdown ul,
+.reasoning-markdown ol {
+    margin: 4px 0;
+    padding-left: 1.1rem;
+}
+
+.reasoning-markdown li {
+    margin: 2px 0;
+}
+
+.reasoning-markdown pre {
+    padding: 6px 8px;
+    margin: 6px 0;
+    font-size: 0.7rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.reasoning-markdown code {
+    font-size: 0.85em;
+}
+
 .mud-container.shell-content {
     padding: 0 !important;
     flex: 1 1 auto !important;

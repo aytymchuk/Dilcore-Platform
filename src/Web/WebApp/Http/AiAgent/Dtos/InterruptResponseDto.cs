@@ -1,19 +1,27 @@
-using System.Text.Json;
-
 namespace Dilcore.WebApp.Http.AiAgent.Dtos;
 
 /// <summary>
-/// Response when the agent graph pauses for user confirmation or input.
+/// Response returned when a graph interrupt is pending (matches OpenAPI <see cref="InterruptResponseDto"/>).
 /// </summary>
 public sealed class InterruptResponseDto
 {
     /// <summary>
-    /// Thread identifier when provided by the API.
+    /// Thread identifier.
     /// </summary>
-    public string? ThreadId { get; init; }
+    public required string Id { get; init; }
 
     /// <summary>
-    /// Raw interrupt payload for forward-compatibility with API schema changes.
+    /// Pending interrupts requiring user action.
     /// </summary>
-    public JsonElement? Payload { get; init; }
+    public required IReadOnlyList<InterruptDto> Interrupts { get; init; }
+
+    /// <summary>
+    /// Messages produced before the interrupt.
+    /// </summary>
+    public IReadOnlyList<MessageDto>? Messages { get; init; }
+
+    /// <summary>
+    /// Persisted reasoning envelopes when returned by the API.
+    /// </summary>
+    public IReadOnlyList<ReasoningEnvelopeDto>? Reasoning { get; init; }
 }

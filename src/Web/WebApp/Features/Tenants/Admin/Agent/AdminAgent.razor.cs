@@ -18,6 +18,7 @@ namespace Dilcore.WebApp.Features.Tenants.Admin.Agent;
 public partial class AdminAgent : TenantComponentBase
 {
     private readonly List<AgentQuickAction> _quickActions = BuildQuickActions();
+    private readonly ThinkingReasoningAccumulator _thinkingAccumulator = new();
 
     [Inject]
     private IBlueprintsAgentService AgentService { get; set; } = null!;
@@ -46,7 +47,7 @@ public partial class AdminAgent : TenantComponentBase
     private bool _isLoadingMessages;
     private string _inputText = string.Empty;
     private string? _pendingAssistant;
-    private string? _pendingReasoning;
+    private AgentReasoningProcess? _pendingReasoningProcess;
     private string? _finalAgentType;
     private string? _status;
     private bool _isStreaming;
@@ -140,32 +141,33 @@ public partial class AdminAgent : TenantComponentBase
             return;
         }
 
-        _messages = MapThreadToMessages(result.Value);
-    }
-
-    private static List<ChatMessage> MapThreadToMessages(ThreadStateDto thread)
-    {
-        var visible = thread.Messages.Where(m => !IsToolMessageType(m.Type)).ToList();
-        var list = new List<ChatMessage>(visible.Count);
-        for (var i = 0; i < visible.Count; i++)
+        var thread = result.Value.AsThread();
+        if (thread is not null)
         {
-            var m = visible[i];
-            var author = IsUserMessageType(m.Type)
-                ? ChatAuthor.User
-                : ChatAuthor.Assistant;
-            var ts = DateTime.UtcNow.AddSeconds(-(visible.Count - i));
-            list.Add(new ChatMessage(Guid.NewGuid(), author, m.Content, ts));
+            _messages = AgentThreadMessagesMapper.Map(thread);
+            return;
         }
 
-        return list;
+        var interrupt = result.Value.AsInterrupt();
+        if (interrupt is not null)
+        {
+            _interruptThreadId = interrupt.Id;
+            var messages = interrupt.Messages ?? [];
+            var reasoning = interrupt.Reasoning ?? [];
+            _messages = AgentThreadMessagesMapper.Map(new ThreadStateDto
+            {
+                Id = interrupt.Id,
+                Messages = messages,
+                Reasoning = reasoning
+            });
+
+            _messages.Add(new ChatMessage(
+                Guid.NewGuid(),
+                ChatAuthor.Status,
+                AgentConstants.InterruptNotice,
+                DateTime.UtcNow));
+        }
     }
-
-    private static bool IsUserMessageType(string type) =>
-        string.Equals(type, "user", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(type, "human", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsToolMessageType(string type) =>
-        string.Equals(type, "tool", StringComparison.OrdinalIgnoreCase);
 
     private static MessageDto? FindLastAiMessage(IReadOnlyList<MessageDto>? messages)
     {
@@ -204,10 +206,11 @@ public partial class AdminAgent : TenantComponentBase
             _isStreaming = true;
             _status = null;
             _pendingAssistant = null;
-            _pendingReasoning = null;
+            _pendingReasoningProcess = null;
             _finalAgentType = null;
             _interruptThreadId = null;
             _lastStreamUi = DateTime.MinValue;
+            _thinkingAccumulator.Clear();
 
             _messages.Add(new ChatMessage(Guid.NewGuid(), ChatAuthor.User, text, DateTime.UtcNow));
             await InvokeAsync(StateHasChanged);
@@ -221,10 +224,6 @@ public partial class AdminAgent : TenantComponentBase
             {
                 switch (evt)
                 {
-                    case DeltaStreamEvent d when string.IsNullOrEmpty(d.AgentType):
-                        _pendingReasoning = (_pendingReasoning ?? string.Empty) + (d.Content ?? string.Empty);
-                        await MaybeRefreshStreamUiAsync();
-                        break;
                     case DeltaStreamEvent d:
                         _pendingAssistant = (_pendingAssistant ?? string.Empty) + (d.Content ?? string.Empty);
                         if (!string.IsNullOrEmpty(d.AgentType))
@@ -252,31 +251,36 @@ public partial class AdminAgent : TenantComponentBase
                             _pendingAssistant = lastAi.Content;
                         }
 
+                        _pendingReasoningProcess = AgentReasoningViewMapper.FromEnvelopes(data.Reasoning);
                         await MaybeRefreshStreamUiAsync();
                         break;
                     case ThinkingStreamEvent t:
-                        _status = string.IsNullOrWhiteSpace(t.Text)
-                            ? AgentConstants.StreamingStatusThinking
-                            : $"{AgentConstants.StreamingStatusThinking} {t.Text}";
-                        await InvokeAsync(StateHasChanged);
+                        _thinkingAccumulator.Apply(t);
+                        _pendingReasoningProcess = _thinkingAccumulator.ToProcess();
+                        await MaybeRefreshStreamUiAsync();
                         break;
                     case InterruptStreamEvent i:
-                        if (!string.IsNullOrEmpty(i.ThreadId))
+                        if (string.IsNullOrEmpty(_interruptThreadId) && !string.IsNullOrEmpty(i.Id))
                         {
-                            _interruptThreadId = i.ThreadId;
+                            _interruptThreadId = i.Id;
                         }
+
+                        _pendingReasoningProcess = AgentReasoningViewMapper.FromEnvelopes(i.Reasoning);
 
                         _messages.Add(new ChatMessage(
                             Guid.NewGuid(),
                             ChatAuthor.Status,
-                            string.IsNullOrWhiteSpace(i.Reason) ? AgentConstants.InterruptNotice : i.Reason!,
+                            AgentConstants.InterruptNotice,
                             DateTime.UtcNow));
                         await InvokeAsync(StateHasChanged);
+                        break;
+                    case ErrorStreamEvent e:
+                        Snackbar.Add(string.IsNullOrWhiteSpace(e.Detail) ? AgentConstants.SendErrorMessage : e.Detail, Severity.Error);
                         break;
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(_pendingAssistant) || !string.IsNullOrWhiteSpace(_pendingReasoning))
+            if (!string.IsNullOrWhiteSpace(_pendingAssistant) || _pendingReasoningProcess is not null)
             {
                 _messages.Add(new ChatMessage(
                     Guid.NewGuid(),
@@ -284,12 +288,12 @@ public partial class AdminAgent : TenantComponentBase
                     _pendingAssistant ?? string.Empty,
                     DateTime.UtcNow)
                 {
-                    Reasoning = string.IsNullOrWhiteSpace(_pendingReasoning) ? null : _pendingReasoning
+                    Reasoning = _pendingReasoningProcess
                 });
             }
 
             _pendingAssistant = null;
-            _pendingReasoning = null;
+            _pendingReasoningProcess = null;
             _finalAgentType = null;
             _status = null;
             _isStreaming = false;
@@ -311,14 +315,14 @@ public partial class AdminAgent : TenantComponentBase
         {
             _isStreaming = false;
             _pendingAssistant = null;
-            _pendingReasoning = null;
+            _pendingReasoningProcess = null;
             _finalAgentType = null;
         }
         catch (Exception)
         {
             _isStreaming = false;
             _pendingAssistant = null;
-            _pendingReasoning = null;
+            _pendingReasoningProcess = null;
             _finalAgentType = null;
             Snackbar.Add(AgentConstants.SendErrorMessage, Severity.Error);
         }

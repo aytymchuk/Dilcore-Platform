@@ -23,6 +23,10 @@ else if (Message.Author == ChatAuthor.User)
             <MudPaper Class="agent-msg__user-card pa-3" Elevation="0" Outlined="true">
                 <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">@Message.Content</MudText>
             </MudPaper>
+            @if (EffectiveReasoning is not null)
+            {
+                <ReasoningProcess Process="EffectiveReasoning" InitiallyExpanded="IsStreaming" />
+            }
         </div>
     </div>
 }
@@ -41,44 +45,9 @@ else
                     <span class="agent-msg__streaming-dot" aria-hidden="true"></span>
                 }
             </div>
-            @if (ShowReasoningSection)
+            @if (EffectiveReasoning is not null)
             {
-                <MudExpansionPanels Elevation="0" Class="agent-msg__reasoning-panels">
-                    <MudExpansionPanel @bind-Expanded="_reasoningExpanded"
-                                       Text="@AgentConstants.ReasoningLabel"
-                                       Class="agent-msg__reasoning-panel">
-                        @if (_reasoningDisplay.IsStructured)
-                        {
-                            @if (!string.IsNullOrEmpty(_reasoningDisplay.Narrative))
-                            {
-                                <MudText Typo="Typo.body2" Class="agent-msg__reasoning-narrative">
-                                    @_reasoningDisplay.Narrative
-                                </MudText>
-                            }
-                            @if (!string.IsNullOrEmpty(_reasoningDisplay.NextRoute))
-                            {
-                                <div class="agent-msg__decision">
-                                    <div class="agent-msg__decision-row">
-                                        <MudText Typo="Typo.caption" Class="agent-msg__decision-caption">
-                                            @AgentConstants.ReasoningDecisionLabel
-                                        </MudText>
-                                        <MudChip T="string"
-                                                 Size="Size.Small"
-                                                 Color="Color.Primary"
-                                                 Variant="Variant.Filled"
-                                                 Class="agent-msg__decision-chip">
-                                            @_reasoningDisplay.NextRoute
-                                        </MudChip>
-                                    </div>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.body2" Class="agent-msg__reasoning-fallback">@ReasoningDisplayText</MudText>
-                        }
-                    </MudExpansionPanel>
-                </MudExpansionPanels>
+                <ReasoningProcess Process="EffectiveReasoning" InitiallyExpanded="IsStreaming" />
             }
             <div class="agent-prose mud-typography-body2">
                 <AgentMarkdown Value="@Message.Content" />

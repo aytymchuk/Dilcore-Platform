@@ -1,0 +1,138 @@
+.reasoning-step {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 2px 0;
+}
+
+.reasoning-step__icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 1rem !important;
+}
+
+.reasoning-step__icon--completed {
+    color: var(--mud-palette-success);
+}
+
+.reasoning-step__icon--running {
+    color: var(--mud-palette-primary);
+    animation: reasoning-spin 1.2s linear infinite;
+}
+
+.reasoning-step__icon--failed {
+    color: var(--mud-palette-error);
+}
+
+.reasoning-step__icon--skipped {
+    color: var(--mud-palette-text-disabled);
+}
+
+.reasoning-step__icon--pending {
+    color: var(--mud-palette-text-secondary);
+}
+
+.reasoning-step__main {
+    flex: 1;
+    min-width: 0;
+}
+
+.reasoning-step__panels {
+    width: 100%;
+    background-color: transparent;
+}
+
+.reasoning-step__panel :deep(.mud-expand-panel-header) {
+    min-height: 28px;
+    padding: 2px 4px 2px 0;
+}
+
+.reasoning-step__panel :deep(.mud-expand-panel-content) {
+    padding: 0 0 4px;
+}
+
+.reasoning-step__panel :deep(.mud-expand-panel-text) {
+    flex: 1;
+    min-width: 0;
+}
+
+.reasoning-step__panel-title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.reasoning-step__panel-title-text {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    line-height: 1.25;
+    word-break: break-word;
+}
+
+.reasoning-step__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: flex-start;
+    width: 100%;
+    padding: 2px 0;
+    color: inherit;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.reasoning-step__row--static {
+    cursor: default;
+}
+
+.reasoning-step__content {
+    white-space: pre-wrap;
+    line-height: 1.25;
+}
+
+.reasoning-step__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.reasoning-step__duration {
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+.reasoning-step__progress {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.reasoning-step__markdown {
+    margin-top: 2px;
+}
+
+.reasoning-step__items {
+    margin: 4px 0 0;
+    padding-left: 1.1rem;
+    list-style: disc;
+}
+
+.reasoning-step__item-text {
+    white-space: pre-wrap;
+    line-height: 1.25;
+}
+
+@keyframes reasoning-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

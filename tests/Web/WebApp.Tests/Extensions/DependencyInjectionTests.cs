@@ -2,6 +2,10 @@ using Dilcore.WebApp.Extensions;
 using Dilcore.WebApp.Http.AiAgent;
 using Dilcore.WebApp.Services.Agent;
 using Dilcore.WebApp.Services.Tenancy;
+using Dilcore.WebApp.Features.Tenants.List;
+using Dilcore.WebApp.Models.Tenants;
+using FluentResults;
+using MediatR;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -58,6 +62,10 @@ public class DependencyInjectionTests
         scope.ServiceProvider.GetService<CircuitServicesAccessor>().ShouldNotBeNull();
         scope.ServiceProvider.GetService<IBlazorTenantContext>().ShouldNotBeNull();
         scope.ServiceProvider.GetServices<CircuitHandler>().ShouldContain(h => h is ServicesAccessorCircuitHandler);
+
+        // Check for MediatR pipeline behaviors (open generic registrations)
+        var behaviors = scope.ServiceProvider.GetServices<IPipelineBehavior<GetTenantListQuery, Result<List<Tenant>>>>();
+        behaviors.ShouldContain(b => b.GetType().Name.Contains("OperationLoggingBehavior", StringComparison.Ordinal));
 
         // Check for other expected services
         scope.ServiceProvider.GetService<Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider>().ShouldNotBeNull();

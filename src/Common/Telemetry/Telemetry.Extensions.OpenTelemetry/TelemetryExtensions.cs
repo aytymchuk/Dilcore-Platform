@@ -53,7 +53,11 @@ public static class TelemetryExtensions
                 {
                     metrics.AddAspNetCoreInstrumentation();
                     metrics.AddHttpClientInstrumentation();
-                    metrics.AddConsoleExporter();
+
+                    if (settings.EnableLocalConsoleMetricsExporter)
+                    {
+                        metrics.AddConsoleExporter();
+                    }
                 })
                 .WithLogging(logging => logging.AddConsoleExporter());
         }

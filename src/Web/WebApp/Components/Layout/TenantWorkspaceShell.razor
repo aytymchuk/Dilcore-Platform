@@ -57,7 +57,9 @@
                     <MudContainer MaxWidth="MaxWidth.False"
                                   Class="shell-content"
                                   Style="padding: 0;">
-                        @ChildContent
+                        <GlobalErrorBoundary>
+                            @ChildContent
+                        </GlobalErrorBoundary>
                     </MudContainer>
                 </div>
             </MudMainContent>

@@ -50,7 +50,10 @@ public class BlueprintsAgentClientExtensionsTests
     [Test]
     public async Task SafeGetThreadAsync_Should_Return_Value_When_Client_Succeeds()
     {
-        var expected = new ThreadStateDto { Id = "t1", Messages = [] };
+        var expected = (ThreadActionResponseDto)new ThreadContinuationResponseDto
+        {
+            Thread = new ThreadStateDto { Id = "t1", Messages = [] }
+        };
         var client = new Mock<IBlueprintsAgentClient>();
         client
             .Setup(c => c.GetThreadAsync("t1", It.IsAny<CancellationToken>()))

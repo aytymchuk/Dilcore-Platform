@@ -6,6 +6,11 @@ namespace Dilcore.WebApp.Http.AiAgent.Dtos;
 public sealed class MessageDto
 {
     /// <summary>
+    /// Stable identifier when provided by the API (anchors reasoning envelopes).
+    /// </summary>
+    public string? Id { get; init; }
+
+    /// <summary>
     /// Message type discriminator.
     /// </summary>
     public required string Type { get; init; }

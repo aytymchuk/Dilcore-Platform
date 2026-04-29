@@ -17,7 +17,9 @@
         </MudAppBar>
         <MudMainContent>
             <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
-                @Body
+                <GlobalErrorBoundary>
+                    @Body
+                </GlobalErrorBoundary>
             </MudContainer>
         </MudMainContent>
     </MudLayout>

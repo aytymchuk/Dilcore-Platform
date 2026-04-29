@@ -1,5 +1,6 @@
 using Dilcore.WebApp.Services.Loading;
 using Microsoft.AspNetCore.Components;
+using Dilcore.WebApp.Extensions;
 
 namespace Dilcore.WebApp.Components.Common;
 
@@ -25,11 +26,18 @@ public abstract class AsyncComponentBase : ComponentBase, IAsyncDisposable
     [Inject]
     public ILoadingService? LoadingService { get; set; }
 
+    [Inject]
+    public ILogger<AsyncComponentBase>? ComponentLogger { get; set; }
+
     /// <summary>
     /// Executes an async action while tracking the busy state.
     /// </summary>
     protected async Task ExecuteBusyAsync(Func<Task> action)
     {
+        var component = GetType().Name;
+
+        ComponentLogger?.LogComponentOperationStarted(component, "ExecuteBusyAsync", null);
+
         try
         {
             var incrementResult = Interlocked.Increment(ref _busyCount);
@@ -40,6 +48,13 @@ public abstract class AsyncComponentBase : ComponentBase, IAsyncDisposable
             }
 
             await action();
+
+            ComponentLogger?.LogComponentOperationSucceeded(component, "ExecuteBusyAsync");
+        }
+        catch (Exception ex)
+        {
+            ComponentLogger?.LogComponentOperationException(ex, component, "ExecuteBusyAsync", null);
+            throw;
         }
         finally
         {
@@ -62,7 +77,10 @@ public abstract class AsyncComponentBase : ComponentBase, IAsyncDisposable
             return;
         }
 
+        var component = GetType().Name;
         var message = loadingText ?? AsyncComponentConstants.DefaultLoadingMessage;
+
+        ComponentLogger?.LogComponentOperationStarted(component, "ExecuteAsync", message);
 
         try
         {
@@ -72,6 +90,13 @@ public abstract class AsyncComponentBase : ComponentBase, IAsyncDisposable
             LoadingService?.Show(message);
 
             await action();
+
+            ComponentLogger?.LogComponentOperationSucceeded(component, "ExecuteAsync");
+        }
+        catch (Exception ex)
+        {
+            ComponentLogger?.LogComponentOperationException(ex, component, "ExecuteAsync", message);
+            throw;
         }
         finally
         {

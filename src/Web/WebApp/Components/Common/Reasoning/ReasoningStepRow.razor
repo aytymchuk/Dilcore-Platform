@@ -1,0 +1,187 @@
+@namespace Dilcore.WebApp.Components.Common.Reasoning
+@using Dilcore.WebApp.Constants
+@using Dilcore.WebApp.Models.Agent
+
+<div class="reasoning-step @RowClass">
+    <MudIcon Icon="@IconName" Class="@($"reasoning-step__icon reasoning-step__icon--{Variant}")" Size="Size.Small" />
+    <div class="reasoning-step__main">
+        @if (UseExpansionPanel)
+        {
+            <MudExpansionPanels Class="reasoning-step__panels"
+                                Dense="true"
+                                Elevation="0"
+                                Square="true">
+                <MudExpansionPanel @bind-Expanded="_panelExpanded"
+                                   Class="reasoning-step__panel">
+                    <TitleContent>
+                        <div class="reasoning-step__panel-title">
+                            <MudText Typo="Typo.caption" Class="reasoning-step__panel-title-text">
+                                @PanelTitleText
+                            </MudText>
+                            <span class="reasoning-step__meta">
+                                @if (!string.IsNullOrEmpty(Step.DurationText))
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="reasoning-step__duration">
+                                        @Step.DurationText
+                                    </MudText>
+                                }
+                            </span>
+                        </div>
+                    </TitleContent>
+                    <ChildContent>
+                        @if (IsRunning)
+                        {
+                            <MudProgressLinear Color="Color.Primary" Class="reasoning-step__progress" Rounded="true" Indeterminate="true" />
+                        }
+                        @if (HasMarkdownBody)
+                        {
+                            <div class="reasoning-markdown reasoning-step__markdown mud-typography-body2">
+                                <MudMarkdownContent Value="@MarkdownBody" />
+                            </div>
+                        }
+                        @if (HasItems)
+                        {
+                            <ul class="reasoning-step__items">
+                                @foreach (var item in Step.Items!)
+                                {
+                                    <li>
+                                        <MudText Typo="Typo.caption" Class="reasoning-step__item-text">@item</MudText>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </ChildContent>
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+        }
+        else
+        {
+            <div class="reasoning-step__row reasoning-step__row--static">
+                <MudText Typo="Typo.caption" Class="reasoning-step__content">@StaticPrimaryLine</MudText>
+                <span class="reasoning-step__meta">
+                    @if (!string.IsNullOrEmpty(Step.DurationText))
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="reasoning-step__duration">
+                            @Step.DurationText
+                        </MudText>
+                    }
+                </span>
+            </div>
+            @if (IsRunning)
+            {
+                <MudProgressLinear Color="Color.Primary" Class="reasoning-step__progress" Rounded="true" Indeterminate="true" />
+            }
+            @if (HasItems)
+            {
+                <ul class="reasoning-step__items">
+                    @foreach (var item in Step.Items!)
+                    {
+                        <li>
+                            <MudText Typo="Typo.caption" Class="reasoning-step__item-text">@item</MudText>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public AgentReasoningStep Step { get; set; } = null!;
+
+    [Parameter]
+    public bool InitiallyExpanded { get; set; }
+
+    private bool _panelExpanded;
+    private bool _hasInitialized;
+
+    private bool IsRunning =>
+        string.Equals(Step.Status, "running", StringComparison.OrdinalIgnoreCase);
+
+    private bool HasItems => Step.Items is { Count: > 0 };
+
+    private bool IsNextStepsKind =>
+        string.Equals(Step.Kind, "next_steps", StringComparison.OrdinalIgnoreCase);
+
+    private bool HasMarkdownBody =>
+        !string.IsNullOrWhiteSpace(MarkdownBody);
+
+    private string MarkdownBody
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(Step.DetailMarkdown))
+            {
+                return Step.DetailMarkdown!;
+            }
+
+            return Step.Content ?? string.Empty;
+        }
+    }
+
+    /// <summary>Expandable when there is markdown body text to reveal (including content-only steps).</summary>
+    private bool UseExpansionPanel => HasMarkdownBody;
+
+    private string PanelTitleText
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(Step.Header))
+            {
+                return Step.Header!;
+            }
+
+            if (IsNextStepsKind && HasItems && string.IsNullOrWhiteSpace(Step.Content))
+            {
+                return AgentConstants.ReasoningNextStepsLabel;
+            }
+
+            return ReasoningStepDisplayHelper.TruncateForStepTitle(Step.Content);
+        }
+    }
+
+    private string StaticPrimaryLine => PanelTitleText;
+
+    private string Variant => ResolveVariant(Step.Status);
+
+    private string RowClass => $"reasoning-step--{Variant}";
+
+    private string IconName => Variant switch
+    {
+        "completed" => Icons.Material.Filled.CheckCircle,
+        "running" => Icons.Material.Filled.Autorenew,
+        "failed" => Icons.Material.Filled.Warning,
+        "skipped" => Icons.Material.Filled.RemoveCircleOutline,
+        _ => Icons.Material.Outlined.RadioButtonUnchecked
+    };
+
+    private static string ResolveVariant(string? status)
+    {
+        if (string.IsNullOrEmpty(status))
+        {
+            return "pending";
+        }
+
+        var s = status.Trim().ToLowerInvariant();
+        return s switch
+        {
+            "completed" => "completed",
+            "running" => "running",
+            "failed" => "failed",
+            "skipped" => "skipped",
+            _ => "pending"
+        };
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (_hasInitialized)
+        {
+            return;
+        }
+
+        _panelExpanded = InitiallyExpanded;
+        _hasInitialized = true;
+    }
+}

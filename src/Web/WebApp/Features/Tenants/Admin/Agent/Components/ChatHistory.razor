@@ -14,7 +14,7 @@
         </div>
     }
     <div @ref="_scrollRegion" class="chat-history__scroll custom-scrollbar">
-        @if (Messages.Count == 0 && string.IsNullOrEmpty(PendingAssistantMarkdown) && string.IsNullOrEmpty(PendingReasoning) && !IsStreaming)
+        @if (Messages.Count == 0 && string.IsNullOrEmpty(PendingAssistantMarkdown) && PendingReasoningProcess is null && !IsStreaming)
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" Class="pa-4">
                 @AgentConstants.EmptyHistoryCaption
@@ -27,7 +27,7 @@
                 {
                     <ChatMessageBubble Message="message" />
                 }
-                @if (IsStreaming || !string.IsNullOrEmpty(PendingAssistantMarkdown) || !string.IsNullOrEmpty(PendingReasoning))
+                @if (IsStreaming || !string.IsNullOrEmpty(PendingAssistantMarkdown) || PendingReasoningProcess is not null)
                 {
                     var streamingMessage = new ChatMessage(
                         Guid.Empty,
@@ -36,7 +36,7 @@
                         DateTime.UtcNow);
                     <ChatMessageBubble Message="streamingMessage"
                                        IsStreaming="IsStreaming"
-                                       Reasoning="PendingReasoning" />
+                                       ReasoningProcess="PendingReasoningProcess" />
                 }
                 @if (!string.IsNullOrEmpty(Status))
                 {

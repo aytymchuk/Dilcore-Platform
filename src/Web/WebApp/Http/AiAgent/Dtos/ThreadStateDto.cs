@@ -2,6 +2,7 @@ namespace Dilcore.WebApp.Http.AiAgent.Dtos;
 
 /// <summary>
 /// Full thread state returned by single-thread fetches or non-streaming agent actions, including message history.
+/// Matches OpenAPI <c>ThreadResponseDto</c>.
 /// </summary>
 public sealed class ThreadStateDto
 {
@@ -18,5 +19,10 @@ public sealed class ThreadStateDto
     /// <summary>
     /// Ordered messages from the thread state.
     /// </summary>
-    public required IReadOnlyList<MessageDto> Messages { get; init; }
+    public IReadOnlyList<MessageDto> Messages { get; init; } = [];
+
+    /// <summary>
+    /// Persisted reasoning envelopes when returned by the API.
+    /// </summary>
+    public IReadOnlyList<ReasoningEnvelopeDto> Reasoning { get; init; } = [];
 }

@@ -1,0 +1,98 @@
+@namespace Dilcore.WebApp.Components.Common.Reasoning
+@using Dilcore.WebApp.Constants
+@using Dilcore.WebApp.Models.Agent
+
+@if (Process is not null)
+{
+    var thinkingSteps = NonSummaryStepCount(Process);
+
+    <MudPaper Class="reasoning-process" Elevation="0" Outlined="true">
+        <button type="button" class="reasoning-process__header" @onclick="ToggleExpanded">
+            <span class="reasoning-process__heading">
+                <MudIcon Icon="@Icons.Material.Filled.Psychology" Size="Size.Small" Class="reasoning-process__brain-icon" />
+                <MudText Typo="Typo.caption" Class="reasoning-process__title">
+                    @(string.IsNullOrWhiteSpace(Process.Title) ? AgentConstants.ReasoningLabel : Process.Title)
+                </MudText>
+                @if (thinkingSteps > 0)
+                {
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary" Class="reasoning-process__steps-chip">
+                        @thinkingSteps steps
+                    </MudChip>
+                }
+            </span>
+            <MudIcon Icon="@(_expanded ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
+                     Size="Size.Small"
+                     Class="reasoning-process__chevron" />
+        </button>
+        <MudCollapse Expanded="_expanded">
+            <div class="reasoning-process__content">
+                @if (!string.IsNullOrEmpty(Process.Subtitle))
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="reasoning-process__subtitle">
+                        @Process.Subtitle
+                    </MudText>
+                }
+
+                @foreach (var reasoningSection in Process.Sections)
+                {
+                    @if (!string.IsNullOrEmpty(reasoningSection.Header))
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Primary" Class="reasoning-process__section-title">
+                            @reasoningSection.Header
+                        </MudText>
+                    }
+                    @foreach (var step in reasoningSection.Steps)
+                    {
+                        @if (ReasoningStepDisplayHelper.IsSummaryKind(step))
+                        {
+                            <ReasoningSummaryBlock Step="step" />
+                        }
+                        else
+                        {
+                            <ReasoningStepRow Step="step" InitiallyExpanded="InitiallyExpanded" />
+                        }
+                    }
+                }
+
+                @if (!string.IsNullOrEmpty(Process.TotalDurationText))
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="reasoning-process__footer">
+                        @Process.TotalDurationText
+                    </MudText>
+                }
+            </div>
+        </MudCollapse>
+    </MudPaper>
+}
+
+@code {
+    [Parameter]
+    public AgentReasoningProcess? Process { get; set; }
+
+    [Parameter]
+    public bool InitiallyExpanded { get; set; }
+
+    private bool _expanded;
+    private bool _hasInitialized;
+
+    private static int NonSummaryStepCount(AgentReasoningProcess process)
+    {
+        return process.Sections.SelectMany(s => s.Steps).Count(s => !ReasoningStepDisplayHelper.IsSummaryKind(s));
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (_hasInitialized)
+        {
+            return;
+        }
+
+        _expanded = InitiallyExpanded;
+        _hasInitialized = true;
+    }
+
+    private void ToggleExpanded()
+    {
+        _expanded = !_expanded;
+    }
+}

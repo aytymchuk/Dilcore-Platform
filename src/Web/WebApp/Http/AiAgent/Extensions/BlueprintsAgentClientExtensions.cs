@@ -15,7 +15,7 @@ public static class BlueprintsAgentClientExtensions
         return SafeAgentApiInvoker.InvokeAsync(() => client.GetThreadsAsync(cancellationToken));
     }
 
-    public static Task<Result<ThreadStateDto>> SafeGetThreadAsync(
+    public static Task<Result<ThreadActionResponseDto>> SafeGetThreadAsync(
         this IBlueprintsAgentClient client,
         string threadId,
         CancellationToken cancellationToken = default)

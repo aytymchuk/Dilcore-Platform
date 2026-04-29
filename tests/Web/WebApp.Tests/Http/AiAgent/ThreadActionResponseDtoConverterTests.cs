@@ -42,16 +42,15 @@ public class ThreadActionResponseDtoConverterTests
     public void Deserialize_Should_Map_Json_Without_Messages_Array_To_Interrupt()
     {
         const string json = """
-            {"thread_id":"t-99","payload":{"reason":"confirm"}}
+            {"id":"t-99","interrupts":[{"action_request":{},"config":{}}]}
             """;
 
         var result = JsonSerializer.Deserialize<ThreadActionResponseDto>(json, CreateOptions());
 
         result.ShouldBeOfType<ThreadInterruptResponseDto>();
         var interrupt = (ThreadInterruptResponseDto)result!;
-        interrupt.Interrupt.ThreadId.ShouldBe("t-99");
-        interrupt.Interrupt.Payload.ShouldNotBeNull();
-        interrupt.Interrupt.Payload!.Value.GetProperty("reason").GetString().ShouldBe("confirm");
+        interrupt.Interrupt.Id.ShouldBe("t-99");
+        interrupt.Interrupt.Interrupts.Count.ShouldBe(1);
     }
 
     [Test]
@@ -87,16 +86,27 @@ public class ThreadActionResponseDtoConverterTests
     [Test]
     public void Serialize_Should_Write_Interrupt_When_Interrupt()
     {
-        using var doc = JsonDocument.Parse("""{"k":1}""");
+        using var empty = JsonDocument.Parse("""{}""");
         var dto = (ThreadActionResponseDto)new ThreadInterruptResponseDto
         {
-            Interrupt = new InterruptResponseDto { ThreadId = "x", Payload = doc.RootElement.Clone() }
+            Interrupt = new InterruptResponseDto
+            {
+                Id = "x",
+                Interrupts =
+                [
+                    new InterruptDto
+                    {
+                        ActionRequest = empty.RootElement.Clone(),
+                        Config = empty.RootElement.Clone()
+                    }
+                ]
+            }
         };
 
         var json = JsonSerializer.Serialize(dto, CreateOptions());
 
-        json.ShouldContain("\"thread_id\":\"x\"");
-        json.ShouldContain("\"payload\"");
+        json.ShouldContain("\"id\":\"x\"");
+        json.ShouldContain("\"interrupts\"");
     }
 
     [Test]

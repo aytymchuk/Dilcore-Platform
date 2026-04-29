@@ -13,6 +13,9 @@ public record ChatMessage(
     string Content,
     DateTime Timestamp)
 {
-    /// <summary>Optional model reasoning text (streamed separately from the assistant reply).</summary>
-    public string? Reasoning { get; init; }
+    /// <summary>Optional stable id from the agent API for reasoning anchors.</summary>
+    public string? ApiMessageId { get; init; }
+
+    /// <summary>Optional reasoning UI payload.</summary>
+    public AgentReasoningProcess? Reasoning { get; init; }
 }
