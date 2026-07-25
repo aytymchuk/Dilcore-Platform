@@ -24,4 +24,7 @@ public sealed record CreateEntityDefinitionGrainCommand
 
     [Id(6)]
     public string? SchemaName { get; init; }
+
+    [Id(7)]
+    public EntityReferenceGrainParameter[] References { get; init; } = [];
 }

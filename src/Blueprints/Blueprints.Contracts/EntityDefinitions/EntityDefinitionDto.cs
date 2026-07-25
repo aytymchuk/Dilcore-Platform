@@ -10,6 +10,7 @@ public class EntityDefinitionDto
     public bool IsAbstract { get; set; }
     public Guid? ExtendsEntityId { get; set; }
     public List<FieldDefinitionDto> Fields { get; set; } = [];
+    public List<EntityReferenceDto> References { get; set; } = [];
     public List<string> Tags { get; set; } = [];
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

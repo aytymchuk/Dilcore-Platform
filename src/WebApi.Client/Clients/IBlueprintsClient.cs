@@ -64,4 +64,23 @@ public interface IBlueprintsClient
     /// <param name="ct">Cancellation token.</param>
     [Delete("/blueprints/entity-definitions/{id}")]
     Task DeleteEntityDefinitionAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>
+    /// Adds a reference from an entity definition to another.
+    /// </summary>
+    /// <param name="id">The source entity definition identifier.</param>
+    /// <param name="request">The reference creation request.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The updated entity definition with the new reference.</returns>
+    [Post("/blueprints/entity-definitions/{id}/references")]
+    Task<EntityDefinitionDto> AddEntityReferenceAsync(Guid id, [Body] CreateEntityReferenceDto request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Removes a reference from an entity definition by schema name.
+    /// </summary>
+    /// <param name="id">The entity definition identifier.</param>
+    /// <param name="schemaName">The schema name of the reference to remove.</param>
+    /// <param name="ct">Cancellation token.</param>
+    [Delete("/blueprints/entity-definitions/{id}/references/{schemaName}")]
+    Task RemoveEntityReferenceAsync(Guid id, string schemaName, CancellationToken ct = default);
 }

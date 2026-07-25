@@ -82,9 +82,9 @@ public class GenerateSchemaNameTests
 
     [TestCase("!!!")]
     [TestCase("@#$%")]
-    public void ShouldReturnEmptyForNonAlphanumericInput(string input)
+    public void ShouldThrowForNonAlphanumericInput(string input)
     {
-        SchemaNameGenerator.Generate(input).ShouldBeEmpty();
+        Should.Throw<ArgumentException>(() => SchemaNameGenerator.Generate(input));
     }
 
     [TestCase(null)]

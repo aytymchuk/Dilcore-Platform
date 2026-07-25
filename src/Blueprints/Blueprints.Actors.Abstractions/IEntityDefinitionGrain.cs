@@ -13,4 +13,8 @@ public interface IEntityDefinitionGrain : IGrainWithGuidKey
     Task<EntityDefinitionGrainResult> UpdateAsync(UpdateEntityDefinitionGrainCommand command);
 
     Task<EntityDefinitionGrainResult> DeleteAsync();
+
+    Task<EntityDefinitionGrainResult> AddReferenceAsync(AddEntityReferenceGrainCommand command);
+
+    Task<EntityDefinitionGrainResult> RemoveReferenceAsync(RemoveEntityReferenceGrainCommand command);
 }

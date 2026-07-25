@@ -42,7 +42,7 @@ public class EntityDefinitionEndpointTests
     [TearDown]
     public void TearDown()
     {
-        _disposableClient?.Dispose();
+        _disposableClient.Dispose();
     }
 
     [OneTimeTearDown]
@@ -125,10 +125,34 @@ public class EntityDefinitionEndpointTests
         result.IsSuccess.ShouldBeTrue();
         result.Value.Fields.Count.ShouldBe(2);
         result.Value.Fields[0].SchemaName.ShouldBe("emailAddress");
+        result.Value.Fields[0].DisplayName.ShouldBe("Email Address");
         result.Value.Fields[1].SchemaName.ShouldBe("address");
+        result.Value.Fields[1].DisplayName.ShouldBe("Address");
         result.Value.Fields[1].Fields.ShouldNotBeNull();
         result.Value.Fields[1].Fields!.Count.ShouldBe(1);
         result.Value.Fields[1].Fields![0].SchemaName.ShouldBe("city");
+        result.Value.Fields[1].Fields![0].DisplayName.ShouldBe("City");
+    }
+
+    [Test]
+    public async Task Create_ShouldReturn201_WithCustomFieldSchemaNames()
+    {
+        var request = NewCreateDto(fields:
+        [
+            new FieldDefinitionDto
+            {
+                DisplayName = "User Phone",
+                SchemaName = "phone-number",
+                Type = "String"
+            }
+        ]);
+
+        var result = await _client.SafeCreateEntityDefinitionAsync(request);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.Fields.Count.ShouldBe(1);
+        result.Value.Fields[0].SchemaName.ShouldBe("phoneNumber", "Hyphenated schema name should be camelCased");
+        result.Value.Fields[0].DisplayName.ShouldBe("User Phone");
     }
 
     [Test]
@@ -267,6 +291,23 @@ public class EntityDefinitionEndpointTests
 
         result.IsFailed.ShouldBeTrue();
         GetStatusCode(result).ShouldBe(409);
+    }
+
+    [Test]
+    public async Task Create_ShouldReturn201_WithCustomEntitySchemaName()
+    {
+        var suffix = Guid.CreateVersion7().ToString("N");
+        var schemaName = $"my-entity-{suffix}";
+        var request = NewCreateDto(
+            displayName: "Test Entity",
+            schemaName: schemaName);
+
+        var result = await _client.SafeCreateEntityDefinitionAsync(request);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.SchemaName.ShouldBe(
+            SchemaNameGenerator.Generate(schemaName),
+            "Hyphenated schema name should be camelCased");
     }
 
     [Test]
@@ -563,6 +604,74 @@ public class EntityDefinitionEndpointTests
     public async Task Create_ShouldReturn400_WhenTagHasInvalidFormat()
     {
         var request = NewCreateDto(tags: ["invalid tag with spaces"]);
+
+        var result = await _client.SafeCreateEntityDefinitionAsync(request);
+
+        result.IsFailed.ShouldBeTrue();
+        GetStatusCode(result).ShouldBe(400);
+    }
+
+    [Test]
+    public async Task Create_ShouldReturn201_WithReferences()
+    {
+        var targetResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Target {Guid.CreateVersion7():N}"));
+        targetResult.IsSuccess.ShouldBeTrue();
+
+        var request = NewCreateDto(
+            displayName: $"Source {Guid.CreateVersion7():N}");
+        request.References =
+        [
+            new CreateEntityReferenceDto
+            {
+                SchemaName = "myTarget",
+                ReferenceType = "OneToMany",
+                RelatedEntityDefinitionId = targetResult.Value.Id
+            }
+        ];
+
+        var result = await _client.SafeCreateEntityDefinitionAsync(request);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.References.Count.ShouldBe(1);
+        result.Value.References[0].SchemaName.ShouldBe("myTarget");
+        result.Value.References[0].ReferenceType.ShouldBe("OneToMany");
+        result.Value.References[0].RelatedEntityDefinitionId.ShouldBe(targetResult.Value.Id);
+    }
+
+    [Test]
+    public async Task Create_ShouldReturn400_WhenReferenceTargetNotExists()
+    {
+        var request = NewCreateDto(
+            displayName: $"Source {Guid.CreateVersion7():N}");
+        request.References =
+        [
+            new CreateEntityReferenceDto
+            {
+                ReferenceType = "OneToMany",
+                RelatedEntityDefinitionId = Guid.CreateVersion7()
+            }
+        ];
+
+        var result = await _client.SafeCreateEntityDefinitionAsync(request);
+
+        result.IsFailed.ShouldBeTrue();
+        GetStatusCode(result).ShouldBe(400);
+    }
+
+    [Test]
+    public async Task Create_ShouldReturn400_WhenReferenceValidationFails()
+    {
+        var request = NewCreateDto(
+            displayName: $"Source {Guid.CreateVersion7():N}");
+        request.References =
+        [
+            new CreateEntityReferenceDto
+            {
+                ReferenceType = "InvalidType",
+                RelatedEntityDefinitionId = Guid.CreateVersion7()
+            }
+        ];
 
         var result = await _client.SafeCreateEntityDefinitionAsync(request);
 
@@ -1134,6 +1243,221 @@ public class EntityDefinitionEndpointTests
 
     #endregion
 
+    #region References
+
+    [Test]
+    public async Task AddReference_ShouldReturn201_WhenAddingReferenceToExistingEntity()
+    {
+        var orderResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Order {Guid.CreateVersion7():N}"));
+        var customerResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Customer {Guid.CreateVersion7():N}"));
+        orderResult.IsSuccess.ShouldBeTrue();
+        customerResult.IsSuccess.ShouldBeTrue();
+
+        var addRefResult = await _client.SafeAddEntityReferenceAsync(orderResult.Value.Id, new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = customerResult.Value.Id
+        });
+
+        addRefResult.IsSuccess.ShouldBeTrue();
+        addRefResult.Value.References.Count.ShouldBe(1);
+        addRefResult.Value.References[0].ReferenceType.ShouldBe("OneToMany");
+        addRefResult.Value.References[0].RelatedEntityDefinitionId.ShouldBe(customerResult.Value.Id);
+        addRefResult.Value.References[0].RelatedEntitySchemaName.ShouldBe(customerResult.Value.SchemaName);
+    }
+
+    [Test]
+    public async Task AddReference_ShouldReturn201_WhenSelfReference()
+    {
+        var createResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Employee {Guid.CreateVersion7():N}"));
+        createResult.IsSuccess.ShouldBeTrue();
+        var employee = createResult.Value;
+
+        var addRefResult = await _client.SafeAddEntityReferenceAsync(employee.Id, new CreateEntityReferenceDto
+        {
+            SchemaName = "manager",
+            ReferenceType = "ManyToOne",
+            RelatedEntityDefinitionId = employee.Id
+        });
+
+        addRefResult.IsSuccess.ShouldBeTrue();
+        addRefResult.Value.References.Count.ShouldBe(2);
+        addRefResult.Value.References.ShouldContain(r => r.SchemaName == "manager");
+        addRefResult.Value.References.ShouldContain(r => r.SchemaName == employee.SchemaName);
+    }
+
+    [Test]
+    public async Task AddReference_ShouldReturn404_WhenEntityNotExists()
+    {
+        var customerResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: "Customer"));
+        customerResult.IsSuccess.ShouldBeTrue();
+
+        var result = await _client.SafeAddEntityReferenceAsync(Guid.CreateVersion7(), new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = customerResult.Value.Id
+        });
+
+        result.IsFailed.ShouldBeTrue();
+        GetStatusCode(result).ShouldBe(404);
+    }
+
+    [Test]
+    public async Task AddReference_ShouldReturn400_WhenRelatedEntityNotExists()
+    {
+        var orderResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: "Order"));
+        orderResult.IsSuccess.ShouldBeTrue();
+
+        var result = await _client.SafeAddEntityReferenceAsync(orderResult.Value.Id, new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = Guid.CreateVersion7()
+        });
+
+        result.IsFailed.ShouldBeTrue();
+        GetStatusCode(result).ShouldBe(400);
+    }
+
+    [Test]
+    public async Task RemoveReference_ShouldReturn200_WhenReferenceExists()
+    {
+        var orderResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Order {Guid.CreateVersion7():N}"));
+        var customerResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Customer {Guid.CreateVersion7():N}"));
+        orderResult.IsSuccess.ShouldBeTrue();
+        customerResult.IsSuccess.ShouldBeTrue();
+
+        var addRefResult = await _client.SafeAddEntityReferenceAsync(orderResult.Value.Id, new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = customerResult.Value.Id
+        });
+        addRefResult.IsSuccess.ShouldBeTrue();
+        var referenceSchemaName = addRefResult.Value.References[0].SchemaName;
+
+        var removeResult = await _client.SafeRemoveEntityReferenceAsync(orderResult.Value.Id, referenceSchemaName);
+
+        removeResult.IsSuccess.ShouldBeTrue();
+        var fetched = (await _client.SafeGetEntityDefinitionAsync(orderResult.Value.Id)).Value;
+        fetched.References.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task RemoveReference_ShouldReturn404_WhenEntityNotExists()
+    {
+        var result = await _client.SafeRemoveEntityReferenceAsync(Guid.CreateVersion7(), "customer");
+
+        result.IsFailed.ShouldBeTrue();
+        GetStatusCode(result).ShouldBe(404);
+    }
+
+    [Test]
+    public async Task RemoveReference_ShouldReturn404_WhenReferenceNotExists()
+    {
+        var createResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Order {Guid.CreateVersion7():N}"));
+        createResult.IsSuccess.ShouldBeTrue();
+
+        var result = await _client.SafeRemoveEntityReferenceAsync(createResult.Value.Id, "nonexistent");
+
+        result.IsFailed.ShouldBeTrue();
+        GetStatusCode(result).ShouldBe(404);
+    }
+
+    [Test]
+    public async Task RemoveReference_ShouldRemoveReverseReference_WhenCrossEntity()
+    {
+        var orderResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Order {Guid.CreateVersion7():N}"));
+        var customerResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Customer {Guid.CreateVersion7():N}"));
+        orderResult.IsSuccess.ShouldBeTrue();
+        customerResult.IsSuccess.ShouldBeTrue();
+
+        var addRefResult = await _client.SafeAddEntityReferenceAsync(orderResult.Value.Id, new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = customerResult.Value.Id
+        });
+        addRefResult.IsSuccess.ShouldBeTrue();
+        var referenceSchemaName = addRefResult.Value.References[0].SchemaName;
+
+        await _client.SafeRemoveEntityReferenceAsync(orderResult.Value.Id, referenceSchemaName);
+
+        var customerFetched = (await _client.SafeGetEntityDefinitionAsync(customerResult.Value.Id)).Value;
+        customerFetched.References.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task RemoveReference_ShouldSucceed_WhenSelfReference()
+    {
+        var createResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Employee {Guid.CreateVersion7():N}"));
+        createResult.IsSuccess.ShouldBeTrue();
+
+        await _client.SafeAddEntityReferenceAsync(createResult.Value.Id, new CreateEntityReferenceDto
+        {
+            SchemaName = "manager",
+            ReferenceType = "ManyToOne",
+            RelatedEntityDefinitionId = createResult.Value.Id
+        });
+
+        var removeResult = await _client.SafeRemoveEntityReferenceAsync(createResult.Value.Id, "manager");
+
+        removeResult.IsSuccess.ShouldBeTrue();
+        var fetched = (await _client.SafeGetEntityDefinitionAsync(createResult.Value.Id)).Value;
+        fetched.References.ShouldBeEmpty();
+    }
+
+    [Test]
+    public async Task Update_ShouldPreserveReferences_WhenUpdatingEntity()
+    {
+        var orderResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Order {Guid.CreateVersion7():N}"));
+        var customerResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Customer {Guid.CreateVersion7():N}"));
+        orderResult.IsSuccess.ShouldBeTrue();
+        customerResult.IsSuccess.ShouldBeTrue();
+
+        var addRefResult = await _client.SafeAddEntityReferenceAsync(orderResult.Value.Id, new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = customerResult.Value.Id
+        });
+        addRefResult.IsSuccess.ShouldBeTrue();
+
+        var updateResult = await _client.SafeUpdateEntityDefinitionAsync(orderResult.Value.Id, new UpdateEntityDefinitionDto
+        {
+            ETag = addRefResult.Value.ETag,
+            Description = "Updated description"
+        });
+
+        updateResult.IsSuccess.ShouldBeTrue();
+        updateResult.Value.References.Count.ShouldBe(1);
+        updateResult.Value.Description.ShouldBe("Updated description");
+    }
+
+    [Test]
+    public async Task GetById_ShouldReturnReferences_WhenEntityHasReferences()
+    {
+        var orderResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Order {Guid.CreateVersion7():N}"));
+        var customerResult = await _client.SafeCreateEntityDefinitionAsync(NewCreateDto(displayName: $"Customer {Guid.CreateVersion7():N}"));
+        orderResult.IsSuccess.ShouldBeTrue();
+        customerResult.IsSuccess.ShouldBeTrue();
+
+        await _client.SafeAddEntityReferenceAsync(orderResult.Value.Id, new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = customerResult.Value.Id
+        });
+
+        var getResult = await _client.SafeGetEntityDefinitionAsync(orderResult.Value.Id);
+
+        getResult.IsSuccess.ShouldBeTrue();
+        getResult.Value.References.Count.ShouldBe(1);
+        getResult.Value.References[0].RelatedEntityDefinitionId.ShouldBe(customerResult.Value.Id);
+    }
+
+    #endregion
+
     #region Extends Entity
 
     [Test]
@@ -1174,6 +1498,79 @@ public class EntityDefinitionEndpointTests
         var childFetch = await _client.SafeGetEntityDefinitionAsync(childResult.Value.Id);
         childFetch.IsSuccess.ShouldBeTrue();
         childFetch.Value.ExtendsEntityId.ShouldBe(parentResult.Value.Id);
+    }
+
+    [Test]
+    public async Task AddReference_ShouldReturn400_WhenReferenceLimitExceeded()
+    {
+        var sourceResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Source {Guid.CreateVersion7():N}"));
+        sourceResult.IsSuccess.ShouldBeTrue();
+
+        var targetIds = new List<Guid>();
+        for (var i = 0; i < EntityDefinitionLimits.MaxReferencesPerEntity; i++)
+        {
+            var targetResult = await _client.SafeCreateEntityDefinitionAsync(
+                NewCreateDto(displayName: $"Target {Guid.CreateVersion7():N}"));
+            targetResult.IsSuccess.ShouldBeTrue();
+            targetIds.Add(targetResult.Value.Id);
+        }
+
+        for (var i = 0; i < EntityDefinitionLimits.MaxReferencesPerEntity; i++)
+        {
+            var addResult = await _client.SafeAddEntityReferenceAsync(sourceResult.Value.Id, new CreateEntityReferenceDto
+            {
+                ReferenceType = "OneToOne",
+                RelatedEntityDefinitionId = targetIds[i]
+            });
+            addResult.IsSuccess.ShouldBeTrue();
+        }
+
+        var extraTargetResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Extra Target {Guid.CreateVersion7():N}"));
+        extraTargetResult.IsSuccess.ShouldBeTrue();
+
+        var overLimitResult = await _client.SafeAddEntityReferenceAsync(sourceResult.Value.Id, new CreateEntityReferenceDto
+        {
+            ReferenceType = "OneToOne",
+            RelatedEntityDefinitionId = extraTargetResult.Value.Id
+        });
+
+        overLimitResult.IsFailed.ShouldBeTrue();
+        GetStatusCode(overLimitResult).ShouldBe(400);
+    }
+
+    [Test]
+    public async Task AddReference_ShouldReturn201_WithSuffixedSchemaName_WhenDuplicateSchemaName()
+    {
+        var sourceResult = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Order {Guid.CreateVersion7():N}"));
+        var target1Result = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Customer {Guid.CreateVersion7():N}"));
+        var target2Result = await _client.SafeCreateEntityDefinitionAsync(
+            NewCreateDto(displayName: $"Customer Group {Guid.CreateVersion7():N}"));
+        sourceResult.IsSuccess.ShouldBeTrue();
+        target1Result.IsSuccess.ShouldBeTrue();
+        target2Result.IsSuccess.ShouldBeTrue();
+
+        var firstAdd = await _client.SafeAddEntityReferenceAsync(sourceResult.Value.Id, new CreateEntityReferenceDto
+        {
+            SchemaName = "customer",
+            ReferenceType = "OneToMany",
+            RelatedEntityDefinitionId = target1Result.Value.Id
+        });
+        firstAdd.IsSuccess.ShouldBeTrue();
+        firstAdd.Value.References.ShouldContain(r => r.SchemaName == "customer");
+
+        var secondAdd = await _client.SafeAddEntityReferenceAsync(sourceResult.Value.Id, new CreateEntityReferenceDto
+        {
+            SchemaName = "customer",
+            ReferenceType = "OneToOne",
+            RelatedEntityDefinitionId = target2Result.Value.Id
+        });
+        secondAdd.IsSuccess.ShouldBeTrue();
+        secondAdd.Value.References.ShouldContain(r => r.SchemaName == "customer");
+        secondAdd.Value.References.ShouldContain(r => r.SchemaName == "customer2");
     }
 
     #endregion
