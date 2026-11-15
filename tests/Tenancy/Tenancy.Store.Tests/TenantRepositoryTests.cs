@@ -1,4 +1,4 @@
-using Dilcore.DocumentDb.MongoDb.Repositories.Abstractions;
+using Dilcore.MongoDB.Abstractions.Repositories;
 using Dilcore.Tenancy.Domain;
 using Dilcore.Tenancy.Store.Entities;
 using Dilcore.Tenancy.Store.Repositories;

@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="AutoMapper" />
-    <PackageReference Include="Dilcore.DocumentDb.MongoDb" />
-    <PackageReference Include="Dilcore.DocumentDb.MongoDb.Repositories" />
+    <PackageReference Include="Dilcore.MongoDB" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Configuration\Configuration.Extensions\Configuration.Extensions.csproj" />
     <ProjectReference Include="..\..\Common\MultiTenant\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Common\MultiTenant\MultiTenant.MongoDb\MultiTenant.MongoDb.csproj" />
     <ProjectReference Include="..\Blueprints.Core\Blueprints.Core.csproj" />
     <ProjectReference Include="..\Blueprints.Domain\Blueprints.Domain.csproj" />
   </ItemGroup>

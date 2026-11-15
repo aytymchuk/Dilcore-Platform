@@ -1,9 +1,10 @@
-using Dilcore.DocumentDb.Abstractions;
+using Dilcore.MongoDB.Abstractions;
+using Dilcore.MongoDB.Abstractions.Policies;
 using Dilcore.Tenancy.Domain;
 
 namespace Dilcore.Tenancy.Store.Entities;
 
-public sealed class TenantDocument : IDocumentEntity
+public sealed class TenantDocument : IDocumentEntity<Guid>, IHasConcurrencyToken, ISoftDeletable, IAuditableDocument
 {
     public Guid Id { get; set; }
     public long ETag { get; set; }

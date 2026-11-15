@@ -1,7 +1,6 @@
-using Dilcore.DocumentDb.MongoDb.Extensions;
-using Dilcore.DocumentDb.MongoDb.Repositories;
 using Dilcore.Identity.Store.Entities;
-using Microsoft.Extensions.DependencyInjection;
+using Dilcore.MongoDB.Abstractions;
+using Dilcore.MongoDB.DependencyInjection;
 using MongoDB.Driver;
 
 namespace Dilcore.Identity.Store;
@@ -22,48 +21,49 @@ public static class MongoDbExtensions
     public const string UsersCollectionName = "users";
 
     /// <summary>
-    /// Adds Identity MongoDB configuration to the service collection.
+    /// Adds the Identity database and user document binding.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="settings">MongoDB settings.</param>
-    /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddIdentityMongoDb(
-        this IServiceCollection services,
-        MongoDbSettings settings)
+    /// <param name="builder">The MongoDB builder.</param>
+    /// <param name="clusterName">The cluster that hosts the database.</param>
+    /// <returns>The builder for chaining.</returns>
+    public static IMongoDbBuilder AddIdentityDatabase(this IMongoDbBuilder builder, string clusterName)
     {
-        services.AddMongoDb(
-            configure => configure.UseConnectionString(settings.ConnectionString),
-            dbContainer =>
+        builder.AddDatabase(DatabaseName, database =>
+        {
+            database.OnCluster(clusterName);
+            database.AddDocumentBinding<UserDocument>(UsersCollectionName, binding =>
             {
-                dbContainer.AddDatabase(DatabaseName, db =>
-                {
-                    db.AddGenericRepository<UserDocument>(options =>
-                    {
-                        var indexes = CreateIndexes().ToArray();
-
-                        options.WithCollectionName(UsersCollectionName);
-                        options.WithDatabaseName(DatabaseName);
-                        options.WithIndexes(indexes);
-                    });
-                });
+                binding.WithCollectionName(UsersCollectionName);
+                binding.WithGuidIdGeneration(GuidIdGenerationStrategy.SequentialVersion7);
+                binding.WithSoftDelete();
+                binding.WithIndexes(CreateIndexes());
             });
+        });
 
-        return services;
+        return builder;
     }
 
-    private static IEnumerable<CreateIndexModel<UserDocument>> CreateIndexes()
+    internal static CreateIndexModel<UserDocument>[] CreateIndexes()
     {
-        yield return new CreateIndexModel<UserDocument>(
-            Builders<UserDocument>.IndexKeys.Ascending(x => x.IdentityId), new CreateIndexOptions
-            {
-                Unique = true
-            });
-
-        yield return new CreateIndexModel<UserDocument>(
-            Builders<UserDocument>.IndexKeys.Ascending(x => x.Email), new CreateIndexOptions
-            {
-                Unique = true,
-                Collation = new Collation("en", strength: CollationStrength.Secondary)
-            });
+        return
+        [
+            new CreateIndexModel<UserDocument>(
+                Builders<UserDocument>.IndexKeys.Ascending(x => x.IdentityId),
+                new CreateIndexOptions<UserDocument>
+                {
+                    Name = "users_identity_id",
+                    Unique = true,
+                    PartialFilterExpression = Builders<UserDocument>.Filter.Eq(x => x.IsDeleted, false)
+                }),
+            new CreateIndexModel<UserDocument>(
+                Builders<UserDocument>.IndexKeys.Ascending(x => x.Email),
+                new CreateIndexOptions<UserDocument>
+                {
+                    Name = "users_email",
+                    Unique = true,
+                    Collation = new Collation("en", strength: CollationStrength.Secondary),
+                    PartialFilterExpression = Builders<UserDocument>.Filter.Eq(x => x.IsDeleted, false)
+                })
+        ];
     }
 }

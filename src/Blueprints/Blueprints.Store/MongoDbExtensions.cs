@@ -1,7 +1,7 @@
 using Dilcore.Blueprints.Store.Entities;
-using Dilcore.DocumentDb.MongoDb.Extensions;
-using Dilcore.DocumentDb.MongoDb.Repositories;
-using Microsoft.Extensions.DependencyInjection;
+using Dilcore.MongoDB.Abstractions;
+using Dilcore.MultiTenant.MongoDb;
+using Dilcore.MongoDB.DependencyInjection;
 using MongoDB.Driver;
 
 namespace Dilcore.Blueprints.Store;
@@ -22,51 +22,55 @@ public static class MongoDbExtensions
     public const string EntityDefinitionsCollectionName = "entity_definitions";
 
     /// <summary>
-    /// Adds Blueprints MongoDB configuration to the service collection.
+    /// Adds the Blueprints database and entity definition document binding.
+    /// The physical database name is prefixed with the current tenant storage identifier.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="settings">MongoDB settings.</param>
-    /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddBlueprintsMongoDb(
-        this IServiceCollection services,
-        MongoDbSettings settings)
+    /// <param name="builder">The MongoDB builder.</param>
+    /// <param name="clusterName">The cluster that hosts the database.</param>
+    /// <returns>The builder for chaining.</returns>
+    public static IMongoDbBuilder AddBlueprintsDatabase(this IMongoDbBuilder builder, string clusterName)
     {
-        services.AddMongoDb(
-            configure => configure.UseConnectionString(settings.ConnectionString),
-            dbContainer =>
+        builder.AddDatabase(DatabaseName, database =>
+        {
+            database.OnCluster(clusterName);
+            database.WithNamespacePrefixResolver<TenantDatabasePrefixResolver>();
+            database.AddDocumentBinding<EntityDefinitionDocument>(EntityDefinitionsCollectionName, binding =>
             {
-                dbContainer.AddDatabase(DatabaseName, db =>
-                {
-                    db.AddCustomDatabasePrefixResolver<TenantDatabasePrefixProvider>();
-
-                    db.AddGenericRepository<EntityDefinitionDocument>(options =>
-                    {
-                        var indexes = CreateIndexes().ToArray();
-
-                        options.WithCollectionName(EntityDefinitionsCollectionName);
-                        options.WithDatabaseName(DatabaseName);
-                        options.WithIndexes(indexes);
-                    });
-                });
+                binding.WithCollectionName(EntityDefinitionsCollectionName);
+                binding.WithGuidIdGeneration(GuidIdGenerationStrategy.SequentialVersion7);
+                binding.WithSoftDelete();
+                binding.WithIndexes(CreateIndexes());
             });
+        });
 
-        return services;
+        return builder;
     }
 
-    private static IEnumerable<CreateIndexModel<EntityDefinitionDocument>> CreateIndexes()
+    internal static CreateIndexModel<EntityDefinitionDocument>[] CreateIndexes()
     {
-        yield return new CreateIndexModel<EntityDefinitionDocument>(
-            Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.SchemaName),
-            new CreateIndexOptions
-            {
-                Unique = true,
-                Collation = new Collation("en", strength: CollationStrength.Secondary)
-            });
-
-        yield return new CreateIndexModel<EntityDefinitionDocument>(
-            Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.DisplayName));
-
-        yield return new CreateIndexModel<EntityDefinitionDocument>(
-            Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.Metadata.Tags));
+        return
+        [
+            new CreateIndexModel<EntityDefinitionDocument>(
+                Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.SchemaName),
+                new CreateIndexOptions<EntityDefinitionDocument>
+                {
+                    Name = "entity_definitions_schema_name",
+                    Unique = true,
+                    Collation = new Collation("en", strength: CollationStrength.Secondary),
+                    PartialFilterExpression = Builders<EntityDefinitionDocument>.Filter.Eq(x => x.IsDeleted, false)
+                }),
+            new CreateIndexModel<EntityDefinitionDocument>(
+                Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.DisplayName),
+                new CreateIndexOptions
+                {
+                    Name = "entity_definitions_display_name"
+                }),
+            new CreateIndexModel<EntityDefinitionDocument>(
+                Builders<EntityDefinitionDocument>.IndexKeys.Ascending(x => x.Metadata.Tags),
+                new CreateIndexOptions
+                {
+                    Name = "entity_definitions_metadata_tags"
+                })
+        ];
     }
 }

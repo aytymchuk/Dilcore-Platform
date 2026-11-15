@@ -16,7 +16,7 @@ Traditional SaaS platforms hard-code their data models at build time. When a cus
 
 ### Multi-Tenancy
 
-All Blueprints operations are tenant-scoped. The tenant is identified by the `x-tenant` HTTP header. Each tenant has an isolated MongoDB database (resolved by `TenantDatabasePrefixProvider`), so entity definitions never leak across tenants.
+All Blueprints operations are tenant-scoped. The tenant is identified by the `x-tenant` HTTP header. Each tenant has an isolated MongoDB database (resolved by `TenantDatabasePrefixResolver`), so entity definitions never leak across tenants.
 
 ### Architecture at a Glance
 
@@ -521,7 +521,7 @@ builder.Services.AddMultiTenancy<AppTenantInfo>(mtb =>
 });
 ```
 
-The `TenantDatabasePrefixProvider` uses the resolved tenant to derive the per-tenant database name automatically.
+`TenantDatabasePrefixResolver` in `MultiTenant.MongoDb` uses the resolved tenant to derive the per-tenant database name automatically.
 
 ### 3. Configure Orleans
 

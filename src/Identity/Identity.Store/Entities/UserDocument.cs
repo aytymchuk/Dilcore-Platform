@@ -1,11 +1,12 @@
-using Dilcore.DocumentDb.Abstractions;
+using Dilcore.MongoDB.Abstractions;
+using Dilcore.MongoDB.Abstractions.Policies;
 
 namespace Dilcore.Identity.Store.Entities;
 
 /// <summary>
 /// MongoDB document entity for persisting User data.
 /// </summary>
-public class UserDocument : IDocumentEntity
+public class UserDocument : IDocumentEntity<Guid>, IHasConcurrencyToken, ISoftDeletable, IAuditableDocument
 {
     public Guid Id { get; set; }
     public long ETag { get; set; }

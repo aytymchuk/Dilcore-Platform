@@ -1,4 +1,8 @@
 using Dilcore.Authentication.Http.Extensions;
+using Dilcore.Blueprints.Store;
+using Dilcore.Identity.Store;
+using Dilcore.MongoDB.Extensions;
+using Dilcore.Tenancy.Store;
 using Microsoft.AspNetCore.Authentication;
 using Dilcore.Configuration.Extensions;
 using Dilcore.CorrelationId.Extensions.OpenApi;
@@ -85,6 +89,19 @@ internal static class ServiceCollectionExtensions
 
     public static WebApplicationBuilder AddDomainModules(this WebApplicationBuilder builder)
     {
+        const string clusterName = "primary";
+        var connectionString = builder.Configuration.GetConnectionString("MongoDb");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Connection string 'MongoDb' is not configured.");
+        }
+
+        builder.Services.AddMongoDb(mongo => mongo
+            .AddCluster(clusterName, cluster => cluster.UseConnectionString(connectionString))
+            .AddIdentityDatabase(clusterName)
+            .AddTenancyDatabase(clusterName)
+            .AddBlueprintsDatabase(clusterName));
+
         builder.AddIdentityModule();
         builder.AddTenancyModule();
         builder.AddBlueprintsModule();

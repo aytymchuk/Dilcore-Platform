@@ -1,7 +1,6 @@
-using Dilcore.DocumentDb.MongoDb.Extensions;
-using Dilcore.DocumentDb.MongoDb.Repositories;
+using Dilcore.MongoDB.Abstractions;
+using Dilcore.MongoDB.DependencyInjection;
 using Dilcore.Tenancy.Store.Entities;
-using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
 namespace Dilcore.Tenancy.Store;
@@ -22,42 +21,41 @@ public static class MongoDbExtensions
     public const string TenantsCollectionName = "tenants";
 
     /// <summary>
-    /// Adds Tenancy MongoDB configuration to the service collection.
+    /// Adds the Tenancy database and tenant document binding.
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="settings">MongoDB settings.</param>
-    /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddTenancyMongoDb(
-        this IServiceCollection services,
-        MongoDbSettings settings)
+    /// <param name="builder">The MongoDB builder.</param>
+    /// <param name="clusterName">The cluster that hosts the database.</param>
+    /// <returns>The builder for chaining.</returns>
+    public static IMongoDbBuilder AddTenancyDatabase(this IMongoDbBuilder builder, string clusterName)
     {
-        services.AddMongoDb(
-            configure => configure.UseConnectionString(settings.ConnectionString),
-            dbContainer =>
+        builder.AddDatabase(DatabaseName, database =>
+        {
+            database.OnCluster(clusterName);
+            database.AddDocumentBinding<TenantDocument>(TenantsCollectionName, binding =>
             {
-                dbContainer.AddDatabase(DatabaseName, db =>
-                {
-                    db.AddGenericRepository<TenantDocument>(options =>
-                    {
-                        var indexes = CreateIndexes().ToArray();
-
-                        options.WithCollectionName(TenantsCollectionName);
-                        options.WithDatabaseName(DatabaseName);
-                        options.WithIndexes(indexes);
-                    });
-                });
+                binding.WithCollectionName(TenantsCollectionName);
+                binding.WithGuidIdGeneration(GuidIdGenerationStrategy.SequentialVersion7);
+                binding.WithSoftDelete();
+                binding.WithIndexes(CreateIndexes());
             });
+        });
 
-        return services;
+        return builder;
     }
 
-    private static IEnumerable<CreateIndexModel<TenantDocument>> CreateIndexes()
+    internal static CreateIndexModel<TenantDocument>[] CreateIndexes()
     {
-        yield return new CreateIndexModel<TenantDocument>(
-            Builders<TenantDocument>.IndexKeys.Ascending(x => x.SystemName), new CreateIndexOptions
-            {
-                Unique = true,
-                Collation = new Collation("en", strength: CollationStrength.Secondary)
-            });
+        return
+        [
+            new CreateIndexModel<TenantDocument>(
+                Builders<TenantDocument>.IndexKeys.Ascending(x => x.SystemName),
+                new CreateIndexOptions<TenantDocument>
+                {
+                    Name = "tenants_system_name",
+                    Unique = true,
+                    Collation = new Collation("en", strength: CollationStrength.Secondary),
+                    PartialFilterExpression = Builders<TenantDocument>.Filter.Eq(x => x.IsDeleted, false)
+                })
+        ];
     }
 }

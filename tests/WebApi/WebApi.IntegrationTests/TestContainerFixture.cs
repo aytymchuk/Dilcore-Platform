@@ -44,7 +44,6 @@ public class TestContainerFixture
 
             // Set environment variables for configuration binding
             // These are read by .NET configuration during Program.cs startup
-            Environment.SetEnvironmentVariable("MongoDbSettings__ConnectionString", MongoDb.GetConnectionString());
             Environment.SetEnvironmentVariable("ConnectionStrings__MongoDb", MongoDb.GetConnectionString());
         }
         catch (DockerUnavailableException)
@@ -69,7 +68,6 @@ public class TestContainerFixture
         }
 
         // Clear environment variables
-        Environment.SetEnvironmentVariable("MongoDbSettings__ConnectionString", null);
         Environment.SetEnvironmentVariable("ConnectionStrings__MongoDb", null);
     }
 }

@@ -60,6 +60,9 @@
     <ProjectReference Include="..\Blueprints\Blueprints.Actors.Abstractions\Blueprints.Actors.Abstractions.csproj" />
     <ProjectReference Include="..\Blueprints\Blueprints.Actors\Blueprints.Actors.csproj" />
     <!-- Domain WebApi Endpoints -->
+    <ProjectReference Include="..\Identity\Identity.Store\Identity.Store.csproj" />
+    <ProjectReference Include="..\Tenancy\Tenancy.Store\Tenancy.Store.csproj" />
+    <ProjectReference Include="..\Blueprints\Blueprints.Store\Blueprints.Store.csproj" />
     <ProjectReference Include="..\Identity\Identity.WebApi\Identity.WebApi.csproj" />
     <ProjectReference Include="..\Tenancy\Tenancy.WebApi\Tenancy.WebApi.csproj" />
     <ProjectReference Include="..\Blueprints\Blueprints.WebApi\Blueprints.WebApi.csproj" />

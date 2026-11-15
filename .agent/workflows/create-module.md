@@ -136,7 +136,7 @@ Compare with a similar module (e.g. `src/Tenancy`) and add the same `PackageRefe
 - Project refs: `Common/FluentValidation/FluentValidation.Extensions.MinimalApi`, `Common/FluentResults/Results.Extensions.Api`, plus existing module refs (Contracts, Core, Store, Actors, Actors.Abstractions, Infrastructure).
 
 **Store** (`[ModuleName].Store.csproj`):
-- Packages: `Dilcore.DocumentDb.MongoDb`, `Dilcore.DocumentDb.MongoDb.Repositories`.
+- Packages: `Dilcore.MongoDB`. Register the module database from the single host `AddMongoDb` call; do not call `AddMongoDb` inside the module.
 - Project refs: `Common/Configuration/Configuration.Extensions`, `[ModuleName].Core`, `[ModuleName].Domain`.
 
 **Domain** (`[ModuleName].Domain.csproj`):
