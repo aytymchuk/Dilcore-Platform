@@ -1,7 +1,5 @@
-using Dilcore.Configuration.Extensions;
 using Dilcore.Identity.Core.Abstractions;
 using Dilcore.Identity.Store.Repositories;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dilcore.Identity.Store;
@@ -15,24 +13,17 @@ public static class ServiceCollectionExtensions
     /// Adds Identity store services to the service collection.
     /// </summary>
     /// <param name="services">The service collection.</param>
-    /// <param name="configuration">The configuration.</param>
     /// <returns>The service collection for chaining.</returns>
     /// <example>
     /// <code>
-    /// services.AddIdentityStore(configuration);
+    /// services.AddIdentityStore();
     /// </code>
     /// </example>
-    public static IServiceCollection AddIdentityStore(
-        this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddIdentityStore(this IServiceCollection services)
     {
-        var mongoDbSettings = configuration.GetRequiredSettings<MongoDbSettings>();
-        // Configure MongoDB
-        services.AddIdentityMongoDb(mongoDbSettings);
+        services.AddHostedService<UserCollectionIndexInitializer>();
 
-        // Register AutoMapper profiles from this assembly
         services.AddAutoMapper(opts => opts.AddMaps(typeof(ServiceCollectionExtensions).Assembly));
-
-        // Register repositories
         services.AddScoped<IUserRepository, UserRepository>();
 
         return services;

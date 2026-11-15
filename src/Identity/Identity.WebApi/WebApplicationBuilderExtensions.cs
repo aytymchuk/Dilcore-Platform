@@ -17,7 +17,7 @@ public static class WebApplicationBuilderExtensions
     {
         // Add Identity Core services (MediatR handlers and behaviors)
         builder.Services.AddIdentityApplication();
-        builder.Services.AddIdentityStore(builder.Configuration);
+        builder.Services.AddIdentityStore();
 
         // Register FluentValidation validators from Identity.Contracts
         builder.Services.AddFluentValidation(typeof(Contracts.Register.RegisterUserDto).Assembly);

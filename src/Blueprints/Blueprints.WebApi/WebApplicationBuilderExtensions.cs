@@ -11,7 +11,7 @@ public static class WebApplicationBuilderExtensions
     public static WebApplicationBuilder AddBlueprintsModule(this WebApplicationBuilder builder)
     {
         builder.Services.AddBlueprintsApplication();
-        builder.Services.AddBlueprintsStore(builder.Configuration);
+        builder.Services.AddBlueprintsStore();
         builder.Services.AddValidatorsFromAssembly(typeof(FieldDefinitionDtoValidator).Assembly);
 
         return builder;

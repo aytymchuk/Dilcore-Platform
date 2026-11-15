@@ -2,5 +2,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Identity\Identity.Store\Identity.Store.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+  </ItemGroup>
 </Project>
 

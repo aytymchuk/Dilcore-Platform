@@ -2,4 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Blueprints\Blueprints.Store\Blueprints.Store.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+  </ItemGroup>
 </Project>

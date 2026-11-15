@@ -1,9 +1,10 @@
 using Dilcore.Blueprints.Store.Entities.Fields;
-using Dilcore.DocumentDb.Abstractions;
+using Dilcore.MongoDB.Abstractions;
+using Dilcore.MongoDB.Abstractions.Policies;
 
 namespace Dilcore.Blueprints.Store.Entities;
 
-public sealed class EntityDefinitionDocument : IDocumentEntity
+public sealed class EntityDefinitionDocument : IDocumentEntity<Guid>, IHasConcurrencyToken, ISoftDeletable, IAuditableDocument
 {
     public Guid Id { get; set; }
     public long ETag { get; set; }

@@ -37,9 +37,6 @@ jobs:
   build-and-test:
     name: 🏗️ Build & Test
     runs-on: ubuntu-latest
-    env:
-      GITHUB_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_USERNAME: ${{ github.repository_owner }}
 
     steps:
       - name: 📥 Checkout
@@ -50,13 +47,6 @@ jobs:
         with:
           dotnet-version: 10.0.x
           
-      - name: 🔐 Configure NuGet authentication
-        uses: ./.github/actions/configure-nuget-auth
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-username: ${{ github.repository_owner }}
-
-
       - name: 🔍 Validate Docker Inputs
         if: ${{ inputs.docker-enabled }}
         run: |

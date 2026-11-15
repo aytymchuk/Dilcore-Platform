@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Dilcore.MongoDB.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MultiTenant.Abstractions\MultiTenant.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
